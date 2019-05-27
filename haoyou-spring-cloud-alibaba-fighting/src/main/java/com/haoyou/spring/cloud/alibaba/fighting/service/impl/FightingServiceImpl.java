@@ -7,11 +7,10 @@ import cn.hutool.core.util.StrUtil;
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.haoyou.spring.cloud.alibaba.commons.domain.*;
+import com.haoyou.spring.cloud.alibaba.commons.domain.message.BaseMessage;
 import com.haoyou.spring.cloud.alibaba.commons.domain.message.MapBody;
 import com.haoyou.spring.cloud.alibaba.commons.entity.*;
 import com.haoyou.spring.cloud.alibaba.commons.mapper.HiFightingRoomMapper;
-import com.haoyou.spring.cloud.alibaba.commons.mapper.PetMapper;
-import com.haoyou.spring.cloud.alibaba.commons.mapper.UserMapper;
 import com.haoyou.spring.cloud.alibaba.commons.util.MapperUtils;
 import com.haoyou.spring.cloud.alibaba.commons.util.RedisKeyUtil;
 import com.haoyou.spring.cloud.alibaba.fighting.info.*;
@@ -36,11 +35,6 @@ public class FightingServiceImpl implements FightingService {
 
     @Reference(version = "${cultivate.service.version}")
     protected CultivateService cultivateService;
-
-    @Autowired
-    private UserMapper userMapper;
-    @Autowired
-    private PetMapper petMapper;
     @Autowired
     private HiFightingRoomMapper hiFightingRoomMapper;
     @Autowired
@@ -97,6 +91,7 @@ public class FightingServiceImpl implements FightingService {
             user2.setUsername(String.format("ai-%s", user.getUsername()));
             fightingCamp2.setUser(user2);
             fightingCamp2.setAi(true);
+            fightingCamp2.setReady(true);
             for (FightingPet fightingPet : fightingCamp2.getFightingPets().values()) {
                 fightingPet.setUid(String.format("ai-%s", fightingPet.getUid()));
                 fightingPet.setNickname(String.format("ai-%s", fightingPet.getNickname()));
@@ -175,7 +170,6 @@ public class FightingServiceImpl implements FightingService {
         this.doAI(fightingRoom.getShotNum(), fightingPet.getFightingCamp());
     }
 
-
     /**
      * 接受处理信息
      *
@@ -184,6 +178,8 @@ public class FightingServiceImpl implements FightingService {
      */
     @Override
     public MapBody receiveFightingMsg(MyRequest req) {
+        MapBody baseMessage = new MapBody();
+        int rt = ResponseMsg.MSG_SUCCESS;
         //传递信息
         FightingReq fightingReq = sendMsgUtil.deserialize(req.getMsg(), FightingReq.class);
 
@@ -196,25 +192,59 @@ public class FightingServiceImpl implements FightingService {
         FightingRoom fightingRoom = this.getFightingRoomByUserUid(user.getUid(), 10);
         if (fightingRoom == null) {
             logger.debug(String.format("未找到战斗房间：%s", user.getUsername()));
-            MapBody baseMessage = new MapBody();
-            baseMessage.setState(ResponseMsg.MSG_ERR);
+            rt = ResponseMsg.MSG_ERR;
+            baseMessage.setState(rt);
             return baseMessage;
         }
+        //设置本轮起始步骤
         fightingReq.setStep(fightingRoom.getStep());
-
 
         /**
          * 当前执行宠物与接受信息对比，非操作信息处理
          */
         String campNow = fightingRoom.getCampNow();
 
-        if (!campNow.equals(user.getUid()) || fightingRoom.getPetNow() != fightingReq.getCurrentPetId() + 1) {
-            MapBody baseMessage = new MapBody();
-            int rt = ResponseMsg.MSG_ERR;
+        if (fightingRoom.getPetNow() != fightingReq.getCurrentPetId() + 1 || !campNow.equals(user.getUid())) {
+            rt = ResponseMsg.MSG_ERR;
+            /**
+             * 玩家索要初始化信息
+             */
+            if (fightingReq.getCurrentPetId().equals(-2)) {
+                logger.debug(String.format("初始化信息：%s", user.getUsername()));
+                /**
+                 * 发送初始化信息，方便前端同步
+                 */
+                fightingRoom.sendMsgInit(user.getUid(), sendMsgUtil);
+                rt = ResponseMsg.MSG_SUCCESS;
+            }
+            /**
+             * 玩家初始化完成
+             */
+            else if (fightingReq.getCurrentPetId().equals(-4)) {
+                FightingCamp thisFightingCamp = fightingRoom.getFightingCamps().get(campNow);
+                thisFightingCamp.setReady(true);
+
+                boolean allRead = true;
+                for (FightingCamp fightingCamp : fightingRoom.getFightingCamps().values()) {
+                    if (!fightingCamp.isReady()) {
+                        allRead = false;
+                    }
+                }
+                rt = ResponseMsg.MSG_SUCCESS;
+                if (allRead) {
+                    //跳过或者ai启动
+
+                    this.doAI(fightingRoom.getShotNum(), fightingRoom.getFightingCamps().get(campNow));
+
+                    baseMessage.setState(rt);
+                    sendMsgUtil.sendMsgList(fightingRoom.getFightingCamps().keySet(), SendType.FIGHTING_READY, baseMessage);
+
+                }
+            }
             /**
              * 断线重连信息
              */
-            if (fightingReq.getCurrentPetId().equals(-3)) {
+            else if (fightingReq.getCurrentPetId().equals(-3)) {
                 logger.debug(String.format("断线重连：%s", user.getUsername()));
                 /**
                  * 棋盘信息
@@ -230,22 +260,6 @@ public class FightingServiceImpl implements FightingService {
             }
 
             /**
-             * 初始化启动回合
-             */
-            if (fightingReq.getCurrentPetId().equals(-2)) {
-                logger.debug(String.format("初始化信息：%s", user.getUsername()));
-                if ((campNow.equals(user.getUid()) || campNow.equals(String.format("ai-%s", user.getUid())))) {
-                    this.doAI(fightingRoom.getShotNum(), fightingRoom.getFightingCamps().get(campNow));
-                }
-                /**
-                 * 发送初始化信息，方便前端同步
-                 */
-                fightingRoom.sendMsgInit(user.getUid(), sendMsgUtil);
-                rt = ResponseMsg.MSG_SUCCESS;
-            }
-
-
-            /**
              * 刷新redis对战房间对象
              */
             this.saveFightingRoom(fightingRoom);
@@ -257,8 +271,7 @@ public class FightingServiceImpl implements FightingService {
 
         this.doOperation(fightingRoom, fightingReq);
 
-        MapBody baseMessage = new MapBody();
-        baseMessage.setState(ResponseMsg.MSG_SUCCESS);
+        baseMessage.setState(rt);
         return baseMessage;
     }
 

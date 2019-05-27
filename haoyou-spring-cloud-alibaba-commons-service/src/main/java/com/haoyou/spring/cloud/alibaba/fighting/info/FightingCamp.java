@@ -27,6 +27,9 @@ public class FightingCamp implements Serializable {
 
     private User user;
 
+    //是否加载完成
+    private boolean ready = false;
+
     //位置：是否左边
     private boolean left = false;
 
