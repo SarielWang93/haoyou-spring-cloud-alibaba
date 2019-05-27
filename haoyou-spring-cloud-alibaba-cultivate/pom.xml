@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.haoyou</groupId>
+        <artifactId>haoyou-spring-cloud-alibaba-dependencies</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+        <relativePath>../haoyou-spring-cloud-alibaba-dependencies/pom.xml</relativePath>
+    </parent>
+
+    <artifactId>haoyou-spring-cloud-alibaba-cultivate</artifactId>
+    <packaging>jar</packaging>
+
+    <name>haoyou-spring-cloud-alibaba-cultivate</name>
+    <url>http://www.haoyou.com</url>
+    <inceptionYear>2018-Now</inceptionYear>
+
+    <dependencies>
+
+        <!-- Projects Begin -->
+        <dependency>
+            <groupId>com.haoyou</groupId>
+            <artifactId>haoyou-spring-cloud-alibaba-commons-service</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+        <!-- Projects End -->
+
+
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <mainClass>com.haoyou.spring.cloud.alibaba.CultivateApplication</mainClass>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>
