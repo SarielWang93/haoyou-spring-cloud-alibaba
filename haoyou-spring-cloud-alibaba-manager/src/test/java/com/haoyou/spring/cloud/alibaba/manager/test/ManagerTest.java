@@ -78,64 +78,15 @@ public class ManagerTest {
     }
 
     public static void main(String[] args) throws InterruptedException {
+        Integer a = 3, b = 3, c = 128, d = 128,e = new Integer(1),f = new Integer(1);
+
+        System.out.println(a == b);
+        System.out.println(c == d);
+        System.out.println(e == f);
+        System.out.println(e+0 == f);
 
     }
 
-
-
-    @Test
-    public void batchAdd() {
-        List<User> users=new ArrayList<>();
-        Map<String,Long> msgs=new HashMap<>();
-        for (int i = 0; i < 100000; i++) {
-            User  user = new User();
-            user.setUid("张三" + i);
-            user.setRank(1);
-            users.add(user);
-
-            msgs.put(user.getUid(),user.getRank().longValue());
-        }
-//        String num = scoreRankService.batchAdd(RedisKey.SCORE_RANK,msgs);
-    }
-
-    /**
-     * 获取排行列表
-     */
-    @Test
-    public void list() {
-        List<String> range = scoreRankService.list(RedisKey.SCORE_RANK,0l,10l);
-        System.out.println("获取到的排行列表:" + JSON.toJSONString(range));
-    }
-    /**
-     * 单个新增
-     */
-    @Test
-    public void add() {
-        User  user = new User();
-        user.setUid("李四");
-        user.setRank(8899);
-        scoreRankService.add(RedisKey.SCORE_RANK,user.getUid(),user.getRank().longValue());
-    }
-
-    /**
-     * 获取单个的排行
-     */
-    @Test
-    public void find(){
-
-        Long rankNum = scoreRankService.find(RedisKey.SCORE_RANK,"李四");
-        System.out.println("李四的个人排名：" + rankNum);
-
-    }
-
-    /**
-     * 使用加法操作分数
-     */
-    @Test
-    public void incrementScore(){
-        long score = scoreRankService.incrementScore(RedisKey.SCORE_RANK,"李四",1000l);
-        System.out.println("李四分数+1000后：" + score);
-    }
 
 
 }

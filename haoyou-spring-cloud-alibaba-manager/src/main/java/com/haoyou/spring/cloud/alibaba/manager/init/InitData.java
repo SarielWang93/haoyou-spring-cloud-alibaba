@@ -59,7 +59,7 @@ public class InitData implements ApplicationRunner {
         //初始化道具
         initVersion();
         //初始化排行榜
-        initScoreRank();
+        initRanking();
         //初始化技能
         initSkill();
         //初始化宠物类型
@@ -73,15 +73,15 @@ public class InitData implements ApplicationRunner {
      *
      * @throws Exception
      */
-    public void initScoreRank(){
+    public void initRanking(){
         //初始化缓存排行榜
-        final String scoreRank = RedisKey.SCORE_RANK;
+        final String ranking = RedisKey.RANKING;
         List<User> users = userMapper.selectAll();
         Map<String, Long> msgs = new HashMap<>();
         for (User user : users) {
             msgs.put(user.getUid(), user.getRank().longValue());
         }
-        scoreRankService.batchAdd(scoreRank, msgs);
+        scoreRankService.batchAdd(ranking, msgs);
     }
 
     /**

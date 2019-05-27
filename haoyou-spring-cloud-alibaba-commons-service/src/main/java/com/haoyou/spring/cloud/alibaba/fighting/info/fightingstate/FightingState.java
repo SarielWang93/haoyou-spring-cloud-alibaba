@@ -318,4 +318,31 @@ public class FightingState implements Serializable {
     public int hashCode() {
         return Objects.hash(uid);
     }
+
+
+    @Override
+    public String toString() {
+        return "FightingState{" +
+                "fightingStateAction=" + fightingStateAction +
+                ", uid='" + uid + '\'' +
+                ", fromUserUid='" + fromUserUid + '\'' +
+                ", fromPetUid='" + fromPetUid + '\'' +
+                ", blockCount=" + blockCount +
+                ", quality=" + quality +
+                ", numType=" + numType +
+                ", rateType=" + rateType +
+                ", type=" + type +
+                ", actionType=" + actionType +
+                ", deleteType=" + deleteType +
+                ", name='" + name + '\'' +
+                ", describe='" + describe + '\'' +
+                ", bloodThreshold=" + bloodThreshold +
+                ", infAttr='" + infAttr + '\'' +
+                ", percent=" + percent +
+                ", fixed=" + fixed +
+                ", round=" + round +
+                ", actionName='" + actionName + '\'' +
+                ", resouts=" + resouts +
+                '}';
+    }
 }

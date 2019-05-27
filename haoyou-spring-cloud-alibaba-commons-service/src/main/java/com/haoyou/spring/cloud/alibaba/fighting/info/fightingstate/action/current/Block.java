@@ -15,6 +15,8 @@ import org.springframework.stereotype.Service;
 @Service
 public class Block extends FightingStateAction {
 
+    private static final long serialVersionUID = 4544689540057529199L;
+
     @Override
     public void setStateType() {
         this.actionType=StateType.BOLOCK;
@@ -23,7 +25,7 @@ public class Block extends FightingStateAction {
     @Override
     public void excut(FightingState fightingState, FightingPet fightingPet) {
         try {
-            if(fightingState.getActionType()==this.actionType){
+            if(fightingState.getActionType().equals(this.actionType)){
                 //当前阵营
                 FightingCamp fightingCamp = fightingPet.getFightingCamp();
                 //棋盘

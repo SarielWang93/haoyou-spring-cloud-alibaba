@@ -17,6 +17,8 @@ import java.lang.reflect.Field;
 @Service
 public class AttrUp extends FightingStateAction {
     private final static Logger logger = LoggerFactory.getLogger(AttrUp.class);
+    private static final long serialVersionUID = 3040644489626341708L;
+
     @Override
     public void setStateType() {
         this.actionType=StateType.ATTR_UP;
@@ -25,7 +27,7 @@ public class AttrUp extends FightingStateAction {
     @Override
     public void excut(FightingState fightingState, FightingPet fightingPet) {
         try {
-            if(fightingState.getActionType()==this.actionType){
+            if(fightingState.getActionType().equals(this.actionType)){
                 /**
                  * 反射处理fightingPet属性
                  */

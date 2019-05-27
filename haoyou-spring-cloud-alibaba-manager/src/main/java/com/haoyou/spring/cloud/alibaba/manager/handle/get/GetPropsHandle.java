@@ -35,7 +35,7 @@ public class GetPropsHandle extends ManagerHandle {
     public BaseMessage handle(MyRequest req) {
         User user = req.getUser();
 
-        List<Prop> props = user.getPropList();
+        List<Prop> props = user.propList();
 
         MapBody mapBody = new MapBody<>();
 

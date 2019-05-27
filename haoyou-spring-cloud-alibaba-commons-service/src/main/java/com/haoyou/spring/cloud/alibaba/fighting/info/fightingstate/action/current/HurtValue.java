@@ -11,6 +11,8 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class HurtValue extends FightingStateAction {
+    private static final long serialVersionUID = -1674031888857200721L;
+
     @Override
     public void setStateType() {
         this.actionType= StateType.HURTVAL;
@@ -19,7 +21,7 @@ public class HurtValue extends FightingStateAction {
     @Override
     public void excut(FightingState fightingState, FightingPet fightingPet) {
         try {
-            if(fightingState.getActionType()==this.actionType){
+            if(fightingState.getActionType().equals(this.actionType)){
 
                 //最终伤害
                 int acceptHurt = fightingPet.getAcceptHurt();

@@ -76,7 +76,7 @@ public class MyServerUserProcessor extends SyncUserProcessor<MyRequest> {
 
             //临时操作
             req.setMsgJson(new String(req.getMsg(), "UTF-8"));
-            logger.info(String.format("返回信息：%s", req));
+            logger.info(String.format("返回信息：%s %s", req.getMsg().length, req));
         }
         return req;
     }

@@ -1,5 +1,6 @@
 package com.haoyou.spring.cloud.alibaba.fighting.info;
 
+import cn.hutool.core.lang.Console;
 import cn.hutool.core.text.StrBuilder;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -19,9 +20,9 @@ import java.util.*;
 @Data
 @JsonIgnoreProperties(value = {}, ignoreUnknown = true)
 public class FightingRoom implements Serializable {
-
-
     private static final long serialVersionUID = 3878881711527519063L;
+
+
     //房间uid
     private String uid;
 
@@ -265,4 +266,20 @@ public class FightingRoom implements Serializable {
         return pets;
     }
 
+
+    @Override
+    public String toString() {
+        return "FightingRoom{" +
+                "uid='" + uid + '\'' +
+                ", step=" + step +
+                ", steps=" + steps +
+                ", nowSteps=" + nowSteps +
+                ", shotNum=" + shotNum +
+                ", shots=" + shots +
+                ", fightingCamps=" + fightingCamps +
+                ", fightingBoard=" + fightingBoard +
+                ", campNow='" + campNow + '\'' +
+                ", petNow=" + petNow +
+                '}';
+    }
 }

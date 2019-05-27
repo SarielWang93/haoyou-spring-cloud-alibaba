@@ -320,6 +320,9 @@ public class MatchPoolServiceImpl implements MatchPoolService {
                 for (Map.Entry<String, MatchPoolPlayerInfo> entry : playerRoomInfoT.getMatchPoolPlayer().entrySet()) {
                     String s = entry.getKey();
                     MatchPoolPlayerInfo playerInfoT = entry.getValue();
+                    if(!sendMsgUtil.connectionIsAlive(s)){
+                        playerInfoT.setIsAccept(2);
+                    }
                     users.add(playerInfoT.getPlayer());
                     //playerInfoT.setPlayer(null);
                     int isAccept = playerInfoT.getIsAccept();

@@ -4,9 +4,12 @@ import cn.hutool.core.clone.CloneSupport;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 
+import java.io.Serializable;
+
 @Data
 @JsonIgnoreProperties(value = {},ignoreUnknown = true)
-public class BlockInfo extends CloneSupport<BlockInfo> {
+public class BlockInfo extends CloneSupport<BlockInfo> implements Serializable {
+    private static final long serialVersionUID = -1469748303950691453L;
 
 
     private int x;

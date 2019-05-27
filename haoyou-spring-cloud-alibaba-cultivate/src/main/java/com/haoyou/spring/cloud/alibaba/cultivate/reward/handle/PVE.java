@@ -4,17 +4,16 @@ import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.RandomUtil;
 import com.haoyou.spring.cloud.alibaba.commons.domain.RedisKey;
 import com.haoyou.spring.cloud.alibaba.commons.domain.RewardType;
-import com.haoyou.spring.cloud.alibaba.commons.domain.SendType;
 import com.haoyou.spring.cloud.alibaba.commons.domain.message.MapBody;
 import com.haoyou.spring.cloud.alibaba.commons.entity.Prop;
 import com.haoyou.spring.cloud.alibaba.commons.entity.Skill;
 import com.haoyou.spring.cloud.alibaba.commons.entity.User;
 import com.haoyou.spring.cloud.alibaba.commons.util.RedisKeyUtil;
+import com.haoyou.spring.cloud.alibaba.cultivate.reward.Award;
 import com.haoyou.spring.cloud.alibaba.fighting.info.skill.shape.Tetromino;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
@@ -54,17 +53,11 @@ public class PVE extends RewardHandle {
         /**
          * 发送奖励信息
          */
-        MapBody<String, Object> award = new MapBody<>();
-        award.put("coin", 100);
-        award.put("diamond", 20);
-        if(user.addProps(props)){
-            award.put("props", props);
-        }
-        redisObjectUtil.save(RedisKeyUtil.getKey(RedisKey.USER, user.getUid()), user);
-        user.setLastUpdateDate(new Date());
-        userMapper.updateByPrimaryKey(user);
 
-        sendMsgUtil.sendMsgOneNoReturn(user.getUid(), SendType.AWARD, award);
+
+        Award award = new Award(100,20,props);
+
+        super.doAward(user,award);
 
         return false;
     }

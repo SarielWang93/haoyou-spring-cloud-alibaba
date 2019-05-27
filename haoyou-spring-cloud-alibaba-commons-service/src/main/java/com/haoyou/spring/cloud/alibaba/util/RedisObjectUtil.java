@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
 
@@ -22,6 +23,7 @@ import java.util.List;
  */
 @Service
 public class RedisObjectUtil {
+
     private final static Logger logger = LoggerFactory.getLogger(RedisObjectUtil.class);
     @Reference(version = "${redis-object.service.version}")
     private RedisObjectService redisObjectService;
@@ -68,9 +70,11 @@ public class RedisObjectUtil {
     public <T> T get(String key,Class<T> aclass){
         //logger.info(String.format("get %s",key));
         RedisObjKV redisObjKV = redisObjectService.get(key);
+        if(redisObjKV.getVal()!=null){
+            return this.deserialize(redisObjKV.getVal(),aclass);
+        }
 
-        return this.deserialize(redisObjKV.getVal(),aclass);
-
+        return null;
     }
 
     /**
@@ -147,7 +151,8 @@ public class RedisObjectUtil {
      */
     private Serializer getSerializer(){
         if(this.serializer==null){
-            this.serializer = SerializerManager.getSerializer(JsonSerializer.JsonSerializerCode);
+//            this.serializer = SerializerManager.getSerializer(JsonSerializer.JsonSerializerCode);
+            this.serializer = SerializerManager.getSerializer(SerializerManager.Hessian2);
         }
         return this.serializer;
     }

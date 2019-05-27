@@ -15,7 +15,7 @@ public class RedisKey {
     public static final String VERSION = "version";
 
 
-    public static final String SCORE_RANK = "score_rank";
+    public static final String RANKING = "ranking";
 
     public static final String MATCH_PLAYER_POOL = "match_player_pool";
 

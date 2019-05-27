@@ -16,6 +16,7 @@ import java.util.List;
  */
 @Service
 public class Immune extends FightingStateAction {
+    private static final long serialVersionUID = -1066618148662180864L;
     private static String NAME_START="免疫";
     @Override
     public void setStateType() {
@@ -25,7 +26,7 @@ public class Immune extends FightingStateAction {
     @Override
     public void excut(FightingState fightingState, FightingPet fightingPet) {
         try {
-            if(fightingState.getActionType()==this.actionType){
+            if(fightingState.getActionType().equals(this.actionType)){
 
                 //获取免疫对象名称
                 String name = fightingState.getName();

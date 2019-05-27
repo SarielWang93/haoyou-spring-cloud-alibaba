@@ -4,6 +4,7 @@ import cn.hutool.core.util.RandomUtil;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -15,7 +16,8 @@ import java.util.Map;
  */
 @Data
 @JsonIgnoreProperties(value = {}, ignoreUnknown = true)
-public class Tetromino {
+public class Tetromino implements Serializable {
+    private static final long serialVersionUID = 9209587284511104508L;
 
     protected static Map<String,Class<? extends Tetromino>> all=new HashMap<>();
 

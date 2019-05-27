@@ -5,13 +5,15 @@ import com.haoyou.spring.cloud.alibaba.fighting.info.fightingstate.FightingState
 import lombok.Data;
 
 import javax.annotation.PostConstruct;
+import java.io.Serializable;
 
 /**
  * 状态执行抽象类，所有状态执行方法都必须继承此类
  */
 
 @Data
-public abstract class FightingStateAction {
+public abstract class FightingStateAction implements Serializable {
+    private static final long serialVersionUID = 2064470531015387040L;
 
     //状态类型，注册码
     protected Integer actionType;

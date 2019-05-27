@@ -1,6 +1,7 @@
 package com.haoyou.spring.cloud.alibaba.fighting.info;
 
 
+import cn.hutool.core.lang.Console;
 import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.StrUtil;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -17,6 +18,7 @@ import com.haoyou.spring.cloud.alibaba.fighting.info.skill.SkillBoard;
 import com.haoyou.spring.cloud.alibaba.util.RedisObjectUtil;
 import lombok.Data;
 
+import javax.persistence.Transient;
 import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.util.*;
@@ -27,9 +29,10 @@ import java.util.*;
 @Data
 @JsonIgnoreProperties(value = {"fightingCamp", "distinguish", "acceptHurtFrom", "acceptHurt", "attack", "redisObjectUtil"}, ignoreUnknown = true)
 public class FightingPet implements Serializable {
+    private static final long serialVersionUID = 8310639713725476067L;
 
-    private static final long serialVersionUID = 9184606707890252699L;
-    private RedisObjectUtil redisObjectUtil;
+    private transient RedisObjectUtil redisObjectUtil;
+
     /**
      * 攻击块修正系数
      */
@@ -531,7 +534,7 @@ public class FightingPet implements Serializable {
             List<FightingState> ghFightingStates= new ArrayList<>();
             for (Skill skill : skillsOpening) {
                 for (Resout resout : skill.getResouts()) {
-                    if(resout.getNumType()==3){
+                    if(resout.getNumType().equals(3)){
                         ghFightingStates.add(FightingState.creatFightingState(resout, skill.getQuality(), this, 0));
                     }
                 }
@@ -646,7 +649,7 @@ public class FightingPet implements Serializable {
      */
     public void addFightingState(FightingState fightingState) {
         //判断是否立即执行
-        if (fightingState.getType() == StateType.FORTHWITH) {
+        if (fightingState.getType().equals(StateType.FORTHWITH) ) {
             this.StateDoAction(fightingState);
         } else {
             /**
@@ -665,7 +668,7 @@ public class FightingPet implements Serializable {
             this.removeFightingState(covers);
 
             //减速改变行动权
-            if (StateType.ATTR_UP == fightingState.getActionType() && "spd".equals(fightingState.getInfAttr()) && fightingState.getPercent() < 0) {
+            if (fightingState.getActionType().equals(StateType.ATTR_UP) && "spd".equals(fightingState.getInfAttr()) && fightingState.getPercent() < 0) {
                 this.action_time += this.action_time * 100 / (-fightingState.getPercent());
             }
 
@@ -730,7 +733,7 @@ public class FightingPet implements Serializable {
         List<FightingState> remove = new ArrayList<>();
         for (FightingState fightingState : this.fightingStates) {
             if (deleteType == StateType.ROUND) {
-                if (fightingState.getRound() == 0) {
+                if (fightingState.getRound().equals(0) ) {
                     remove.add(fightingState);
                 }
             } else {
@@ -808,7 +811,7 @@ public class FightingPet implements Serializable {
             if (skill.getAttributeType() == null) {
                 skill.setAttributeType(SkillType.PASSIVE);
             }
-            if (SkillType.ATTECK == skill.getAttributeType()) {
+            if (skill.getAttributeType().equals(SkillType.ATTECK)) {
                 this.attackAction(blockCount);
             }
         }
@@ -840,7 +843,7 @@ public class FightingPet implements Serializable {
             /**
              * 单独对自己产生状态
              */
-            if (numType == 1) {
+            if (numType.equals(1)) {
                 this.addFightingState(fightingState);
             }
             //对己方所有人产生状态
@@ -894,7 +897,7 @@ public class FightingPet implements Serializable {
                 }
 
             } else {
-                if (fightingState.getType() == type) {
+                if (fightingState.getType().equals(type) ) {
                     rl.add(fightingState);
                 }
             }
@@ -912,7 +915,7 @@ public class FightingPet implements Serializable {
     public List<Skill> getSkillsByType(Integer type) {
         List<Skill> tSkills = new ArrayList<>();
         for (Skill skill : skills) {
-            if (type == skill.getType()) {
+            if (type.equals(skill.getType()) ) {
                 tSkills.add(skill);
             }
         }
@@ -939,7 +942,6 @@ public class FightingPet implements Serializable {
      * @param msg
      */
     public void addStep(int stepType, String msg) {
-
         FightingStep fightingStep = new FightingStep(stepType, this, msg);
 
         //全局增加步骤
@@ -999,5 +1001,44 @@ public class FightingPet implements Serializable {
     @Override
     public int hashCode() {
         return Objects.hash(uid);
+    }
+
+
+    @Override
+    public String toString() {
+        return "FightingPet{" +
+                ", pet=" + pet +
+                ", skillBoard=" + skillBoard +
+                ", nickname='" + nickname + '\'' +
+                ", uid='" + uid + '\'' +
+                ", fightingStates=" + fightingStates +
+                ", skills=" + skills +
+                ", shotNum=" + shotNum +
+                ", shots=" + shots +
+                ", steps=" + steps +
+                ", ridesKey='" + ridesKey + '\'' +
+                ", acceptHurt=" + acceptHurt +
+                ", acceptHurtR=" + acceptHurtR +
+                ", acceptHurtFrom=" + acceptHurtFrom +
+                ", attack=" + attack +
+                ", iswork=" + iswork +
+                ", mb_tpc=" + mb_tpc +
+                ", ft_tpc=" + ft_tpc +
+                ", mb_atn=" + mb_atn +
+                ", ft_atn=" + ft_atn +
+                ", mb_def=" + mb_def +
+                ", ft_def=" + ft_def +
+                ", punishValue=" + punishValue +
+                ", action_time=" + action_time +
+                ", mb_spd=" + mb_spd +
+                ", ft_spd=" + ft_spd +
+                ", mb_max_hp=" + mb_max_hp +
+                ", ft_max_hp=" + ft_max_hp +
+                ", ft_shield=" + ft_shield +
+                ", hp=" + hp +
+                ", mb_luk=" + mb_luk +
+                ", ft_luk=" + ft_luk +
+                ", luky=" + luky +
+                '}';
     }
 }

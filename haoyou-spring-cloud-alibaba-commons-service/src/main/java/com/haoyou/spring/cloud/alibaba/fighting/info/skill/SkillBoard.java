@@ -8,6 +8,8 @@ import com.haoyou.spring.cloud.alibaba.fighting.info.skill.shape.Cell;
 import com.haoyou.spring.cloud.alibaba.fighting.info.skill.shape.Tetromino;
 import lombok.Data;
 
+import java.io.Serializable;
+
 /**
  * @Author: wanghui
  * @Date: 2019/5/9 15:07
@@ -18,7 +20,10 @@ import lombok.Data;
  */
 @Data
 @JsonIgnoreProperties(value = {}, ignoreUnknown = true)
-public class SkillBoard {
+public class SkillBoard implements Serializable {
+    private static final long serialVersionUID = -4006118858412392029L;
+
+
     private String[][] board;
     private int xLength;
     private int yLength;

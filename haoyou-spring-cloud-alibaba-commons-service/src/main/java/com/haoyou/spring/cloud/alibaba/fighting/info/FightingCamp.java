@@ -70,4 +70,17 @@ public class FightingCamp implements Serializable {
         return sufferFightingPets;
     }
 
+    @Override
+    public String toString() {
+        return "FightingCamp{" +
+                "user=" + user +
+                ", left=" + left +
+                ", ai=" + ai +
+                ", fightingPets=" + fightingPets +
+                ", energy=" + energy +
+                ", acceptStates=" + acceptStates +
+                ", acceptHurtFrom=" + acceptHurtFrom +
+                ", acceptHurt=" + acceptHurt +
+                '}';
+    }
 }

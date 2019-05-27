@@ -4,9 +4,12 @@ package com.haoyou.spring.cloud.alibaba.fighting.info;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 
+import java.io.Serializable;
+
 @Data
 @JsonIgnoreProperties(value = {},ignoreUnknown = true)
-public class FightingStep {
+public class FightingStep implements Serializable {
+    private static final long serialVersionUID = 2458313594609241783L;
 
     public final static int DO_ATTACK=0;//技能发动
 

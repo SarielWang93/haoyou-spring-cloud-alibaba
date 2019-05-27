@@ -13,6 +13,8 @@ import java.util.List;
  */
 @Service
 public class SplashDamage extends FightingStateAction {
+    private static final long serialVersionUID = 3601327540885432923L;
+
     @Override
     public void setStateType() {
         this.actionType= StateType.SPLASH_DAMAGE;
@@ -21,7 +23,7 @@ public class SplashDamage extends FightingStateAction {
     @Override
     public void excut(FightingState fightingState, FightingPet fightingPet) {
         try {
-            if(fightingState.getActionType()==this.actionType){
+            if(fightingState.getActionType().equals(this.actionType)){
 
 
                 List<FightingPet> alive = fightingPet.getFightingCamp().getAlive();

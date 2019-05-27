@@ -13,6 +13,8 @@ import org.springframework.stereotype.Service;
 @Service
 public class Blood extends FightingStateAction {
 
+    private static final long serialVersionUID = -2144707808611103064L;
+
     @Override
     public void setStateType() {
         this.actionType=StateType.BLOOD;
@@ -21,7 +23,7 @@ public class Blood extends FightingStateAction {
     @Override
     public void excut(FightingState fightingState, FightingPet fightingPet) {
         try {
-            if(fightingState.getActionType()==this.actionType){
+            if(fightingState.getActionType().equals(this.actionType)){
 
                 int percent = fightingState.getPercent();
 

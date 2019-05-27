@@ -133,7 +133,7 @@ public class User extends BaseMessage implements Serializable {
         return this;
     }
 
-    public List<Prop> getPropList(){
+    public List<Prop> propList(){
         List<Prop> props = null;
         if (StrUtil.isNotEmpty(this.props)) {
             try {
@@ -149,20 +149,20 @@ public class User extends BaseMessage implements Serializable {
 
     public boolean addProps(List<Prop> propList){
         try {
-            List<Prop> propsThis = this.getPropList();
-
-            for(Prop prop:propList){
-                int i = 0;
-                if ((i = propsThis.indexOf(prop)) != -1) {
-                    propsThis.get(i).setCount(propsThis.get(i).getCount() + 1);
-                } else {
-                    prop.setCount(1);
-                    propsThis.add(prop);
+            List<Prop> propsThis = this.propList();
+            if(propsThis.size() <= this.propMax){
+                for(Prop prop:propList){
+                    int i = 0;
+                    if ((i = propsThis.indexOf(prop)) != -1) {
+                        propsThis.get(i).setCount(propsThis.get(i).getCount() + 1);
+                    } else {
+                        prop.setCount(1);
+                        propsThis.add(prop);
+                    }
                 }
+                this.props=MapperUtils.obj2jsonIgnoreNull(propsThis);
+                return true;
             }
-
-            this.props=MapperUtils.obj2jsonIgnoreNull(propsThis);
-            return true;
         } catch (Exception e) {
             e.printStackTrace();
         }

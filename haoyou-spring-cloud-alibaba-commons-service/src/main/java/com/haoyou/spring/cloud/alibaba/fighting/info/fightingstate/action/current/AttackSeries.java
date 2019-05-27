@@ -13,6 +13,8 @@ import java.util.List;
  */
 @Service
 public class AttackSeries extends FightingStateAction {
+    private static final long serialVersionUID = 7539084425231054166L;
+
     @Override
     public void setStateType() {
         this.actionType= StateType.ATTACK_SERIES;
@@ -23,7 +25,7 @@ public class AttackSeries extends FightingStateAction {
     @Override
     public void excut(FightingState fightingState, FightingPet fightingPet) {
         try {
-            if(fightingState.getActionType()==this.actionType){
+            if(fightingState.getActionType().equals(this.actionType)){
                 count++;
                 //连击次数
                 int fixed = fightingState.getFixed();
