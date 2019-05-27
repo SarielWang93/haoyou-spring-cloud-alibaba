@@ -4,6 +4,8 @@ package com.haoyou.spring.cloud.alibaba.manager.handle;
 import com.haoyou.spring.cloud.alibaba.commons.domain.message.BaseMessage;
 import com.haoyou.spring.cloud.alibaba.commons.domain.ResponseMsg;
 import com.haoyou.spring.cloud.alibaba.sofabolt.protocol.MyRequest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 /**
@@ -12,9 +14,10 @@ import org.springframework.stereotype.Service;
 @Service
 public class HeartBeatHandle extends ManagerHandle {
     private static final long serialVersionUID = -5899037112382384750L;
+    private static final Logger logger = LoggerFactory.getLogger(HeartBeatHandle.class);
 
     @Override
-    void setHandleType() {
+    protected void setHandleType() {
         this.handleType = ManagerHandle.BEAT;
     }
 

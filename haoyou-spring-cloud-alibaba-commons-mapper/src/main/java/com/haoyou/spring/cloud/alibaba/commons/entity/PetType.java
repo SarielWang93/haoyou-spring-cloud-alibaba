@@ -1,11 +1,13 @@
 package com.haoyou.spring.cloud.alibaba.commons.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 
 import javax.persistence.*;
 import java.io.Serializable;
 
 @Data
+@JsonIgnoreProperties(value = {}, ignoreUnknown = true)
 public class PetType implements Serializable {
     private static final long serialVersionUID = -1696392797076441734L;
     @Id
@@ -102,5 +104,18 @@ public class PetType implements Serializable {
      */
     @Column(name = "special_attack")
     private String specialAttack;
+
+    /**
+     * 既能配置对象
+     */
+    @Column(name = "skill_board_josn")
+    private String skillBoardJosn;
+
+
+    /**
+     * 其他技能uid
+     */
+    @Transient
+    private PetTypeAi petTypeAi;
 
 }

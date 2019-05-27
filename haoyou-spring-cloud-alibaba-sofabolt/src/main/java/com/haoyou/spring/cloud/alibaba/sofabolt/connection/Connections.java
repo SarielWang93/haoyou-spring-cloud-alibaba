@@ -4,7 +4,7 @@ package com.haoyou.spring.cloud.alibaba.sofabolt.connection;
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.alipay.remoting.Connection;
 
-import com.haoyou.spring.cloud.alibaba.action.SendMsgUtil;
+import com.haoyou.spring.cloud.alibaba.util.SendMsgUtil;
 import com.haoyou.spring.cloud.alibaba.commons.domain.ResponseMsg;
 import com.haoyou.spring.cloud.alibaba.commons.domain.message.BaseMessage;
 import com.haoyou.spring.cloud.alibaba.commons.entity.User;
@@ -26,9 +26,6 @@ import java.util.concurrent.ConcurrentSkipListMap;
 @Component
 public class Connections {
     private final static Logger logger = LoggerFactory.getLogger(Connections.class);
-
-    @Autowired
-    private SendMsgUtil sendMsgUtil;
 
 
     @Reference(version = "${manager.service.version}")
@@ -99,10 +96,8 @@ public class Connections {
                 try {
                     //登出
                     BaseMessage respmsg = managerService.handle(new MyRequest(1, uid, null));
-                    if(ResponseMsg.MSG_SUCCESS==respmsg.getState()){
-                        //登出成功，删除链接
-                        connections.remove(uid);
-                    }
+
+                    connections.remove(uid);
 
                 } catch (Exception e) {
                     e.printStackTrace();

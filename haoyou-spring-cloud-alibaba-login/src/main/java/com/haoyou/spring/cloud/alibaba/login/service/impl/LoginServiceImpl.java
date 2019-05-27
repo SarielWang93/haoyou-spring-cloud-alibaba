@@ -1,20 +1,31 @@
 package com.haoyou.spring.cloud.alibaba.login.service.impl;
 
 
+import cn.hutool.core.thread.ThreadUtil;
+import cn.hutool.core.util.IdUtil;
+import cn.hutool.core.util.StrUtil;
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.haoyou.spring.cloud.alibaba.commons.domain.RedisKey;
 import com.haoyou.spring.cloud.alibaba.commons.domain.ResponseMsg;
+import com.haoyou.spring.cloud.alibaba.commons.domain.SendType;
+import com.haoyou.spring.cloud.alibaba.commons.domain.message.BaseMessage;
 import com.haoyou.spring.cloud.alibaba.commons.entity.User;
 import com.haoyou.spring.cloud.alibaba.commons.mapper.UserMapper;
+import com.haoyou.spring.cloud.alibaba.commons.util.MapperUtils;
+import com.haoyou.spring.cloud.alibaba.commons.util.RedisKeyUtil;
 import com.haoyou.spring.cloud.alibaba.login.UserCatch.UserDateSynchronization;
 import com.haoyou.spring.cloud.alibaba.sofabolt.protocol.MyRequest;
 import com.haoyou.spring.cloud.alibaba.service.redis.ScoreRankService;
 
 import com.haoyou.spring.cloud.alibaba.service.login.LoginService;
+import com.haoyou.spring.cloud.alibaba.util.RedisObjectUtil;
+import com.haoyou.spring.cloud.alibaba.util.SendMsgUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.Date;
 
 /**
  * 登录有关服务实现类
@@ -22,7 +33,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 @Service(version = "${login.service.version}")
 public class LoginServiceImpl implements LoginService {
     private final static Logger logger = LoggerFactory.getLogger(LoginServiceImpl.class);
-
+    @Autowired
+    private RedisObjectUtil redisObjectUtil;
+    @Autowired
+    private SendMsgUtil sendMsgUtil;
     @Autowired
     private UserMapper userMapper;
     @Autowired
@@ -38,35 +52,73 @@ public class LoginServiceImpl implements LoginService {
     @Override
     public User login(MyRequest req){
 
-        User user = req.getUser();
+        String useruid = req.getUseruid();
 
-        logger.info(String.format("login: %s",user.getUid()));
-
-        //获取用户信息
-        User user1=select(user);
-
-        if(user1==null)
-        //如果没有用户则注册
-        {
-            //user.setPassword(Md5Utils.getMD5("123456","UTF-8"));
-            //注册并获取用户信息（初始化用户信息）
-            user=this.register(req);
-            if(user==null){
-                user.setState(ResponseMsg.MSG_LOGIN_WRONG);
-                return user;
-            }
-            //加入排行榜
-            scoreRankService.add(RedisKey.SCORE_RANK,user.getUid(),user.getRank().longValue());
+        User userIn = null;
+        User user = new User();
+        if(StrUtil.isNotEmpty(useruid)){
+            user.setUid(useruid);
         }else{
-            user=user1;
+            userIn=req.getUser();
+            user.setUsername(userIn.getUsername());
         }
 
+        logger.info(String.format("login: %s",userIn));
+
+
+        //根据用户名或者uid获取用户信息
+        user=select(user);
+
+        if(user==null)
+        {
+            userIn.setState(ResponseMsg.MSG_LOGIN_USERNAME_WRONG);
+            return userIn;
+        }
+        if(userIn!=null){
+            if(!user.getPassword().equals(userIn.getPassword())){
+                userIn.setState(ResponseMsg.MSG_LOGIN_PASSWORD_WRONG);
+                return userIn;
+            }
+        }
+        user.setLastLoginDate(new Date());
+        user.setLastUpdateDate(new Date());
+        userMapper.updateByPrimaryKey(user);
         //缓存登录用户的信息
         if(!serializerRotation.cache(user)){
-            user.setState(ResponseMsg.MSG_LOGIN_WRONG);
+            userIn.setState(ResponseMsg.MSG_LOGIN_WRONG);
+            return userIn;
         }
         user.setState(ResponseMsg.MSG_SUCCESS);
-        return user;
+
+        findFighting(user);
+        return user.notTooLong();
+    }
+
+    /**
+     * 获取玩家当前是否处于战斗中
+     * @param user
+     */
+    private void findFighting(User user){
+        ThreadUtil.excAsync(() -> {
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            String fightingRoomUid = redisObjectUtil.get(RedisKeyUtil.getKey(RedisKey.PLAYER_FIGHTING_ROOM, user.getUid()), String.class);
+            String aiFightingRoomUid = redisObjectUtil.get(RedisKeyUtil.getKey(RedisKey.PLAYER_FIGHTING_ROOM, "ai-"+user.getUid()), String.class);
+
+            if(StrUtil.isEmpty(aiFightingRoomUid)){
+                if(StrUtil.isNotEmpty(fightingRoomUid)){
+                    sendMsgUtil.sendMsgOneNoReturn(user.getUid(), SendType.LOGIN_FIGHTING, new BaseMessage());
+                }
+            }else{
+                redisObjectUtil.delete(RedisKeyUtil.getKey(RedisKey.PLAYER_FIGHTING_ROOM, user.getUid()));
+                redisObjectUtil.delete(RedisKeyUtil.getKey(RedisKey.PLAYER_FIGHTING_ROOM, "ai-"+user.getUid()));
+                redisObjectUtil.delete(RedisKeyUtil.getKey(RedisKey.FIGHTING_ROOM, aiFightingRoomUid));
+            }
+
+        },true);
     }
 
     /**
@@ -82,8 +134,9 @@ public class LoginServiceImpl implements LoginService {
             user.setState(ResponseMsg.MSG_LOGINOUT_WRONG);
             return user;
         }
-
-
+        user.setLastLoginOutDate(new Date());
+        user.setLastUpdateDate(new Date());
+        userMapper.updateByPrimaryKey(user);
         //清除缓存
         if(serializerRotation.removeCache(user)){
             logger.info(String.format("%s 登出成功！！",user.getName()));
@@ -93,7 +146,7 @@ public class LoginServiceImpl implements LoginService {
 
 
         user.setState(ResponseMsg.MSG_LOGINOUT_WRONG);
-        return user;
+        return user.notTooLong();
     }
 
     /**
@@ -104,16 +157,39 @@ public class LoginServiceImpl implements LoginService {
     @Override
     public User register(MyRequest req) {
         User user = req.getUser();
+
+        if(StrUtil.isEmpty(user.getUsername())||StrUtil.isEmpty(user.getPassword())){
+            user.setState(ResponseMsg.MSG_ERR);
+            return user.notTooLong();
+        }
+        //根据用户名查询是否已存在
+        User userx=new User();
+        userx.setUsername(user.getUsername());
+        userx = userMapper.selectOne(userx);
+        if(userx!=null&&StrUtil.isNotEmpty(userx.getUid())){
+            user.setState(ResponseMsg.MSG_REGISTER_USERNAME_EXIST);
+            return user.notTooLong();
+        }
+
+
         //TODO 注册的时候可以存储平台信息
+        if(StrUtil.isEmpty(user.getUid())){
+            user.setUid(IdUtil.simpleUUID());
+        }
+
         user.setState(1);
         user.setCoin(0);
         user.setRank(1);
         user.setPropMax(20);
+        user.setDiamond(0);
+        user.setVitality(100);
+        user.setProps("[]");
+        user.setCreatDate(new Date());
         userMapper.insert(user);
-        user = userMapper.selectOne(user);
-        logger.info(String.format("registerUser: %s",user.getName()));
 
-        return user;
+        logger.info(String.format("registerUser: %s",user.getUsername()));
+        user.setState(ResponseMsg.MSG_SUCCESS);
+        return user.notTooLong();
     }
 
     /**

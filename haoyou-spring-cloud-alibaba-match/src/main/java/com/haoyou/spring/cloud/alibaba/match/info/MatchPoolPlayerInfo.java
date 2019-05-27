@@ -3,7 +3,7 @@ package com.haoyou.spring.cloud.alibaba.match.info;
 import com.haoyou.spring.cloud.alibaba.commons.entity.User;
 import com.haoyou.spring.cloud.alibaba.commons.util.RedisKeyUtil;
 import com.haoyou.spring.cloud.alibaba.match.service.impl.MatchPoolServiceImpl;
-import com.haoyou.spring.cloud.alibaba.action.RedisObjectUtil;
+import com.haoyou.spring.cloud.alibaba.util.RedisObjectUtil;
 import lombok.Data;
 
 import java.io.Serializable;

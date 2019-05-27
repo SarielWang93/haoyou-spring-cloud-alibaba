@@ -6,7 +6,7 @@ import com.haoyou.spring.cloud.alibaba.commons.domain.message.BaseMessage;
 import com.haoyou.spring.cloud.alibaba.commons.domain.RedisKey;
 import com.haoyou.spring.cloud.alibaba.commons.util.RedisKeyUtil;
 import com.haoyou.spring.cloud.alibaba.match.service.impl.MatchPoolServiceImpl;
-import com.haoyou.spring.cloud.alibaba.action.RedisObjectUtil;
+import com.haoyou.spring.cloud.alibaba.util.RedisObjectUtil;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 

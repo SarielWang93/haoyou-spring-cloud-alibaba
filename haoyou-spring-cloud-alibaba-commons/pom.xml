@@ -60,5 +60,13 @@
             <artifactId>lombok</artifactId>
         </dependency>
         <!-- lombok -->
+
+
+        <!-- protobuf -->
+        <dependency>
+            <groupId>com.google.protobuf</groupId>
+            <artifactId>protobuf-java</artifactId>
+        </dependency>
+        <!-- protobuf -->
     </dependencies>
 </project>

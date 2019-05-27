@@ -1,5 +1,6 @@
 package com.haoyou.spring.cloud.alibaba.commons.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.haoyou.spring.cloud.alibaba.commons.util.MapperUtils;
 import lombok.Data;
 
@@ -8,6 +9,7 @@ import java.io.Serializable;
 import java.util.List;
 
 @Data
+@JsonIgnoreProperties(value = {}, ignoreUnknown = true)
 public class Resout implements Serializable {
     private static final long serialVersionUID = -2627638396160058717L;
     @Id

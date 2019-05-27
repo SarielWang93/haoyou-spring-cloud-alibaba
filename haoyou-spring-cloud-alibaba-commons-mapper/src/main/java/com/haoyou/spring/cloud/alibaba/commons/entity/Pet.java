@@ -1,13 +1,16 @@
 package com.haoyou.spring.cloud.alibaba.commons.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.haoyou.spring.cloud.alibaba.commons.util.MapperUtils;
 import lombok.Data;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.Date;
 import java.util.List;
 
 @Data
+@JsonIgnoreProperties(value = {}, ignoreUnknown = true)
 public class Pet implements Serializable {
     private static final long serialVersionUID = -8413159346985913469L;
     @Id
@@ -24,8 +27,10 @@ public class Pet implements Serializable {
      */
     @Column(name = "type_uid")
     private String typeUid;
-
-    private PetType petType;
+    @Transient
+    private String typeName;
+    @Transient
+    private Integer typeId;
 
     private String uid;
 
@@ -70,7 +75,6 @@ public class Pet implements Serializable {
      */
     @Column(name = "star_class")
     private Integer starClass;
-
 
 
     /**
@@ -156,5 +160,26 @@ public class Pet implements Serializable {
      */
     @Transient
     private List<String> otherSkill;
+
+
+    /**
+     * 既能配置对象
+     */
+    @Column(name = "skill_board_josn")
+    private String skillBoardJosn;
+
+
+
+    /**
+     * 创建时间
+     */
+    @Column(name = "creat_date")
+    private Date creatDate;
+
+    /**
+     * 创建时间
+     */
+    @Column(name = "last_update_date")
+    private Date lastUpdateDate;
 
 }

@@ -1,8 +1,11 @@
 package com.haoyou.spring.cloud.alibaba.redis.service.impl;
 
 import com.alibaba.dubbo.config.annotation.Service;
+import com.haoyou.spring.cloud.alibaba.commons.domain.RedisKey;
 import com.haoyou.spring.cloud.alibaba.sofabolt.protocol.RedisObjKV;
 import com.haoyou.spring.cloud.alibaba.service.redis.RedisObjectService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
@@ -15,7 +18,7 @@ import java.util.concurrent.TimeUnit;
 
 @Service(version = "${redis-object.service.version}")
 public class RedisObjectServiceImpl implements RedisObjectService {
-
+    private final static Logger logger = LoggerFactory.getLogger(RedisObjectServiceImpl.class);
 
 
     @Autowired
@@ -47,14 +50,14 @@ public class RedisObjectServiceImpl implements RedisObjectService {
 
     @Override
     public boolean save(RedisObjKV redisObjKV) {
-
+        logger.info(String.format("save  %s",redisObjKV.getKey()));
         redisTemplate.opsForValue().set(redisObjKV.getKey(),redisObjKV.getVal(),DEFAULT_EXPIRE, TimeUnit.SECONDS);
         return true;
     }
 
     @Override
     public boolean save(RedisObjKV redisObjKV,long timeout) {
-
+        logger.info(String.format("save  %s:%s",redisObjKV.getKey(),timeout));
         if(timeout==-1){
             redisTemplate.opsForValue().set(redisObjKV.getKey(),redisObjKV.getVal());
             redisTemplate.persist(redisObjKV.getKey());
@@ -65,18 +68,21 @@ public class RedisObjectServiceImpl implements RedisObjectService {
     }
 
     public RedisObjKV get(String key) {
-
+        logger.info(String.format("get %s",key));
         return new RedisObjKV(key,(byte[]) redisTemplate.opsForValue().get(key));
     }
 
     @Override
     public boolean delete(String key) {
+        logger.info(String.format("delete %s",key));
         return redisTemplate.delete(key);
     }
 
     @Override
     public List<RedisObjKV> getlkMap(String lkkey) {
-
+        if(!lkkey.contains(RedisKey.MATCH_PLAYER_POOL)){
+            logger.info(String.format("getlkMap %s",lkkey));
+        }
         List<RedisObjKV> list = new ArrayList<>();
 
         Set<String> keys = redisTemplate.keys(lkkey);

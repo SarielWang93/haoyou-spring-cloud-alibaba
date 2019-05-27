@@ -1,7 +1,6 @@
 package com.haoyou.spring.cloud.alibaba.service.fighting;
 
 import com.haoyou.spring.cloud.alibaba.commons.domain.message.MapBody;
-import com.haoyou.spring.cloud.alibaba.commons.entity.Pet;
 import com.haoyou.spring.cloud.alibaba.commons.entity.User;
 import com.haoyou.spring.cloud.alibaba.sofabolt.protocol.MyRequest;
 
@@ -18,14 +17,5 @@ public interface FightingService {
 
 
     MapBody receiveFightingMsg(MyRequest req);
-
-
-    boolean newFightingPet(Pet pet);
-
-
-    boolean deleteFightingPet(Pet pet);
-
-
-    MapBody getFightingPet(Pet pet);
 
 }

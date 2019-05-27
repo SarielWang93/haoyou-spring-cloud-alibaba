@@ -2,17 +2,29 @@ package com.haoyou.spring.cloud.alibaba.manager.test;
 
 import cn.hutool.core.lang.Console;
 
+import cn.hutool.core.lang.WeightRandom;
+import cn.hutool.core.util.IdUtil;
+import cn.hutool.core.util.RandomUtil;
+import cn.hutool.core.util.StrUtil;
+import com.alibaba.dubbo.config.annotation.Reference;
 import com.alibaba.fastjson.JSON;
 import com.haoyou.spring.cloud.alibaba.commons.domain.RedisKey;
+import com.haoyou.spring.cloud.alibaba.commons.entity.Prop;
 import com.haoyou.spring.cloud.alibaba.commons.entity.User;
 import com.haoyou.spring.cloud.alibaba.commons.mapper.UserMapper;
 
+import com.haoyou.spring.cloud.alibaba.commons.util.MapperUtils;
+import com.haoyou.spring.cloud.alibaba.commons.util.RedisKeyUtil;
+import com.haoyou.spring.cloud.alibaba.fighting.info.skill.SkillBoard;
+import com.haoyou.spring.cloud.alibaba.fighting.info.skill.shape.Cell;
+import com.haoyou.spring.cloud.alibaba.fighting.info.skill.shape.Tetromino;
 import com.haoyou.spring.cloud.alibaba.service.login.LoginService;
 import com.haoyou.spring.cloud.alibaba.serialization.JsonSerializer;
 import com.haoyou.spring.cloud.alibaba.service.redis.RedisObjectService;
 import com.haoyou.spring.cloud.alibaba.service.redis.RedisService;
 import com.haoyou.spring.cloud.alibaba.service.redis.ScoreRankService;
 import com.haoyou.spring.cloud.alibaba.service.sofabolt.SendMsgService;
+import com.haoyou.spring.cloud.alibaba.util.RedisObjectUtil;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,11 +37,11 @@ import java.util.*;
 @SpringBootTest
 public class ManagerTest {
     @Autowired
+    private RedisObjectUtil redisObjectUtil;
+    @Autowired
     RedisService redisService;
     @Autowired
     JsonSerializer jsonSerializer;
-    @Autowired
-    RedisObjectService redisObjectService;
     @Autowired
     SendMsgService sendMsgService;
     @Autowired
@@ -66,8 +78,6 @@ public class ManagerTest {
     }
 
     public static void main(String[] args) throws InterruptedException {
-
-
 
     }
 

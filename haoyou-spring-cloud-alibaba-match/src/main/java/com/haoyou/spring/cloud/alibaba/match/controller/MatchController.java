@@ -5,8 +5,8 @@ import com.haoyou.spring.cloud.alibaba.commons.entity.User;
 import com.haoyou.spring.cloud.alibaba.commons.util.RedisKeyUtil;
 import com.haoyou.spring.cloud.alibaba.match.info.PlayerRoomInfo;
 import com.haoyou.spring.cloud.alibaba.match.service.MatchPoolService;
-import com.haoyou.spring.cloud.alibaba.action.RedisObjectUtil;
-import com.haoyou.spring.cloud.alibaba.action.SendMsgUtil;
+import com.haoyou.spring.cloud.alibaba.util.RedisObjectUtil;
+import com.haoyou.spring.cloud.alibaba.util.SendMsgUtil;
 import com.haoyou.spring.cloud.alibaba.sofabolt.protocol.MyRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,9 +51,9 @@ public class MatchController implements com.haoyou.spring.cloud.alibaba.service.
     public boolean playerAccept(MyRequest req, int accept){
 
         PlayerRoomInfo playerRoomrInfo = sendMsgUtil.deserialize(req.getMsg(), PlayerRoomInfo.class);
-        User user = redisObjectUtil.get(RedisKeyUtil.getKey("user", req.getUseruid()), User.class);
-        logger.info(String.format("playerAccept: %s %s %s",user,accept,playerRoomrInfo));
-        return matchPoolService.playerAccept(user,accept,playerRoomrInfo);
+
+        logger.info(String.format("playerAccept: %s %s %s",req.getUser(),accept,playerRoomrInfo));
+        return matchPoolService.playerAccept(req.getUser(),accept,playerRoomrInfo);
     }
 
 }

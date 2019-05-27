@@ -6,7 +6,7 @@ public class StateType {
     /**
      * 触发类型
      */
-    public final static int REFRESH_FT =0;//每次刷新战斗属性时触发
+    public final static int REFRESH_FT =9;//每次刷新战斗属性时触发
     public final static int TURN_START =1;//回合开始触发
     public final static int ADD_STATE =2;//添加状态时触发
     public final static int FORTHWITH=3;//直接执行一次(技能效果)
@@ -32,21 +32,25 @@ public class StateType {
     /**
      * 操作类型
      */
-    public final static int ATTR_UP =100;//属性操作
-
-    public final static int IMMUNE =101;//免疫状态
-
-    public final static int ATTACKVAL=102;//输出伤害值操作
-    public final static int HURTVAL=103;//伤害结果值操作
-    public final static int SPLASH_DAMAGE=104;//伤害结果值操作
+    //属性操作
+    public final static int ATTR_UP =100;
+    //免疫状态
+    public final static int IMMUNE =101;
+    //输出伤害值操作
+    public final static int ATTACKVAL=102;
+    //伤害结果值操作
+    public final static int HURTVAL=103;
+    //伤害结果值操作
+    public final static int SPLASH_DAMAGE=104;
 
     public final static int BOLOCK=105;//块操作（升级，冰冻）
+
     public final static int BLOOD=106;//血操作（治疗，伤害）
 
+    public final static int ATTACK_SERIES=107;//连续攻击
 
 
-
-
+    public final static int REVIVE=108;//复活
 
 
 

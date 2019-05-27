@@ -10,6 +10,7 @@
     <result column="username" jdbcType="VARCHAR" property="username" />
     <result column="password" jdbcType="VARCHAR" property="password" />
     <result column="email" jdbcType="VARCHAR" property="email" />
+    <result column="phone" jdbcType="VARCHAR" property="phone" />
     <result column="uid" jdbcType="VARCHAR" property="uid" />
     <result column="coin" jdbcType="INTEGER" property="coin" />
     <result column="prop_max" jdbcType="INTEGER" property="propMax" />
@@ -20,5 +21,9 @@
     <result column="vitality" jdbcType="INTEGER" property="vitality" />
     <result column="props" jdbcType="LONGVARCHAR" property="props" />
     <result column="platform_param" jdbcType="LONGVARCHAR" property="platformParam" />
+    <result column="creat_date" jdbcType="TIMESTAMP" property="creatDate" />
+    <result column="last_login_date" jdbcType="TIMESTAMP" property="lastLoginDate" />
+    <result column="last_login_out_date" jdbcType="TIMESTAMP" property="lastLoginOutDate" />
+    <result column="last_update_date" jdbcType="TIMESTAMP" property="lastUpdateDate" />
   </resultMap>
 </mapper>

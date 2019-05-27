@@ -30,5 +30,8 @@
     <result column="atn_gr" jdbcType="INTEGER" property="atnGr" />
     <result column="def_gr" jdbcType="INTEGER" property="defGr" />
     <result column="hp_gr" jdbcType="INTEGER" property="hpGr" />
+    <result column="skill_board_josn" jdbcType="LONGVARCHAR" property="skillBoardJosn" />
+    <result column="creat_date" jdbcType="TIMESTAMP" property="creatDate" />
+    <result column="last_update_date" jdbcType="TIMESTAMP" property="lastUpdateDate" />
   </resultMap>
 </mapper>

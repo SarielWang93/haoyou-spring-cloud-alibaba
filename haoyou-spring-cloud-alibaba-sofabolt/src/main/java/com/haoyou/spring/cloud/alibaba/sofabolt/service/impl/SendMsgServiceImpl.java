@@ -35,14 +35,17 @@ public class SendMsgServiceImpl implements SendMsgService {
         logger.info(String.format("发送信息：%s",req));
 
         Connection connection = connections.get(req.getUseruid());
+        if(connection==null){
+            return null;
+        }
         MyRequest resp = null;
         try {
             resp = (MyRequest)MyServer.server.invokeSync(connection, req, defouttime);
             return resp;
         } catch (Exception e) {
             e.printStackTrace();
-            return null;
         }
+        return resp;
 
 
 
@@ -51,7 +54,11 @@ public class SendMsgServiceImpl implements SendMsgService {
     @Override
     public boolean sendMsgOneNoReturn(MyRequest req) {
         logger.info(String.format("发送信息无返回：%s",req));
+        logger.info(String.format("MSG长度：%s",req.getMsg().length));
         Connection connection = connections.get(req.getUseruid());
+        if(connection==null){
+            return false;
+        }
         try {
             MyServer.server.oneway(connection, req);
             return true;
@@ -61,6 +68,7 @@ public class SendMsgServiceImpl implements SendMsgService {
 
         return false;
     }
+
 
     /**
      * 给所有在线用户发送信息
@@ -85,6 +93,18 @@ public class SendMsgServiceImpl implements SendMsgService {
 
     }
 
+    /**
+     * 判断用户是否在线
+     * @param userUid
+     * @return
+     */
+    @Override
+    public boolean connectionIsAlive(String userUid) {
+        Connection connection = connections.get(userUid);
+        if(connection!=null&&connection.getChannel().isActive()){
+            return true;
+        }
+        return false;
 
-
+    }
 }

@@ -6,6 +6,9 @@ import lombok.Data;
 
 import java.io.Serializable;
 
+/**
+ * redis存储对象时，传递封装
+ */
 @Data
 @JsonIgnoreProperties(value = {},ignoreUnknown = true)
 public class RedisObjKV implements Serializable {

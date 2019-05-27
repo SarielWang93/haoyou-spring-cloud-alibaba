@@ -1,40 +1,61 @@
 package com.haoyou.spring.cloud.alibaba.fighting.service.impl;
 
-
+import cn.hutool.core.thread.ThreadUtil;
+import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.RandomUtil;
+import cn.hutool.core.util.StrUtil;
+import com.alibaba.dubbo.config.annotation.Reference;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.haoyou.spring.cloud.alibaba.commons.domain.*;
 import com.haoyou.spring.cloud.alibaba.commons.domain.message.MapBody;
-import com.haoyou.spring.cloud.alibaba.commons.entity.Pet;
-import com.haoyou.spring.cloud.alibaba.commons.entity.User;
+import com.haoyou.spring.cloud.alibaba.commons.entity.*;
+import com.haoyou.spring.cloud.alibaba.commons.mapper.HiFightingRoomMapper;
+import com.haoyou.spring.cloud.alibaba.commons.mapper.PetMapper;
+import com.haoyou.spring.cloud.alibaba.commons.mapper.UserMapper;
+import com.haoyou.spring.cloud.alibaba.commons.util.MapperUtils;
 import com.haoyou.spring.cloud.alibaba.commons.util.RedisKeyUtil;
-import com.haoyou.spring.cloud.alibaba.fighting.Info.*;
-import com.haoyou.spring.cloud.alibaba.fighting.fightingstate.FightingState;
+import com.haoyou.spring.cloud.alibaba.fighting.info.*;
+import com.haoyou.spring.cloud.alibaba.fighting.info.fightingstate.FightingState;
+import com.haoyou.spring.cloud.alibaba.service.cultivate.CultivateService;
 import com.haoyou.spring.cloud.alibaba.sofabolt.protocol.MyRequest;
 import com.haoyou.spring.cloud.alibaba.service.fighting.FightingService;
-import com.haoyou.spring.cloud.alibaba.action.RedisObjectUtil;
-import com.haoyou.spring.cloud.alibaba.action.SendMsgUtil;
+import com.haoyou.spring.cloud.alibaba.util.RedisObjectUtil;
+import com.haoyou.spring.cloud.alibaba.util.SendMsgUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-
+import org.springframework.cloud.context.config.annotation.RefreshScope;
 
 import java.util.*;
 
 @Service(version = "${fighting.service.version}")
+@RefreshScope
 public class FightingServiceImpl implements FightingService {
     private final static Logger logger = LoggerFactory.getLogger(FightingServiceImpl.class);
 
+    @Reference(version = "${cultivate.service.version}")
+    protected CultivateService cultivateService;
+
+    @Autowired
+    private UserMapper userMapper;
+    @Autowired
+    private PetMapper petMapper;
+    @Autowired
+    private HiFightingRoomMapper hiFightingRoomMapper;
     @Autowired
     private RedisObjectUtil redisObjectUtil;
     @Autowired
     private SendMsgUtil sendMsgUtil;
 
-    @Value("${fighting.alivetime: 3600}")
-    private long alivetime;
-
-
+    @Value("${fighting.alivetime: 300}")
+    private long aliveTime;
+    @Value("${fighting.skiptime: 50}")
+    private long skipTime;
+    @Value("${fighting.outlineskiptime: 3}")
+    private long outlineSkipTime;
+    @Value("${fighting.aitime: 5}")
+    private long aiTime;
     /**
      * 创建房间，并启动战斗
      *
@@ -54,10 +75,35 @@ public class FightingServiceImpl implements FightingService {
          * 初始化阵营
          */
         Map<String, FightingCamp> fightingCamps = new HashMap<>();
-        for (User user : users) {
-            FightingCamp fightingCamp = this.initFightingCamp(fightingRoom, user);
 
-            fightingCamps.put(user.getUid(), fightingCamp);
+        if (users.size() > 1) {
+            for (User user : users) {
+                FightingCamp fightingCamp = this.initFightingCamp(fightingRoom, user);
+
+                fightingCamps.put(user.getUid(), fightingCamp);
+            }
+        } else if (users.size() == 1) {
+            /**
+             * 单人开启战斗，自己的影子
+             */
+            User user = users.get(0);
+            FightingCamp fightingCamp1 = this.initFightingCamp(fightingRoom, user);
+            fightingCamps.put(user.getUid(), fightingCamp1);
+            FightingCamp fightingCamp2 = this.initFightingCamp(fightingRoom, user);
+            User user2 = new User();
+            user2.setUid(String.format("ai-%s", user.getUid()));
+            user2.setName(String.format("ai-%s", user.getName()));
+            user2.setUsername(String.format("ai-%s", user.getUsername()));
+            fightingCamp2.setUser(user2);
+            fightingCamp2.setAi(true);
+            for (FightingPet fightingPet : fightingCamp2.getFightingPets().values()) {
+                fightingPet.setUid(String.format("ai-%s", fightingPet.getUid()));
+                fightingPet.setNickname(String.format("ai-%s", fightingPet.getNickname()));
+                fightingPet.setAction_time(fightingPet.getAction_time()+10);
+                //fightingPet.setHp(1);
+            }
+
+            fightingCamps.put(user2.getUid(), fightingCamp2);
         }
         fightingRoom.setFightingCamps(fightingCamps);
 
@@ -79,10 +125,14 @@ public class FightingServiceImpl implements FightingService {
                 fightingPet.setDistinguish(this.distinguish(fightingPet));
 
 
+                /**
+                 * 根据action_time排序，防止action_time重复
+                 */
                 Integer action_time = fightingPet.getAction_time();
                 for (int i = action_time; ; i++) {
                     if (fightingPets.get(i) == null) {
                         fightingPets.put(i, fightingPet);
+                        fightingPet.setAction_time(i);
                         break;
                     }
                 }
@@ -98,31 +148,13 @@ public class FightingServiceImpl implements FightingService {
                 this.suffer(fightingCamp);
             }
         }
-
-        /**
-         * 行动宠物回合开始
-         */
         Map.Entry<Integer, FightingPet> first = fightingPets.firstEntry();
-        this.startRound(first.getValue());
-
+        fightingRoom.startRount(first.getValue());
         /**
          * 序列化存储到redis
          */
         this.saveFightingRoom(fightingRoom);
 
-        /**
-         * 发送信息
-         */
-        List<String> userUids = new ArrayList<>();
-        for (User user : users) {
-            userUids.add(user.getUid());
-        }
-
-
-        fightingRoom.sendMsgInit(userUids,sendMsgUtil);
-
-
-        fightingRoom = null;
 
         return true;
     }
@@ -134,11 +166,12 @@ public class FightingServiceImpl implements FightingService {
      * @param fightingPet 当前回合行动人
      */
     public void startRound(FightingPet fightingPet) {
-
+        logger.debug(String.format("新回合开始：%s %s",fightingPet.getFightingCamp().getUser().getUsername(),fightingPet.getPet().getNickname()));
         //标注当前行动宠物
         FightingRoom fightingRoom = fightingPet.getFightingCamp().getFightingRoom();
         fightingRoom.startRount(fightingPet);
-
+        //启动回合计时，准备跳过或者AI执行
+        this.doAI(fightingRoom.getShotNum(), fightingPet.getFightingCamp());
     }
 
 
@@ -150,51 +183,124 @@ public class FightingServiceImpl implements FightingService {
      */
     @Override
     public MapBody receiveFightingMsg(MyRequest req) {
-        FightingReq fightingReq=sendMsgUtil.deserialize(req.getMsg(),FightingReq.class);
-        MapBody baseMessage = new MapBody();
-        //计算
-        if(!fightingReq.check()){
-            baseMessage.setState(ResponseMsg.MSG_ERR);
-            return baseMessage;
-        }
+        //传递信息
+        FightingReq fightingReq = sendMsgUtil.deserialize(req.getMsg(), FightingReq.class);
 
-        logger.info(String.format("接受到战斗数据：%s", fightingReq));
+        logger.debug(String.format("接受到战斗数据：%s", fightingReq));
 
         /**
          * 获取对战房间对象
          */
-        FightingRoom fightingRoom = this.getFightingRoomByUid(fightingReq.getFightingRoomUid());
-
-
-        /**
-         * 当前执行宠物与接受信息对比，如果接受信息有误，则返回错误
-         */
-
-        FightingCamp own = fightingRoom.getFightingCamps().get(fightingRoom.getCampNow());
-
-        FightingPet fightingPet = own.getFightingPets().get(fightingRoom.getPetNow());
-
-        if (!fightingRoom.getCampNow().equals(req.getUser().getUid()) || fightingRoom.getPetNow() != fightingReq.getCurrentPetId() + 1) {
-
-            fightingRoom.sendMsgResp(req.getUser().getUid(),sendMsgUtil);
-
+        User user = req.getUser();
+        FightingRoom fightingRoom = this.getFightingRoomByUserUid(user.getUid(), 10);
+        if (fightingRoom == null) {
+            logger.debug(String.format("未找到战斗房间：%s",user.getUsername()));
+            MapBody baseMessage = new MapBody();
             baseMessage.setState(ResponseMsg.MSG_ERR);
             return baseMessage;
         }
+        fightingReq.setStep(fightingRoom.getStep());
 
+
+        /**
+         * 当前执行宠物与接受信息对比，非操作信息处理
+         */
+        String campNow = fightingRoom.getCampNow();
+
+        if (!campNow.equals(user.getUid()) || fightingRoom.getPetNow() != fightingReq.getCurrentPetId() + 1) {
+            MapBody baseMessage = new MapBody();
+            int rt = ResponseMsg.MSG_ERR;
+            /**
+             * 断线重连信息
+             */
+            if (fightingReq.getCurrentPetId() == -3) {
+                logger.debug(String.format("断线重连：%s", user.getUsername()));
+                /**
+                 * 棋盘信息
+                 */
+                fightingReq.setState(1);
+                fightingReq.setNewInfos(fightingRoom.getFightingBoard().toListBoard());
+                sendMsgUtil.sendMsgList(fightingRoom.getFightingCamps().keySet(), SendType.FIGHTING_REFRESHBOARD, fightingReq);
+
+                //全局信息
+                fightingRoom.sendMsgResp(fightingRoom.getFightingCamps().keySet(), sendMsgUtil);
+
+                rt = ResponseMsg.MSG_SUCCESS;
+            }
+
+            /**
+             * 初始化启动回合
+             */
+            if (fightingReq.getCurrentPetId() == -2) {
+                logger.debug(String.format("初始化信息：%s", user.getUsername()));
+                if ((campNow.equals(user.getUid()) || campNow.equals(String.format("ai-%s", user.getUid())))) {
+                    this.doAI(fightingRoom.getShotNum(), fightingRoom.getFightingCamps().get(campNow));
+                }
+                /**
+                 * 发送初始化信息，方便前端同步
+                 */
+                fightingRoom.sendMsgInit(user.getUid(), sendMsgUtil);
+                rt = ResponseMsg.MSG_SUCCESS;
+            }
+
+
+            /**
+             * 刷新redis对战房间对象
+             */
+            this.saveFightingRoom(fightingRoom);
+
+            baseMessage.setState(rt);
+            return baseMessage;
+        }
+
+
+        this.doOperation(fightingRoom, fightingReq);
+
+        MapBody baseMessage = new MapBody();
+        baseMessage.setState(ResponseMsg.MSG_SUCCESS);
+        return baseMessage;
+    }
+
+    /**
+     * 执行操作
+     *
+     * @param fightingRoom
+     * @param fightingReq
+     */
+    private void doOperation(FightingRoom fightingRoom, FightingReq fightingReq) {
+        FightingCamp own = fightingRoom.getFightingCamps().get(fightingRoom.getCampNow());
+        FightingPet fightingPet = own.getFightingPets().get(fightingRoom.getPetNow());
         FightingCamp enemy = fightingPet.getDistinguish().get("enemy");
+        logger.debug(String.format("进入操作方法开始操作！"));
+        //校验并计算操作块
+        if (!fightingRoom.getFightingBoard().check(fightingPet, fightingReq)) {
+            logger.debug(String.format("块操作校验失败：%s",fightingReq));
+            this.saveFightingRoom(fightingRoom);
+            /**
+             * 发送信息
+             */
+            fightingRoom.sendMsgResp(fightingRoom.getFightingCamps().keySet(), sendMsgUtil);
+            return;
+        }
+        //刷新当前步骤
+        fightingRoom.setNowSteps(new TreeMap<>());
         /**
          * 棋盘刷新
          */
-        fightingRoom.getFightingBoard().refrashBoard(fightingReq);
-
+        if (fightingRoom.getFightingBoard().refrashBoard(fightingPet, fightingReq)) {
+            logger.debug(String.format("刷新棋盘：%s",fightingReq));
+            /**
+             * 发送刷新后的棋盘信息
+             */
+            sendMsgUtil.sendMsgList(fightingRoom.getFightingCamps().keySet(), SendType.FIGHTING_REFRESHBOARD, fightingReq);
+        }
         /**
-         * 发送刷新后的棋盘信息
+         * 添加出手信息
          */
-        sendMsgUtil.sendMsgList(fightingRoom.getFightingCamps().keySet(), SendType.FIGHTING_REFRESHBOARD,fightingReq);
+        fightingPet.addShot(fightingReq);
 
         //出手之前记录行动权
-        Integer action_time = fightingPet.getAction_time();
+        int action_time = fightingPet.getAction_time();
 
         /**
          * 出手宠物行动
@@ -217,7 +323,36 @@ public class FightingServiceImpl implements FightingService {
 
 
         /**
-         * 胜利判定
+         * 非当前宠物 行动权计算（红黑树TreeMap）
+         */
+        TreeMap<Integer, FightingPet> fightingPets = new TreeMap<>();
+
+        for (FightingCamp value : fightingPet.getDistinguish().values()) {
+            for (FightingPet value1 : value.getFightingPets().values()) {
+                if (!value1.getUid().equals(fightingPet.getUid()) && value1.getHp() > 0) {
+
+                    Integer action_time1 = value1.getAction_time();
+                    int newAction_time = action_time1 - action_time;
+                    value1.setAction_time(newAction_time);
+
+                    fightingPets.put(newAction_time, value1);
+                }
+                //清理临时状态
+                value1.removeState(StateType.TEMPORARY);
+            }
+        }
+
+        for (int i = fightingPet.getAction_time(); ; i++) {
+            if (fightingPets.get(i) == null) {
+                fightingPets.put(i, fightingPet);
+                fightingPet.setAction_time(i);
+                break;
+            }
+        }
+
+
+        /**
+         * 胜利
          */
         boolean win = true;
         for (FightingPet enemyPet : enemy.getFightingPets().values()) {
@@ -225,43 +360,12 @@ public class FightingServiceImpl implements FightingService {
                 win = false;
             }
         }
-        /**
-         * 胜利执行
-         */
         if (win) {
             win(fightingPet);
-            baseMessage.setState(ResponseMsg.MSG_SUCCESS);
-            return baseMessage;
+            return;
         }
 
 
-        /**
-         * 非当前宠物 行动权计算（红黑树TreeMap）
-         */
-        TreeMap<Integer, FightingPet> fightingPets = new TreeMap<>();
-
-
-        for (FightingCamp value : fightingPet.getDistinguish().values()) {
-            for (FightingPet value1 : value.getFightingPets().values()) {
-                if (!value1.getUid().equals(fightingPet.getUid()) && value1.getHp() > 0) {
-
-                    Integer action_time1 = value1.getAction_time();
-                    value1.setAction_time(action_time1 - action_time);
-
-                    fightingPets.put(value1.getAction_time(), value1);
-                }
-                //清理临时状态
-                value1.removeState(StateType.TEMPORARY);
-            }
-        }
-
-
-        fightingPets.put(fightingPet.getAction_time(), fightingPet);
-
-        /**
-         * 添加出手信息
-         */
-        fightingPet.addShot(fightingReq);
         /**
          * 以上为上一回合结束，以下为下一回合开始
          */
@@ -282,43 +386,167 @@ public class FightingServiceImpl implements FightingService {
         /**
          * 发送信息
          */
+        fightingRoom.sendMsgResp(fightingRoom.getFightingCamps().keySet(), sendMsgUtil);
 
-        fightingRoom.sendMsgResp(fightingRoom.getFightingCamps().keySet(),sendMsgUtil);
-
-
-        baseMessage.setState(ResponseMsg.MSG_SUCCESS);
-        return baseMessage;
     }
+
+    /**
+     * 计时跳过/AI操作
+     *
+     * @param shotNum
+     * @param thisCamp
+     */
+    private void doAI(Integer shotNum, FightingCamp thisCamp) {
+
+        ThreadUtil.excAsync(() -> {
+            String userUid = thisCamp.getUser().getUid();
+
+            try {
+                long sleepTime = skipTime * 1000;
+                if (thisCamp.isAi()) {
+                    sleepTime = aiTime*1000;
+                }else if (!sendMsgUtil.connectionIsAlive(userUid)) {
+                    sleepTime = outlineSkipTime*1000;
+                }
+                Thread.sleep(sleepTime);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            FightingRoom fightingRoom = this.getFightingRoomByUserUid(userUid, 5);
+
+            if(fightingRoom != null){
+                if (fightingRoom.getShotNum() == shotNum) {
+                    if (thisCamp.isAi())
+                    //ai操作
+                    {
+                        doAI(fightingRoom, userUid);
+                    } else {
+                        boolean hasAlive = false;
+                        for (FightingCamp fightingCamp : fightingRoom.getFightingCamps().values()) {
+                            if (sendMsgUtil.connectionIsAlive(fightingCamp.getUser().getUid())) {
+                                hasAlive = true;
+                                break;
+                            }
+                        }
+                        if (hasAlive) {
+                            //执行跳过操作
+                            FightingReq fightingReq = new FightingReq();
+                            fightingReq.setDestroyInfos(new ArrayList<>());
+                            //fightingReq.setFightingRoomUid(fightingRoom.getUid());
+                            doOperation(fightingRoom, fightingReq);
+                        }
+                    }
+                    return;
+                }
+                /**
+                 * 刷新redis对战房间对象
+                 */
+                this.saveFightingRoom(fightingRoom);
+            }
+
+        }, true);
+    }
+
+    /**
+     * AI操作
+     *
+     * @param fightingRoom
+     * @param userUid
+     */
+    private void doAI(FightingRoom fightingRoom, String userUid) {
+        FightingCamp own = fightingRoom.getFightingCamps().get(fightingRoom.getCampNow());
+        FightingPet fightingPet = own.getFightingPets().get(fightingRoom.getPetNow());
+        //根据宠物种类获取ai权重
+        String petTypeKey = RedisKeyUtil.getKey(RedisKey.PET_TYPE, fightingPet.getPet().getTypeUid());
+        PetType petType = redisObjectUtil.get(petTypeKey, PetType.class);
+        PetTypeAi petTypeAi = petType.getPetTypeAi();
+
+        //执行AI操作
+        FightingReq fightingReq = new FightingReq();
+
+        //权重
+        Integer attack = petTypeAi.getAttack();
+        Integer specialAttack = petTypeAi.getSpecialAttack();
+        Integer shield = petTypeAi.getShield();
+        Integer skill = petTypeAi.getSkill();
+        //能量值满了必杀
+        if (own.getEnergy() == FightingCamp.MAX_ENERGY && fightingPet.getSkillsByType(SkillType.UNIQUE).size() > 0) {
+            attack += FightingCamp.MAX_ENERGY * 10;
+        }
+
+        //获取ai连的块
+        fightingReq.setDestroyInfos(fightingRoom.getFightingBoard().doAI(fightingPet, userUid, attack, specialAttack, shield, skill));
+        //fightingReq.setFightingRoomUid(fightingRoom.getUid());
+        doOperation(fightingRoom, fightingReq);
+    }
+
 
     /**
      * 从redis中获取对战房间对象
      *
-     * @param uid
+     * @param userUid
+     * @param times   尝试次数
      * @return
      */
+    public FightingRoom getFightingRoomByUserUid(String userUid, int times) {
 
-    public FightingRoom getFightingRoomByUid(String uid) {
-        FightingRoom fightingRoom = redisObjectUtil.get(RedisKeyUtil.getKey(RedisKey.FIGHTING_ROOM, uid), FightingRoom.class);
-        fightingRoom.setNowSteps(new TreeMap<>());
-
-        for (FightingCamp fightingCamp : fightingRoom.getFightingCamps().values()) {
-            fightingCamp.setFightingRoom(fightingRoom);
-
-            for (FightingPet fightingPet : fightingCamp.getFightingPets().values()) {
-                fightingPet.setFightingCamp(fightingCamp);
-                fightingPet.setDistinguish(this.distinguish(fightingPet));
+        for (int i = 0; i < times; i++) {
+            String fightingRoomUid = redisObjectUtil.get(RedisKeyUtil.getKey(RedisKey.PLAYER_FIGHTING_ROOM, userUid), String.class);
+            FightingRoom fightingRoom = null;
+            if (StrUtil.isEmpty(fightingRoomUid)) {
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                continue;
+            }
+            fightingRoom = redisObjectUtil.get(RedisKeyUtil.getKey(RedisKey.FIGHTING_ROOM, fightingRoomUid), FightingRoom.class);
+            if (fightingRoom == null) {
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                continue;
+            } else {
+                this.deleteFightingRoom(fightingRoom);
             }
 
+            for (FightingCamp fightingCamp : fightingRoom.getFightingCamps().values()) {
+                fightingCamp.setFightingRoom(fightingRoom);
+
+                for (FightingPet fightingPet : fightingCamp.getFightingPets().values()) {
+                    fightingPet.setFightingCamp(fightingCamp);
+                    fightingPet.setRedisObjectUtil(redisObjectUtil);
+                    fightingPet.setDistinguish(this.distinguish(fightingPet));
+                }
+
+            }
+            return fightingRoom;
         }
-        return fightingRoom;
+        return null;
     }
+
 
     /**
      * redis存储
      */
-
     public boolean saveFightingRoom(FightingRoom fightingRoom) {
-        return redisObjectUtil.save(RedisKeyUtil.getKey(RedisKey.FIGHTING_ROOM, fightingRoom.getUid()), fightingRoom, this.alivetime);
+        for (FightingCamp fightingCamp : fightingRoom.getFightingCamps().values()) {
+            redisObjectUtil.save(RedisKeyUtil.getKey(RedisKey.PLAYER_FIGHTING_ROOM, fightingCamp.getUser().getUid()), fightingRoom.getUid(), this.aliveTime);
+        }
+        return redisObjectUtil.save(RedisKeyUtil.getKey(RedisKey.FIGHTING_ROOM, fightingRoom.getUid()), fightingRoom, this.aliveTime);
+    }
+
+    /**
+     * redis删除
+     */
+    public boolean deleteFightingRoom(FightingRoom fightingRoom) {
+        for (FightingCamp fightingCamp : fightingRoom.getFightingCamps().values()) {
+            redisObjectUtil.delete(RedisKeyUtil.getKey(RedisKey.PLAYER_FIGHTING_ROOM, fightingCamp.getUser().getUid()));
+        }
+        return redisObjectUtil.delete(RedisKeyUtil.getKey(RedisKey.FIGHTING_ROOM, fightingRoom.getUid()));
     }
 
     /**
@@ -332,26 +560,21 @@ public class FightingServiceImpl implements FightingService {
         FightingCamp fightingCamp = new FightingCamp();
         fightingCamp.setFightingRoom(fightingRoom);
         fightingCamp.setUser(user);
-        TreeMap<Integer, FightingPet> fightingPets = new TreeMap<>();
-        String useruidkey = RedisKeyUtil.getKey(RedisKey.PETS, user.getUid());
+        TreeMap<Integer, FightingPet> fightingPetMaps = new TreeMap<>();
 
-        String key = RedisKeyUtil.getlkKey(useruidkey);
+        List<FightingPet> fightingPets = FightingPet.getByUser(user, redisObjectUtil);
 
-        HashMap<String, Pet> allPets = redisObjectUtil.getlkMap(key, Pet.class);
-
-        for (Pet pet : allPets.values()) {
-            if (pet.getIswork() != null && pet.getIswork() != 0) {
-                FightingPet fightingPet = FightingPet.getFightingPet(pet,redisObjectUtil);
+        for (FightingPet fightingPet : fightingPets) {
+            Integer iswork = fightingPet.getIswork();
+            if (iswork != null && iswork != 0) {
                 fightingPet.setFightingCamp(fightingCamp);
                 fightingPet.initFighting();
-
-                fightingPets.put(pet.getIswork(), fightingPet);
+                fightingPetMaps.put(iswork, fightingPet);
             }
         }
-        fightingCamp.setFightingPets(fightingPets);
+        fightingCamp.setFightingPets(fightingPetMaps);
         return fightingCamp;
     }
-
 
 
     /**
@@ -485,7 +708,7 @@ public class FightingServiceImpl implements FightingService {
         //能量值（必杀技逻辑）
         int energy = own.getEnergy();
         //能量最大值
-        final int MAX_ENERGY = 20;
+        final int MAX_ENERGY = FightingCamp.MAX_ENERGY;
 
         //根据状态刷新战斗属性
         fightingPet.refreshFt();
@@ -501,9 +724,9 @@ public class FightingServiceImpl implements FightingService {
             blockCount = 7;
         }
         //惩罚值
-        Integer punishValue = 5 * blockCount;
+        int punishValue = 5 * blockCount;
 
-
+        boolean skip = false;
         /**
          * 根据块的种类执行相应的操作
          */
@@ -511,7 +734,7 @@ public class FightingServiceImpl implements FightingService {
             // 普通攻击
             case FightingBoard.ATTACK_NORMAL:
                 //必杀技
-                if (energy == MAX_ENERGY) {
+                if (energy == MAX_ENERGY && fightingPet.getSkillsByType(SkillType.UNIQUE).size() > 0) {
                     fightingPet.skillsDo(SkillType.UNIQUE, blockCount);
                     energy = -1;
                     punishValue += PunishValue.UNIQUE;
@@ -519,7 +742,7 @@ public class FightingServiceImpl implements FightingService {
                     /**
                      * 记录步骤
                      */
-                    fightingPet.addStep(FightingStep.DO_ATTACK,"");
+                    fightingPet.addStep(FightingStep.DO_ATTACK, "");
 
                     fightingPet.attackAction(blockCount);
                     punishValue += PunishValue.ATTACK_NORMAL;
@@ -543,13 +766,16 @@ public class FightingServiceImpl implements FightingService {
                 punishValue += PunishValue.SKILL;
                 break;
             default:
+                //跳过
+                skip = true;
+                //记录步骤
+                fightingPet.addStep(FightingStep.SKIP, "");
+                //跳过的惩罚值
+                punishValue = PunishValue.SKIP;
         }
 
-        //是否跳过
-        if (punishValue == 0) {
-            //跳过的惩罚值
-            punishValue = PunishValue.SKIP;
-        } else {
+
+        if (!skip) {
             //不跳过执行
             fightingPet.removeState(StateType.OPERATION);
         }
@@ -580,56 +806,52 @@ public class FightingServiceImpl implements FightingService {
     }
 
 
-
     public void win(FightingPet fightingPet) {
-        //TODO 胜利结算逻辑
 
-
-
-        //删除战斗信息缓存的
         FightingRoom fightingRoom = fightingPet.getFightingCamp().getFightingRoom();
-        redisObjectUtil.delete(RedisKeyUtil.getKey(RedisKey.FIGHTING_ROOM, fightingRoom.getUid()));
-    }
+        fightingPet.addStep(FightingStep.VICTORY, "");
+        /**
+         * 发送信息
+         */
+        fightingRoom.sendMsgResp(fightingRoom.getFightingCamps().keySet(), sendMsgUtil);
 
 
-    /**
-     * 初始化FightingPet
-     * @param pet
-     * @return
-     */
-    @Override
-    public boolean newFightingPet(Pet pet) {
-        logger.info(String.format("newFightingPet: %s ",pet));
-        new FightingPet(pet,redisObjectUtil).save();
-        return true;
+        User user = fightingPet.getFightingCamp().getUser();
+        logger.debug(String.format("胜利：%s",user.getUsername()));
+        //TODO 胜利结算逻辑（临时）获取“技能道具”
+        if (!fightingPet.getUid().startsWith("ai-") && sendMsgUtil.connectionIsAlive(user.getUid())) {
+            //PVE胜利结算
+            cultivateService.rewards(user,RewardType.PVE);
 
-    }
+            //结算完毕，保存
+            this.hiSave(fightingPet.getFightingCamp());
 
-    /**
-     * 删除FightingPet
-     * @param pet
-     * @return
-     */
-    @Override
-    public boolean deleteFightingPet(Pet pet) {
-        logger.info(String.format("newFightingPet: %s ",pet));
-        FightingPet.getFightingPet(pet,redisObjectUtil).delete();
-        return true;
+        }
 
     }
 
     /**
-     * 获取FightingPet信息
-     * @param pet
-     * @return
+     * 结算保存到数据库
      */
-    @Override
-    public MapBody getFightingPet(Pet pet) {
-        logger.info(String.format("newFightingPet: %s ",pet));
-        return FightingPet.getFightingPet(pet,redisObjectUtil).toMsg();
+    public void hiSave(FightingCamp fightingCamp) {
+
+        HiFightingRoom hiFightingRoom = new HiFightingRoom();
+        hiFightingRoom.setDate(new Date());
+        hiFightingRoom.setUid(IdUtil.simpleUUID());
+
+
+        FightingRoom fightingRoom = fightingCamp.getFightingRoom();
+        hiFightingRoom.setPlayer1(fightingRoom.getFightingBoard().getLeftPlayerUid());
+        hiFightingRoom.setPlayer2(fightingRoom.getFightingBoard().getRightPlayerUid());
+
+        try {
+            hiFightingRoom.setFightingRoomJson(MapperUtils.obj2json(fightingCamp.getFightingRoom()));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        hiFightingRoomMapper.insert(hiFightingRoom);
 
     }
-
 
 
 }

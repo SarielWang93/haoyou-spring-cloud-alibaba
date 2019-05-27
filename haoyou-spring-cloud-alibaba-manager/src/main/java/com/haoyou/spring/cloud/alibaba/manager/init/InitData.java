@@ -6,7 +6,7 @@ import com.haoyou.spring.cloud.alibaba.commons.entity.*;
 import com.haoyou.spring.cloud.alibaba.commons.mapper.*;
 import com.haoyou.spring.cloud.alibaba.commons.util.RedisKeyUtil;
 import com.haoyou.spring.cloud.alibaba.service.redis.ScoreRankService;
-import com.haoyou.spring.cloud.alibaba.action.RedisObjectUtil;
+import com.haoyou.spring.cloud.alibaba.util.RedisObjectUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
@@ -46,16 +46,26 @@ public class InitData implements ApplicationRunner {
     private StateResoutMapper stateResoutMapper;
     @Autowired
     private PetTypeMapper petTypeMapper;
+    @Autowired
+    private PetTypeAiMapper petTypeAiMapper;
+    @Autowired
+    private PropMapper propMapper;
+    @Autowired
+    protected VersionControlMapper versionControlMapper;
 
     @Override
     public void run(ApplicationArguments args){
-//        //TODO 数据库中的公共数据缓存到内存或redis中
-//        //初始化排行榜
-//        initScoreRank();
-//        //初始化技能
-//        initSkill();
-//        //初始化宠物类型
-//        initPetType();
+        //TODO 数据库中的公共数据缓存到内存或redis中
+        //初始化道具
+        initVersion();
+        //初始化排行榜
+        initScoreRank();
+        //初始化技能
+        initSkill();
+        //初始化宠物类型
+        initPetType();
+        //初始化道具
+        initProp();
     }
 
     /**
@@ -155,9 +165,39 @@ public class InitData implements ApplicationRunner {
     public void initPetType(){
         List<PetType> petTypes = petTypeMapper.selectAll();
         for(PetType petType:petTypes){
-            String petTypeKey = RedisKeyUtil.getKey(RedisKey.PET_Type, petType.getUid());
+            //获取ai权重信息
+            PetTypeAi petTypeAi = new PetTypeAi();
+            petTypeAi.setPetTypeUid(petType.getUid());
+            PetTypeAi petTypeAi1 = petTypeAiMapper.selectOne(petTypeAi);
+            petType.setPetTypeAi(petTypeAi1);
+
+            String petTypeKey = RedisKeyUtil.getKey(RedisKey.PET_TYPE, petType.getUid());
             redisObjectUtil.save(petTypeKey,petType,-1);
         }
     }
 
+    /**
+     * 初始化道具表
+     */
+    public void initProp(){
+
+        List<Prop> props = propMapper.selectAll();
+
+        for(Prop prop:props){
+            String propKey = RedisKeyUtil.getKey(RedisKey.PROP, prop.getUid());
+            redisObjectUtil.save(propKey,prop,-1);
+        }
+    }
+
+    /**
+     * 初始化道具表
+     */
+    public void initVersion(){
+        List<VersionControl> versions = versionControlMapper.selectAll();
+        for(VersionControl version:versions){
+            String propKey = RedisKeyUtil.getKey(RedisKey.VERSION, version.getVersion());
+            redisObjectUtil.save(propKey,version,-1);
+        }
+
+    }
 }

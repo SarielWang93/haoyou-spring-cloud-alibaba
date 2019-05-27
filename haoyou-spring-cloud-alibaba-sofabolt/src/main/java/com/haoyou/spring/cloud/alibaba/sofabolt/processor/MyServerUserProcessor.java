@@ -5,12 +5,13 @@ import com.alibaba.dubbo.config.annotation.Reference;
 import com.alipay.remoting.BizContext;
 import com.alipay.remoting.Connection;
 import com.alipay.remoting.rpc.protocol.SyncUserProcessor;
+import com.haoyou.spring.cloud.alibaba.commons.domain.SendType;
 import com.haoyou.spring.cloud.alibaba.commons.domain.message.BaseMessage;
 import com.haoyou.spring.cloud.alibaba.commons.domain.ResponseMsg;
 import com.haoyou.spring.cloud.alibaba.sofabolt.connection.Connections;
 import com.haoyou.spring.cloud.alibaba.service.manager.ManagerService;
 import com.haoyou.spring.cloud.alibaba.sofabolt.protocol.MyRequest;
-import com.haoyou.spring.cloud.alibaba.action.SendMsgUtil;
+import com.haoyou.spring.cloud.alibaba.util.SendMsgUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,31 +48,32 @@ public class MyServerUserProcessor extends SyncUserProcessor<MyRequest> {
 
             //判断uid
             String useruid = req.getUseruid();
-            if (StrUtil.isEmpty(useruid)) {
-                BaseMessage baseMessage = new BaseMessage();
-                baseMessage.setState(ResponseMsg.MSG_ERR);
-                req.setMsg(sendMsgUtil.serialize(baseMessage));
-            }
-            //进入处理，存储链接
-            else {
+            if (StrUtil.isNotEmpty(useruid)) {
                 //刷新链接
                 Connection connectionthis = bizCtx.getConnection();
                 Connection connectionuid = connections.get(useruid);
                 if (connectionuid == null || !connectionuid.getChannel().isActive()) {
                     connections.put(useruid, connectionthis);
                 }
-
-                //调用处理器
-                BaseMessage baseMessage = managerService.handle(req);
-
-                //回复信息
-                req.setMsg(sendMsgUtil.serialize(baseMessage));
-
-                if (req.getId() == 1 && ResponseMsg.MSG_SUCCESS == (baseMessage.getState())) {
-                    //如果登出成功，删除链接
-                    connections.remove(useruid);
+                //不同地点登录处理
+                else if (!connectionuid.getRemoteAddress().equals(connectionthis.getRemoteAddress())) {
+                    BaseMessage close = new BaseMessage();
+                    close.setState(ResponseMsg.MSG_ERR);
+                    sendMsgUtil.sendMsgOneNoReturn(useruid, SendType.MANDATORY_OFFLINE, close);
+                    connections.put(useruid, connectionthis);
                 }
             }
+
+            //调用处理器
+            BaseMessage baseMessage = managerService.handle(req);
+            //回复信息
+            req.setMsg(sendMsgUtil.serialize(baseMessage));
+
+            if (req.getId() == 1 && ResponseMsg.MSG_SUCCESS == (baseMessage.getState())) {
+                //如果登出成功，删除链接
+                connections.remove(useruid);
+            }
+
             //临时操作
             req.setMsgJson(new String(req.getMsg(), "UTF-8"));
             logger.info(String.format("返回信息：%s", req));

@@ -1,14 +1,16 @@
 package com.haoyou.spring.cloud.alibaba.manager.service.impl;
 
+import cn.hutool.core.lang.Console;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.fescar.spring.annotation.GlobalTransactional;
+import com.haoyou.spring.cloud.alibaba.commons.domain.RedisKey;
 import com.haoyou.spring.cloud.alibaba.commons.domain.message.BaseMessage;
 import com.haoyou.spring.cloud.alibaba.commons.domain.ResponseMsg;
 import com.haoyou.spring.cloud.alibaba.commons.entity.User;
 import com.haoyou.spring.cloud.alibaba.commons.util.RedisKeyUtil;
 import com.haoyou.spring.cloud.alibaba.manager.handle.ManagerHandle;
-import com.haoyou.spring.cloud.alibaba.action.RedisObjectUtil;
-import com.haoyou.spring.cloud.alibaba.action.SendMsgUtil;
+import com.haoyou.spring.cloud.alibaba.util.RedisObjectUtil;
+import com.haoyou.spring.cloud.alibaba.util.SendMsgUtil;
 import com.haoyou.spring.cloud.alibaba.sofabolt.protocol.MyRequest;
 import com.haoyou.spring.cloud.alibaba.service.manager.ManagerService;
 import org.slf4j.Logger;
@@ -26,7 +28,7 @@ public class ManagerServiceImpl implements ManagerService {
     private final static Logger logger = LoggerFactory.getLogger(ManagerServiceImpl.class);
 
 
-    private Map<Integer, ManagerHandle> managerHanderMap=new HashMap<>();
+    private Map<Integer, ManagerHandle> managerHanderMap = new HashMap<>();
 
 
     @Autowired
@@ -43,18 +45,25 @@ public class ManagerServiceImpl implements ManagerService {
         byte[] msg = req.getMsg();
         String useruid = req.getUseruid();
 
-        logger.info(String.format("manager：%s %s", type, msg));
-        User user = null;
 
-        if (type == ManagerHandle.LOGIN)
-        //登录，user还未缓存
-        {
-            user = new User();
-            user.setUid(useruid);
+        logger.info(String.format("manager：%s %s", type, useruid));
+
+
+        User user = null;
+        /**
+         * 登录验证
+         */
+        //登录和注册传入user
+        if (type == ManagerHandle.LOGIN || type == ManagerHandle.REGISTER) {
+            user = sendMsgUtil.deserialize(req.getMsg(), User.class);
         }
-        //从redis获取user
+        //心跳和版本验证不需要登录
+        else if (type == ManagerHandle.BEAT || type == ManagerHandle.VERSION_CONTROLLER) {
+            user = new User();
+        }
+        //登录验证
         else {
-            user = redisObjectUtil.get(RedisKeyUtil.getKey("user", useruid), User.class);
+            user = redisObjectUtil.get(RedisKeyUtil.getKey(RedisKey.USER, useruid), User.class);
         }
         //无法获取user，返回错误
         if (user == null) {
@@ -71,6 +80,8 @@ public class ManagerServiceImpl implements ManagerService {
         ManagerHandle managerHandle = this.managerHanderMap.get(type);
         //处理并返回信息
         BaseMessage baseMessage = managerHandle.handle(req);
+
+        //Console.log(baseMessage);
         return baseMessage;
 
     }
@@ -78,11 +89,11 @@ public class ManagerServiceImpl implements ManagerService {
 
     /**
      * 注册信息处理器
-     * @param type
+     *
      * @param managerHandle
      */
-    public void putManagerHanderMap(Integer type, ManagerHandle managerHandle){
-        managerHanderMap.put(type, managerHandle);
+    public void putManagerHanderMap(ManagerHandle managerHandle) {
+        managerHanderMap.put(managerHandle.getHandleType(), managerHandle);
     }
 
 }

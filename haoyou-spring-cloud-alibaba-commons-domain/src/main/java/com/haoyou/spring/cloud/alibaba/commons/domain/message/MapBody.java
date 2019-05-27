@@ -25,6 +25,10 @@ public class MapBody<K,V> extends BaseMessage{
         return this.msg.get(k);
     }
 
+    public V remove(K k){
+        return this.msg.remove(k);
+    }
+
     public Collection<V> values(){
         return this.msg.values();
     }

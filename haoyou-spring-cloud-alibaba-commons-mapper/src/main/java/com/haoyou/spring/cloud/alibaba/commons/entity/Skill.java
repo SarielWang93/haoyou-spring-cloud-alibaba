@@ -1,5 +1,6 @@
 package com.haoyou.spring.cloud.alibaba.commons.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 
 import javax.persistence.*;
@@ -7,6 +8,7 @@ import java.io.Serializable;
 import java.util.List;
 
 @Data
+@JsonIgnoreProperties(value = {}, ignoreUnknown = true)
 public class Skill implements Serializable {
     private static final long serialVersionUID = -3107489438999542079L;
     @Id

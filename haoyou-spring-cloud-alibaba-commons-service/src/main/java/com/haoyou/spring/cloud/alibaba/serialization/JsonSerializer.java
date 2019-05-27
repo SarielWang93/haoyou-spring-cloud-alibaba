@@ -40,10 +40,8 @@ public class JsonSerializer implements Serializer {
 //            加密
 //            bytes = encrypt(bytes);
             return bytes;
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
         } catch (Exception e) {
-            e.printStackTrace();
+            //e.printStackTrace();
         }
         return null;
     }
@@ -52,13 +50,14 @@ public class JsonSerializer implements Serializer {
     public <T> T deserialize(byte[] data, String classOfT) throws CodecException {
 
         try {
+
 //            解密
 //            data = decrypt(data);
 //            Console.log(new String(data, "UTF-8"));
 
             return (T) MapperUtils.json2pojo( new String(data, "UTF-8"),Class.forName(classOfT));
         } catch (Exception e) {
-            e.printStackTrace();
+            //e.printStackTrace();
         }
         return null;
     }

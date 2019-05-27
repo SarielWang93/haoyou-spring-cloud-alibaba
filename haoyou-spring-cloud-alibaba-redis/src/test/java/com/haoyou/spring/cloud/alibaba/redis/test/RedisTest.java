@@ -2,7 +2,7 @@ package com.haoyou.spring.cloud.alibaba.redis.test;
 
 import com.haoyou.spring.cloud.alibaba.commons.mapper.UserMapper;
 
-import com.haoyou.spring.cloud.alibaba.action.RedisObjectUtil;
+import com.haoyou.spring.cloud.alibaba.util.RedisObjectUtil;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

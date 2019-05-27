@@ -1,11 +1,13 @@
 package com.haoyou.spring.cloud.alibaba.commons.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 
 import javax.persistence.*;
 import java.io.Serializable;
 
 @Data
+@JsonIgnoreProperties(value = {}, ignoreUnknown = true)
 public class StateResout implements Serializable {
     private static final long serialVersionUID = -8114194949728036265L;
     @Id

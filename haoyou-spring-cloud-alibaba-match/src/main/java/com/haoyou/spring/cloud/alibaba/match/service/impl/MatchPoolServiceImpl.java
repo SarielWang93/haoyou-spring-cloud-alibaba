@@ -13,8 +13,8 @@ import com.haoyou.spring.cloud.alibaba.match.info.MatchPoolPlayerInfo;
 import com.haoyou.spring.cloud.alibaba.match.info.PlayerRoomInfo;
 import com.haoyou.spring.cloud.alibaba.match.service.MatchPoolService;
 import com.haoyou.spring.cloud.alibaba.service.fighting.FightingService;
-import com.haoyou.spring.cloud.alibaba.action.RedisObjectUtil;
-import com.haoyou.spring.cloud.alibaba.action.SendMsgUtil;
+import com.haoyou.spring.cloud.alibaba.util.RedisObjectUtil;
+import com.haoyou.spring.cloud.alibaba.util.SendMsgUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -369,7 +369,7 @@ public class MatchPoolServiceImpl implements MatchPoolService {
                 //全部接受
                 sendType = SendType.MATCH_SUCCESE;
                 //给玩家发送所有玩家都接受了的信息
-                sendMsgUtil.sendMsgList(userUids, sendType, new BaseMessage() );
+                sendMsgUtil.sendMsgList(userUids, sendType, new BaseMessage());
                 //删除临时房间
                 playerRoomInfoT.delete(redisObjectUtil);
                 logger.info(String.format("匹配成功进入对战：%s", CollUtil.join(users, ",")));

@@ -44,8 +44,9 @@
         <spring-boot-pagehelper.version>1.2.10</spring-boot-pagehelper.version>
 
         <mysql.version>8.0.15</mysql.version>
-        <hutool.version>4.5.5</hutool.version>
+        <hutool.version>4.5.10</hutool.version>
         <fescar.version>0.4.1</fescar.version>
+        <proto.version>3.7.1</proto.version>
     </properties>
 
     <dependencyManagement>
@@ -151,6 +152,14 @@
                 <version>${fescar.version}</version>
             </dependency>
             <!-- fescar -->
+
+            <!-- protobuf -->
+            <dependency>
+                <groupId>com.google.protobuf</groupId>
+                <artifactId>protobuf-java</artifactId>
+                <version>${proto.version}</version>
+            </dependency>
+            <!-- protobuf -->
         </dependencies>
     </dependencyManagement>
 
