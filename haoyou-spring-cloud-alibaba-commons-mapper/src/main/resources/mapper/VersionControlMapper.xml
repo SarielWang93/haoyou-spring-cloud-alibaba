@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.haoyou.spring.cloud.alibaba.commons.mapper.VersionControlMapper">
+  <resultMap id="BaseResultMap" type="com.haoyou.spring.cloud.alibaba.commons.entity.VersionControl">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="uid" jdbcType="VARCHAR" property="uid" />
+    <result column="version" jdbcType="VARCHAR" property="version" />
+    <result column="url" jdbcType="VARCHAR" property="url" />
+    <result column="date" jdbcType="TIMESTAMP" property="date" />
+    <result column="describe" jdbcType="LONGVARCHAR" property="describe" />
+  </resultMap>
+</mapper>
