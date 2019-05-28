@@ -16,6 +16,4 @@ public class SendType {
 
     public final static int FIGHTING_INITPET=24;//战斗初始化宠物
 
-    public final static int FIGHTING_READY=25;//操作刷新棋盘
-
 }

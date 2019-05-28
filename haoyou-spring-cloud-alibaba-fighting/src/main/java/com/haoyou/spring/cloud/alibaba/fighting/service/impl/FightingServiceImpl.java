@@ -237,7 +237,7 @@ public class FightingServiceImpl implements FightingService {
                     this.doAI(fightingRoom.getShotNum(), fightingRoom.getFightingCamps().get(campNow));
 
                     baseMessage.setState(rt);
-                    sendMsgUtil.sendMsgList(fightingRoom.getFightingCamps().keySet(), SendType.FIGHTING_READY, baseMessage);
+                    sendMsgUtil.sendMsgList(fightingRoom.getFightingCamps().keySet(), SendType.FIGHTING_INIT, baseMessage);
 
                 }
             }

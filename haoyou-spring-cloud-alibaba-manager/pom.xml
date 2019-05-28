@@ -11,7 +11,7 @@
     </parent>
 
     <artifactId>haoyou-spring-cloud-alibaba-manager</artifactId>
-    <packaging>jar</packaging>
+    <packaging>war</packaging>
 
     <name>haoyou-spring-cloud-alibaba-manager</name>
     <url>http://www.haoyou.com</url>
