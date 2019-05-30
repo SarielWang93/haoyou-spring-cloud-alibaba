@@ -52,11 +52,12 @@ public class MyServerUserProcessor extends SyncUserProcessor<MyRequest> {
                 //刷新链接
                 Connection connectionthis = bizCtx.getConnection();
                 Connection connectionuid = connections.get(useruid);
-                if (connectionuid == null || !connectionuid.getChannel().isActive()) {
+                if (connectionuid == null || !connectionuid.getChannel().isActive() || connectionuid.getRemotePort()!=connectionthis.getRemotePort()) {
+                    logger.debug(String.format("断线重连 %s %s ",connectionthis.getRemoteAddress().getAddress().getHostAddress(),useruid));
                     connections.put(useruid, connectionthis);
                 }
                 //不同地点登录处理
-                else if (!connectionuid.getRemoteAddress().equals(connectionthis.getRemoteAddress())) {
+                if (!connectionuid.getRemoteAddress().getAddress().getHostAddress().equals(connectionthis.getRemoteAddress().getAddress().getHostAddress())) {
                     BaseMessage close = new BaseMessage();
                     close.setState(ResponseMsg.MSG_ERR);
                     sendMsgUtil.sendMsgOneNoReturn(useruid, SendType.MANDATORY_OFFLINE, close);

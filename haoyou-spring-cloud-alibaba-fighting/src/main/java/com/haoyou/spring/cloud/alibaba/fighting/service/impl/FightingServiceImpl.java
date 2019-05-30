@@ -221,7 +221,8 @@ public class FightingServiceImpl implements FightingService {
              * 玩家初始化完成
              */
             else if (fightingReq.getCurrentPetId().equals(-4)) {
-                FightingCamp thisFightingCamp = fightingRoom.getFightingCamps().get(campNow);
+                logger.debug(String.format("始化完成：%s", user.getUsername()));
+                FightingCamp thisFightingCamp = fightingRoom.getFightingCamps().get(user.getUid());
                 thisFightingCamp.setReady(true);
 
                 boolean allRead = true;

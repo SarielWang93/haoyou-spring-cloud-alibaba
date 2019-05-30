@@ -18,16 +18,15 @@
 
     <dependencies>
         <!-- Feign+Sentinel 通信 -->
-        <!--改为dubbo+Sentinel
-        <dependency>
+        <!--改为dubbo+Sentinel-->
+        <!--<dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-alibaba-sentinel</artifactId>
-        </dependency>
-        <dependency>
-        <groupId>org.springframework.cloud</groupId>
-        <artifactId>spring-cloud-starter-openfeign</artifactId>
-        </dependency>
-        -->
+        </dependency>-->
+        <!--<dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-openfeign</artifactId>
+        </dependency>-->
         <!-- Feign+Sentinel 通信 END-->
 
         <!-- Dubbo+Sentinel 通信 -->
