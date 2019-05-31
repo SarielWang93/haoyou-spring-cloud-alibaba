@@ -150,7 +150,7 @@ public class User extends BaseMessage implements Serializable {
     public boolean addProps(List<Prop> propList){
         try {
             List<Prop> propsThis = this.propList();
-            if(propsThis.size() <= this.propMax){
+            if(propsThis.size() < this.propMax){
                 for(Prop prop:propList){
                     int i = 0;
                     if ((i = propsThis.indexOf(prop)) != -1) {

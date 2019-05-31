@@ -8,6 +8,7 @@ import com.alipay.remoting.serialization.Serializer;
 import com.alipay.remoting.serialization.SerializerManager;
 import com.haoyou.spring.cloud.alibaba.commons.util.ByteArrayUtil;
 import com.haoyou.spring.cloud.alibaba.commons.util.MapperUtils;
+import com.haoyou.spring.cloud.alibaba.zip.ZIP;
 import org.springframework.stereotype.Service;
 
 import java.io.UnsupportedEncodingException;
@@ -39,7 +40,8 @@ public class JsonSerializer implements Serializer {
             byte[] bytes = msg.getBytes("UTF-8");
 //            加密
 //            bytes = encrypt(bytes);
-            return bytes;
+            //gzip压缩返回
+            return ZIP.gZip(bytes);
         } catch (Exception e) {
             //e.printStackTrace();
         }
@@ -50,7 +52,8 @@ public class JsonSerializer implements Serializer {
     public <T> T deserialize(byte[] data, String classOfT) throws CodecException {
 
         try {
-
+            //gzip解压后使用
+            data=ZIP.unGZip(data);
 //            解密
 //            data = decrypt(data);
 //            Console.log(new String(data, "UTF-8"));
