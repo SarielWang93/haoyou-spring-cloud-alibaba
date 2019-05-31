@@ -88,17 +88,21 @@ public abstract class RewardHandle {
      * @param award
      */
     public void doAward(User user, Award award){
-        boolean mile=true;
+        boolean mail=true;
         if(this.send(user,award)){
-            //发送成功则存储奖励
+            //增加货币
+            user.setCoin(user.getCoin() + award.getCoin());
+            user.setDiamond(user.getDiamond() + award.getDiamond());
+            this.save(user);
+            //增加道具
             if(user.addProps(award.getProps())){
                 if(this.save(user)){
-                    mile=false;
+                    mail=false;
                 }
             }
         }
 
-        if(mile){
+        if(mail){
             //TODO 发送邮件给玩家
         }
     }

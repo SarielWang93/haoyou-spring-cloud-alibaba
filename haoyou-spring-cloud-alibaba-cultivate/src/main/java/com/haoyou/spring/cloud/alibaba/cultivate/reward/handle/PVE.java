@@ -33,9 +33,7 @@ public class PVE extends RewardHandle {
         int r = RandomUtil.randomInt(skills.size());
         Skill skill = skills.values().toArray(new Skill[0])[r];
 
-        //增加货币
-        user.setCoin(user.getCoin() + 100);
-        user.setDiamond(user.getDiamond() + 20);
+
         //添加道具
         List<Prop> props = new ArrayList<>();
 

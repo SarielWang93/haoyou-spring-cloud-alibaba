@@ -36,11 +36,12 @@ public class GetPropsHandle extends ManagerHandle {
         List<Prop> props = user.propList();
 
         MapBody mapBody = new MapBody<>();
-
-        mapBody.put("props",props);
-
         mapBody.setState(ResponseMsg.MSG_SUCCESS);
-
+        for(Prop prop:props){
+            mapBody.put("prop",prop);
+            sendMsgUtil.sendMsgOneNoReturn(user.getUid(),req.getId(),mapBody);
+        }
+        mapBody.remove("prop");
         return mapBody;
     }
 }
