@@ -37,6 +37,7 @@ public class PlayerRoomInfo extends BaseMessage implements Serializable {
         this.matchPoolPlayer = new HashMap<>();
         this.uid = IdUtil.simpleUUID();
         for (MatchPoolPlayerInfo playerInfo : matchPoolPlayer) {
+            playerInfo.setIsAccept(1);
             this.matchPoolPlayer.put(playerInfo.getPlayerId(), playerInfo);
         }
 

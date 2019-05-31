@@ -15,32 +15,26 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 /**
- * 获取背包道具
+ * 获取大厅数据
  */
 @Service
-public class GetPropsHandle extends ManagerHandle {
+public class GetHallHandle extends ManagerHandle {
 
 
     private static final long serialVersionUID = -7233847046616375275L;
-    private static final Logger logger = LoggerFactory.getLogger(GetPropsHandle.class);
+    private static final Logger logger = LoggerFactory.getLogger(GetHallHandle.class);
 
     @Override
     protected void setHandleType() {
-        this.handleType = ManagerHandle.GET_PROPS;
+        this.handleType = ManagerHandle.GET_HALL;
     }
 
     @Override
     public BaseMessage handle(MyRequest req) {
         User user = req.getUser();
 
-        List<Prop> props = user.propList();
+        user.setState(ResponseMsg.MSG_SUCCESS);
 
-        MapBody mapBody = new MapBody<>();
-
-        mapBody.put("props",props);
-
-        mapBody.setState(ResponseMsg.MSG_SUCCESS);
-
-        return mapBody;
+        return user.notTooLong();
     }
 }

@@ -61,7 +61,7 @@ public class SendMsgUtil implements Serializable {
      * @return
      */
     public boolean sendMsgOneNoReturn(String userUid, Integer type, BaseMessage baseMessage) {
-        logger.info(String.format("sendMsgList: %s %s", userUid, baseMessage));
+        logger.info(String.format("sendMsgOneNoReturn: %s %s", userUid, baseMessage));
 
         byte[] serialize = this.serialize(baseMessage);
 

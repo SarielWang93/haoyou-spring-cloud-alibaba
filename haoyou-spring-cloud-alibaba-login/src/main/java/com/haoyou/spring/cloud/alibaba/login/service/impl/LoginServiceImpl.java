@@ -90,7 +90,12 @@ public class LoginServiceImpl implements LoginService {
         }
         user.setState(ResponseMsg.MSG_SUCCESS);
 
-        findFighting(user);
+
+        if(findFighting(user)){
+            user.setState(ResponseMsg.MSG_LOGINOUT_FIGHTING);
+        }
+
+
         return user.notTooLong();
     }
 
@@ -98,27 +103,20 @@ public class LoginServiceImpl implements LoginService {
      * 获取玩家当前是否处于战斗中
      * @param user
      */
-    private void findFighting(User user){
-        ThreadUtil.excAsync(() -> {
-            try {
-                Thread.sleep(500);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            String fightingRoomUid = redisObjectUtil.get(RedisKeyUtil.getKey(RedisKey.PLAYER_FIGHTING_ROOM, user.getUid()), String.class);
-            String aiFightingRoomUid = redisObjectUtil.get(RedisKeyUtil.getKey(RedisKey.PLAYER_FIGHTING_ROOM, "ai-"+user.getUid()), String.class);
+    private boolean findFighting(User user){
 
-            if(StrUtil.isEmpty(aiFightingRoomUid)){
-                if(StrUtil.isNotEmpty(fightingRoomUid)){
-                    sendMsgUtil.sendMsgOneNoReturn(user.getUid(), SendType.LOGIN_FIGHTING, new BaseMessage());
-                }
-            }else{
-                redisObjectUtil.delete(RedisKeyUtil.getKey(RedisKey.PLAYER_FIGHTING_ROOM, user.getUid()));
-                redisObjectUtil.delete(RedisKeyUtil.getKey(RedisKey.PLAYER_FIGHTING_ROOM, "ai-"+user.getUid()));
-                redisObjectUtil.delete(RedisKeyUtil.getKey(RedisKey.FIGHTING_ROOM, aiFightingRoomUid));
+        String fightingRoomUid = redisObjectUtil.get(RedisKeyUtil.getKey(RedisKey.PLAYER_FIGHTING_ROOM, user.getUid()), String.class);
+        String aiFightingRoomUid = redisObjectUtil.get(RedisKeyUtil.getKey(RedisKey.PLAYER_FIGHTING_ROOM, "ai-"+user.getUid()), String.class);
+        if(StrUtil.isEmpty(aiFightingRoomUid)){
+            if(StrUtil.isNotEmpty(fightingRoomUid)){
+                return true;
             }
-
-        },true);
+        }else{
+            redisObjectUtil.delete(RedisKeyUtil.getKey(RedisKey.PLAYER_FIGHTING_ROOM, user.getUid()));
+            redisObjectUtil.delete(RedisKeyUtil.getKey(RedisKey.PLAYER_FIGHTING_ROOM, "ai-"+user.getUid()));
+            redisObjectUtil.delete(RedisKeyUtil.getKey(RedisKey.FIGHTING_ROOM, aiFightingRoomUid));
+        }
+        return false;
     }
 
     /**

@@ -61,7 +61,7 @@ public abstract class ManagerHandle implements Serializable {
      * 获取信息
      */
     public final static int GET_PROPS = 51;//获取仓库信息
-
+    public final static int GET_HALL = 52;//获取仓库信息
 
     /**
      * 各系统服务

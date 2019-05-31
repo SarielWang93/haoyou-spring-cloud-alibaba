@@ -17,6 +17,9 @@ public class ResponseMsg {
     //登出报错
     final static public int MSG_LOGINOUT_WRONG = 46;
 
+    //登出报错
+    final static public int MSG_LOGINOUT_FIGHTING = 49;
+
     //注册用户名已占用
     final static public int MSG_REGISTER_USERNAME_EXIST = 51;
 
