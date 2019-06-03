@@ -148,15 +148,15 @@ public class ZIP {
             buffer.append(s);
         }
         s=buffer.toString();
-        System.out.println("yuan:" + s.getBytes().length);
-        byte[] b1 = zip(s.getBytes());
-        System.out.println("zip:" + b1.length);
-        byte[] b2 = unZip(b1);
-        System.out.println("unZip:" + new String(b2));
 
         byte[] b5 = gZip(s.getBytes());
         System.out.println("gZip:" + b5.length);
-        byte[] b6 = unGZip(b5);
+        byte[] b7 = gZip(b5);
+        System.out.println("gZip:" + b7.length);
+
+        byte[] b8 = unGZip(b7);
+
+        byte[] b6 = unGZip(b8);
         System.out.println("unGZip:" + new String(b6));
 
     }

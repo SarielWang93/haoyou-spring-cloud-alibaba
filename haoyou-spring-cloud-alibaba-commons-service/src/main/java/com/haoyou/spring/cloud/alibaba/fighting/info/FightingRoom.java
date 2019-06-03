@@ -26,6 +26,11 @@ public class FightingRoom implements Serializable {
     //房间uid
     private String uid;
 
+    //创建时间
+    private Date creatTime;
+    //结束时间
+    private Date overTime;
+
     //详细步骤
     private int step;
     //详细记录，整个房间的所有操作
@@ -79,7 +84,7 @@ public class FightingRoom implements Serializable {
     public void startRount(FightingPet fightingPet) {
         this.campNow = fightingPet.getFightingCamp().getUser().getUid();
         this.petNow = fightingPet.getIswork();
-
+        this.creatTime=new Date();
         /**
          * 刷新回合
          */
@@ -143,6 +148,7 @@ public class FightingRoom implements Serializable {
     }
 
     public void sendMsgResp(Collection<String> userUids, SendMsgUtil sendMsgUtil) {
+
         MapBody<String, Object> room = getRoomMSG();
 
         room.put("steps", this.nowSteps);

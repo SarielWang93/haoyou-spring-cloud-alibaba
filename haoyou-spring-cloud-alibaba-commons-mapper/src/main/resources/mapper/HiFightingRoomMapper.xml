@@ -9,7 +9,8 @@
     <result column="uid" jdbcType="VARCHAR" property="uid" />
     <result column="player1" jdbcType="VARCHAR" property="player1" />
     <result column="player2" jdbcType="VARCHAR" property="player2" />
-    <result column="date" jdbcType="TIMESTAMP" property="date" />
+    <result column="creat_time" jdbcType="TIMESTAMP" property="creatTime" />
+    <result column="over_time" jdbcType="TIMESTAMP" property="overTime" />
     <result column="fighting_room_json" jdbcType="LONGVARCHAR" property="fightingRoomJson" />
   </resultMap>
 </mapper>

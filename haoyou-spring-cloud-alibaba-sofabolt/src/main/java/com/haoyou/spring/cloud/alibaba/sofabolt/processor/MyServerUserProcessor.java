@@ -99,7 +99,7 @@ public class MyServerUserProcessor extends SyncUserProcessor<MyRequest> {
                 Connection connectionthis = bizCtx.getConnection();
                 Connection connectionuid = connections.get(useruid);
                 if (connectionuid != null && connectionuid.getChannel().isActive()) {
-                    if (!connectionuid.getRemoteAddress().getAddress().getHostAddress().equals(connectionthis.getRemoteAddress().getAddress().getHostAddress())) {
+                    if (!req.getDeviceuid().equals(connectionuid.getAttribute("deviceuid"))) {
                         sendDown(useruid, connectionuid);
                     }
                 }

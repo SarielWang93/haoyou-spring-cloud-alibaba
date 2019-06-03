@@ -20,7 +20,11 @@ public class HiFightingRoom {
 
     private String player2;
 
-    private Date date;
+    @Column(name = "creat_time")
+    private Date creatTime;
+
+    @Column(name = "over_time")
+    private Date overTime;
 
     @Column(name = "fighting_room_json")
     private String fightingRoomJson;

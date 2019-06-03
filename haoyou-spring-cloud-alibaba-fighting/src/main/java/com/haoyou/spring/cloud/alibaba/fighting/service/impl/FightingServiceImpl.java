@@ -20,6 +20,7 @@ import com.haoyou.spring.cloud.alibaba.sofabolt.protocol.MyRequest;
 import com.haoyou.spring.cloud.alibaba.service.fighting.FightingService;
 import com.haoyou.spring.cloud.alibaba.util.RedisObjectUtil;
 import com.haoyou.spring.cloud.alibaba.util.SendMsgUtil;
+import com.haoyou.spring.cloud.alibaba.zip.ZIP;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,7 +51,8 @@ public class FightingServiceImpl implements FightingService {
     private long outlineSkipTime;
     @Value("${fighting.aitime: 5}")
     private long aiTime;
-
+    @Value("${fighting.initreadytime: 15}")
+    private long initReadyTime;
     /**
      * 创建房间，并启动战斗
      *
@@ -151,6 +153,7 @@ public class FightingServiceImpl implements FightingService {
          */
         this.saveFightingRoom(fightingRoom);
 
+        doInitReady(fightingRoom.getCampNow());
 
         return true;
     }
@@ -225,21 +228,28 @@ public class FightingServiceImpl implements FightingService {
                 FightingCamp thisFightingCamp = fightingRoom.getFightingCamps().get(user.getUid());
                 thisFightingCamp.setReady(true);
 
+                /**
+                 * 棋盘信息
+                 */
+                fightingReq.setState(1);
+                fightingReq.setNewInfos(fightingRoom.getFightingBoard().toListBoard());
+                sendMsgUtil.sendMsgList(fightingRoom.getFightingCamps().keySet(), SendType.FIGHTING_REFRESHBOARD, fightingReq);
+
+                //全局信息
+                fightingRoom.sendMsgResp(fightingRoom.getFightingCamps().keySet(), sendMsgUtil);
+
+
                 boolean allRead = true;
                 for (FightingCamp fightingCamp : fightingRoom.getFightingCamps().values()) {
                     if (!fightingCamp.isReady()) {
                         allRead = false;
                     }
                 }
-                rt = ResponseMsg.MSG_SUCCESS;
-                if (allRead) {
+                if(allRead){
                     //跳过或者ai启动
-
                     this.doAI(fightingRoom.getShotNum(), fightingRoom.getFightingCamps().get(campNow));
 
-                    baseMessage.setState(rt);
-                    sendMsgUtil.sendMsgList(fightingRoom.getFightingCamps().keySet(), SendType.FIGHTING_INIT, baseMessage);
-
+                    sendInitReady(fightingRoom.getFightingCamps().keySet());
                 }
             }
             /**
@@ -274,6 +284,45 @@ public class FightingServiceImpl implements FightingService {
 
         baseMessage.setState(rt);
         return baseMessage;
+    }
+
+    /**
+     * 初始化成功计时
+     */
+    private void doInitReady(String userUid){
+        ThreadUtil.excAsync(() -> {
+            try {
+                Thread.sleep(this.initReadyTime*1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+            FightingRoom fightingRoom = this.getFightingRoomByUserUid(userUid, 5);
+
+            List<String> userUids = new LinkedList<>();
+            for (FightingCamp fightingCamp : fightingRoom.getFightingCamps().values()) {
+                if (fightingCamp.isReady()) {
+                    userUids.add(fightingCamp.getUser().getUid());
+                }
+            }
+            if(fightingRoom.getFightingCamps().values().size()>userUids.size()){
+                sendInitReady(userUids);
+            }
+
+            this.saveFightingRoom(fightingRoom);
+
+        },true);
+    }
+
+    /**
+     * 执行发送初始化成功
+     * @param userUids
+     */
+    private void sendInitReady(Collection<String> userUids){
+        MapBody baseMessage = new MapBody();
+        int rt = ResponseMsg.MSG_SUCCESS;
+        baseMessage.setState(rt);
+        sendMsgUtil.sendMsgList(userUids, SendType.FIGHTING_INIT, baseMessage);
     }
 
     /**
@@ -849,12 +898,11 @@ public class FightingServiceImpl implements FightingService {
     }
 
     /**
-     * 结算保存到数据库
+     * 结算历史信息保存到数据库
      */
     public void hiSave(FightingCamp fightingCamp) {
 
         HiFightingRoom hiFightingRoom = new HiFightingRoom();
-        hiFightingRoom.setDate(new Date());
         hiFightingRoom.setUid(IdUtil.simpleUUID());
 
 
@@ -862,8 +910,12 @@ public class FightingServiceImpl implements FightingService {
         hiFightingRoom.setPlayer1(fightingRoom.getFightingBoard().getLeftPlayerUid());
         hiFightingRoom.setPlayer2(fightingRoom.getFightingBoard().getRightPlayerUid());
 
+        fightingRoom.setOverTime(new Date());
+        hiFightingRoom.setCreatTime(fightingRoom.getCreatTime());
+        hiFightingRoom.setOverTime(fightingRoom.getOverTime());
         try {
-            hiFightingRoom.setFightingRoomJson(MapperUtils.obj2json(fightingCamp.getFightingRoom()));
+            String json = MapperUtils.obj2json(fightingCamp.getFightingRoom());
+            hiFightingRoom.setFightingRoomJson(new String(ZIP.gZip(json.getBytes())));
         } catch (Exception e) {
             e.printStackTrace();
         }

@@ -41,7 +41,8 @@ public class JsonSerializer implements Serializer {
 //            加密
 //            bytes = encrypt(bytes);
             //gzip压缩返回
-            return ZIP.gZip(bytes);
+            //bytes=ZIP.gZip(bytes);
+            return bytes;
         } catch (Exception e) {
             //e.printStackTrace();
         }
@@ -53,7 +54,7 @@ public class JsonSerializer implements Serializer {
 
         try {
             //gzip解压后使用
-            data=ZIP.unGZip(data);
+            //data=ZIP.unGZip(data);
 //            解密
 //            data = decrypt(data);
 //            Console.log(new String(data, "UTF-8"));

@@ -6,6 +6,7 @@ import com.haoyou.spring.cloud.alibaba.service.sofabolt.SendMsgService;
 import com.haoyou.spring.cloud.alibaba.sofabolt.connection.Connections;
 import com.haoyou.spring.cloud.alibaba.sofabolt.protocol.MyRequest;
 import com.haoyou.spring.cloud.alibaba.sofabolt.server.MyServer;
+import io.netty.channel.Channel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -94,15 +95,18 @@ public class SendMsgServiceImpl implements SendMsgService {
     }
 
     /**
-     * 判断用户是否在线
+     * 判断用户，链接是否健康
      * @param userUid
      * @return
      */
     @Override
     public boolean connectionIsAlive(String userUid) {
         Connection connection = connections.get(userUid);
-        if(connection!=null&&connection.getChannel().isActive()){
-            return true;
+        if(connection!=null){
+            final Channel channel = connection.getChannel();
+            if(channel.isActive()||channel.isOpen()||channel.isWritable()){
+                return true;
+            }
         }
         return false;
 

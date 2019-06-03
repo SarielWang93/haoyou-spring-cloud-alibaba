@@ -9,6 +9,7 @@ import com.haoyou.spring.cloud.alibaba.commons.domain.RedisKey;
 import com.haoyou.spring.cloud.alibaba.sofabolt.protocol.RedisObjKV;
 import com.haoyou.spring.cloud.alibaba.service.redis.RedisObjectService;
 import com.haoyou.spring.cloud.alibaba.serialization.JsonSerializer;
+import com.haoyou.spring.cloud.alibaba.zip.ZIP;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -120,7 +121,7 @@ public class RedisObjectUtil {
     private <T> byte[] serialize(T t) {
 
         try {
-            return this.getSerializer().serialize(t);
+            return ZIP.gZip(this.getSerializer().serialize(t));
         } catch (CodecException e) {
             e.printStackTrace();
             return null;
@@ -138,7 +139,7 @@ public class RedisObjectUtil {
     private <T> T deserialize(byte[] bt, Class<T> aclass) {
 
         try {
-            return this.getSerializer().deserialize(bt, aclass.getName());
+            return this.getSerializer().deserialize(ZIP.unGZip(bt), aclass.getName());
         } catch (CodecException e) {
             e.printStackTrace();
             return null;

@@ -9,8 +9,10 @@ import cn.hutool.core.util.StrUtil;
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.alibaba.fastjson.JSON;
 import com.haoyou.spring.cloud.alibaba.commons.domain.RedisKey;
+import com.haoyou.spring.cloud.alibaba.commons.entity.HiFightingRoom;
 import com.haoyou.spring.cloud.alibaba.commons.entity.Prop;
 import com.haoyou.spring.cloud.alibaba.commons.entity.User;
+import com.haoyou.spring.cloud.alibaba.commons.mapper.HiFightingRoomMapper;
 import com.haoyou.spring.cloud.alibaba.commons.mapper.UserMapper;
 
 import com.haoyou.spring.cloud.alibaba.commons.util.MapperUtils;
@@ -25,6 +27,7 @@ import com.haoyou.spring.cloud.alibaba.service.redis.RedisService;
 import com.haoyou.spring.cloud.alibaba.service.redis.ScoreRankService;
 import com.haoyou.spring.cloud.alibaba.service.sofabolt.SendMsgService;
 import com.haoyou.spring.cloud.alibaba.util.RedisObjectUtil;
+import com.haoyou.spring.cloud.alibaba.zip.ZIP;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,6 +49,8 @@ public class ManagerTest {
     SendMsgService sendMsgService;
     @Autowired
     UserMapper userMapper;
+    @Autowired
+    HiFightingRoomMapper hiFightingRoomMapper;
     @Autowired
     ScoreRankService scoreRankService;
 
@@ -74,16 +79,20 @@ public class ManagerTest {
     @Test
     public void contextLoads4() throws Exception {
 
+        List<HiFightingRoom> hiFightingRooms = hiFightingRoomMapper.selectAll();
+        for(HiFightingRoom hiFightingRoom:hiFightingRooms){
+
+            Console.log(hiFightingRoom.getFightingRoomJson().getBytes().length);
+            Console.log(ZIP.unGZip(hiFightingRoom.getFightingRoomJson().getBytes()).length);
+            Console.log(new String(ZIP.unGZip(hiFightingRoom.getFightingRoomJson().getBytes())));
+        }
+
 
     }
 
     public static void main(String[] args) throws InterruptedException {
-        Integer a = 3, b = 3, c = 128, d = 128,e = new Integer(1),f = new Integer(1);
 
-        System.out.println(a == b);
-        System.out.println(c == d);
-        System.out.println(e == f);
-        System.out.println(e+0 == f);
+
 
     }
 
