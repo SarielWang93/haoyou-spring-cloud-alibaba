@@ -150,16 +150,9 @@ public class CultivateServiceImpl implements CultivateService {
      * @return
      */
     private boolean checkProp(User user, Prop prop) {
-        List<Prop> props = null;
-        String propsJson = user.getProps();
 
-        if (StrUtil.isNotEmpty(propsJson)) {
-            try {
-                props = MapperUtils.json2list(propsJson, Prop.class);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
+        List<Prop> props = user.propList();
+
         if (props != null && props.size() > 0) {
             for (Prop propTrue : props) {
                 if (propTrue.getPropInstenceUid().equals(prop.getPropInstenceUid())) {

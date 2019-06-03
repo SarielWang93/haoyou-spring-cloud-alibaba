@@ -11,6 +11,6 @@
     <result column="player2" jdbcType="VARCHAR" property="player2" />
     <result column="creat_time" jdbcType="TIMESTAMP" property="creatTime" />
     <result column="over_time" jdbcType="TIMESTAMP" property="overTime" />
-    <result column="fighting_room_json" jdbcType="LONGVARCHAR" property="fightingRoomJson" />
+    <result column="fighting_room_json" jdbcType="LONGVARBINARY" property="fightingRoomJson" />
   </resultMap>
 </mapper>

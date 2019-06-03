@@ -5,17 +5,15 @@ import com.alibaba.dubbo.config.annotation.Reference;
 import com.alipay.remoting.exception.CodecException;
 import com.alipay.remoting.serialization.Serializer;
 import com.alipay.remoting.serialization.SerializerManager;
-import com.haoyou.spring.cloud.alibaba.commons.domain.RedisKey;
+import com.haoyou.spring.cloud.alibaba.serialization.JsonSerializer;
 import com.haoyou.spring.cloud.alibaba.sofabolt.protocol.RedisObjKV;
 import com.haoyou.spring.cloud.alibaba.service.redis.RedisObjectService;
-import com.haoyou.spring.cloud.alibaba.serialization.JsonSerializer;
-import com.haoyou.spring.cloud.alibaba.zip.ZIP;
+import com.haoyou.spring.cloud.alibaba.commons.util.ZIP;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
-import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
 
@@ -118,7 +116,7 @@ public class RedisObjectUtil {
      * @param t
      * @return
      */
-    private <T> byte[] serialize(T t) {
+    public <T> byte[] serialize(T t) {
 
         try {
             return ZIP.gZip(this.getSerializer().serialize(t));
@@ -136,7 +134,7 @@ public class RedisObjectUtil {
      * @param <T>
      * @return
      */
-    private <T> T deserialize(byte[] bt, Class<T> aclass) {
+    public  <T> T deserialize(byte[] bt, Class<T> aclass) {
 
         try {
             return this.getSerializer().deserialize(ZIP.unGZip(bt), aclass.getName());

@@ -1,32 +1,38 @@
 package com.haoyou.spring.cloud.alibaba.redis.test;
 
+import cn.hutool.core.lang.Console;
+import com.haoyou.spring.cloud.alibaba.commons.entity.HiFightingRoom;
+import com.haoyou.spring.cloud.alibaba.commons.mapper.HiFightingRoomMapper;
 import com.haoyou.spring.cloud.alibaba.commons.mapper.UserMapper;
 
-import com.haoyou.spring.cloud.alibaba.util.RedisObjectUtil;
-
+import com.haoyou.spring.cloud.alibaba.commons.util.ZIP;
+import com.haoyou.spring.cloud.alibaba.fighting.info.FightingRoom;
+import com.haoyou.spring.cloud.alibaba.serialization.JsonSerializer;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import org.springframework.context.annotation.Profile;
 import org.springframework.data.redis.core.RedisTemplate;
 
 import org.springframework.data.redis.serializer.StringRedisSerializer;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import javax.annotation.PostConstruct;
-
+import java.util.List;
 
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
+@ActiveProfiles(value = "dev")
 public class RedisTest {
 
     @Autowired
     private UserMapper userMapper;
     @Autowired
-    private RedisObjectUtil redisObjectUtil;
-
+    HiFightingRoomMapper hiFightingRoomMapper;
 
     @Autowired
     private RedisTemplate redisTemplate;
@@ -56,6 +62,12 @@ public class RedisTest {
     @Test
     public void test1(){
 
+        List<HiFightingRoom> hiFightingRooms = hiFightingRoomMapper.selectAll();
+        for(HiFightingRoom hiFightingRoom:hiFightingRooms){
+
+            Console.log(hiFightingRoom.getFightingRoomJson().length);
+            Console.log(JsonSerializer.deserializes(hiFightingRoom.getFightingRoomJson(), FightingRoom.class.getName()));
+        }
 
     }
 

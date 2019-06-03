@@ -42,8 +42,8 @@ mv target/haoyou-spring-cloud-alibaba-login-1.0.0-SNAPSHOT.jar ${xxl_url}/login
 cd ../
 
 cd haoyou-spring-cloud-alibaba-manager
-mv target/haoyou-spring-cloud-alibaba-manager-1.0.0-SNAPSHOT.jar ${xxl_url}/manager
 mvn  clean install -DskipTests
+mv target/haoyou-spring-cloud-alibaba-manager-1.0.0-SNAPSHOT.jar ${xxl_url}/manager
 cd ../
 
 cd haoyou-spring-cloud-alibaba-match

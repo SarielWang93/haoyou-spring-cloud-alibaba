@@ -6,6 +6,7 @@ import cn.hutool.core.util.StrUtil;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.haoyou.spring.cloud.alibaba.commons.domain.message.BaseMessage;
 import com.haoyou.spring.cloud.alibaba.commons.util.MapperUtils;
+import com.haoyou.spring.cloud.alibaba.commons.util.ZIP;
 import lombok.Data;
 
 import javax.persistence.*;
@@ -77,7 +78,7 @@ public class User extends BaseMessage implements Serializable {
     /**
      * 道具（json存储）
      */
-    private String props;
+    private byte[] props;
 
 
 
@@ -85,7 +86,7 @@ public class User extends BaseMessage implements Serializable {
      * 平台提供信息（json存储）
      */
     @Column(name = "platform_param")
-    private String platformParam;
+    private byte[] platformParam;
 
     /**
      * 匹配基准值
@@ -135,9 +136,9 @@ public class User extends BaseMessage implements Serializable {
 
     public List<Prop> propList(){
         List<Prop> props = null;
-        if (StrUtil.isNotEmpty(this.props)) {
+        if (this.props!=null) {
             try {
-                props = MapperUtils.json2list(this.props, Prop.class);
+                props = MapperUtils.json2list(new String(ZIP.unGZip(this.props), "UTF-8"), Prop.class);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -160,7 +161,7 @@ public class User extends BaseMessage implements Serializable {
                         propsThis.add(prop);
                     }
                 }
-                this.props=MapperUtils.obj2jsonIgnoreNull(propsThis);
+                this.props=ZIP.gZip(MapperUtils.obj2jsonIgnoreNull(propsThis).getBytes("UTF-8"));
                 return true;
             }
         } catch (Exception e) {

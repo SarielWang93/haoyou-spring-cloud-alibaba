@@ -19,8 +19,8 @@
     <result column="rank" jdbcType="INTEGER" property="rank" />
     <result column="diamond" jdbcType="INTEGER" property="diamond" />
     <result column="vitality" jdbcType="INTEGER" property="vitality" />
-    <result column="props" jdbcType="LONGVARCHAR" property="props" />
-    <result column="platform_param" jdbcType="LONGVARCHAR" property="platformParam" />
+    <result column="props" jdbcType="LONGVARBINARY" property="props" />
+    <result column="platform_param" jdbcType="LONGVARBINARY" property="platformParam" />
     <result column="creat_date" jdbcType="TIMESTAMP" property="creatDate" />
     <result column="last_login_date" jdbcType="TIMESTAMP" property="lastLoginDate" />
     <result column="last_login_out_date" jdbcType="TIMESTAMP" property="lastLoginOutDate" />

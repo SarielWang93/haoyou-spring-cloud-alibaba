@@ -27,6 +27,6 @@ public class HiFightingRoom {
     private Date overTime;
 
     @Column(name = "fighting_room_json")
-    private String fightingRoomJson;
+    private byte[] fightingRoomJson;
 
 }

@@ -11,6 +11,7 @@ import com.haoyou.spring.cloud.alibaba.cultivate.msg.SkillConfigMsg;
 import com.haoyou.spring.cloud.alibaba.fighting.info.FightingPet;
 import com.haoyou.spring.cloud.alibaba.fighting.info.skill.SkillBoard;
 import com.haoyou.spring.cloud.alibaba.fighting.info.skill.shape.Tetromino;
+import com.haoyou.spring.cloud.alibaba.serialization.JsonSerializer;
 import com.haoyou.spring.cloud.alibaba.util.RedisObjectUtil;
 import com.haoyou.spring.cloud.alibaba.util.SendMsgUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,9 +51,10 @@ public class SkillConfigService {
             if(skillBoard.addSkill(skillConfigMsg.getTetromino(),prop)){
                 try {
                     //修改缓存
-                    fightingPet.getPet().setSkillBoardJosn(MapperUtils.obj2json(skillBoard));
+                    fightingPet.getPet().setSkillBoardJosn(JsonSerializer.serializes(skillBoard));
                     fightingPet.getPet().getOtherSkill().add(prop.getProperty1());
                     fightingPet.save();
+                    petMapper.updateByPrimaryKey(fightingPet.getPet());
                     //添加数据库
                     PetSkill ps=new PetSkill();
                     ps.setPetUid(fightingPet.getUid());
@@ -80,14 +82,15 @@ public class SkillConfigService {
         //获取宠物对应的技能盘
         SkillBoard skillBoard=getSkillBoard(fightingPet);
         if(skillBoard!=null){
-            //技能盘，添加技能
+            //技能盘，移除技能
             String skillUid = skillBoard.removeSkill(tetromino);
             if(StrUtil.isNotEmpty(skillUid)){
                 try {
                     //修改缓存
-                    fightingPet.getPet().setSkillBoardJosn(MapperUtils.obj2json(skillBoard));
+                    fightingPet.getPet().setSkillBoardJosn(JsonSerializer.serializes(skillBoard));
                     fightingPet.getPet().getOtherSkill().remove(skillUid);
                     fightingPet.save();
+                    petMapper.updateByPrimaryKey(fightingPet.getPet());
                     //删除数据库
                     PetSkill ps=new PetSkill();
                     ps.setPetUid(fightingPet.getUid());
@@ -108,16 +111,12 @@ public class SkillConfigService {
      * @return
      */
     private SkillBoard getSkillBoard(FightingPet fightingPet){
-        String skillBoardJosn = fightingPet.getPet().getSkillBoardJosn();
 
-        if(StrUtil.isNotEmpty(skillBoardJosn)){
-            try {
-                return MapperUtils.json2pojo(skillBoardJosn, SkillBoard.class);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+        if(fightingPet.getPet().getSkillBoardJosn()!=null){
+            return JsonSerializer.deserializes(fightingPet.getPet().getSkillBoardJosn(), SkillBoard.class.getName());
+        }else{
+            return new SkillBoard(9,9);
         }
-        return null;
     }
 
 }

@@ -84,10 +84,7 @@ public class FightingPet implements Serializable {
      * 原型pet
      */
     private Pet pet;
-    /**
-     * 既能配置对象
-     */
-    private SkillBoard skillBoard;
+
     /**
      * 昵称
      */
@@ -174,14 +171,6 @@ public class FightingPet implements Serializable {
         //基础属性
         this.nickname = pet.getNickname();
         this.uid = pet.getUid();
-
-        try {
-            if (pet.getSkillBoardJosn() != null) {
-                this.skillBoard = MapperUtils.json2pojo(pet.getSkillBoardJosn(), SkillBoard.class);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
 
         //战斗相关
         this.iswork = pet.getIswork();
@@ -1008,7 +997,6 @@ public class FightingPet implements Serializable {
     public String toString() {
         return "FightingPet{" +
                 ", pet=" + pet +
-                ", skillBoard=" + skillBoard +
                 ", nickname='" + nickname + '\'' +
                 ", uid='" + uid + '\'' +
                 ", fightingStates=" + fightingStates +

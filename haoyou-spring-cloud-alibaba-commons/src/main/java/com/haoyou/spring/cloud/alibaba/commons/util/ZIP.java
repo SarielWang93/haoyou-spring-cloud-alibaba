@@ -1,4 +1,4 @@
-package com.haoyou.spring.cloud.alibaba.zip;
+package com.haoyou.spring.cloud.alibaba.commons.util;
 
 import cn.hutool.core.text.StrBuilder;
 

@@ -6,12 +6,9 @@ import cn.hutool.crypto.symmetric.AES;
 import com.alipay.remoting.exception.CodecException;
 import com.alipay.remoting.serialization.Serializer;
 import com.alipay.remoting.serialization.SerializerManager;
-import com.haoyou.spring.cloud.alibaba.commons.util.ByteArrayUtil;
 import com.haoyou.spring.cloud.alibaba.commons.util.MapperUtils;
-import com.haoyou.spring.cloud.alibaba.zip.ZIP;
+import com.haoyou.spring.cloud.alibaba.commons.util.ZIP;
 import org.springframework.stereotype.Service;
-
-import java.io.UnsupportedEncodingException;
 
 /**
  * SOFABolt序列化器扩展
@@ -66,7 +63,31 @@ public class JsonSerializer implements Serializer {
         return null;
     }
 
+    public static byte[] serializes(Object obj){
 
+        try {
+            String msg = MapperUtils.obj2jsonIgnoreNull(obj);
+            byte[] bytes = msg.getBytes("UTF-8");
+            //gzip压缩返回
+            bytes=ZIP.gZip(bytes);
+            return bytes;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+    public static <T> T deserializes(byte[] data, String classOfT){
+
+        try {
+            //gzip解压后使用
+            data= ZIP.unGZip(data);
+
+            return (T) MapperUtils.json2pojo( new String(data, "UTF-8"),Class.forName(classOfT));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 
 
     /**

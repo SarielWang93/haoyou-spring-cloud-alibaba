@@ -7,7 +7,6 @@ import cn.hutool.core.util.StrUtil;
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.haoyou.spring.cloud.alibaba.commons.domain.*;
-import com.haoyou.spring.cloud.alibaba.commons.domain.message.BaseMessage;
 import com.haoyou.spring.cloud.alibaba.commons.domain.message.MapBody;
 import com.haoyou.spring.cloud.alibaba.commons.entity.*;
 import com.haoyou.spring.cloud.alibaba.commons.mapper.HiFightingRoomMapper;
@@ -15,12 +14,13 @@ import com.haoyou.spring.cloud.alibaba.commons.util.MapperUtils;
 import com.haoyou.spring.cloud.alibaba.commons.util.RedisKeyUtil;
 import com.haoyou.spring.cloud.alibaba.fighting.info.*;
 import com.haoyou.spring.cloud.alibaba.fighting.info.fightingstate.FightingState;
+import com.haoyou.spring.cloud.alibaba.serialization.JsonSerializer;
 import com.haoyou.spring.cloud.alibaba.service.cultivate.CultivateService;
 import com.haoyou.spring.cloud.alibaba.sofabolt.protocol.MyRequest;
 import com.haoyou.spring.cloud.alibaba.service.fighting.FightingService;
 import com.haoyou.spring.cloud.alibaba.util.RedisObjectUtil;
 import com.haoyou.spring.cloud.alibaba.util.SendMsgUtil;
-import com.haoyou.spring.cloud.alibaba.zip.ZIP;
+import com.haoyou.spring.cloud.alibaba.commons.util.ZIP;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -913,12 +913,9 @@ public class FightingServiceImpl implements FightingService {
         fightingRoom.setOverTime(new Date());
         hiFightingRoom.setCreatTime(fightingRoom.getCreatTime());
         hiFightingRoom.setOverTime(fightingRoom.getOverTime());
-        try {
-            String json = MapperUtils.obj2json(fightingCamp.getFightingRoom());
-            hiFightingRoom.setFightingRoomJson(new String(ZIP.gZip(json.getBytes())));
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+
+        hiFightingRoom.setFightingRoomJson(JsonSerializer.serializes(fightingRoom));
+
         hiFightingRoomMapper.insert(hiFightingRoom);
 
     }

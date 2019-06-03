@@ -181,7 +181,6 @@ public class LoginServiceImpl implements LoginService {
         user.setPropMax(20);
         user.setDiamond(0);
         user.setVitality(100);
-        user.setProps("[]");
         user.setCreatDate(new Date());
         userMapper.insert(user);
 
