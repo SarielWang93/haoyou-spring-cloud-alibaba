@@ -23,6 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.UnsupportedEncodingException;
+import java.util.Date;
 
 
 /**
@@ -63,10 +64,12 @@ public class MyServerUserProcessor extends SyncUserProcessor<MyRequest> {
                 //刷新链接
                 Connection connectionthis = bizCtx.getConnection();
                 Connection connectionuid = connections.get(useruid);
+                Connection connection=connectionuid;
                 //前一链接已断开
                 if (connectionuid == null || !connectionuid.getChannel().isActive()) {
                     setDeviceuid(connectionthis, req.getDeviceuid());
                     connections.put(useruid, connectionthis);
+                    connection=connectionthis;
                 }
                 //前一链接与新链接不同
                 else if (!connectionuid.getRemoteIP().equals(connectionthis.getRemoteIP()) || connectionuid.getRemotePort() != connectionthis.getRemotePort()) {
@@ -76,12 +79,17 @@ public class MyServerUserProcessor extends SyncUserProcessor<MyRequest> {
                     }
                     setDeviceuid(connectionthis, req.getDeviceuid());
                     connections.put(useruid, connectionthis);
+                    connection=connectionthis;
                 }
                 //如果没有设备编号则添加设备编号
                 else {
                     if (connectionuid.getAttribute("deviceuid") == null) {
                         setDeviceuid(connectionuid, req.getDeviceuid());
                     }
+                }
+                //处理心跳
+                if(req.getId()==2){
+                    connection.setAttribute("heart",new Date());
                 }
             }
 

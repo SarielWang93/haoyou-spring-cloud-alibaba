@@ -212,7 +212,7 @@ public class FightingServiceImpl implements FightingService {
             /**
              * 玩家索要初始化信息
              */
-            if (fightingReq.getCurrentPetId().equals(-2)) {
+            if (fightingReq.getCurrentPetId().equals(-10)) {
                 logger.debug(String.format("初始化信息：%s", user.getUsername()));
                 /**
                  * 发送初始化信息，方便前端同步
@@ -223,7 +223,7 @@ public class FightingServiceImpl implements FightingService {
             /**
              * 玩家初始化完成
              */
-            else if (fightingReq.getCurrentPetId().equals(-4)) {
+            else if (fightingReq.getCurrentPetId().equals(-30)) {
                 logger.debug(String.format("始化完成：%s", user.getUsername()));
                 FightingCamp thisFightingCamp = fightingRoom.getFightingCamps().get(user.getUid());
                 thisFightingCamp.setReady(true);
@@ -255,7 +255,7 @@ public class FightingServiceImpl implements FightingService {
             /**
              * 断线重连信息
              */
-            else if (fightingReq.getCurrentPetId().equals(-3)) {
+            else if (fightingReq.getCurrentPetId().equals(-20)) {
                 logger.debug(String.format("断线重连：%s", user.getUsername()));
                 /**
                  * 棋盘信息
@@ -496,6 +496,8 @@ public class FightingServiceImpl implements FightingService {
                             fightingReq.setDestroyInfos(new ArrayList<>());
                             //fightingReq.setFightingRoomUid(fightingRoom.getUid());
                             doOperation(fightingRoom, fightingReq);
+                        }else{
+                            this.saveFightingRoom(fightingRoom);
                         }
                     }
                     return;

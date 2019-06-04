@@ -74,6 +74,7 @@ public class InitData implements ApplicationRunner {
      * @throws Exception
      */
     public void initRanking(){
+
         //初始化缓存排行榜
         final String ranking = RedisKey.RANKING;
         List<User> users = userMapper.selectAll();
@@ -90,6 +91,9 @@ public class InitData implements ApplicationRunner {
      * @throws Exception
      */
     public void initSkill() {
+
+        redisObjectUtil.deleteAll(RedisKeyUtil.getlkKey(RedisKey.SKILL));
+
         List<Skill> skills = skillMapper.selectAll();
 
         for(Skill skill:skills){
@@ -163,6 +167,9 @@ public class InitData implements ApplicationRunner {
      * @throws Exception
      */
     public void initPetType(){
+        redisObjectUtil.deleteAll(RedisKeyUtil.getlkKey(RedisKey.PET_TYPE));
+
+
         List<PetType> petTypes = petTypeMapper.selectAll();
         for(PetType petType:petTypes){
             //获取ai权重信息
@@ -181,8 +188,9 @@ public class InitData implements ApplicationRunner {
      */
     public void initProp(){
 
-        List<Prop> props = propMapper.selectAll();
+        redisObjectUtil.deleteAll(RedisKeyUtil.getlkKey(RedisKey.PROP));
 
+        List<Prop> props = propMapper.selectAll();
         for(Prop prop:props){
             String propKey = RedisKeyUtil.getKey(RedisKey.PROP, prop.getUid());
             redisObjectUtil.save(propKey,prop,-1);
@@ -190,12 +198,15 @@ public class InitData implements ApplicationRunner {
     }
 
     /**
-     * 初始化道具表
+     * 初始化版本表
      */
     public void initVersion(){
+
+        redisObjectUtil.deleteAll(RedisKeyUtil.getlkKey(RedisKey.VERSION));
+
         List<VersionControl> versions = versionControlMapper.selectAll();
         for(VersionControl version:versions){
-            String propKey = RedisKeyUtil.getKey(RedisKey.VERSION, version.getVersion());
+            String propKey = RedisKeyUtil.getKey(RedisKey.VERSION, version.getUid());
             redisObjectUtil.save(propKey,version,-1);
         }
 

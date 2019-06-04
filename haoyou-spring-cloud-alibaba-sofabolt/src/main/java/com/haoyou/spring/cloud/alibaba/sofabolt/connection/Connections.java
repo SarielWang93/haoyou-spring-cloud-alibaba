@@ -13,10 +13,12 @@ import com.haoyou.spring.cloud.alibaba.service.manager.ManagerService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ConcurrentSkipListMap;
 
@@ -30,6 +32,11 @@ public class Connections {
 
     @Reference(version = "${manager.service.version}")
     private ManagerService managerService;
+
+    @Value("${sofabolt.connections.heart:2000}")
+    private long heartTime;
+    @Value("${sofabolt.connections.hearttry:3}")
+    private int heartTry;
 
     /**
      * 用户的连接对象
@@ -88,7 +95,7 @@ public class Connections {
         logger.info("清理断链链接！！！");
         for (String uid : disconnects) {
             Connection connection = connections.get(uid);
-            if (connection != null && !connection.getChannel().isActive())
+            if (connection != null && !connectionIsAlive(uid))
             //待清理中未重连，登出
             {
                 User user = new User();
@@ -110,11 +117,35 @@ public class Connections {
 
         //将断链链接放入待清理
         connections.forEach((uid, connection) -> {
-            if (!connection.getChannel().isActive()) {
+            if (!connectionIsAlive(uid)) {
                 disconnects.add(uid);
             }
         });
 
+
+    }
+
+
+    /**
+     * 判断用户，链接是否健康
+     *
+     * @param userUid
+     * @return
+     */
+    public boolean connectionIsAlive(String userUid) {
+        Connection connection = connections.get(userUid);
+        if (connection != null) {
+
+            Date heart = (Date) connection.getAttribute("heart");
+
+            Date now = new Date();
+
+            if (heart !=null && now.getTime()-heart.getTime()<(heartTime*heartTry)) {
+                return true;
+            }
+        }
+
+        return false;
 
     }
 }

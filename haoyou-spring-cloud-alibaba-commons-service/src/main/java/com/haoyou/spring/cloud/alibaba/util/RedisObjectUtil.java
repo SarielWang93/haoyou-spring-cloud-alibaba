@@ -107,7 +107,22 @@ public class RedisObjectUtil {
         //logger.info(String.format("delete %s",key));
         return redisObjectService.delete(key);
     }
+    /**
+     * 删除所有对象
+     * @param key
+     * @return
+     */
+    public boolean deleteAll(String key){
+        //logger.info(String.format("deleteAll %s",key));
+        List<RedisObjKV> lkList = redisObjectService.getlkMap(key);
 
+        for(RedisObjKV redisObjKV:lkList){
+            redisObjectService.delete(redisObjKV.getKey());
+        }
+
+
+        return true;
+    }
 
 
     /**

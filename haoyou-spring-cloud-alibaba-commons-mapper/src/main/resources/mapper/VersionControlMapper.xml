@@ -7,9 +7,17 @@
     -->
     <id column="id" jdbcType="INTEGER" property="id" />
     <result column="uid" jdbcType="VARCHAR" property="uid" />
-    <result column="version" jdbcType="VARCHAR" property="version" />
-    <result column="url" jdbcType="VARCHAR" property="url" />
+    <result column="force_game_update" jdbcType="BIT" property="forceGameUpdate" />
+    <result column="latest_game_version" jdbcType="VARCHAR" property="latestGameVersion" />
+    <result column="internal_game_version" jdbcType="INTEGER" property="internalGameVersion" />
+    <result column="internal_resource_version" jdbcType="INTEGER" property="internalResourceVersion" />
+    <result column="game_update_url" jdbcType="VARCHAR" property="gameUpdateUrl" />
+    <result column="version_list_length" jdbcType="BIGINT" property="versionListLength" />
+    <result column="version_list_hash_code" jdbcType="BIGINT" property="versionListHashCode" />
+    <result column="version_list_zip_length" jdbcType="BIGINT" property="versionListZipLength" />
+    <result column="version_list_zip_hash_code" jdbcType="BIGINT" property="versionListZipHashCode" />
     <result column="date" jdbcType="TIMESTAMP" property="date" />
+    <result column="end_of_json" jdbcType="LONGVARCHAR" property="endOfJson" />
     <result column="describe" jdbcType="LONGVARCHAR" property="describe" />
   </resultMap>
 </mapper>

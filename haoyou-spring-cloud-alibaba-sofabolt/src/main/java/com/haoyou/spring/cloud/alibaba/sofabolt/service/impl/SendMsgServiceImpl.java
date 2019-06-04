@@ -12,6 +12,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
+import java.util.Date;
+
 /**
  * 通过链接 发送信息
  */
@@ -20,8 +22,9 @@ public class SendMsgServiceImpl implements SendMsgService {
     private final static Logger logger = LoggerFactory.getLogger(SendMsgServiceImpl.class);
 
     //默认发送超时时间
-    @Value("${sofabolt.server.sendouttime}")
-    private int defouttime=30000;
+    @Value("${sofabolt.connections.sendouttime:30000}")
+    private int defouttime;
+
     @Autowired
     Connections connections;
 
@@ -33,15 +36,15 @@ public class SendMsgServiceImpl implements SendMsgService {
      */
     @Override
     public MyRequest sendMsgOne(MyRequest req) {
-        logger.info(String.format("发送信息：%s",req));
+        logger.info(String.format("发送信息：%s", req));
 
         Connection connection = connections.get(req.getUseruid());
-        if(connection==null){
+        if (connection == null) {
             return null;
         }
         MyRequest resp = null;
         try {
-            resp = (MyRequest)MyServer.server.invokeSync(connection, req, defouttime);
+            resp = (MyRequest) MyServer.server.invokeSync(connection, req, defouttime);
             return resp;
         } catch (Exception e) {
             e.printStackTrace();
@@ -49,15 +52,14 @@ public class SendMsgServiceImpl implements SendMsgService {
         return resp;
 
 
-
     }
 
     @Override
     public boolean sendMsgOneNoReturn(MyRequest req) {
-        logger.info(String.format("发送信息无返回：%s",req));
-        logger.info(String.format("MSG长度：%s",req.getMsg().length));
+        logger.info(String.format("发送信息无返回：%s", req));
+        logger.info(String.format("MSG长度：%s", req.getMsg().length));
         Connection connection = connections.get(req.getUseruid());
-        if(connection==null){
+        if (connection == null) {
             return false;
         }
         try {
@@ -79,7 +81,7 @@ public class SendMsgServiceImpl implements SendMsgService {
      */
     @Override
     public boolean sendMsgAll(MyRequest req) {
-        logger.info(String.format("发送信息全部：%s",req));
+        logger.info(String.format("发送信息全部：%s", req));
 
         connections.getAllMap().forEach((s, connection) -> {
             req.setUseruid(s);
@@ -96,19 +98,13 @@ public class SendMsgServiceImpl implements SendMsgService {
 
     /**
      * 判断用户，链接是否健康
+     *
      * @param userUid
      * @return
      */
     @Override
     public boolean connectionIsAlive(String userUid) {
-        Connection connection = connections.get(userUid);
-        if(connection!=null){
-            final Channel channel = connection.getChannel();
-            if(channel.isActive()||channel.isOpen()||channel.isWritable()){
-                return true;
-            }
-        }
-        return false;
+        return connections.connectionIsAlive(userUid);
 
     }
 }

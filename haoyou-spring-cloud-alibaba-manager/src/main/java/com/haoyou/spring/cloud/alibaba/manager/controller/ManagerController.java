@@ -1,7 +1,12 @@
 package com.haoyou.spring.cloud.alibaba.manager.controller;
 
 import com.alibaba.dubbo.config.annotation.Service;
+import com.haoyou.spring.cloud.alibaba.commons.domain.RedisKey;
+import com.haoyou.spring.cloud.alibaba.commons.entity.VersionControl;
+import com.haoyou.spring.cloud.alibaba.commons.util.MapperUtils;
+import com.haoyou.spring.cloud.alibaba.commons.util.RedisKeyUtil;
 import com.haoyou.spring.cloud.alibaba.manager.init.InitData;
+import com.haoyou.spring.cloud.alibaba.util.RedisObjectUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +17,7 @@ import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
+import java.util.HashMap;
 
 
 @RestController
@@ -20,7 +26,8 @@ public class ManagerController {
 
     @Autowired
     private InitData initData;
-
+    @Autowired
+    protected RedisObjectUtil redisObjectUtil;
 
     /**
      * 对外接口，用于刷新缓存
@@ -33,11 +40,17 @@ public class ManagerController {
         response.setHeader("Access-Control-Allow-Origin", "*");
         response.setHeader("Access-Control-Allow-Methods","GET,POST");
 
-
         initData.run(null);
 
-        return "succese";
+        return "success";
+
     }
+
+
+
+
+
+
 
     /**
      * 文件下载
