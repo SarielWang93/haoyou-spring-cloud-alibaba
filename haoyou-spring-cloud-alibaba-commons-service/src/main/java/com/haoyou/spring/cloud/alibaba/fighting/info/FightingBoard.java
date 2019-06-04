@@ -292,7 +292,7 @@ public class FightingBoard implements Serializable {
 
 
             blockInfos.remove(blockInfo);
-            if (i > count || blockInfos.size() == 0) {
+            if (i >= count || blockInfos.size() == 0) {
                 break;
             }
         }
@@ -387,24 +387,24 @@ public class FightingBoard implements Serializable {
                 }
 
             }
-        }
-        //如果连线数小于三则重新获取连线
-        if (blockInfo.size() < minBlockCount) {
-            switch (redomType) {
-                case ATTACK_NORMAL:
-                    attack--;
-                    break;
-                case ATTACK_SPECIAL:
-                    specialAttack--;
-                    break;
-                case SHIELD:
-                    shield--;
-                    break;
-                case SKILL:
-                    skill--;
-                    break;
+            //如果连线数小于三则重新获取连线
+            if (blockInfo.size() < minBlockCount) {
+                switch (redomType) {
+                    case ATTACK_NORMAL:
+                        attack--;
+                        break;
+                    case ATTACK_SPECIAL:
+                        specialAttack--;
+                        break;
+                    case SHIELD:
+                        shield--;
+                        break;
+                    case SKILL:
+                        skill--;
+                        break;
+                }
+                blockInfo = this.doAI(fightingPet, userUid, attack, specialAttack, shield, skill);
             }
-            blockInfo = this.doAI(fightingPet, userUid, attack, specialAttack, shield, skill);
         }
 
         return blockInfo;

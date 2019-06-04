@@ -2,6 +2,8 @@ package com.haoyou.spring.cloud.alibaba.manager.test;
 
 import cn.hutool.core.lang.Console;
 
+import cn.hutool.core.lang.WeightRandom;
+import cn.hutool.core.util.RandomUtil;
 import com.haoyou.spring.cloud.alibaba.commons.entity.HiFightingRoom;
 import com.haoyou.spring.cloud.alibaba.commons.entity.User;
 import com.haoyou.spring.cloud.alibaba.commons.mapper.HiFightingRoomMapper;
@@ -72,6 +74,15 @@ public class ManagerTest {
 
     public static void main(String[] args) throws InterruptedException {
 
+        for(int i = 10;i>=0;i--){
+            WeightRandom.WeightObj<Integer>[] weightObjs = new WeightRandom.WeightObj[4];
+            weightObjs[0] = new WeightRandom.WeightObj(1, i);
+            weightObjs[1] = new WeightRandom.WeightObj(2, i);
+            weightObjs[2] = new WeightRandom.WeightObj(3, i);
+            weightObjs[3] = new WeightRandom.WeightObj(4, i);
+            WeightRandom<Integer> weightRandom = RandomUtil.weightRandom(weightObjs);
+            Console.log(weightRandom.next());
+        }
 
 
     }
