@@ -1,5 +1,6 @@
 package com.haoyou.spring.cloud.alibaba.login.UserCatch;
 
+import cn.hutool.core.thread.ThreadUtil;
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.haoyou.spring.cloud.alibaba.fighting.info.FightingPet;
 import com.haoyou.spring.cloud.alibaba.commons.domain.RedisKey;
@@ -49,8 +50,10 @@ public class UserDateSynchronization {
 
         String key = RedisKeyUtil.getKey(RedisKey.USER, user.getUid());
         if(redisObjectUtil.save(key, user)){
+            ThreadUtil.excAsync(() -> {
+                cachePet(user);
+            },true);
             //缓存宠物信息
-            cachePet(user);
 
             logger.info(String.format("%s 登录成功！！",user.getUsername()));
             return true;

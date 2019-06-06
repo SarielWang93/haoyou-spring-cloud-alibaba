@@ -54,12 +54,12 @@ public class SkillConfigService {
                     fightingPet.getPet().setSkillBoardJosn(JsonSerializer.serializes(skillBoard));
                     fightingPet.getPet().getOtherSkill().add(prop.getProperty1());
                     fightingPet.save();
-                    petMapper.updateByPrimaryKey(fightingPet.getPet());
+                    petMapper.updateByPrimaryKeySelective(fightingPet.getPet());
                     //添加数据库
                     PetSkill ps=new PetSkill();
                     ps.setPetUid(fightingPet.getUid());
                     ps.setSkillUid(prop.getProperty1());
-                    petSkillMapper.insert(ps);
+                    petSkillMapper.insertSelective(ps);
                     return true;
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -90,7 +90,7 @@ public class SkillConfigService {
                     fightingPet.getPet().setSkillBoardJosn(JsonSerializer.serializes(skillBoard));
                     fightingPet.getPet().getOtherSkill().remove(skillUid);
                     fightingPet.save();
-                    petMapper.updateByPrimaryKey(fightingPet.getPet());
+                    petMapper.updateByPrimaryKeySelective(fightingPet.getPet());
                     //删除数据库
                     PetSkill ps=new PetSkill();
                     ps.setPetUid(fightingPet.getUid());

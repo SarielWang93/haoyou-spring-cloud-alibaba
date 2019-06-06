@@ -64,7 +64,7 @@ public abstract class RewardHandle {
     public boolean save(User user){
         if(redisObjectUtil.save(RedisKeyUtil.getKey(RedisKey.USER, user.getUid()), user)){
             user.setLastUpdateDate(new Date());
-            return userMapper.updateByPrimaryKey(user)==1;
+            return userMapper.updateByPrimaryKeySelective(user)==1;
         }
         return false;
     }

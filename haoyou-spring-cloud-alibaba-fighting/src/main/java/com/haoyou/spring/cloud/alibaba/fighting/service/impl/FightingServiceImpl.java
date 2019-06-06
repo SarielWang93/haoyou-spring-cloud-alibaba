@@ -918,7 +918,7 @@ public class FightingServiceImpl implements FightingService {
 
         hiFightingRoom.setFightingRoomJson(JsonSerializer.serializes(fightingRoom));
 
-        hiFightingRoomMapper.insert(hiFightingRoom);
+        hiFightingRoomMapper.insertSelective(hiFightingRoom);
 
     }
 

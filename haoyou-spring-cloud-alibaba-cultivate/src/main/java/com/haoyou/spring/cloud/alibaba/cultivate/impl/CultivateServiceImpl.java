@@ -123,7 +123,7 @@ public class CultivateServiceImpl implements CultivateService {
                 pet.setNickname(petType.getL10n());
                 pet.setCreatDate(new Date());
 
-                petMapper.insert(pet);
+                petMapper.insertSelective(pet);
             }
         }
         la.add(1);

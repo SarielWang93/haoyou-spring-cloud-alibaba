@@ -5,6 +5,8 @@ import cn.hutool.core.lang.Console;
 import cn.hutool.core.lang.WeightRandom;
 import cn.hutool.core.util.RandomUtil;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.haoyou.spring.cloud.alibaba.commons.domain.StateType;
+import com.haoyou.spring.cloud.alibaba.fighting.info.fightingstate.FightingState;
 import lombok.Data;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -354,6 +356,25 @@ public class FightingBoard implements Serializable {
     public List<BlockInfo> doAI(FightingPet fightingPet, String userUid, Integer attack, Integer specialAttack, Integer shield, Integer skill) {
 
         Integer starClass = fightingPet.getPet().getStarClass();
+        /**
+         * 处理禁止块状态
+         */
+        List<FightingState> fightingStates = fightingPet.getFightingStateByType(StateType.TURN_START_BLOCK);
+        for(FightingState fightingState:fightingStates){
+            switch (fightingState.getFixed()){
+                case ATTACK_NORMAL:
+                    attack=0;
+                    specialAttack=0;
+                    break;
+                case SHIELD:
+                    shield=0;
+                    break;
+                case SKILL:
+                    skill=0;
+                    break;
+            }
+
+        }
 
         //权重随机
         WeightRandom.WeightObj<Integer>[] weightObjs = new WeightRandom.WeightObj[4];

@@ -63,6 +63,11 @@ public class JsonSerializer implements Serializer {
         return null;
     }
 
+    /**
+     * 工具方法
+     * @param obj
+     * @return
+     */
     public static byte[] serializes(Object obj){
 
         try {
@@ -76,6 +81,14 @@ public class JsonSerializer implements Serializer {
         }
         return null;
     }
+
+    /**
+     * 工具方法
+     * @param data
+     * @param classOfT
+     * @param <T>
+     * @return
+     */
     public static <T> T deserializes(byte[] data, String classOfT){
 
         try {

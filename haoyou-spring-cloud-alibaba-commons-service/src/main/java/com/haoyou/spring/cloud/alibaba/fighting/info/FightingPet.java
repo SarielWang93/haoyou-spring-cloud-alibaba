@@ -1,7 +1,5 @@
 package com.haoyou.spring.cloud.alibaba.fighting.info;
 
-
-import cn.hutool.core.lang.Console;
 import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.StrUtil;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -11,14 +9,11 @@ import com.haoyou.spring.cloud.alibaba.commons.domain.SkillType;
 import com.haoyou.spring.cloud.alibaba.commons.domain.StateType;
 import com.haoyou.spring.cloud.alibaba.commons.entity.*;
 
-import com.haoyou.spring.cloud.alibaba.commons.util.MapperUtils;
 import com.haoyou.spring.cloud.alibaba.commons.util.RedisKeyUtil;
 import com.haoyou.spring.cloud.alibaba.fighting.info.fightingstate.FightingState;
-import com.haoyou.spring.cloud.alibaba.fighting.info.skill.SkillBoard;
 import com.haoyou.spring.cloud.alibaba.util.RedisObjectUtil;
 import lombok.Data;
 
-import javax.persistence.Transient;
 import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.util.*;
@@ -699,7 +694,8 @@ public class FightingPet implements Serializable {
          * 执行回合开始状态
          */
         this.doFightingStateByType(StateType.TURN_START);
-
+        //回合开始操作块
+        this.doFightingStateByType(StateType.TURN_START_BLOCK);
         //增加出手数
         this.shotNum++;
 
@@ -876,20 +872,14 @@ public class FightingPet implements Serializable {
      * @param type
      * @return
      */
-    private List<FightingState> getFightingStateByType(Integer type) {
+    public List<FightingState> getFightingStateByType(Integer type) {
         List<FightingState> rl = new ArrayList<>();
         for (FightingState fightingState : this.fightingStates) {
 
-            if (type >= 100) {
-                if (fightingState.getType() > type && fightingState.getType() < type + 100) {
-                    rl.add(fightingState);
-                }
-
-            } else {
-                if (fightingState.getType().equals(type) ) {
-                    rl.add(fightingState);
-                }
+            if (fightingState.getType().equals(type) ) {
+                rl.add(fightingState);
             }
+
         }
         return rl;
     }

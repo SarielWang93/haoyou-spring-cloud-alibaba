@@ -25,7 +25,7 @@ public class StateType {
 
 
 
-
+    public final static int TURN_START_BLOCK =12;//回合开始操作块
 
 
 
