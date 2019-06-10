@@ -60,5 +60,6 @@ public class VersionControl implements Serializable {
     @Column(name = "`describe`")
     private String describe;
 
-
+    @Column(name = "devic_type")
+    private String devicType;
 }

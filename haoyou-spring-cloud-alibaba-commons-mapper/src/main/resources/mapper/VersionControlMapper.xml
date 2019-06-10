@@ -19,5 +19,6 @@
     <result column="date" jdbcType="TIMESTAMP" property="date" />
     <result column="end_of_json" jdbcType="LONGVARCHAR" property="endOfJson" />
     <result column="describe" jdbcType="LONGVARCHAR" property="describe" />
+    <result column="devic_type" jdbcType="VARCHAR" property="devicType" />
   </resultMap>
 </mapper>

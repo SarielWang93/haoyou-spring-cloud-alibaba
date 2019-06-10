@@ -36,13 +36,19 @@ public class VersionControllerHandle extends ManagerHandle {
 
     @Override
     public BaseMessage handle(MyRequest req) {
+
+        String deviceType = "android";
+        if(req.getDeviceuid().startsWith("ios-")){
+            deviceType = "ios";
+        }
+
         //TODO 版本校验，并传输文件下载地址
         MapBody mapBody = new MapBody<>();
         HashMap<String, VersionControl> stringObjectHashMap = redisObjectUtil.getlkMap(RedisKeyUtil.getlkKey(RedisKey.VERSION), VersionControl.class);
         VersionControl latest=null;
         for(VersionControl versionControl:stringObjectHashMap.values()){
             if(latest!=null){
-                if(versionControl.getDate().getTime()>latest.getDate().getTime()){
+                if(versionControl.getDate().getTime()>latest.getDate().getTime()&&deviceType.equals(versionControl.getDevicType())){
                     latest=versionControl;
                 }
             }else{

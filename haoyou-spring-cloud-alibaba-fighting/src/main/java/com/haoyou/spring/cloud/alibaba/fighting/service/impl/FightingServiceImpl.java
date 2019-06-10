@@ -57,6 +57,7 @@ public class FightingServiceImpl implements FightingService {
      * 创建房间，并启动战斗
      *
      * @param users
+     * @param isAllAi 是否直接自动战斗
      * @return
      */
     @Override
