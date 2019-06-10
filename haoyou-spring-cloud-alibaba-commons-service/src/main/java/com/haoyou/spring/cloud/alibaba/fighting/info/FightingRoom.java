@@ -3,6 +3,7 @@ package com.haoyou.spring.cloud.alibaba.fighting.info;
 import cn.hutool.core.lang.Console;
 import cn.hutool.core.text.StrBuilder;
 
+import cn.hutool.core.util.IdUtil;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.haoyou.spring.cloud.alibaba.util.SendMsgUtil;
 import com.haoyou.spring.cloud.alibaba.commons.domain.SendType;
@@ -63,11 +64,8 @@ public class FightingRoom implements Serializable {
 
         this.step = 0;
         this.shotNum = 0;
-        StrBuilder buffer = StrBuilder.create();
-        for (User user : users) {
-            buffer.append(user.getUid());
-        }
-        this.uid = buffer.toString();
+
+        this.uid = IdUtil.simpleUUID();
 
         this.steps = new TreeMap<>();
 

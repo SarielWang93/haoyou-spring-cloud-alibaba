@@ -60,7 +60,7 @@ public class FightingServiceImpl implements FightingService {
      * @return
      */
     @Override
-    public boolean start(List<User> users) {
+    public boolean start(List<User> users,boolean isAllAi) {
 
         /**
          * 创建房间
@@ -75,8 +75,19 @@ public class FightingServiceImpl implements FightingService {
 
         if (users.size() > 1) {
             for (User user : users) {
-                FightingCamp fightingCamp = this.initFightingCamp(fightingRoom, user);
+                /**
+                 * 删除旧的战斗
+                 */
+                FightingRoom fightingRoomOld = this.getFightingRoomByUserUid(user.getUid(),1);
+                if(fightingRoomOld!=null){
+                    this.deleteFightingRoom(fightingRoomOld);
+                }
 
+
+                FightingCamp fightingCamp = this.initFightingCamp(fightingRoom, user);
+                if(isAllAi){
+                    fightingCamp.setAi(true);
+                }
                 fightingCamps.put(user.getUid(), fightingCamp);
             }
         } else if (users.size() == 1) {
@@ -85,6 +96,9 @@ public class FightingServiceImpl implements FightingService {
              */
             User user = users.get(0);
             FightingCamp fightingCamp1 = this.initFightingCamp(fightingRoom, user);
+            if(isAllAi){
+                fightingCamp1.setAi(true);
+            }
             fightingCamps.put(user.getUid(), fightingCamp1);
             FightingCamp fightingCamp2 = this.initFightingCamp(fightingRoom, user);
             User user2 = new User();
@@ -148,6 +162,7 @@ public class FightingServiceImpl implements FightingService {
         }
         Map.Entry<Integer, FightingPet> first = fightingPets.firstEntry();
         fightingRoom.startRount(first.getValue());
+
         /**
          * 序列化存储到redis
          */
@@ -184,7 +199,7 @@ public class FightingServiceImpl implements FightingService {
         MapBody baseMessage = new MapBody();
         int rt = ResponseMsg.MSG_SUCCESS;
         //传递信息
-        FightingReq fightingReq = sendMsgUtil.deserialize(req.getMsg(), FightingReq.class);
+        FightingReq fightingReq = sendMsgUtil.deserialize(req.getMsg(), FightingReq.class,false);
 
         logger.debug(String.format("接受到战斗数据：%s", fightingReq));
 
@@ -192,7 +207,7 @@ public class FightingServiceImpl implements FightingService {
          * 获取对战房间对象
          */
         User user = req.getUser();
-        FightingRoom fightingRoom = this.getFightingRoomByUserUid(user.getUid(), 10);
+        FightingRoom fightingRoom = this.getFightingRoomByUserUid(user.getUid(), 5);
         if (fightingRoom == null) {
             logger.debug(String.format("未找到战斗房间：%s", user.getUsername()));
             rt = ResponseMsg.MSG_ERR;
@@ -251,6 +266,7 @@ public class FightingServiceImpl implements FightingService {
 
                     sendInitReady(fightingRoom.getFightingCamps().keySet());
                 }
+                rt = ResponseMsg.MSG_SUCCESS;
             }
             /**
              * 断线重连信息
@@ -355,6 +371,7 @@ public class FightingServiceImpl implements FightingService {
             /**
              * 发送刷新后的棋盘信息
              */
+            fightingReq.setState(ResponseMsg.MSG_SUCCESS);
             sendMsgUtil.sendMsgList(fightingRoom.getFightingCamps().keySet(), SendType.FIGHTING_REFRESHBOARD, fightingReq);
         }
         /**
@@ -476,8 +493,8 @@ public class FightingServiceImpl implements FightingService {
             }
             FightingRoom fightingRoom = this.getFightingRoomByUserUid(userUid, 5);
 
-            if (fightingRoom != null) {
-                if (fightingRoom.getShotNum() == shotNum) {
+            if (fightingRoom != null ) {
+                if (fightingRoom.getShotNum() == shotNum&& thisCamp.getFightingRoom().getUid().equals(fightingRoom.getUid())) {
                     if (thisCamp.isAi())
                     //ai操作
                     {
@@ -916,7 +933,7 @@ public class FightingServiceImpl implements FightingService {
         hiFightingRoom.setCreatTime(fightingRoom.getCreatTime());
         hiFightingRoom.setOverTime(fightingRoom.getOverTime());
 
-        hiFightingRoom.setFightingRoomJson(JsonSerializer.serializes(fightingRoom));
+        hiFightingRoom.setFightingRoomJson(sendMsgUtil.serialize(fightingRoom,true));
 
         hiFightingRoomMapper.insertSelective(hiFightingRoom);
 

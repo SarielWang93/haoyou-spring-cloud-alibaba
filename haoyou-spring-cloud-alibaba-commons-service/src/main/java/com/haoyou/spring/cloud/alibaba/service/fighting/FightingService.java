@@ -13,7 +13,7 @@ import java.util.List;
 public interface FightingService {
 
 
-    boolean start(List<User> users);
+    boolean start(List<User> users,boolean isAllAi);
 
 
     MapBody receiveFightingMsg(MyRequest req);

@@ -52,7 +52,7 @@ public abstract class ManagerHandle implements Serializable {
      */
     public final static int FIGHTING_MSG = 20;//战斗信息
     public final static int FIGHTING_AI = 25;//战斗信息
-
+    public final static int FIGHTING_AI2 = 26;//战斗信息
     /**
      * 养成
      */

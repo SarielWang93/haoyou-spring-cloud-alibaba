@@ -62,12 +62,7 @@ public class RedisTest {
     @Test
     public void test1(){
 
-        List<HiFightingRoom> hiFightingRooms = hiFightingRoomMapper.selectAll();
-        for(HiFightingRoom hiFightingRoom:hiFightingRooms){
 
-            Console.log(hiFightingRoom.getFightingRoomJson().length);
-            Console.log(JsonSerializer.deserializes(hiFightingRoom.getFightingRoomJson(), FightingRoom.class.getName()));
-        }
 
     }
 

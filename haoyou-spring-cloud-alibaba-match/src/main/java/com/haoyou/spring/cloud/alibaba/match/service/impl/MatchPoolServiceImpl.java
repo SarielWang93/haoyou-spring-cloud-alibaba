@@ -377,7 +377,7 @@ public class MatchPoolServiceImpl implements MatchPoolService {
                 playerRoomInfoT.delete(redisObjectUtil);
                 logger.info(String.format("匹配成功进入对战：%s", CollUtil.join(users, ",")));
                 //创建战斗房间，开启战斗
-                fightingService.start(users);
+                fightingService.start(users,false);
                 break A;
             }
 

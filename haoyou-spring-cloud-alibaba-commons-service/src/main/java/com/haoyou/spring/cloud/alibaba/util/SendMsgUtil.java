@@ -7,6 +7,7 @@ import com.alipay.remoting.serialization.Serializer;
 import com.alipay.remoting.serialization.SerializerManager;
 import com.haoyou.spring.cloud.alibaba.commons.domain.message.BaseMessage;
 import com.haoyou.spring.cloud.alibaba.commons.domain.message.MapBody;
+import com.haoyou.spring.cloud.alibaba.commons.util.ZIP;
 import com.haoyou.spring.cloud.alibaba.sofabolt.protocol.MyRequest;
 import com.haoyou.spring.cloud.alibaba.service.sofabolt.SendMsgService;
 import com.haoyou.spring.cloud.alibaba.serialization.JsonSerializer;
@@ -28,7 +29,7 @@ public class SendMsgUtil implements Serializable {
     @Reference(version = "${send-msg.service.version: 1.0.0}")
     private SendMsgService sendMsgService;
 
-    private Serializer serializer;
+    private JsonSerializer serializer;
 
     @PostConstruct
     private void init() {
@@ -44,7 +45,7 @@ public class SendMsgUtil implements Serializable {
      * @return
      */
     public MyRequest sendMsgOne(String userUid, Integer type, BaseMessage baseMessage) {
-        byte[] serialize = serialize(baseMessage);
+        byte[] serialize = serialize(baseMessage,false);
 
         MyRequest myRequest = sendMsgService.sendMsgOne(getreqstr(userUid, serialize, type));
 
@@ -63,7 +64,7 @@ public class SendMsgUtil implements Serializable {
     public boolean sendMsgOneNoReturn(String userUid, Integer type, BaseMessage baseMessage) {
         logger.info(String.format("sendMsgOneNoReturn: %s %s", userUid, baseMessage));
 
-        byte[] serialize = this.serialize(baseMessage);
+        byte[] serialize = this.serialize(baseMessage,false);
 
         sendMsgService.sendMsgOneNoReturn(getreqstr(userUid, serialize, type));
 
@@ -79,7 +80,7 @@ public class SendMsgUtil implements Serializable {
      */
     public boolean sendMsgAll(Integer type, BaseMessage baseMessage) {
         logger.info(String.format("sendMsgAll: %s", baseMessage));
-        byte[] serialize = this.serialize(baseMessage);
+        byte[] serialize = this.serialize(baseMessage,false);
 
         return sendMsgService.sendMsgAll(getreqstr(null, serialize, type));
     }
@@ -97,7 +98,7 @@ public class SendMsgUtil implements Serializable {
     public <T> boolean sendMsgList(Collection<String> userUids, Integer type, BaseMessage baseMessage) {
         logger.info(String.format("sendMsgList: %s %s", userUids, baseMessage));
 
-        byte[] serialize = this.serialize(baseMessage);
+        byte[] serialize = this.serialize(baseMessage,false);
         for (String userUid : userUids) {
             sendMsgService.sendMsgOneNoReturn(getreqstr(userUid, serialize, type));
         }
@@ -120,9 +121,10 @@ public class SendMsgUtil implements Serializable {
      * 通信信息序列化
      *
      * @param baseMessage
+     * @param isZip 是否压缩
      * @return
      */
-    public byte[] serialize(BaseMessage baseMessage) {
+    public byte[] serialize(Object baseMessage,boolean isZip) {
 
 
         Object eve = null;
@@ -139,36 +141,53 @@ public class SendMsgUtil implements Serializable {
 
 
         try {
-            byte[] serialize = this.getSerializer().serialize(eve);
-
-            return serialize;
+            if(isZip){
+                return this.getSerializer().zipSerialize(eve);
+            }else{
+                return this.getSerializer().noZipSerialize(eve);
+            }
         } catch (CodecException e) {
             e.printStackTrace();
             return null;
         }
     }
-
+    public byte[] serialize(Object baseMessage){
+        return this.serialize(baseMessage,false);
+    }
     /**
      * 通信信息反序列化
      *
      * @param bt
      * @param aclass
+     * @param unZip 是否解压缩
      * @param <T>
      * @return
      */
-    public <T> T deserialize(byte[] bt, Class<T> aclass) {
+    public <T> T deserialize(byte[] bt, Class<T> aclass,boolean unZip) {
 
         try {
-            return this.getSerializer().deserialize(bt, aclass.getName());
+            if(unZip){
+                return this.getSerializer().zipDeserialize(bt, aclass.getName());
+            }else{
+                return this.getSerializer().noZipDeserialize(bt, aclass.getName());
+            }
         } catch (CodecException e) {
             e.printStackTrace();
             return null;
         }
     }
+    public <T> T deserialize(byte[] bt, Class<T> aclass){
+        return this.deserialize(bt,aclass,false);
+    }
 
-    private Serializer getSerializer(){
+
+    /**
+     * 获取序列化器
+     * @return
+     */
+    private JsonSerializer getSerializer(){
         if(this.serializer==null){
-            this.serializer = SerializerManager.getSerializer(JsonSerializer.JsonSerializerCode);
+            this.serializer = (JsonSerializer)SerializerManager.getSerializer(JsonSerializer.JsonSerializerCode);
         }
         return this.serializer;
     }

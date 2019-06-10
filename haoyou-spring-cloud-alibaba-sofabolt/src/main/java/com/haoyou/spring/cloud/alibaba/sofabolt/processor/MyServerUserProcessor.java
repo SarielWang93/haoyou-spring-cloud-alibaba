@@ -74,7 +74,7 @@ public class MyServerUserProcessor extends SyncUserProcessor<MyRequest> {
                 //前一链接与新链接不同
                 else if (!connectionuid.getRemoteIP().equals(connectionthis.getRemoteIP()) || connectionuid.getRemotePort() != connectionthis.getRemotePort()) {
                     //如果不是同一设备则把前一设备踢下线
-                    if (!req.getDeviceuid().equals(connectionuid.getAttribute("deviceuid"))) {
+                    if (!req.getDeviceuid().equals(connectionuid.getAttribute(Connections.DEVICE_UID))) {
                         sendDown(useruid, connectionuid);
                     }
                     setDeviceuid(connectionthis, req.getDeviceuid());
@@ -83,20 +83,19 @@ public class MyServerUserProcessor extends SyncUserProcessor<MyRequest> {
                 }
                 //如果没有设备编号则添加设备编号
                 else {
-                    if (connectionuid.getAttribute("deviceuid") == null) {
+                    if (connectionuid.getAttribute(Connections.DEVICE_UID) == null) {
                         setDeviceuid(connectionuid, req.getDeviceuid());
                     }
                 }
-                //处理心跳
-                if(req.getId()==2){
-                    connection.setAttribute("heart",new Date());
-                }
+                //更新最后信息时间心跳，用于判断链接
+                connection.setAttribute(Connections.HEART_BEAT,new Date());
+
             }
 
             //调用处理器
             BaseMessage baseMessage = managerService.handle(req);
             //回复信息
-            req.setMsg(sendMsgUtil.serialize(baseMessage));
+            req.setMsg(sendMsgUtil.serialize(baseMessage,false));
 
             if (req.getId() == 1 && ResponseMsg.MSG_SUCCESS == (baseMessage.getState())) {
                 //如果登出成功，删除链接
@@ -107,12 +106,13 @@ public class MyServerUserProcessor extends SyncUserProcessor<MyRequest> {
                 Connection connectionthis = bizCtx.getConnection();
                 Connection connectionuid = connections.get(useruid);
                 if (connectionuid != null && connectionuid.getChannel().isActive()) {
-                    if (!req.getDeviceuid().equals(connectionuid.getAttribute("deviceuid"))) {
+                    if (!req.getDeviceuid().equals(connectionuid.getAttribute(Connections.DEVICE_UID))) {
                         sendDown(useruid, connectionuid);
                     }
                 }
-                setDeviceuid(connectionthis, req.getDeviceuid());
                 connections.put(useruid, connectionthis);
+                setDeviceuid(connectionthis, req.getDeviceuid());
+                connectionthis.setAttribute(Connections.HEART_BEAT,new Date());
             }
 
             //临时操作
@@ -121,7 +121,7 @@ public class MyServerUserProcessor extends SyncUserProcessor<MyRequest> {
             } catch (UnsupportedEncodingException e) {
                 e.printStackTrace();
             }
-            logger.info(String.format("返回信息：%s %s", req.getMsg().length, req));
+            logger.info(String.format("返回信息: %s", req));
         }
         return req;
     }
@@ -134,7 +134,7 @@ public class MyServerUserProcessor extends SyncUserProcessor<MyRequest> {
      */
     private void setDeviceuid(Connection connection, String deviceuid) {
         if (deviceuid != null) {
-            connection.setAttribute("deviceuid", deviceuid);
+            connection.setAttribute(Connections.DEVICE_UID, deviceuid);
         }
     }
 
@@ -151,7 +151,7 @@ public class MyServerUserProcessor extends SyncUserProcessor<MyRequest> {
         MyRequest reqx = new MyRequest();
         reqx.setUseruid(useruid);
         reqx.setId(SendType.MANDATORY_OFFLINE);
-        reqx.setMsg(sendMsgUtil.serialize(close));
+        reqx.setMsg(sendMsgUtil.serialize(close,false));
         try {
             MyServer.server.oneway(connectionuid, reqx);
         } catch (RemotingException e) {

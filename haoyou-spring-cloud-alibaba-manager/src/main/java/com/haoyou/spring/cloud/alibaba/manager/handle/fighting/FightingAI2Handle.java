@@ -17,12 +17,12 @@ import java.util.List;
  * 启动AI进行单机战斗
  */
 @Service
-public class FightingAIHandle extends ManagerHandle {
+public class FightingAI2Handle extends ManagerHandle {
     private static final long serialVersionUID = 4622211830483903591L;
-    private static final Logger logger = LoggerFactory.getLogger(FightingAIHandle.class);
+    private static final Logger logger = LoggerFactory.getLogger(FightingAI2Handle.class);
     @Override
     protected void setHandleType() {
-        this.handleType = ManagerHandle.FIGHTING_AI;
+        this.handleType = ManagerHandle.FIGHTING_AI2;
     }
 
     @Override
@@ -31,7 +31,7 @@ public class FightingAIHandle extends ManagerHandle {
         User user = req.getUser();
         List<User> users = new ArrayList<>();
         users.add(user);
-        if(fightingService.start(users,false)){
+        if(fightingService.start(users,true)){
             baseMessage.setState(ResponseMsg.MSG_SUCCESS);
         }else {
             baseMessage.setState(ResponseMsg.MSG_ERR);

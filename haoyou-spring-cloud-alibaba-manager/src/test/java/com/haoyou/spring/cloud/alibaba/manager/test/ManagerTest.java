@@ -9,6 +9,7 @@ import com.haoyou.spring.cloud.alibaba.commons.entity.User;
 import com.haoyou.spring.cloud.alibaba.commons.mapper.HiFightingRoomMapper;
 import com.haoyou.spring.cloud.alibaba.commons.mapper.UserMapper;
 
+import com.haoyou.spring.cloud.alibaba.commons.util.MapperUtils;
 import com.haoyou.spring.cloud.alibaba.service.login.LoginService;
 import com.haoyou.spring.cloud.alibaba.serialization.JsonSerializer;
 import com.haoyou.spring.cloud.alibaba.service.redis.RedisService;
@@ -74,17 +75,23 @@ public class ManagerTest {
 
     public static void main(String[] args) throws InterruptedException {
 
-        for(int i = 10;i>=0;i--){
-            WeightRandom.WeightObj<Integer>[] weightObjs = new WeightRandom.WeightObj[4];
-            weightObjs[0] = new WeightRandom.WeightObj(1, i);
-            weightObjs[1] = new WeightRandom.WeightObj(2, i);
-            weightObjs[2] = new WeightRandom.WeightObj(3, i);
-            weightObjs[3] = new WeightRandom.WeightObj(4, i);
-            WeightRandom<Integer> weightRandom = RandomUtil.weightRandom(weightObjs);
-            Console.log(weightRandom.next());
+        String x= "31,139,8,0,0,0,0,0,0,11,75,205,75,46,170,44,40,1,0,144,40,207,74,7,0,0,0";
+        String[] split = x.split(",");
+        byte[] a= new byte[split.length];
+
+        for(int i=0;i<split.length;i++){
+            a[i]=new Integer(split[i]).byteValue();
         }
 
 
+
+
+        try {
+            byte[] bytes = ZIP.unGZip(a);
+            Console.log(new String(bytes));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
 

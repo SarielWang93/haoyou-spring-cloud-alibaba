@@ -29,6 +29,9 @@ import java.util.concurrent.ConcurrentSkipListMap;
 public class Connections {
     private final static Logger logger = LoggerFactory.getLogger(Connections.class);
 
+    public static final String HEART_BEAT = "heart_beat";
+    public static final String DEVICE_UID = "deviceuid";
+
 
     @Reference(version = "${manager.service.version}")
     private ManagerService managerService;
@@ -92,7 +95,7 @@ public class Connections {
      */
     @Scheduled(cron = "${sofabolt.connections.cleardelay: 0 */5 * * * ?}")
     public void inspect() {
-        logger.info("清理断链链接！！！");
+        //logger.info("清理断链链接！！！");
         for (String uid : disconnects) {
             Connection connection = connections.get(uid);
             if (connection != null && !connectionIsAlive(uid))
@@ -136,15 +139,16 @@ public class Connections {
         Connection connection = connections.get(userUid);
         if (connection != null) {
 
-            Date heart = (Date) connection.getAttribute("heart");
-
+            Date heart = (Date) connection.getAttribute(HEART_BEAT);
             Date now = new Date();
+
 
             if (heart !=null && now.getTime()-heart.getTime()<(heartTime*heartTry)) {
                 return true;
             }
+            logger.info(String.format("%S %s",now.getTime(),heart.getTime()));
         }
-
+        logger.info(String.format("连接判断已断开: %s",userUid));
         return false;
 
     }
