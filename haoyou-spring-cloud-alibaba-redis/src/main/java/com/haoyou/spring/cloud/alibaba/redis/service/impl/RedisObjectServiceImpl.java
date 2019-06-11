@@ -39,7 +39,7 @@ public class RedisObjectServiceImpl implements RedisObjectService {
     /**
      * 默认过期时长，单位：秒
      */
-    public static final long DEFAULT_EXPIRE = 60 * 60 * 24;
+    public static final long DEFAULT_EXPIRE = 60 * 60 * 24 * 3;
 
     /**
      * 不设置过期时长
@@ -47,51 +47,54 @@ public class RedisObjectServiceImpl implements RedisObjectService {
     public static final long NOT_EXPIRE = -1;
 
 
-
     @Override
     public boolean save(RedisObjKV redisObjKV) {
-        logger.info(String.format("save  %s",redisObjKV.getKey()));
-        redisTemplate.opsForValue().set(redisObjKV.getKey(),redisObjKV.getVal(),DEFAULT_EXPIRE, TimeUnit.SECONDS);
+        logger.info(String.format("save  %s", redisObjKV.getKey()));
+        redisTemplate.opsForValue().set(redisObjKV.getKey(), redisObjKV.getVal(), DEFAULT_EXPIRE, TimeUnit.SECONDS);
         return true;
     }
 
     @Override
-    public boolean save(RedisObjKV redisObjKV,long timeout) {
-        logger.info(String.format("save  %s:%s",redisObjKV.getKey(),timeout));
-        if(timeout==-1){
-            redisTemplate.opsForValue().set(redisObjKV.getKey(),redisObjKV.getVal());
+    public boolean save(RedisObjKV redisObjKV, long timeout) {
+        logger.info(String.format("save  %s:%s", redisObjKV.getKey(), timeout));
+        if (timeout == -1) {
+            redisTemplate.opsForValue().set(redisObjKV.getKey(), redisObjKV.getVal());
             redisTemplate.persist(redisObjKV.getKey());
-        }else{
-            redisTemplate.opsForValue().set(redisObjKV.getKey(),redisObjKV.getVal(),timeout,TimeUnit.SECONDS);
+        } else {
+            redisTemplate.opsForValue().set(redisObjKV.getKey(), redisObjKV.getVal(), timeout, TimeUnit.SECONDS);
         }
         return true;
     }
 
     public RedisObjKV get(String key) {
-        logger.info(String.format("get %s",key));
-        return new RedisObjKV(key,(byte[]) redisTemplate.opsForValue().get(key));
+        logger.info(String.format("get %s", key));
+        return new RedisObjKV(key, (byte[]) redisTemplate.opsForValue().get(key));
     }
 
     @Override
     public boolean delete(String key) {
-        logger.info(String.format("delete %s",key));
+        logger.info(String.format("delete %s", key));
         return redisTemplate.delete(key);
     }
 
     @Override
     public List<RedisObjKV> getlkMap(String lkkey) {
-        if(!lkkey.contains(RedisKey.MATCH_PLAYER_POOL)){
-            logger.info(String.format("getlkMap %s",lkkey));
+        if (!lkkey.contains(RedisKey.MATCH_PLAYER_POOL)) {
+            logger.info(String.format("getlkMap %s", lkkey));
         }
         List<RedisObjKV> list = new ArrayList<>();
 
         Set<String> keys = redisTemplate.keys(lkkey);
-        for(String key:keys){
+        for (String key : keys) {
             byte[] value = (byte[]) redisTemplate.opsForValue().get(key);
-            list.add(new RedisObjKV(key,value));
+            list.add(new RedisObjKV(key, value));
         }
         return list;
     }
 
+    @Override
+    public boolean refreshTime(String key) {
+        return redisTemplate.expire(key, DEFAULT_EXPIRE, TimeUnit.SECONDS);
+    }
 
 }

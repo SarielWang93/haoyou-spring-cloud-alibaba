@@ -53,6 +53,7 @@ public class FightingServiceImpl implements FightingService {
     private long aiTime;
     @Value("${fighting.initreadytime: 15}")
     private long initReadyTime;
+
     /**
      * 创建房间，并启动战斗
      *
@@ -61,7 +62,7 @@ public class FightingServiceImpl implements FightingService {
      * @return
      */
     @Override
-    public boolean start(List<User> users,boolean isAllAi) {
+    public boolean start(List<User> users, boolean isAllAi) {
 
         /**
          * 创建房间
@@ -79,14 +80,14 @@ public class FightingServiceImpl implements FightingService {
                 /**
                  * 删除旧的战斗
                  */
-                FightingRoom fightingRoomOld = this.getFightingRoomByUserUid(user.getUid(),1);
-                if(fightingRoomOld!=null){
+                FightingRoom fightingRoomOld = this.getFightingRoomByUserUid(user.getUid(), 1);
+                if (fightingRoomOld != null) {
                     this.deleteFightingRoom(fightingRoomOld);
                 }
 
 
                 FightingCamp fightingCamp = this.initFightingCamp(fightingRoom, user);
-                if(isAllAi){
+                if (isAllAi) {
                     fightingCamp.setAi(true);
                 }
                 fightingCamps.put(user.getUid(), fightingCamp);
@@ -97,7 +98,7 @@ public class FightingServiceImpl implements FightingService {
              */
             User user = users.get(0);
             FightingCamp fightingCamp1 = this.initFightingCamp(fightingRoom, user);
-            if(isAllAi){
+            if (isAllAi) {
                 fightingCamp1.setAi(true);
             }
             fightingCamps.put(user.getUid(), fightingCamp1);
@@ -200,7 +201,7 @@ public class FightingServiceImpl implements FightingService {
         MapBody baseMessage = new MapBody();
         int rt = ResponseMsg.MSG_SUCCESS;
         //传递信息
-        FightingReq fightingReq = sendMsgUtil.deserialize(req.getMsg(), FightingReq.class,false);
+        FightingReq fightingReq = sendMsgUtil.deserialize(req.getMsg(), FightingReq.class, false);
 
         logger.debug(String.format("接受到战斗数据：%s", fightingReq));
 
@@ -261,7 +262,7 @@ public class FightingServiceImpl implements FightingService {
                         allRead = false;
                     }
                 }
-                if(allRead){
+                if (allRead) {
                     //跳过或者ai启动
                     this.doAI(fightingRoom.getShotNum(), fightingRoom.getFightingCamps().get(campNow));
 
@@ -283,6 +284,9 @@ public class FightingServiceImpl implements FightingService {
 
                 //全局信息
                 fightingRoom.sendMsgResp(fightingRoom.getFightingCamps().keySet(), sendMsgUtil);
+
+                //跳过或者ai启动
+                this.doAI(fightingRoom.getShotNum(), fightingRoom.getFightingCamps().get(campNow));
 
                 rt = ResponseMsg.MSG_SUCCESS;
             }
@@ -306,10 +310,10 @@ public class FightingServiceImpl implements FightingService {
     /**
      * 初始化成功计时
      */
-    private void doInitReady(String userUid){
+    private void doInitReady(String userUid) {
         ThreadUtil.excAsync(() -> {
             try {
-                Thread.sleep(this.initReadyTime*1000);
+                Thread.sleep(this.initReadyTime * 1000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -322,20 +326,24 @@ public class FightingServiceImpl implements FightingService {
                     userUids.add(fightingCamp.getUser().getUid());
                 }
             }
-            if(fightingRoom.getFightingCamps().values().size()>userUids.size()){
+            if (fightingRoom.getFightingCamps().values().size() > userUids.size()) {
                 sendInitReady(userUids);
             }
+            //跳过或者ai启动
+            String campNow = fightingRoom.getCampNow();
+            this.doAI(fightingRoom.getShotNum(), fightingRoom.getFightingCamps().get(campNow));
 
             this.saveFightingRoom(fightingRoom);
 
-        },true);
+        }, true);
     }
 
     /**
      * 执行发送初始化成功
+     *
      * @param userUids
      */
-    private void sendInitReady(Collection<String> userUids){
+    private void sendInitReady(Collection<String> userUids) {
         MapBody baseMessage = new MapBody();
         int rt = ResponseMsg.MSG_SUCCESS;
         baseMessage.setState(rt);
@@ -494,30 +502,30 @@ public class FightingServiceImpl implements FightingService {
             }
             FightingRoom fightingRoom = this.getFightingRoomByUserUid(userUid, 5);
 
-            if (fightingRoom != null ) {
-                if (fightingRoom.getShotNum() == shotNum&& thisCamp.getFightingRoom().getUid().equals(fightingRoom.getUid())) {
-                    if (thisCamp.isAi())
-                    //ai操作
-                    {
-                        doAI(fightingRoom, userUid);
-                    } else {
-                        boolean hasAlive = false;
-                        for (FightingCamp fightingCamp : fightingRoom.getFightingCamps().values()) {
-                            if (sendMsgUtil.connectionIsAlive(fightingCamp.getUser().getUid())) {
-                                hasAlive = true;
-                                break;
-                            }
+            if (fightingRoom != null) {
+                if (fightingRoom.getShotNum() == shotNum && thisCamp.getFightingRoom().getUid().equals(fightingRoom.getUid())) {
+                    boolean hasAlive = false;
+                    for (FightingCamp fightingCamp : fightingRoom.getFightingCamps().values()) {
+                        if (sendMsgUtil.connectionIsAlive(fightingCamp.getUser().getUid())) {
+                            hasAlive = true;
+                            break;
                         }
-                        if (hasAlive) {
+                    }
+                    if (hasAlive) {
+                        if (thisCamp.isAi())
+                        //ai操作
+                        {
+                            doAI(fightingRoom, userUid);
+                        } else {
                             //执行跳过操作
                             FightingReq fightingReq = new FightingReq();
                             fightingReq.setDestroyInfos(new ArrayList<>());
-                            //fightingReq.setFightingRoomUid(fightingRoom.getUid());
                             doOperation(fightingRoom, fightingReq);
-                        }else{
-                            this.saveFightingRoom(fightingRoom);
                         }
+                    }else {
+                        this.saveFightingRoom(fightingRoom);
                     }
+
                     return;
                 }
                 /**
@@ -910,10 +918,9 @@ public class FightingServiceImpl implements FightingService {
             //PVE胜利结算
             cultivateService.rewards(user, RewardType.PVE);
 
-            //结算完毕，保存
-            this.hiSave(fightingPet.getFightingCamp());
-
         }
+        //结算完毕，保存
+        this.hiSave(fightingPet.getFightingCamp());
 
     }
 
@@ -934,7 +941,7 @@ public class FightingServiceImpl implements FightingService {
         hiFightingRoom.setCreatTime(fightingRoom.getCreatTime());
         hiFightingRoom.setOverTime(fightingRoom.getOverTime());
 
-        hiFightingRoom.setFightingRoomJson(sendMsgUtil.serialize(fightingRoom,true));
+        hiFightingRoom.setFightingRoomJson(sendMsgUtil.serialize(fightingRoom, true));
 
         hiFightingRoomMapper.insertSelective(hiFightingRoom);
 

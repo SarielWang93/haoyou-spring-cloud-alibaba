@@ -2,6 +2,7 @@ package com.haoyou.spring.cloud.alibaba.login.UserCatch;
 
 import cn.hutool.core.thread.ThreadUtil;
 import com.alibaba.dubbo.config.annotation.Reference;
+import com.haoyou.spring.cloud.alibaba.commons.mapper.UserMapper;
 import com.haoyou.spring.cloud.alibaba.fighting.info.FightingPet;
 import com.haoyou.spring.cloud.alibaba.commons.domain.RedisKey;
 import com.haoyou.spring.cloud.alibaba.commons.entity.Pet;
@@ -18,10 +19,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * 登录，登出时，用户信息缓存，以及删除
@@ -34,6 +32,8 @@ public class UserDateSynchronization {
     private PetMapper petMapper;
     @Autowired
     private PetSkillMapper petSkillMapper;
+    @Autowired
+    private UserMapper userMapper;
     @Autowired
     private RedisObjectUtil redisObjectUtil;
     @Reference(version = "${fighting.service.version}")
@@ -48,13 +48,15 @@ public class UserDateSynchronization {
         //TODO 读取缓存用户所有信息
         logger.info(String.format("cacheUser: %s",user.getUsername()));
 
-        String key = RedisKeyUtil.getKey(RedisKey.USER, user.getUid());
-        if(redisObjectUtil.save(key, user)){
-            ThreadUtil.excAsync(() -> {
-                cachePet(user);
-            },true);
-            //缓存宠物信息
 
+        String key = RedisKeyUtil.getKey(RedisKey.USER, user.getUid());
+
+        if(redisObjectUtil.save(key, user)){
+            if(!user.isOnLine()){
+                cachePet(user);
+                user.setOnLine(true);
+            }
+            //缓存宠物信息
             logger.info(String.format("%s 登录成功！！",user.getUsername()));
             return true;
         }
@@ -73,14 +75,9 @@ public class UserDateSynchronization {
         String userUidKey = RedisKeyUtil.getKey(RedisKey.FIGHT_PETS, user.getUid());
         for(Pet pet:pets){
             //数据库查询出所有技能
-            List<String> otherSkill = new ArrayList<>();
-            PetSkill ps=new PetSkill();
-            ps.setPetUid(pet.getUid());
+            PetSkill ps=new PetSkill(pet.getUid(),null);
             List<PetSkill> otherSkills = petSkillMapper.select(ps);
-            for(PetSkill petSkill:otherSkills){
-                otherSkill.add(petSkill.getSkillUid());
-            }
-            pet.setOtherSkill(otherSkill);
+            pet.setOtherSkill(otherSkills);
 
             //获取petType
 
@@ -100,17 +97,35 @@ public class UserDateSynchronization {
 
 
     /**
-     * 清除玩家缓存
+     * 向数据库存储宠物信息
      * @param user
      */
-    public void deletePet(User user){
+    public void saveSqlPet(User user){
         String useruidkey = RedisKeyUtil.getKey(RedisKey.FIGHT_PETS, user.getUid());
         HashMap<String, FightingPet> fightingPets = redisObjectUtil.getlkMap(RedisKeyUtil.getlkKey(useruidkey),FightingPet.class);
         for(Map.Entry<String, FightingPet> entry:fightingPets.entrySet()){
-
             //删除宠物战斗对象缓存
-            entry.getValue().setRedisObjectUtil(redisObjectUtil);
-            entry.getValue().delete();
+            redisObjectUtil.refreshTime(entry.getKey());
+
+            /**
+             * 刷新数据库
+             */
+            petMapper.updateByPrimaryKeySelective(entry.getValue().getPet());
+            PetSkill ps=new PetSkill(entry.getValue().getUid(),null);
+            List<PetSkill> otherSkills = petSkillMapper.select(ps);
+
+            for(PetSkill petSkill:entry.getValue().getPet().getOtherSkill()){
+                PetSkill petSkill1 = petSkillMapper.selectOne(petSkill);
+                if(petSkill1==null){
+                    petSkillMapper.insertSelective(petSkill);
+                }else if(!petSkill1.equals(petSkill)){
+                    petSkillMapper.updateByPrimaryKeySelective(petSkill);
+                }
+            }
+            otherSkills.removeAll(entry.getValue().getPet().getOtherSkill());
+            for(PetSkill petSkill:otherSkills){
+                petSkillMapper.delete(petSkill);
+            }
 
         }
 
@@ -118,10 +133,16 @@ public class UserDateSynchronization {
 
 
     public boolean removeCache(User user){
+        user.setLastLoginOutDate(new Date());
+        userMapper.updateByPrimaryKeySelective(user);
+
         //TODO 清除用户所有缓存信息
-        this.deletePet(user);
-        String key = RedisKeyUtil.getKey(RedisKey.USER, user.getUid());
-        return redisObjectUtil.delete(key);
+        this.saveSqlPet(user);
+        String key = RedisKeyUtil.getKey(RedisKey.OUTLINE_USER, user.getUid());
+        String key1 = RedisKeyUtil.getKey(RedisKey.USER, user.getUid());
+        user.setOnLine(false);
+        redisObjectUtil.save(key,user);
+        return redisObjectUtil.delete(key1);
     }
 
 }

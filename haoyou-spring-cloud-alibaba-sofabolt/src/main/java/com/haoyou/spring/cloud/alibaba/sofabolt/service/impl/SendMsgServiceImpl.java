@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.context.config.annotation.RefreshScope;
 
 import java.util.Date;
 
@@ -18,6 +19,7 @@ import java.util.Date;
  * 通过链接 发送信息
  */
 @Service(version = "${send-msg.service.version}")
+@RefreshScope
 public class SendMsgServiceImpl implements SendMsgService {
     private final static Logger logger = LoggerFactory.getLogger(SendMsgServiceImpl.class);
 

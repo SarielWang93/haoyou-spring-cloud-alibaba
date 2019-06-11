@@ -52,16 +52,13 @@ public class LoginServiceImpl implements LoginService {
     @Override
     public User login(MyRequest req){
 
-        String useruid = req.getUseruid();
 
-        User userIn = null;
+
+        User userIn = req.getUser();
         User user = new User();
-        if(StrUtil.isNotEmpty(useruid)){
-            user.setUid(useruid);
-        }else{
-            userIn=req.getUser();
-            user.setUsername(userIn.getUsername());
-        }
+
+        user.setUsername(userIn.getUsername());
+
 
         logger.info(String.format("login: %s",userIn));
 
@@ -81,8 +78,7 @@ public class LoginServiceImpl implements LoginService {
             }
         }
         user.setLastLoginDate(new Date());
-        user.setLastUpdateDate(new Date());
-        userMapper.updateByPrimaryKey(user);
+
         //缓存登录用户的信息
         if(!serializerRotation.cache(user)){
             userIn.setState(ResponseMsg.MSG_LOGIN_WRONG);
@@ -132,9 +128,7 @@ public class LoginServiceImpl implements LoginService {
             user.setState(ResponseMsg.MSG_LOGINOUT_WRONG);
             return user;
         }
-        user.setLastLoginOutDate(new Date());
-        user.setLastUpdateDate(new Date());
-        userMapper.updateByPrimaryKey(user);
+
         //清除缓存
         if(serializerRotation.removeCache(user)){
             logger.info(String.format("%s 登出成功！！",user.getName()));
@@ -182,7 +176,7 @@ public class LoginServiceImpl implements LoginService {
         user.setDiamond(0);
         user.setVitality(100);
         user.setCreatDate(new Date());
-        userMapper.insert(user);
+        userMapper.insertSelective(user);
 
         logger.info(String.format("registerUser: %s",user.getUsername()));
         user.setState(ResponseMsg.MSG_SUCCESS);
@@ -195,7 +189,20 @@ public class LoginServiceImpl implements LoginService {
      * @return
      */
     private User select(User user){
-        return userMapper.selectOne(user);
+        User user1 = userMapper.selectOne(user);
+        if(user1!=null){
+            String key = RedisKeyUtil.getKey(RedisKey.OUTLINE_USER, user1.getUid());
+            User user2 = redisObjectUtil.get(key, User.class);
+            if(user1.equals(user2)){
+                user1.setOnLine(true);
+                redisObjectUtil.delete(key);
+                return user2;
+            }else{
+                user1.setOnLine(false);
+                return user1;
+            }
+        }
+        return null;
     }
 
 

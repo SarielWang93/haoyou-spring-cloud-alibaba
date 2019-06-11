@@ -11,10 +11,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
+import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 @Component
+@RefreshScope
 @Order(value = 1)
 public class MyServer  implements ApplicationRunner {
     private final static Logger logger = LoggerFactory.getLogger(MyServer.class);

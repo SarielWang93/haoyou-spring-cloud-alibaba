@@ -124,6 +124,15 @@ public class RedisObjectUtil {
         return true;
     }
 
+    /**
+     * 刷新过期时间
+     * @param key
+     * @return
+     */
+    public boolean refreshTime(String key) {
+        return redisObjectService.refreshTime(key);
+    }
+
 
     /**
      * 通信信息序列化

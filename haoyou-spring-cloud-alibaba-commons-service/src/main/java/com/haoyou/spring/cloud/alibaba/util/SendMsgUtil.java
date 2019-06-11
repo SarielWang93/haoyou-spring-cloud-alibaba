@@ -65,9 +65,9 @@ public class SendMsgUtil implements Serializable {
         logger.info(String.format("sendMsgOneNoReturn: %s %s", userUid, baseMessage));
 
         byte[] serialize = this.serialize(baseMessage,false);
-
-        sendMsgService.sendMsgOneNoReturn(getreqstr(userUid, serialize, type));
-
+        if(!userUid.startsWith("ai-")) {
+            sendMsgService.sendMsgOneNoReturn(getreqstr(userUid, serialize, type));
+        }
         return true;
     }
 
@@ -100,7 +100,9 @@ public class SendMsgUtil implements Serializable {
 
         byte[] serialize = this.serialize(baseMessage,false);
         for (String userUid : userUids) {
-            sendMsgService.sendMsgOneNoReturn(getreqstr(userUid, serialize, type));
+            if(!userUid.startsWith("ai-")){
+                sendMsgService.sendMsgOneNoReturn(getreqstr(userUid, serialize, type));
+            }
         }
         return true;
     }

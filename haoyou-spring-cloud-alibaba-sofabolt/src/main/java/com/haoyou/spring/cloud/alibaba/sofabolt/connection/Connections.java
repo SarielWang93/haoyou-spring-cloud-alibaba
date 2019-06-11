@@ -4,16 +4,18 @@ package com.haoyou.spring.cloud.alibaba.sofabolt.connection;
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.alipay.remoting.Connection;
 
-import com.haoyou.spring.cloud.alibaba.util.SendMsgUtil;
-import com.haoyou.spring.cloud.alibaba.commons.domain.ResponseMsg;
+import com.haoyou.spring.cloud.alibaba.commons.domain.RedisKey;
 import com.haoyou.spring.cloud.alibaba.commons.domain.message.BaseMessage;
 import com.haoyou.spring.cloud.alibaba.commons.entity.User;
+import com.haoyou.spring.cloud.alibaba.commons.util.RedisKeyUtil;
 import com.haoyou.spring.cloud.alibaba.sofabolt.protocol.MyRequest;
 import com.haoyou.spring.cloud.alibaba.service.manager.ManagerService;
+import com.haoyou.spring.cloud.alibaba.util.RedisObjectUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -26,6 +28,7 @@ import java.util.concurrent.ConcurrentSkipListMap;
  * 链接信息存储类
  */
 @Component
+@RefreshScope
 public class Connections {
     private final static Logger logger = LoggerFactory.getLogger(Connections.class);
 
@@ -35,6 +38,10 @@ public class Connections {
 
     @Reference(version = "${manager.service.version}")
     private ManagerService managerService;
+    @Autowired
+    private RedisObjectUtil redisObjectUtil;
+
+
 
     @Value("${sofabolt.connections.heart:2000}")
     private long heartTime;
@@ -122,6 +129,9 @@ public class Connections {
         connections.forEach((uid, connection) -> {
             if (!connectionIsAlive(uid)) {
                 disconnects.add(uid);
+                redisObjectUtil.delete(RedisKeyUtil.getKey(RedisKey.LINK_USER,uid));
+            }else{
+                redisObjectUtil.save(RedisKeyUtil.getKey(RedisKey.LINK_USER,uid),"");
             }
         });
 

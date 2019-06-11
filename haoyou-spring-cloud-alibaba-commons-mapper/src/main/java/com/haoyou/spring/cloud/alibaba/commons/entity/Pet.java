@@ -159,7 +159,7 @@ public class Pet implements Serializable {
      * 其他技能uid
      */
     @Transient
-    private List<String> otherSkill;
+    private List<PetSkill> otherSkill;
 
 
     /**
@@ -181,5 +181,20 @@ public class Pet implements Serializable {
      */
     @Column(name = "last_update_date")
     private Date lastUpdateDate;
+
+
+    /**
+     * 通过技能uid获取中间链接类
+     * @param skillUid
+     * @return
+     */
+    public PetSkill getBySkillUid(String skillUid){
+        for(PetSkill petSkill:this.otherSkill){
+            if(petSkill.getSkillUid().equals(skillUid)){
+                return petSkill;
+            }
+        }
+        return null;
+    }
 
 }

@@ -53,7 +53,7 @@ cd ../
 
 cd haoyou-spring-cloud-alibaba-redis
 mvn  clean install -DskipTests
-mv target/haoyou-spring-cloud-alibaba-redis-1.0.0-SNAPSHOT.jar ${xxl_url}/redis
+mv target/haoyou-spring-cloud-alibaba-redis-1.0.0-SNAPSHOT.jar ${xxl_url}/myredis
 cd ../
 
 cd haoyou-spring-cloud-alibaba-sofabolt

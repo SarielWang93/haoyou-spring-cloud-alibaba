@@ -31,4 +31,7 @@ public interface RedisObjectService {
 
 
     boolean delete(String key);
+
+
+    boolean refreshTime(String key);
 }

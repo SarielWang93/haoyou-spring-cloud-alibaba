@@ -11,9 +11,7 @@ import lombok.Data;
 
 import javax.persistence.*;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 
 @Data
@@ -111,7 +109,7 @@ public class User extends BaseMessage implements Serializable {
     private Date creatDate;
 
     /**
-     * 创建时间
+     * 最新修改时间
      */
     @Column(name = "last_update_date")
     private Date lastUpdateDate;
@@ -123,10 +121,14 @@ public class User extends BaseMessage implements Serializable {
     private Date lastLoginDate;
 
     /**
-     * 最后一次登陆时间
+     * 最后一次登出时间
      */
     @Column(name = "last_login_out_date")
     private Date lastLoginOutDate;
+
+
+    @Transient
+    private boolean onLine;
 
     public User notTooLong(){
         this.props=null;

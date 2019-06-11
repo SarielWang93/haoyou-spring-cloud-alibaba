@@ -52,13 +52,11 @@ public class SkillConfigService {
                 try {
                     //修改缓存
                     fightingPet.getPet().setSkillBoardJosn(sendMsgUtil.serialize(skillBoard,true));
-                    fightingPet.getPet().getOtherSkill().add(prop.getProperty1());
+                    fightingPet.getPet().getOtherSkill().add(new PetSkill(fightingPet.getUid(),prop.getProperty1()));
                     fightingPet.save();
                     petMapper.updateByPrimaryKeySelective(fightingPet.getPet());
                     //添加数据库
-                    PetSkill ps=new PetSkill();
-                    ps.setPetUid(fightingPet.getUid());
-                    ps.setSkillUid(prop.getProperty1());
+                    PetSkill ps=new PetSkill(fightingPet.getUid(),prop.getProperty1());
                     petSkillMapper.insertSelective(ps);
                     return true;
                 } catch (Exception e) {
@@ -88,14 +86,12 @@ public class SkillConfigService {
                 try {
                     //修改缓存
                     fightingPet.getPet().setSkillBoardJosn(sendMsgUtil.serialize(skillBoard,true));
-                    fightingPet.getPet().getOtherSkill().remove(skillUid);
+                    PetSkill bySkillUid = fightingPet.getPet().getBySkillUid(skillUid);
+                    fightingPet.getPet().getOtherSkill().remove(bySkillUid);
                     fightingPet.save();
                     petMapper.updateByPrimaryKeySelective(fightingPet.getPet());
                     //删除数据库
-                    PetSkill ps=new PetSkill();
-                    ps.setPetUid(fightingPet.getUid());
-                    ps.setSkillUid(skillUid);
-                    petSkillMapper.delete(ps);
+                    petSkillMapper.delete(bySkillUid);
                     return true;
                 } catch (Exception e) {
                     e.printStackTrace();
