@@ -127,6 +127,13 @@ public class User extends BaseMessage implements Serializable {
     private Date lastLoginOutDate;
 
 
+    /**
+     * 昵称
+     */
+    @Column(name = "last_login_url")
+    private String lastLoginUrl;
+
+
     @Transient
     private boolean onLine;
 

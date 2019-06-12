@@ -37,6 +37,8 @@ public class MyRequest implements Serializable {
     //信息内容json（临时使用）
     private String msgJson;
 
+    //信息内容json（临时使用）
+    private String url;
 
     public MyRequest() {
     }

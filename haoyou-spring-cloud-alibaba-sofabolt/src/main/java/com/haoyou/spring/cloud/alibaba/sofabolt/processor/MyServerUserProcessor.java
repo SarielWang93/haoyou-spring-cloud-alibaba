@@ -55,9 +55,11 @@ public class MyServerUserProcessor extends SyncUserProcessor<MyRequest> {
             } catch (UnsupportedEncodingException e) {
                 e.printStackTrace();
             }
+
+            req.setUrl(bizCtx.getConnection().getUrl().getOriginUrl());
+
             //loge记录接收到的信息
             logger.info(String.format("接受信息：%s", req));
-
             //判断uid
             String useruid = req.getUseruid();
             if (StrUtil.isNotEmpty(useruid)) {

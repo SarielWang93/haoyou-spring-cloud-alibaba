@@ -77,7 +77,7 @@ public class LoginServiceImpl implements LoginService {
             }
         }
         user.setLastLoginDate(new Date());
-
+        user.setLastLoginUrl(req.getUrl());
         //缓存登录用户的信息
         if (!serializerRotation.cache(user)) {
             userIn.setState(ResponseMsg.MSG_LOGIN_WRONG);

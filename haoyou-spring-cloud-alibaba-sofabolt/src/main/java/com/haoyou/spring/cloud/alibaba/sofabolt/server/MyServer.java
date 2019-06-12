@@ -20,6 +20,10 @@ import org.springframework.stereotype.Component;
 @Order(value = 1)
 public class MyServer  implements ApplicationRunner {
     private final static Logger logger = LoggerFactory.getLogger(MyServer.class);
+
+    @Autowired
+    private MyServerUserProcessor myServerUserProcessor;
+
     @Value("${sofabolt.server.threadpool.minsize: 10}")
     private String TP_MIN_SIZE;
     @Value("${sofabolt.server.threadpool.maxsize: 100}")
@@ -33,7 +37,6 @@ public class MyServer  implements ApplicationRunner {
     public static RpcServer server;
     @Override
     public void run(ApplicationArguments args) throws Exception {
-
         if (this.start()) {
             logger.info("创建RpcServer实例成功");
             logger.info("启动端口："+port);
@@ -45,8 +48,7 @@ public class MyServer  implements ApplicationRunner {
         }
     }
 
-    @Autowired
-    MyServerUserProcessor myServerUserProcessor;
+
 
     /**
      * 创建 RpcServer 实例，并做一些初始化操作
@@ -70,7 +72,7 @@ public class MyServer  implements ApplicationRunner {
         /**
          * 创建 RpcServer 实例，指定监听 port
          */
-        server = new RpcServer(port);
+        server = new RpcServer(port,true);
         /**
          * 注册业务逻辑处理器 UserProcessor
          */
@@ -79,6 +81,9 @@ public class MyServer  implements ApplicationRunner {
          * 启动服务端：先做 netty 配置初始化操作，再做 bind 操作
          * 配置 netty 参数两种方式：[SOFABolt 源码分析11 - Config 配置管理的设计](https://www.jianshu.com/p/76b0be893745)
          */
-        return server.start();
+        boolean start = server.start();
+
+
+        return start;
     }
 }

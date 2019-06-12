@@ -1,9 +1,12 @@
 package com.haoyou.spring.cloud.alibaba.sofabolt.connection;
 
 
+import cn.hutool.core.lang.Console;
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.alipay.remoting.Connection;
 
+import com.alipay.remoting.ConnectionManager;
+import com.alipay.remoting.DefaultConnectionManager;
 import com.haoyou.spring.cloud.alibaba.commons.domain.RedisKey;
 import com.haoyou.spring.cloud.alibaba.commons.domain.SendType;
 import com.haoyou.spring.cloud.alibaba.commons.domain.message.BaseMessage;
@@ -11,7 +14,9 @@ import com.haoyou.spring.cloud.alibaba.commons.entity.User;
 import com.haoyou.spring.cloud.alibaba.commons.util.RedisKeyUtil;
 import com.haoyou.spring.cloud.alibaba.sofabolt.protocol.MyRequest;
 import com.haoyou.spring.cloud.alibaba.service.manager.ManagerService;
+import com.haoyou.spring.cloud.alibaba.sofabolt.server.MyServer;
 import com.haoyou.spring.cloud.alibaba.util.RedisObjectUtil;
+import lombok.Data;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +25,7 @@ import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -30,6 +36,7 @@ import java.util.concurrent.ConcurrentSkipListMap;
  * 链接信息存储类
  */
 @Component
+@Data
 @RefreshScope
 public class Connections {
     private final static Logger logger = LoggerFactory.getLogger(Connections.class);
@@ -42,7 +49,6 @@ public class Connections {
     private ManagerService managerService;
     @Autowired
     private RedisObjectUtil redisObjectUtil;
-
 
 
     @Value("${sofabolt.connections.heart:2000}")
@@ -60,6 +66,7 @@ public class Connections {
      */
     private List<String> disconnects = new ArrayList<>();
 
+
     /**
      * 添加链接
      *
@@ -67,7 +74,8 @@ public class Connections {
      * @param value
      */
     public void put(String key, Connection value) {
-        connections.put(key, value);
+        this.connections.put(key, value);
+        MyServer.server.getConnectionManager().add(value);
     }
 
     /**
@@ -86,8 +94,8 @@ public class Connections {
      * @param key
      * @return
      */
-    public Connection remove(String key) {
-        return connections.remove(key);
+    public void remove(String key) {
+        MyServer.server.getConnectionManager().remove(this.connections.remove(key));
     }
 
     /**
@@ -96,7 +104,7 @@ public class Connections {
      * @return
      */
     public ConcurrentSkipListMap<String, Connection> getAllMap() {
-        return connections;
+        return this.connections;
     }
 
     /**
@@ -104,19 +112,16 @@ public class Connections {
      */
     @Scheduled(cron = "${sofabolt.connections.cleardelay: 0 */5 * * * ?}")
     public void inspect() {
-        //logger.info("清理断链链接！！！");
-        for (String uid : disconnects) {
-            Connection connection = connections.get(uid);
+//        logger.info("清理断链链接！！！");
+        for (String uid : this.disconnects) {
+            Connection connection = this.get(uid);
             if (connection != null && !connectionIsAlive(uid))
             //待清理中未重连，登出
             {
-                User user = new User();
-                user.setUid(uid);
                 try {
                     //登出
-                    BaseMessage respmsg = managerService.handle(new MyRequest(SendType.LOGINOUT, uid, null));
-
-                    connections.remove(uid);
+                    this.managerService.handle(new MyRequest(SendType.LOGINOUT, uid, null));
+                    this.remove(uid);
 
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -124,25 +129,41 @@ public class Connections {
             }
         }
         //已重连从待清理中移除
-        disconnects = new ArrayList<>();
+        this.disconnects = new ArrayList<>();
 
         //将断链链接放入待清理
-        connections.forEach((uid, connection) -> {
+        this.connections.forEach((uid, connection) -> {
             if (!connectionIsAlive(uid)) {
-                disconnects.add(uid);
+                this.disconnects.add(uid);
             }
         });
 
         /**
          * 清理内存中连接不存在的玩家
          */
-        HashMap<String, User> stringUserHashMap = redisObjectUtil.getlkMap(RedisKeyUtil.getlkKey(RedisKey.USER), User.class);
+        HashMap<String, User> stringUserHashMap = this.redisObjectUtil.getlkMap(RedisKeyUtil.getlkKey(RedisKey.USER), User.class);
         for(User user:stringUserHashMap.values()){
             if(!connections.containsKey(user.getUid())){
                 //登出
-                BaseMessage respmsg = managerService.handle(new MyRequest(SendType.LOGINOUT, user.getUid(), null));
+                this.managerService.handle(new MyRequest(SendType.LOGINOUT, user.getUid(), null));
             }
         }
+
+        /**
+         * 清理不存在的链接
+         */
+        DefaultConnectionManager connectionManager = MyServer.server.getConnectionManager();
+        if(connectionManager!=null){
+//            Console.log(connectionManager.getAll());
+            for(List<Connection> connectionls : connectionManager.getAll().values()){
+                for(Connection connection:connectionls){
+                    if(!connections.containsValue(connection)){
+                        connectionManager.remove(connection);
+                    }
+                }
+            }
+        }
+
 
     }
 
@@ -154,7 +175,7 @@ public class Connections {
      * @return
      */
     public boolean connectionIsAlive(String userUid) {
-        Connection connection = connections.get(userUid);
+        Connection connection = this.get(userUid);
         if (connection != null) {
 
             Date heart = (Date) connection.getAttribute(HEART_BEAT);
@@ -162,11 +183,11 @@ public class Connections {
 
 
             if (heart !=null && now.getTime()-heart.getTime()<(heartTime*heartTry)) {
+//                logger.info(String.format("%s %s",now.getTime(),heart.getTime()));
                 return true;
             }
-            logger.info(String.format("%S %s",now.getTime(),heart.getTime()));
         }
-        logger.info(String.format("连接判断已断开: %s",userUid));
+//        logger.info(String.format("连接判断已断开: %s",userUid));
         return false;
 
     }
