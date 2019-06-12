@@ -165,8 +165,8 @@ public class Pet implements Serializable {
     /**
      * 既能配置对象
      */
-    @Column(name = "skill_board_josn")
-    private byte[] skillBoardJosn;
+    @Column(name = "skill_board")
+    private byte[] skillBoard;
 
 
 

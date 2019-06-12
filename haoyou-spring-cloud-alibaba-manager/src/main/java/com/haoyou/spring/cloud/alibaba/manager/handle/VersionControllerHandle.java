@@ -1,18 +1,15 @@
 package com.haoyou.spring.cloud.alibaba.manager.handle;
 
-import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.util.ArrayUtil;
 import com.haoyou.spring.cloud.alibaba.commons.domain.RedisKey;
 import com.haoyou.spring.cloud.alibaba.commons.domain.ResponseMsg;
+import com.haoyou.spring.cloud.alibaba.commons.domain.SendType;
 import com.haoyou.spring.cloud.alibaba.commons.domain.message.BaseMessage;
 import com.haoyou.spring.cloud.alibaba.commons.domain.message.MapBody;
 import com.haoyou.spring.cloud.alibaba.commons.entity.VersionControl;
 import com.haoyou.spring.cloud.alibaba.commons.util.RedisKeyUtil;
 import com.haoyou.spring.cloud.alibaba.sofabolt.protocol.MyRequest;
-import com.haoyou.spring.cloud.alibaba.sofabolt.protocol.VersionReqMsg;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.stereotype.Service;
 
@@ -30,7 +27,7 @@ public class VersionControllerHandle extends ManagerHandle {
 
     @Override
     protected void setHandleType() {
-        this.handleType = ManagerHandle.VERSION_CONTROLLER;
+        this.handleType = SendType.VERSION_CONTROLLER;
     }
 
 

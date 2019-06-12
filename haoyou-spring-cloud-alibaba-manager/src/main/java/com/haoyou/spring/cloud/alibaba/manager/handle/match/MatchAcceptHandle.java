@@ -2,6 +2,7 @@ package com.haoyou.spring.cloud.alibaba.manager.handle.match;
 
 
 
+import com.haoyou.spring.cloud.alibaba.commons.domain.SendType;
 import com.haoyou.spring.cloud.alibaba.commons.domain.message.BaseMessage;
 import com.haoyou.spring.cloud.alibaba.commons.domain.ResponseMsg;
 import com.haoyou.spring.cloud.alibaba.manager.handle.ManagerHandle;
@@ -21,7 +22,7 @@ public class MatchAcceptHandle extends ManagerHandle {
     private static final Logger logger = LoggerFactory.getLogger(MatchAcceptHandle.class);
     @Override
     protected void setHandleType() {
-        this.handleType = ManagerHandle.MATCH_ACCEPT;
+        this.handleType = SendType.MATCH_ACCEPT;
     }
 
     @Override

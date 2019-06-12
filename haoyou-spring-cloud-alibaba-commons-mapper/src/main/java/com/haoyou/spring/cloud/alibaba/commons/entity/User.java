@@ -172,4 +172,37 @@ public class User extends BaseMessage implements Serializable {
         return false;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        User user = (User) o;
+        return Objects.equals(id, user.id) &&
+                Objects.equals(name, user.name) &&
+                Objects.equals(username, user.username) &&
+                Objects.equals(password, user.password) &&
+                Objects.equals(phone, user.phone) &&
+                Objects.equals(email, user.email) &&
+                Objects.equals(uid, user.uid) &&
+                Objects.equals(coin, user.coin) &&
+                Objects.equals(propMax, user.propMax) &&
+                Objects.equals(platform, user.platform) &&
+                Arrays.equals(props, user.props) &&
+                Arrays.equals(platformParam, user.platformParam) &&
+                Objects.equals(rank, user.rank) &&
+                Objects.equals(diamond, user.diamond) &&
+                Objects.equals(vitality, user.vitality) &&
+                Objects.equals(creatDate, user.creatDate) &&
+                Objects.equals(lastUpdateDate, user.lastUpdateDate) &&
+                Objects.equals(lastLoginDate, user.lastLoginDate) &&
+                Objects.equals(lastLoginOutDate, user.lastLoginOutDate);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = Objects.hash(id, name, username, password, phone, email, uid, coin, propMax, platform, rank, diamond, vitality, creatDate, lastUpdateDate, lastLoginDate, lastLoginOutDate);
+        result = 31 * result + Arrays.hashCode(props);
+        result = 31 * result + Arrays.hashCode(platformParam);
+        return result;
+    }
 }

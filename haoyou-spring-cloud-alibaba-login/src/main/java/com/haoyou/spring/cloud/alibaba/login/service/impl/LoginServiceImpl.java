@@ -46,12 +46,12 @@ public class LoginServiceImpl implements LoginService {
 
     /**
      * 登录
+     *
      * @param req
      * @return
      */
     @Override
-    public User login(MyRequest req){
-
+    public User login(MyRequest req) {
 
 
         User userIn = req.getUser();
@@ -60,19 +60,18 @@ public class LoginServiceImpl implements LoginService {
         user.setUsername(userIn.getUsername());
 
 
-        logger.info(String.format("login: %s",userIn));
+        logger.info(String.format("login: %s", userIn));
 
 
         //根据用户名或者uid获取用户信息
-        user=select(user);
+        user = select(user);
 
-        if(user==null)
-        {
+        if (user == null) {
             userIn.setState(ResponseMsg.MSG_LOGIN_USERNAME_WRONG);
             return userIn;
         }
-        if(userIn!=null){
-            if(!user.getPassword().equals(userIn.getPassword())){
+        if (userIn != null) {
+            if (!user.getPassword().equals(userIn.getPassword())) {
                 userIn.setState(ResponseMsg.MSG_LOGIN_PASSWORD_WRONG);
                 return userIn;
             }
@@ -80,14 +79,14 @@ public class LoginServiceImpl implements LoginService {
         user.setLastLoginDate(new Date());
 
         //缓存登录用户的信息
-        if(!serializerRotation.cache(user)){
+        if (!serializerRotation.cache(user)) {
             userIn.setState(ResponseMsg.MSG_LOGIN_WRONG);
             return userIn;
         }
         user.setState(ResponseMsg.MSG_SUCCESS);
 
 
-        if(findFighting(user)){
+        if (findFighting(user)) {
             user.setState(ResponseMsg.MSG_LOGINOUT_FIGHTING);
         }
 
@@ -97,19 +96,20 @@ public class LoginServiceImpl implements LoginService {
 
     /**
      * 获取玩家当前是否处于战斗中
+     *
      * @param user
      */
-    private boolean findFighting(User user){
+    private boolean findFighting(User user) {
 
         String fightingRoomUid = redisObjectUtil.get(RedisKeyUtil.getKey(RedisKey.PLAYER_FIGHTING_ROOM, user.getUid()), String.class);
-        String aiFightingRoomUid = redisObjectUtil.get(RedisKeyUtil.getKey(RedisKey.PLAYER_FIGHTING_ROOM, "ai-"+user.getUid()), String.class);
-        if(StrUtil.isEmpty(aiFightingRoomUid)){
-            if(StrUtil.isNotEmpty(fightingRoomUid)){
+        String aiFightingRoomUid = redisObjectUtil.get(RedisKeyUtil.getKey(RedisKey.PLAYER_FIGHTING_ROOM, "ai-" + user.getUid()), String.class);
+        if (StrUtil.isEmpty(aiFightingRoomUid)) {
+            if (StrUtil.isNotEmpty(fightingRoomUid)) {
                 return true;
             }
-        }else{
+        } else {
             redisObjectUtil.delete(RedisKeyUtil.getKey(RedisKey.PLAYER_FIGHTING_ROOM, user.getUid()));
-            redisObjectUtil.delete(RedisKeyUtil.getKey(RedisKey.PLAYER_FIGHTING_ROOM, "ai-"+user.getUid()));
+            redisObjectUtil.delete(RedisKeyUtil.getKey(RedisKey.PLAYER_FIGHTING_ROOM, "ai-" + user.getUid()));
             redisObjectUtil.delete(RedisKeyUtil.getKey(RedisKey.FIGHTING_ROOM, aiFightingRoomUid));
         }
         return false;
@@ -117,6 +117,7 @@ public class LoginServiceImpl implements LoginService {
 
     /**
      * 登出
+     *
      * @param req
      * @return
      */
@@ -124,14 +125,14 @@ public class LoginServiceImpl implements LoginService {
     public User logout(MyRequest req) {
         User user = req.getUser();
 
-        if(user==null){
+        if (user == null) {
             user.setState(ResponseMsg.MSG_LOGINOUT_WRONG);
             return user;
         }
 
         //清除缓存
-        if(serializerRotation.removeCache(user)){
-            logger.info(String.format("%s 登出成功！！",user.getName()));
+        if (serializerRotation.removeCache(user)) {
+            logger.info(String.format("%s 登出成功！！", user.getUsername()));
             user.setState(ResponseMsg.MSG_SUCCESS);
             return user;
         }
@@ -143,6 +144,7 @@ public class LoginServiceImpl implements LoginService {
 
     /**
      * 注册并查询
+     *
      * @param req
      * @return
      */
@@ -150,22 +152,22 @@ public class LoginServiceImpl implements LoginService {
     public User register(MyRequest req) {
         User user = req.getUser();
 
-        if(StrUtil.isEmpty(user.getUsername())||StrUtil.isEmpty(user.getPassword())){
+        if (StrUtil.isEmpty(user.getUsername()) || StrUtil.isEmpty(user.getPassword())) {
             user.setState(ResponseMsg.MSG_ERR);
             return user.notTooLong();
         }
         //根据用户名查询是否已存在
-        User userx=new User();
+        User userx = new User();
         userx.setUsername(user.getUsername());
         userx = userMapper.selectOne(userx);
-        if(userx!=null&&StrUtil.isNotEmpty(userx.getUid())){
+        if (userx != null && StrUtil.isNotEmpty(userx.getUid())) {
             user.setState(ResponseMsg.MSG_REGISTER_USERNAME_EXIST);
             return user.notTooLong();
         }
 
 
         //TODO 注册的时候可以存储平台信息
-        if(StrUtil.isEmpty(user.getUid())){
+        if (StrUtil.isEmpty(user.getUid())) {
             user.setUid(IdUtil.simpleUUID());
         }
 
@@ -178,33 +180,45 @@ public class LoginServiceImpl implements LoginService {
         user.setCreatDate(new Date());
         userMapper.insertSelective(user);
 
-        logger.info(String.format("registerUser: %s",user.getUsername()));
+        logger.info(String.format("registerUser: %s", user.getUsername()));
         user.setState(ResponseMsg.MSG_SUCCESS);
         return user.notTooLong();
     }
 
     /**
      * 用户登录名数据库查询
+     *
      * @param user
      * @return
      */
-    private User select(User user){
+    private User select(User user) {
         User user1 = userMapper.selectOne(user);
-        if(user1!=null){
-            String key = RedisKeyUtil.getKey(RedisKey.OUTLINE_USER, user1.getUid());
-            User user2 = redisObjectUtil.get(key, User.class);
-            if(user1.equals(user2)){
-                user1.setOnLine(true);
-                redisObjectUtil.delete(key);
-                return user2;
-            }else{
-                user1.setOnLine(false);
-                return user1;
+        if (user1 != null) {
+            String key1 = RedisKeyUtil.getKey(RedisKey.OUTLINE_USER, user1.getUid());
+
+            User user2 = redisObjectUtil.get(key1, User.class);
+
+            User userrt = null;
+            if (user2 != null && user1.getLastUpdateDate().getTime() == user2.getLastUpdateDate().getTime()) {
+                user2.setOnLine(true);
+                userrt = user2;
+            } else {
+                String key2 = RedisKeyUtil.getKey(RedisKey.USER, user1.getUid());
+                User user3 = redisObjectUtil.get(key2, User.class);
+                if (user3 != null && user1.getLastUpdateDate().getTime() == user3.getLastUpdateDate().getTime()){
+                    user3.setOnLine(true);
+                    userrt = user3;
+                }else{
+                    user1.setOnLine(false);
+                    userrt = user1;
+                }
+
             }
+            redisObjectUtil.delete(key1);
+            return userrt;
         }
         return null;
     }
-
 
 
 }

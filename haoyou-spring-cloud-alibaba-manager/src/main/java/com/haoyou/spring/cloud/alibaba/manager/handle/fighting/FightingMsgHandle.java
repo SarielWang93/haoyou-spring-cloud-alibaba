@@ -1,6 +1,7 @@
 package com.haoyou.spring.cloud.alibaba.manager.handle.fighting;
 
 
+import com.haoyou.spring.cloud.alibaba.commons.domain.SendType;
 import com.haoyou.spring.cloud.alibaba.commons.domain.message.BaseMessage;
 import com.haoyou.spring.cloud.alibaba.manager.handle.ManagerHandle;
 import com.haoyou.spring.cloud.alibaba.sofabolt.protocol.MyRequest;
@@ -17,7 +18,7 @@ public class FightingMsgHandle extends ManagerHandle {
     private static final Logger logger = LoggerFactory.getLogger(FightingMsgHandle.class);
     @Override
     protected void setHandleType() {
-        this.handleType = ManagerHandle.FIGHTING_MSG;
+        this.handleType = SendType.FIGHTING_MSG;
     }
 
     @Override

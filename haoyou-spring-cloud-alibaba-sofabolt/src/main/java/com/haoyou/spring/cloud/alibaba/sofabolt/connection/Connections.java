@@ -5,6 +5,7 @@ import com.alibaba.dubbo.config.annotation.Reference;
 import com.alipay.remoting.Connection;
 
 import com.haoyou.spring.cloud.alibaba.commons.domain.RedisKey;
+import com.haoyou.spring.cloud.alibaba.commons.domain.SendType;
 import com.haoyou.spring.cloud.alibaba.commons.domain.message.BaseMessage;
 import com.haoyou.spring.cloud.alibaba.commons.entity.User;
 import com.haoyou.spring.cloud.alibaba.commons.util.RedisKeyUtil;
@@ -21,6 +22,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ConcurrentSkipListMap;
 
@@ -112,7 +114,7 @@ public class Connections {
                 user.setUid(uid);
                 try {
                     //登出
-                    BaseMessage respmsg = managerService.handle(new MyRequest(1, uid, null));
+                    BaseMessage respmsg = managerService.handle(new MyRequest(SendType.LOGINOUT, uid, null));
 
                     connections.remove(uid);
 
@@ -124,17 +126,23 @@ public class Connections {
         //已重连从待清理中移除
         disconnects = new ArrayList<>();
 
-
         //将断链链接放入待清理
         connections.forEach((uid, connection) -> {
             if (!connectionIsAlive(uid)) {
                 disconnects.add(uid);
-                redisObjectUtil.delete(RedisKeyUtil.getKey(RedisKey.LINK_USER,uid));
-            }else{
-                redisObjectUtil.save(RedisKeyUtil.getKey(RedisKey.LINK_USER,uid),"");
             }
         });
 
+        /**
+         * 清理内存中连接不存在的玩家
+         */
+        HashMap<String, User> stringUserHashMap = redisObjectUtil.getlkMap(RedisKeyUtil.getlkKey(RedisKey.USER), User.class);
+        for(User user:stringUserHashMap.values()){
+            if(!connections.containsKey(user.getUid())){
+                //登出
+                BaseMessage respmsg = managerService.handle(new MyRequest(SendType.LOGINOUT, user.getUid(), null));
+            }
+        }
 
     }
 

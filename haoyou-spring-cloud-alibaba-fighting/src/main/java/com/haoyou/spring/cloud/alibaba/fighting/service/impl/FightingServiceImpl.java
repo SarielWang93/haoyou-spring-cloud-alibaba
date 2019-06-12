@@ -941,7 +941,7 @@ public class FightingServiceImpl implements FightingService {
         hiFightingRoom.setCreatTime(fightingRoom.getCreatTime());
         hiFightingRoom.setOverTime(fightingRoom.getOverTime());
 
-        hiFightingRoom.setFightingRoomJson(sendMsgUtil.serialize(fightingRoom, true));
+        hiFightingRoom.setFightingRoomJson(redisObjectUtil.serialize(fightingRoom));
 
         hiFightingRoomMapper.insertSelective(hiFightingRoom);
 

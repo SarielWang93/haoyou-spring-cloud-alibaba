@@ -2,6 +2,7 @@ package com.haoyou.spring.cloud.alibaba.manager.handle.cultivate;
 
 
 import com.haoyou.spring.cloud.alibaba.commons.domain.ResponseMsg;
+import com.haoyou.spring.cloud.alibaba.commons.domain.SendType;
 import com.haoyou.spring.cloud.alibaba.commons.domain.message.BaseMessage;
 import com.haoyou.spring.cloud.alibaba.manager.handle.ManagerHandle;
 import com.haoyou.spring.cloud.alibaba.sofabolt.protocol.MyRequest;
@@ -20,7 +21,7 @@ public class SkillConfigHandle extends ManagerHandle {
     private static final Logger logger = LoggerFactory.getLogger(SkillConfigHandle.class);
     @Override
     protected void setHandleType() {
-        this.handleType = ManagerHandle.SKILL_CONFIG;
+        this.handleType = SendType.SKILL_CONFIG;
     }
 
     @Override

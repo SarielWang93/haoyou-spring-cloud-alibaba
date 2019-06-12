@@ -1,6 +1,7 @@
 package com.haoyou.spring.cloud.alibaba.manager.handle;
 
 
+import com.haoyou.spring.cloud.alibaba.commons.domain.SendType;
 import com.haoyou.spring.cloud.alibaba.commons.domain.message.BaseMessage;
 import com.haoyou.spring.cloud.alibaba.commons.domain.ResponseMsg;
 import com.haoyou.spring.cloud.alibaba.sofabolt.protocol.MyRequest;
@@ -18,7 +19,7 @@ public class HeartBeatHandle extends ManagerHandle {
 
     @Override
     protected void setHandleType() {
-        this.handleType = ManagerHandle.BEAT;
+        this.handleType = SendType.BEAT;
     }
 
     @Override

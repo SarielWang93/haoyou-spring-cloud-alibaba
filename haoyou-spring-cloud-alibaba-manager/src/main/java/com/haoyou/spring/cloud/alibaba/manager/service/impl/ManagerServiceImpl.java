@@ -4,6 +4,7 @@ import cn.hutool.core.lang.Console;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.fescar.spring.annotation.GlobalTransactional;
 import com.haoyou.spring.cloud.alibaba.commons.domain.RedisKey;
+import com.haoyou.spring.cloud.alibaba.commons.domain.SendType;
 import com.haoyou.spring.cloud.alibaba.commons.domain.message.BaseMessage;
 import com.haoyou.spring.cloud.alibaba.commons.domain.ResponseMsg;
 import com.haoyou.spring.cloud.alibaba.commons.entity.User;
@@ -27,9 +28,18 @@ import java.util.Map;
 public class ManagerServiceImpl implements ManagerService {
     private final static Logger logger = LoggerFactory.getLogger(ManagerServiceImpl.class);
 
-
-    private Map<Integer, ManagerHandle> managerHanderMap = new HashMap<>();
-
+    /**
+     * 处理器
+     */
+    private static Map<Integer, ManagerHandle> managerHanderMap = new HashMap<>();
+    /**
+     * 注册信息处理器
+     *
+     * @param managerHandle
+     */
+    public static void putManagerHanderMap(ManagerHandle managerHandle) {
+        managerHanderMap.put(managerHandle.getHandleType(), managerHandle);
+    }
 
     @Autowired
     private RedisObjectUtil redisObjectUtil;
@@ -54,11 +64,11 @@ public class ManagerServiceImpl implements ManagerService {
          * 登录验证
          */
         //登录和注册传入user
-        if (type == ManagerHandle.LOGIN || type == ManagerHandle.REGISTER) {
+        if (type == SendType.LOGIN || type == SendType.REGISTER) {
             user = sendMsgUtil.deserialize(req.getMsg(), User.class);
         }
         //心跳和版本验证不需要登录
-        else if (type == ManagerHandle.BEAT || type == ManagerHandle.VERSION_CONTROLLER) {
+        else if (type == SendType.BEAT || type == SendType.VERSION_CONTROLLER) {
             user = new User();
         }
         //登录验证
@@ -77,7 +87,7 @@ public class ManagerServiceImpl implements ManagerService {
          */
 
         //获取处理对象
-        ManagerHandle managerHandle = this.managerHanderMap.get(type);
+        ManagerHandle managerHandle = managerHanderMap.get(type);
         //处理并返回信息
         BaseMessage baseMessage = managerHandle.handle(req);
 
@@ -87,13 +97,6 @@ public class ManagerServiceImpl implements ManagerService {
     }
 
 
-    /**
-     * 注册信息处理器
-     *
-     * @param managerHandle
-     */
-    public void putManagerHanderMap(ManagerHandle managerHandle) {
-        managerHanderMap.put(managerHandle.getHandleType(), managerHandle);
-    }
+
 
 }

@@ -2,6 +2,7 @@ package com.haoyou.spring.cloud.alibaba.manager.handle.get;
 
 
 import com.haoyou.spring.cloud.alibaba.commons.domain.ResponseMsg;
+import com.haoyou.spring.cloud.alibaba.commons.domain.SendType;
 import com.haoyou.spring.cloud.alibaba.commons.domain.message.BaseMessage;
 import com.haoyou.spring.cloud.alibaba.commons.domain.message.MapBody;
 import com.haoyou.spring.cloud.alibaba.commons.entity.Prop;
@@ -26,7 +27,7 @@ public class GetPropsHandle extends ManagerHandle {
 
     @Override
     protected void setHandleType() {
-        this.handleType = ManagerHandle.GET_PROPS;
+        this.handleType = SendType.GET_PROPS;
     }
 
     @Override

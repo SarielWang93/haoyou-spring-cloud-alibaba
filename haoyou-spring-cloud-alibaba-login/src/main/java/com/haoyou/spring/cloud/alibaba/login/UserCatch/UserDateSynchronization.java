@@ -48,7 +48,6 @@ public class UserDateSynchronization {
         //TODO 读取缓存用户所有信息
         logger.info(String.format("cacheUser: %s",user.getUsername()));
 
-
         String key = RedisKeyUtil.getKey(RedisKey.USER, user.getUid());
 
         if(redisObjectUtil.save(key, user)){
@@ -95,7 +94,23 @@ public class UserDateSynchronization {
 
     }
 
+    /**
+     * 登出内存操作
+     * @param user
+     * @return
+     */
+    public boolean removeCache(User user){
+        user.setLastLoginOutDate(new Date());
+        userMapper.updateByPrimaryKeySelective(user);
 
+        //TODO 清除用户所有缓存信息
+        this.saveSqlPet(user);
+        String key = RedisKeyUtil.getKey(RedisKey.OUTLINE_USER, user.getUid());
+        String key1 = RedisKeyUtil.getKey(RedisKey.USER, user.getUid());
+        user.setOnLine(false);
+        redisObjectUtil.save(key,user);
+        return redisObjectUtil.delete(key1);
+    }
     /**
      * 向数据库存储宠物信息
      * @param user
@@ -132,17 +147,5 @@ public class UserDateSynchronization {
     }
 
 
-    public boolean removeCache(User user){
-        user.setLastLoginOutDate(new Date());
-        userMapper.updateByPrimaryKeySelective(user);
-
-        //TODO 清除用户所有缓存信息
-        this.saveSqlPet(user);
-        String key = RedisKeyUtil.getKey(RedisKey.OUTLINE_USER, user.getUid());
-        String key1 = RedisKeyUtil.getKey(RedisKey.USER, user.getUid());
-        user.setOnLine(false);
-        redisObjectUtil.save(key,user);
-        return redisObjectUtil.delete(key1);
-    }
 
 }

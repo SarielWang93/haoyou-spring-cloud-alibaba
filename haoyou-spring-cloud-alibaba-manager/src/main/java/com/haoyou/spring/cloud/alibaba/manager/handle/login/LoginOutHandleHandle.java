@@ -2,6 +2,7 @@ package com.haoyou.spring.cloud.alibaba.manager.handle.login;
 
 
 
+import com.haoyou.spring.cloud.alibaba.commons.domain.SendType;
 import com.haoyou.spring.cloud.alibaba.commons.domain.message.BaseMessage;
 import com.haoyou.spring.cloud.alibaba.manager.handle.ManagerHandle;
 import com.haoyou.spring.cloud.alibaba.sofabolt.protocol.MyRequest;
@@ -18,7 +19,7 @@ public class LoginOutHandleHandle extends ManagerHandle {
     private static final Logger logger = LoggerFactory.getLogger(LoginOutHandleHandle.class);
     @Override
     protected void setHandleType() {
-        this.handleType = ManagerHandle.LOGINOUT;
+        this.handleType = SendType.LOGINOUT;
     }
 
     @Override

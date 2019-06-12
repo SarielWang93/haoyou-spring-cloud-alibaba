@@ -55,6 +55,11 @@ public class CultivateServiceImpl implements CultivateService {
     @Autowired
     private RewardService rewardService;
 
+    /**
+     * 技能配置处理
+     * @param req
+     * @return
+     */
     @Override
     public boolean skillConfig(MyRequest req) {
 
@@ -73,6 +78,11 @@ public class CultivateServiceImpl implements CultivateService {
         return false;
     }
 
+    /**
+     * 注册时生成三个宠物
+     * @param req
+     * @return
+     */
     @Override
     public boolean petGeneration(MyRequest req) {
         logger.debug("注册赠送宠物！！！");
@@ -114,7 +124,7 @@ public class CultivateServiceImpl implements CultivateService {
                 pet.setUniqueSkill(petType.getUniqueSkill());
                 pet.setTalentSkill(petType.getTalentSkill());
                 pet.setSpecialAttack(petType.getSpecialAttack());
-                pet.setSkillBoardJosn(petType.getSkillBoardJosn());
+                pet.setSkillBoard(petType.getSkillBoard());
                 pet.setExp(0);
                 pet.setLevUpExp(260);
                 pet.setLevel(1);
@@ -131,7 +141,12 @@ public class CultivateServiceImpl implements CultivateService {
     }
 
 
-
+    /**
+     * 奖励分发，根据type获取不同奖励模式
+     * @param user
+     * @param type
+     * @return
+     */
     @Override
     public boolean rewards(User user, int type) {
         return rewardService.rewards(user,type);

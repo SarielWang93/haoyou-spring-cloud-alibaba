@@ -51,7 +51,7 @@ public class SkillConfigService {
             if(skillBoard.addSkill(skillConfigMsg.getTetromino(),prop)){
                 try {
                     //修改缓存
-                    fightingPet.getPet().setSkillBoardJosn(sendMsgUtil.serialize(skillBoard,true));
+                    fightingPet.getPet().setSkillBoard(redisObjectUtil.serialize(skillBoard));
                     fightingPet.getPet().getOtherSkill().add(new PetSkill(fightingPet.getUid(),prop.getProperty1()));
                     fightingPet.save();
                     petMapper.updateByPrimaryKeySelective(fightingPet.getPet());
@@ -85,7 +85,7 @@ public class SkillConfigService {
             if(StrUtil.isNotEmpty(skillUid)){
                 try {
                     //修改缓存
-                    fightingPet.getPet().setSkillBoardJosn(sendMsgUtil.serialize(skillBoard,true));
+                    fightingPet.getPet().setSkillBoard(redisObjectUtil.serialize(skillBoard));
                     PetSkill bySkillUid = fightingPet.getPet().getBySkillUid(skillUid);
                     fightingPet.getPet().getOtherSkill().remove(bySkillUid);
                     fightingPet.save();
@@ -108,8 +108,8 @@ public class SkillConfigService {
      */
     private SkillBoard getSkillBoard(FightingPet fightingPet){
 
-        if(fightingPet.getPet().getSkillBoardJosn()!=null){
-            return sendMsgUtil.deserialize(fightingPet.getPet().getSkillBoardJosn(), SkillBoard.class,true);
+        if(fightingPet.getPet().getSkillBoard()!=null){
+            return redisObjectUtil.deserialize(fightingPet.getPet().getSkillBoard(), SkillBoard.class);
         }else{
             return new SkillBoard(9,9);
         }

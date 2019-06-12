@@ -2,6 +2,7 @@ package com.haoyou.spring.cloud.alibaba.manager.handle.fighting;
 
 
 import com.haoyou.spring.cloud.alibaba.commons.domain.ResponseMsg;
+import com.haoyou.spring.cloud.alibaba.commons.domain.SendType;
 import com.haoyou.spring.cloud.alibaba.commons.domain.message.BaseMessage;
 import com.haoyou.spring.cloud.alibaba.commons.entity.User;
 import com.haoyou.spring.cloud.alibaba.manager.handle.ManagerHandle;
@@ -22,7 +23,7 @@ public class FightingAI2Handle extends ManagerHandle {
     private static final Logger logger = LoggerFactory.getLogger(FightingAI2Handle.class);
     @Override
     protected void setHandleType() {
-        this.handleType = ManagerHandle.FIGHTING_AI2;
+        this.handleType = SendType.FIGHTING_AI2;
     }
 
     @Override

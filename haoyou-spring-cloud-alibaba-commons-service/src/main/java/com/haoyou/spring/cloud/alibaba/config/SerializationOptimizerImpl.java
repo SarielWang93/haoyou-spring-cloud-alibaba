@@ -7,7 +7,6 @@ import com.haoyou.spring.cloud.alibaba.commons.entity.Pet;
 import com.haoyou.spring.cloud.alibaba.commons.entity.User;
 import com.haoyou.spring.cloud.alibaba.sofabolt.protocol.MyRequest;
 import com.haoyou.spring.cloud.alibaba.sofabolt.protocol.RedisObjKV;
-import com.haoyou.spring.cloud.alibaba.sofabolt.protocol.VersionReqMsg;
 
 import java.util.*;
 
@@ -26,7 +25,6 @@ public class SerializationOptimizerImpl implements SerializationOptimizer {
         classes.add(Set.class);
         classes.add(BaseMessage.class);
         classes.add(MapBody.class);
-        classes.add(VersionReqMsg.class);
         classes.add(Collection.class);
         return classes;
     }

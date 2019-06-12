@@ -193,14 +193,15 @@ public class FightingPet implements Serializable {
         List<Skill> skills = new ArrayList<>();
         List<PetSkill> skillUids = pet.getOtherSkill();
 
-        if (pet.getInhSkill() != null)
-            skillUids.add(new PetSkill(pet.getUid(),pet.getInhSkill()));
-        if (pet.getTalentSkill() != null)
-            skillUids.add(new PetSkill(pet.getUid(),pet.getTalentSkill()));
-        if (pet.getUniqueSkill() != null)
-            skillUids.add(new PetSkill(pet.getUid(),pet.getUniqueSkill()));
-        if (pet.getSpecialAttack() != null)
-            skillUids.add(new PetSkill(pet.getUid(),pet.getSpecialAttack()));
+        if (StrUtil.isNotEmpty(pet.getInhSkill()))
+            skills.add(this.redisObjectUtil.get(RedisKeyUtil.getKey(RedisKey.SKILL, pet.getInhSkill()), Skill.class));
+        if (StrUtil.isNotEmpty(pet.getTalentSkill()))
+            skills.add(this.redisObjectUtil.get(RedisKeyUtil.getKey(RedisKey.SKILL, pet.getTalentSkill()), Skill.class));
+        if (StrUtil.isNotEmpty(pet.getUniqueSkill()))
+            skills.add(this.redisObjectUtil.get(RedisKeyUtil.getKey(RedisKey.SKILL, pet.getUniqueSkill()), Skill.class));
+        if (StrUtil.isNotEmpty(pet.getSpecialAttack()))
+            skills.add(this.redisObjectUtil.get(RedisKeyUtil.getKey(RedisKey.SKILL, pet.getSpecialAttack()), Skill.class));
+
 
         for (PetSkill petSkill : skillUids) {
             String skillUid = petSkill.getSkillUid();
