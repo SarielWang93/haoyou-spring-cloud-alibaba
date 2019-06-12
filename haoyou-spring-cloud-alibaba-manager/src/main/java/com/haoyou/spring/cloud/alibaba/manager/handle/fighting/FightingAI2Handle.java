@@ -2,6 +2,7 @@ package com.haoyou.spring.cloud.alibaba.manager.handle.fighting;
 
 
 import com.haoyou.spring.cloud.alibaba.commons.domain.ResponseMsg;
+import com.haoyou.spring.cloud.alibaba.commons.domain.RewardType;
 import com.haoyou.spring.cloud.alibaba.commons.domain.SendType;
 import com.haoyou.spring.cloud.alibaba.commons.domain.message.BaseMessage;
 import com.haoyou.spring.cloud.alibaba.commons.entity.User;
@@ -12,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -32,7 +34,9 @@ public class FightingAI2Handle extends ManagerHandle {
         User user = req.getUser();
         List<User> users = new ArrayList<>();
         users.add(user);
-        if(fightingService.start(users,true)){
+        HashMap<String, Boolean> allIsAi = new HashMap<>();
+        allIsAi.put(user.getUid(),true);
+        if(fightingService.start(users,allIsAi, RewardType.PVE)){
             baseMessage.setState(ResponseMsg.MSG_SUCCESS);
         }else {
             baseMessage.setState(ResponseMsg.MSG_ERR);

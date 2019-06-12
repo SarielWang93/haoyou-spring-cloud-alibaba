@@ -32,12 +32,14 @@ public class FightingRoom implements Serializable {
     //结束时间
     private Date overTime;
 
+    private int rewardType;
+
     //详细步骤
     private int step;
     //详细记录，整个房间的所有操作
     private TreeMap<Integer, FightingStep> steps;
     //当前操作的步骤信息
-    private TreeMap<Integer, FightingStep> nowSteps;
+    private transient TreeMap<Integer, FightingStep> nowSteps;
 
     //出手数
     private int shotNum;
@@ -60,7 +62,10 @@ public class FightingRoom implements Serializable {
     public FightingRoom() {
     }
 
-    public FightingRoom(List<User> users) {
+    public FightingRoom(List<User> users, int rewardType) {
+
+        this.rewardType = rewardType;
+
 
         this.step = 0;
         this.shotNum = 0;
@@ -82,7 +87,7 @@ public class FightingRoom implements Serializable {
     public void startRount(FightingPet fightingPet) {
         this.campNow = fightingPet.getFightingCamp().getUser().getUid();
         this.petNow = fightingPet.getIswork();
-        this.creatTime=new Date();
+        this.creatTime = new Date();
         /**
          * 刷新回合
          */
@@ -97,8 +102,9 @@ public class FightingRoom implements Serializable {
      */
     public void addShot(FightingReq fightingReq) {
         this.shotNum++;
-        this.shots.put(this.shotNum,fightingReq);
+        this.shots.put(this.shotNum, fightingReq);
     }
+
     /**
      * 添加步骤
      *
@@ -134,7 +140,7 @@ public class FightingRoom implements Serializable {
         Map<Integer, Map> petsMSG = this.getPetsMSG();
         for (Map pet : petsMSG.values()) {
             MapBody send = new MapBody();
-            send.put("pet",pet);
+            send.put("pet", pet);
             sendMsgUtil.sendMsgList(userUids, SendType.FIGHTING_INITPET, send);
         }
     }
@@ -152,26 +158,25 @@ public class FightingRoom implements Serializable {
         room.put("steps", this.nowSteps);
         room.remove("maps");
         Map<Integer, Map> pets = getPetsMSG();
-        Map<String, Object> playerLeft=(Map<String, Object>)room.get("playerLeft");
-        Map<String, Object> playerRight=(Map<String, Object>)room.get("playerRight");
+        Map<String, Object> playerLeft = (Map<String, Object>) room.get("playerLeft");
+        Map<String, Object> playerRight = (Map<String, Object>) room.get("playerRight");
 
-        Map<String, Object>[] petsL= new Map[3];
-        Map<String, Object>[] petsR= new Map[3];
+        Map<String, Object>[] petsL = new Map[3];
+        Map<String, Object>[] petsR = new Map[3];
 
         for (int i = 0; i < 3; i++) {
 
             pets.get(i).remove("skillInfos");
-            pets.get(i+3).remove("skillInfos");
+            pets.get(i + 3).remove("skillInfos");
 
-            petsL[i]=pets.get(i);
+            petsL[i] = pets.get(i);
 
-            petsR[i]=pets.get(i+3);
+            petsR[i] = pets.get(i + 3);
 
         }
 
-        playerLeft.put("pets",petsL);
-        playerRight.put("pets",petsR);
-
+        playerLeft.put("pets", petsL);
+        playerRight.put("pets", petsR);
 
 
         sendMsgUtil.sendMsgList(userUids, SendType.FIGHTING_RESP, room);
@@ -189,7 +194,7 @@ public class FightingRoom implements Serializable {
 
             Map<String, Object> player = new HashMap<>();
             player.put("useruid", fightingCamp.getUser().getUid());
-            player.put("name", fightingCamp.getUser().getName());
+            player.put("name", fightingCamp.getUser().getUsername());
             player.put("energy", fightingCamp.getEnergy());
 
             if (this.campNow.equals(fightingCamp.getUser().getUid())) {

@@ -698,8 +698,7 @@ public class FightingPet implements Serializable {
         this.doFightingStateByType(StateType.TURN_START);
         //回合开始操作块
         this.doFightingStateByType(StateType.TURN_START_BLOCK);
-        //增加出手数
-        this.shotNum++;
+
 
         //管理状态回合
 
@@ -719,7 +718,9 @@ public class FightingPet implements Serializable {
     public void removeState(int deleteType) {
         List<FightingState> remove = new ArrayList<>();
         for (FightingState fightingState : this.fightingStates) {
-            if (deleteType == StateType.ROUND) {
+            if (deleteType == StateType.ROUND)
+            //回合制删除状态
+            {
                 if (fightingState.getRound().equals(0) ) {
                     remove.add(fightingState);
                 }

@@ -75,23 +75,7 @@ public class ManagerTest {
 
     public static void main(String[] args) throws InterruptedException {
 
-        String x= "31,139,8,0,0,0,0,0,0,11,75,205,75,46,170,44,40,1,0,144,40,207,74,7,0,0,0";
-        String[] split = x.split(",");
-        byte[] a= new byte[split.length];
 
-        for(int i=0;i<split.length;i++){
-            a[i]=new Integer(split[i]).byteValue();
-        }
-
-
-
-
-        try {
-            byte[] bytes = ZIP.unGZip(a);
-            Console.log(new String(bytes));
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 
 
