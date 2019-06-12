@@ -11,7 +11,7 @@ import java.io.Serializable;
 public class FightingStep implements Serializable {
     private static final long serialVersionUID = 2458313594609241783L;
 
-    public final static int DO_ATTACK=0;//技能发动
+    public final static int DO_ATTACK=0;//普攻发动
 
     public final static int DO_SKILL=1;//技能发动
 

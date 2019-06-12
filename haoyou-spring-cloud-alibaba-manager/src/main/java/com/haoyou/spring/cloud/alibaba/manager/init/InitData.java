@@ -13,10 +13,7 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * 从mysql初始化公共数据到redis
@@ -51,22 +48,40 @@ public class InitData implements ApplicationRunner {
     @Autowired
     private PropMapper propMapper;
     @Autowired
-    protected VersionControlMapper versionControlMapper;
+    private VersionControlMapper versionControlMapper;
+
+
+    private Date lastDo;
 
     @Override
     public void run(ApplicationArguments args){
         //TODO 数据库中的公共数据缓存到内存或redis中
-        //初始化道具
-        initVersion();
-        //初始化排行榜
-        initRanking();
-        //初始化技能
-        initSkill();
-        //初始化宠物类型
-        initPetType();
-        //初始化道具
-        initProp();
+        doInit();
     }
+
+    public boolean doInit(){
+        Date now = new Date();
+        /**
+         * 每次加载必须间隔一分钟以上，防止攻击
+         */
+        if(lastDo == null || now.getTime()-lastDo.getTime()>60*1000){
+            //初始化道具
+            initVersion();
+            //初始化排行榜
+            initRanking();
+            //初始化技能
+            initSkill();
+            //初始化宠物类型
+            initPetType();
+            //初始化道具
+            initProp();
+            lastDo=now;
+            return true;
+        }
+        return false;
+    }
+
+
 
     /**
      * 初始化排行榜
