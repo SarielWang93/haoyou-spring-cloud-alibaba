@@ -8,6 +8,7 @@ import com.haoyou.spring.cloud.alibaba.commons.domain.SendType;
 import com.haoyou.spring.cloud.alibaba.commons.domain.message.BaseMessage;
 import com.haoyou.spring.cloud.alibaba.commons.domain.ResponseMsg;
 import com.haoyou.spring.cloud.alibaba.commons.entity.User;
+import com.haoyou.spring.cloud.alibaba.commons.util.MapperUtils;
 import com.haoyou.spring.cloud.alibaba.commons.util.RedisKeyUtil;
 import com.haoyou.spring.cloud.alibaba.manager.handle.ManagerHandle;
 import com.haoyou.spring.cloud.alibaba.util.RedisObjectUtil;
@@ -32,6 +33,7 @@ public class ManagerServiceImpl implements ManagerService {
      * 处理器
      */
     private static Map<Integer, ManagerHandle> managerHanderMap = new HashMap<>();
+
     /**
      * 注册信息处理器
      *
@@ -53,10 +55,14 @@ public class ManagerServiceImpl implements ManagerService {
 
         Integer type = req.getId();
         byte[] msg = req.getMsg();
+        String msgJson = "";
+        if (msg != null) {
+            msgJson = new String(msg);
+        }
         String useruid = req.getUseruid();
 
 
-        logger.info(String.format("manager：%s %s", type, useruid));
+        logger.info(String.format("manager-receive：%s %s %s", type, useruid, msgJson));
 
 
         User user = null;
@@ -78,7 +84,7 @@ public class ManagerServiceImpl implements ManagerService {
         //无法获取user，返回错误
         if (user == null) {
             BaseMessage baseMessage = new BaseMessage();
-            baseMessage.setState(ResponseMsg.MSG_ERR);
+            baseMessage.setState(ResponseMsg.MSG_NOT_LOGIN);
             return baseMessage;
         }
         req.setUser(user);
@@ -90,13 +96,17 @@ public class ManagerServiceImpl implements ManagerService {
         ManagerHandle managerHandle = managerHanderMap.get(type);
         //处理并返回信息
         BaseMessage baseMessage = managerHandle.handle(req);
+        String json = "";
+        try {
+            json = MapperUtils.obj2jsonIgnoreNull(baseMessage);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        logger.info(String.format("manager-return：%s %s %s", type, useruid, json));
 
-        //Console.log(baseMessage);
         return baseMessage;
 
     }
-
-
 
 
 }

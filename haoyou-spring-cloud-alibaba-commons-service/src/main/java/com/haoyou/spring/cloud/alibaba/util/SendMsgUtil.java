@@ -45,7 +45,8 @@ public class SendMsgUtil implements Serializable {
      * @return
      */
     public MyRequest sendMsgOne(String userUid, Integer type, BaseMessage baseMessage) {
-        byte[] serialize = serialize(baseMessage,false);
+        logger.info(String.format("sendMsgOne: %s %s %s", userUid, type , baseMessage));
+        byte[] serialize = this.serialize(baseMessage);
 
         MyRequest myRequest = sendMsgService.sendMsgOne(getreqstr(userUid, serialize, type));
 
@@ -62,9 +63,9 @@ public class SendMsgUtil implements Serializable {
      * @return
      */
     public boolean sendMsgOneNoReturn(String userUid, Integer type, BaseMessage baseMessage) {
-        logger.info(String.format("sendMsgOneNoReturn: %s %s", userUid, baseMessage));
+        logger.info(String.format("sendMsgOneNoReturn: %s %s %s", userUid, type , baseMessage));
 
-        byte[] serialize = this.serialize(baseMessage,false);
+        byte[] serialize = this.serialize(baseMessage);
         if(!userUid.startsWith("ai-")) {
             sendMsgService.sendMsgOneNoReturn(getreqstr(userUid, serialize, type));
         }
@@ -79,8 +80,8 @@ public class SendMsgUtil implements Serializable {
      * @return
      */
     public boolean sendMsgAll(Integer type, BaseMessage baseMessage) {
-        logger.info(String.format("sendMsgAll: %s", baseMessage));
-        byte[] serialize = this.serialize(baseMessage,false);
+        logger.info(String.format("sendMsgAll: %s %s", type , baseMessage));
+        byte[] serialize = this.serialize(baseMessage);
 
         return sendMsgService.sendMsgAll(getreqstr(null, serialize, type));
     }
@@ -96,9 +97,9 @@ public class SendMsgUtil implements Serializable {
      * @return
      */
     public <T> boolean sendMsgList(Collection<String> userUids, Integer type, BaseMessage baseMessage) {
-        logger.info(String.format("sendMsgList: %s %s", userUids, baseMessage));
+        logger.info(String.format("sendMsgList: %s %s %s", userUids, type , baseMessage));
 
-        byte[] serialize = this.serialize(baseMessage,false);
+        byte[] serialize = this.serialize(baseMessage);
         for (String userUid : userUids) {
             if(!userUid.startsWith("ai-")){
                 sendMsgService.sendMsgOneNoReturn(getreqstr(userUid, serialize, type));

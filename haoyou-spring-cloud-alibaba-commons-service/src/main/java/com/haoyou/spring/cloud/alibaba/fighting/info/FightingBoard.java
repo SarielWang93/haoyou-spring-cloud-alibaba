@@ -5,7 +5,9 @@ import cn.hutool.core.lang.Console;
 import cn.hutool.core.lang.WeightRandom;
 import cn.hutool.core.util.RandomUtil;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.haoyou.spring.cloud.alibaba.commons.domain.SkillType;
 import com.haoyou.spring.cloud.alibaba.commons.domain.StateType;
+import com.haoyou.spring.cloud.alibaba.commons.entity.PetTypeAi;
 import com.haoyou.spring.cloud.alibaba.fighting.info.fightingstate.FightingState;
 import lombok.Data;
 import org.slf4j.Logger;
@@ -166,7 +168,7 @@ public class FightingBoard implements Serializable {
                 }
                 this.board[x][y] = null;
                 //检查周围有没有冰冻
-                List<BlockInfo> blockInfos1 = this.getBlockInfos(blockInfo,false);
+                List<BlockInfo> blockInfos1 = this.getBlockInfos(blockInfo, false);
                 for (BlockInfo blockInfo1 : blockInfos1) {
                     if (blockInfo1 != null && blockInfo1.getDisType() > 0) {
                         blockInfo1.setDisType(0);
@@ -236,7 +238,6 @@ public class FightingBoard implements Serializable {
      * @return
      */
     private int randomBlock() {
-
 
 
         WeightRandom<Integer> weightRandom = RandomUtil.weightRandom(weightObjs);
@@ -342,39 +343,68 @@ public class FightingBoard implements Serializable {
     }
 
 
+    public List<BlockInfo> doAI(FightingPet fightingPet, FightingCamp own, PetTypeAi petTypeAi) {
+
+        //权重
+        Integer attack = petTypeAi.getAttack();
+        Integer specialAttack = petTypeAi.getSpecialAttack();
+        Integer shield = petTypeAi.getShield();
+        Integer skill = petTypeAi.getSkill();
+
+
+        //能量值满了必杀
+        if (own.getEnergy() == FightingCamp.MAX_ENERGY && fightingPet.getSkillsByType(SkillType.UNIQUE).size() > 0) {
+            attack += FightingCamp.MAX_ENERGY * 10;
+        }
+        /**
+         * 处理禁止块状态
+         */
+        List<FightingState> fightingStates = fightingPet.getFightingStateByType(StateType.TURN_START_BLOCK);
+        for (FightingState fightingState : fightingStates) {
+            switch (fightingState.getFixed()) {
+                case ATTACK_NORMAL:
+                    attack = 0;
+                    specialAttack = 0;
+                    break;
+                case SHIELD:
+                    shield = 0;
+                    break;
+                case SKILL:
+                    skill = 0;
+                    break;
+            }
+
+        }
+        //根据星级控制最大长度截取
+        Integer starClass = fightingPet.getPet().getStarClass();
+        int maxBlockCount = 3;
+        if (starClass > 2) {
+            maxBlockCount = starClass + 1;
+        }
+        List<BlockInfo> blockInfo = null;
+        for (int i = maxBlockCount-1; i > 1; i--) {
+            blockInfo = doAI(own.getUser().getUid(), i, maxBlockCount, attack, specialAttack, shield, skill);
+            if (blockInfo.size() > 0) {
+
+            }
+        }
+
+        return blockInfo;
+    }
+
     /**
      * AI逻辑产生消除快
      *
-     * @param fightingPet
      * @param userUid       下面是对应块的权重
+     * @param minBlockCount 最小连接数
+     * @param maxBlockCount 最大连接数
      * @param attack
      * @param specialAttack
      * @param shield
      * @param skill
      * @return
      */
-    public List<BlockInfo> doAI(FightingPet fightingPet, String userUid, Integer attack, Integer specialAttack, Integer shield, Integer skill) {
-
-        Integer starClass = fightingPet.getPet().getStarClass();
-        /**
-         * 处理禁止块状态
-         */
-        List<FightingState> fightingStates = fightingPet.getFightingStateByType(StateType.TURN_START_BLOCK);
-        for(FightingState fightingState:fightingStates){
-            switch (fightingState.getFixed()){
-                case ATTACK_NORMAL:
-                    attack=0;
-                    specialAttack=0;
-                    break;
-                case SHIELD:
-                    shield=0;
-                    break;
-                case SKILL:
-                    skill=0;
-                    break;
-            }
-
-        }
+    public List<BlockInfo> doAI(String userUid, int minBlockCount, int maxBlockCount, Integer attack, Integer specialAttack, Integer shield, Integer skill) {
 
         //权重随机
         WeightRandom.WeightObj<Integer>[] weightObjs = new WeightRandom.WeightObj[4];
@@ -388,8 +418,7 @@ public class FightingBoard implements Serializable {
 
         List<BlockInfo> blockInfo = new LinkedList<>();
         //随机选取自己可选区域内的块
-        int minBlockCount = 2;
-        if(redomType!=null){
+        if (redomType != null) {
             List<BlockInfo> blockInfos = ownType(redomType, userUid);
             if (blockInfos.size() > 0) {
                 int i = RandomUtil.randomInt(blockInfos.size());
@@ -398,11 +427,6 @@ public class FightingBoard implements Serializable {
 
                     blockInfo.add(first);
 
-                    //根据星级控制最大长度截取
-                    int maxBlockCount = 3;
-                    if (starClass > 2) {
-                        maxBlockCount = starClass + 1;
-                    }
                     //连线
                     this.link(first, blockInfo, maxBlockCount);
                 }
@@ -424,7 +448,7 @@ public class FightingBoard implements Serializable {
                         skill--;
                         break;
                 }
-                blockInfo = this.doAI(fightingPet, userUid, attack, specialAttack, shield, skill);
+                blockInfo = this.doAI(userUid, minBlockCount, maxBlockCount, attack, specialAttack, shield, skill);
             }
         }
 
@@ -441,7 +465,7 @@ public class FightingBoard implements Serializable {
     private void link(BlockInfo father, List<BlockInfo> blockInfo, int maxBlockCount) {
 
 
-        List<BlockInfo> all = this.getBlockInfos(father,true);
+        List<BlockInfo> all = this.getBlockInfos(father, true);
 
 
         for (BlockInfo son : all) {
@@ -461,11 +485,12 @@ public class FightingBoard implements Serializable {
 
     /**
      * 获取周围块
+     *
      * @param blockInfo
-     * @param xm 是否斜线
+     * @param xm        是否斜线
      * @return
      */
-    private List<BlockInfo> getBlockInfos(BlockInfo blockInfo,boolean xm) {
+    private List<BlockInfo> getBlockInfos(BlockInfo blockInfo, boolean xm) {
 
         int x = blockInfo.getX();
         int y = blockInfo.getY();
@@ -473,7 +498,7 @@ public class FightingBoard implements Serializable {
 
         if (x - 1 >= 0) {
             all.add(this.board[x - 1][y]);
-            if(xm){
+            if (xm) {
                 if (y - 1 >= 0)
                     all.add(this.board[x - 1][y - 1]);
                 if (y + 1 < 6)
@@ -482,7 +507,7 @@ public class FightingBoard implements Serializable {
         }
         if (x + 1 < 7) {
             all.add(this.board[x + 1][y]);
-            if(xm){
+            if (xm) {
                 if (y - 1 >= 0)
                     all.add(this.board[x + 1][y - 1]);
                 if (y + 1 < 6)

@@ -5,7 +5,6 @@ import com.alibaba.dubbo.config.annotation.Reference;
 import com.alipay.remoting.exception.CodecException;
 import com.alipay.remoting.serialization.Serializer;
 import com.alipay.remoting.serialization.SerializerManager;
-import com.haoyou.spring.cloud.alibaba.serialization.JsonSerializer;
 import com.haoyou.spring.cloud.alibaba.sofabolt.protocol.RedisObjKV;
 import com.haoyou.spring.cloud.alibaba.service.redis.RedisObjectService;
 import com.haoyou.spring.cloud.alibaba.commons.util.ZIP;

@@ -134,7 +134,7 @@ public class LoginServiceImpl implements LoginService {
         if (serializerRotation.removeCache(user)) {
             logger.info(String.format("%s 登出成功！！", user.getUsername()));
             user.setState(ResponseMsg.MSG_SUCCESS);
-            return user;
+            return user.notTooLong();
         }
 
 

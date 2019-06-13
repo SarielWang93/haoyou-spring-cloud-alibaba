@@ -215,7 +215,7 @@ public class FightingServiceImpl implements FightingService {
         FightingRoom fightingRoom = this.getFightingRoomByUserUid(user.getUid(), 5);
         if (fightingRoom == null) {
             logger.debug(String.format("未找到战斗房间：%s", user.getUsername()));
-            rt = ResponseMsg.MSG_ERR;
+            rt = ResponseMsg.MSG_NOT_FIND_FIGHTING_ROOM;
             baseMessage.setState(rt);
             return baseMessage;
         }
@@ -548,18 +548,8 @@ public class FightingServiceImpl implements FightingService {
         //执行AI操作
         FightingReq fightingReq = new FightingReq();
 
-        //权重
-        Integer attack = petTypeAi.getAttack();
-        Integer specialAttack = petTypeAi.getSpecialAttack();
-        Integer shield = petTypeAi.getShield();
-        Integer skill = petTypeAi.getSkill();
-        //能量值满了必杀
-        if (own.getEnergy() == FightingCamp.MAX_ENERGY && fightingPet.getSkillsByType(SkillType.UNIQUE).size() > 0) {
-            attack += FightingCamp.MAX_ENERGY * 10;
-        }
-
         //获取ai连的块
-        fightingReq.setDestroyInfos(fightingRoom.getFightingBoard().doAI(fightingPet, userUid, attack, specialAttack, shield, skill));
+        fightingReq.setDestroyInfos(fightingRoom.getFightingBoard().doAI(fightingPet, own, petTypeAi));
         //fightingReq.setFightingRoomUid(fightingRoom.getUid());
         doOperation(fightingRoom, fightingReq);
     }

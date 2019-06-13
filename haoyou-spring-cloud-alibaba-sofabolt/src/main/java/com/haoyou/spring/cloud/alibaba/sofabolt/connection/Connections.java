@@ -74,6 +74,7 @@ public class Connections {
      * @param value
      */
     public void put(String key, Connection value) {
+        this.remove(key);
         this.connections.put(key, value);
         MyServer.server.getConnectionManager().add(value);
     }

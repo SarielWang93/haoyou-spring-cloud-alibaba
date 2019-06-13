@@ -1,24 +1,12 @@
 package com.haoyou.spring.cloud.alibaba.manager.controller;
 
-import com.alibaba.dubbo.config.annotation.Service;
-import com.haoyou.spring.cloud.alibaba.commons.domain.RedisKey;
-import com.haoyou.spring.cloud.alibaba.commons.entity.VersionControl;
-import com.haoyou.spring.cloud.alibaba.commons.util.MapperUtils;
-import com.haoyou.spring.cloud.alibaba.commons.util.RedisKeyUtil;
 import com.haoyou.spring.cloud.alibaba.manager.init.InitData;
 import com.haoyou.spring.cloud.alibaba.util.RedisObjectUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.util.ResourceUtils;
 import org.springframework.web.bind.annotation.*;
-
-import javax.servlet.ServletContext;
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.*;
-import java.util.HashMap;
-
 
 @RestController
 public class ManagerController {
@@ -36,11 +24,11 @@ public class ManagerController {
      */
     @GetMapping(value = "refreshCatch")
     public String refreshCatch(HttpServletResponse response){
-
         response.setHeader("Access-Control-Allow-Origin", "*");
         response.setHeader("Access-Control-Allow-Methods","GET,POST");
 
         if(initData.doInit()){
+            logger.info("刷新静态缓存信息，成功！！");
             return "success";
         }
         return "err";

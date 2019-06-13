@@ -8,6 +8,9 @@ public class ResponseMsg {
     //熔断器报错
     final static public int MSG_FALLBACK = 999;
 
+    //用户未登录
+    final static public int MSG_NOT_LOGIN = 52;
+
     //登录报错
     final static public int MSG_LOGIN_WRONG = 45;
     //登录用户名不存在
@@ -23,6 +26,8 @@ public class ResponseMsg {
     //注册用户名已占用
     final static public int MSG_REGISTER_USERNAME_EXIST = 51;
 
+
+    final static public int MSG_NOT_FIND_FIGHTING_ROOM = 53;
 
 
 }

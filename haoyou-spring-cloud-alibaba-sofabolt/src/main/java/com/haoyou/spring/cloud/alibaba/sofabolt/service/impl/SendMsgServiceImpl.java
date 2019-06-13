@@ -38,7 +38,7 @@ public class SendMsgServiceImpl implements SendMsgService {
      */
     @Override
     public MyRequest sendMsgOne(MyRequest req) {
-        logger.info(String.format("发送信息：%s", req));
+        logger.info(String.format("发送信息：%s %s", req.getId(), req.getUseruid()));
 
         Connection connection = connections.get(req.getUseruid());
         if (connection == null) {
@@ -58,8 +58,7 @@ public class SendMsgServiceImpl implements SendMsgService {
 
     @Override
     public boolean sendMsgOneNoReturn(MyRequest req) {
-        logger.info(String.format("发送信息无返回：%s", req));
-        logger.info(String.format("MSG长度：%s", req.getMsg().length));
+        logger.info(String.format("发送信息无返回：%s %s", req.getId(), req.getUseruid()));
         Connection connection = connections.get(req.getUseruid());
         if (connection == null) {
             return false;
@@ -83,7 +82,7 @@ public class SendMsgServiceImpl implements SendMsgService {
      */
     @Override
     public boolean sendMsgAll(MyRequest req) {
-        logger.info(String.format("发送信息全部：%s", req));
+        logger.info(String.format("发送信息全部：%s %s", req.getId(), req.getUseruid()));
 
         connections.getAllMap().forEach((s, connection) -> {
             req.setUseruid(s);

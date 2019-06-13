@@ -10,6 +10,7 @@ import com.haoyou.spring.cloud.alibaba.commons.domain.SendType;
 import com.haoyou.spring.cloud.alibaba.commons.domain.message.BaseMessage;
 import com.haoyou.spring.cloud.alibaba.commons.domain.ResponseMsg;
 import com.haoyou.spring.cloud.alibaba.commons.entity.User;
+import com.haoyou.spring.cloud.alibaba.commons.util.MapperUtils;
 import com.haoyou.spring.cloud.alibaba.sofabolt.connection.Connections;
 import com.haoyou.spring.cloud.alibaba.service.manager.ManagerService;
 import com.haoyou.spring.cloud.alibaba.sofabolt.protocol.MyRequest;
@@ -49,113 +50,83 @@ public class MyServerUserProcessor extends SyncUserProcessor<MyRequest> {
     public Object handleRequest(BizContext bizCtx, MyRequest req) {
 
         if (req != null) {
-            //临时操作
-            try {
-                req.setMsgJson(new String(req.getMsg(), "UTF-8"));
-            } catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
-            }
-
             req.setUrl(bizCtx.getConnection().getUrl().getOriginUrl());
-
             //loge记录接收到的信息
-            logger.info(String.format("接受信息：%s", req));
+            logger.info(String.format("接受信息：%s %s %s", req.getId(),req.getDeviceuid(), req.getUseruid()));
             //判断uid
             String useruid = req.getUseruid();
+            Connection connectionthis = bizCtx.getConnection();
             if (StrUtil.isNotEmpty(useruid)) {
-                //刷新链接
-                Connection connectionthis = bizCtx.getConnection();
-                Connection connectionuid = connections.get(useruid);
-                Connection connection=connectionuid;
-                //前一链接已断开
-                if (connectionuid == null || !connectionuid.getChannel().isActive()) {
-                    setDeviceuid(connectionthis, req.getDeviceuid());
-                    connections.put(useruid, connectionthis);
-                    connection=connectionthis;
-                }
-                //前一链接与新链接不同
-                else if (!connectionuid.getRemoteIP().equals(connectionthis.getRemoteIP()) || connectionuid.getRemotePort() != connectionthis.getRemotePort()) {
-                    //如果不是同一设备则把前一设备踢下线
-                    if (!req.getDeviceuid().equals(connectionuid.getAttribute(Connections.DEVICE_UID))) {
-                        sendDown(useruid, connectionuid);
-                    }
-                    setDeviceuid(connectionthis, req.getDeviceuid());
-                    connections.put(useruid, connectionthis);
-                    connection=connectionthis;
-                }
-                //如果没有设备编号则添加设备编号
-                else {
-                    if (connectionuid.getAttribute(Connections.DEVICE_UID) == null) {
-                        setDeviceuid(connectionuid, req.getDeviceuid());
-                    }
-                }
-                //更新最后信息时间心跳，用于判断链接
-                connection.setAttribute(Connections.HEART_BEAT,new Date());
-
+                connectionCheck(connectionthis,useruid,req.getDeviceuid());
             }
 
             //调用处理器
             BaseMessage baseMessage = managerService.handle(req);
+            logger.info(String.format("处理返回信息: %s %s %s %s", req.getId(),req.getDeviceuid(), req.getUseruid(), baseMessage));
             //回复信息
-            req.setMsg(sendMsgUtil.serialize(baseMessage,false));
+            req.setMsg(sendMsgUtil.serialize(baseMessage));
 
-            if (req.getId() == 1 && ResponseMsg.MSG_SUCCESS == (baseMessage.getState())) {
+            if (req.getId() == SendType.LOGINOUT && ResponseMsg.MSG_SUCCESS == (baseMessage.getState())) {
                 //如果登出成功，删除链接
                 connections.remove(useruid);
-            } else if (req.getId() == 0 && ResponseMsg.MSG_SUCCESS == (baseMessage.getState())) {
+            } else if (req.getId() == SendType.LOGIN && ResponseMsg.MSG_SUCCESS == (baseMessage.getState())) {
                 useruid = ((User) baseMessage).getUid();
-                //不同地点登录处理
-                Connection connectionthis = bizCtx.getConnection();
-                Connection connectionuid = connections.get(useruid);
-                if (connectionuid != null && connectionuid.getChannel().isActive()) {
-                    if (!req.getDeviceuid().equals(connectionuid.getAttribute(Connections.DEVICE_UID))) {
-                        sendDown(useruid, connectionuid);
-                    }
-                }
-                connections.put(useruid, connectionthis);
-                setDeviceuid(connectionthis, req.getDeviceuid());
-                connectionthis.setAttribute(Connections.HEART_BEAT,new Date());
+                req.setUseruid(useruid);
+                connectionCheck(connectionthis,useruid,req.getDeviceuid());
             }
 
             //临时操作
-            try {
-                req.setMsgJson(new String(req.getMsg(), "UTF-8"));
-            } catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
-            }
-            logger.info(String.format("返回信息: %s", req));
+            logger.info(String.format("返回信息: %s %s %s", req.getId(),req.getDeviceuid(), req.getUseruid()));
         }
         return req;
     }
 
+
     /**
-     * 存储设备标识
-     *
-     * @param connection
+     * 链接检测刷新
+     * @param connectionthis
+     * @param useruid
      * @param deviceuid
      */
-    private void setDeviceuid(Connection connection, String deviceuid) {
-        if (deviceuid != null) {
-            connection.setAttribute(Connections.DEVICE_UID, deviceuid);
+    private void connectionCheck(Connection connectionthis,String useruid,String deviceuid) {
+
+        Connection connectionuid = connections.get(useruid);
+        //刷新链接
+        Connection connection=connectionuid;
+        //连接是否更新
+        if (!connectionthis.equals(connectionuid)) {
+            //如果不是同一设备则把前一设备踢下线
+            if (connectionuid != null && !deviceuid.equals(connectionuid.getAttribute(Connections.DEVICE_UID))) {
+                sendDown(useruid, connectionuid);
+            }
+            connections.put(useruid, connectionthis);
+            connection=connectionthis;
         }
+        //如果没有设备编号则添加设备编号
+        if (connection.getAttribute(Connections.DEVICE_UID) == null) {
+            connection.setAttribute(Connections.DEVICE_UID,deviceuid);
+        }
+        //更新最后通信时间信息，用于判断链接
+        connection.setAttribute(Connections.HEART_BEAT,new Date());
+
     }
 
     /**
      * 发送强制下线
      *
      * @param useruid
-     * @param connectionuid
+     * @param connection
      */
-    private void sendDown(String useruid, Connection connectionuid) {
+    private void sendDown(String useruid, Connection connection) {
         BaseMessage close = new BaseMessage();
         close.setState(ResponseMsg.MSG_ERR);
         //发送强制下线
         MyRequest reqx = new MyRequest();
         reqx.setUseruid(useruid);
         reqx.setId(SendType.MANDATORY_OFFLINE);
-        reqx.setMsg(sendMsgUtil.serialize(close,false));
+        reqx.setMsg(sendMsgUtil.serialize(close));
         try {
-            MyServer.server.oneway(connectionuid, reqx);
+            MyServer.server.oneway(connection, reqx);
         } catch (RemotingException e) {
             e.printStackTrace();
         }
