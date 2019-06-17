@@ -10,6 +10,7 @@ import com.haoyou.spring.cloud.alibaba.commons.entity.Skill;
 import com.haoyou.spring.cloud.alibaba.commons.entity.User;
 import com.haoyou.spring.cloud.alibaba.commons.util.RedisKeyUtil;
 import com.haoyou.spring.cloud.alibaba.cultivate.reward.Award;
+import com.haoyou.spring.cloud.alibaba.fighting.info.FightingPet;
 import com.haoyou.spring.cloud.alibaba.fighting.info.skill.shape.Tetromino;
 import org.springframework.stereotype.Service;
 
@@ -53,7 +54,7 @@ public class PVE extends RewardHandle {
          */
 
 
-        Award award = new Award(100,20,props);
+        Award award = new Award(100,20,0,props);
 
         super.doAward(user,award);
 

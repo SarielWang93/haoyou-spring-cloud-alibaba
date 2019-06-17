@@ -3,10 +3,12 @@ package com.haoyou.spring.cloud.alibaba.cultivate.reward.handle;
 import com.haoyou.spring.cloud.alibaba.commons.domain.RedisKey;
 import com.haoyou.spring.cloud.alibaba.commons.domain.SendType;
 import com.haoyou.spring.cloud.alibaba.commons.entity.User;
+import com.haoyou.spring.cloud.alibaba.commons.mapper.PetMapper;
 import com.haoyou.spring.cloud.alibaba.commons.mapper.UserMapper;
 import com.haoyou.spring.cloud.alibaba.commons.util.RedisKeyUtil;
 import com.haoyou.spring.cloud.alibaba.cultivate.reward.Award;
 import com.haoyou.spring.cloud.alibaba.cultivate.service.RewardService;
+import com.haoyou.spring.cloud.alibaba.fighting.info.FightingPet;
 import com.haoyou.spring.cloud.alibaba.util.RedisObjectUtil;
 import com.haoyou.spring.cloud.alibaba.util.SendMsgUtil;
 import lombok.Data;
@@ -15,6 +17,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
 import java.util.Date;
+import java.util.List;
 
 @Service
 @Data
@@ -24,7 +27,8 @@ public abstract class RewardHandle {
     protected RedisObjectUtil redisObjectUtil;
     @Autowired
     protected SendMsgUtil sendMsgUtil;
-
+    @Autowired
+    private PetMapper petMapper;
 
     @Autowired
     protected UserMapper userMapper;
@@ -93,6 +97,18 @@ public abstract class RewardHandle {
             user.setCoin(user.getCoin() + award.getCoin());
             user.setDiamond(user.getDiamond() + award.getDiamond());
             this.save(user);
+
+            //增加经验
+            List<FightingPet> fightingPets = FightingPet.getByUser(user, redisObjectUtil);
+            for (FightingPet fightingPet : fightingPets) {
+                Integer iswork = fightingPet.getIswork();
+                if (iswork != null && iswork != 0) {
+                    fightingPet.upExp(award.getExp());
+                    fightingPet.save();
+                    petMapper.updateByPrimaryKeySelective(fightingPet.getPet());
+                }
+            }
+
             //增加道具
             if(user.addProps(award.getProps())){
                 if(this.save(user)){

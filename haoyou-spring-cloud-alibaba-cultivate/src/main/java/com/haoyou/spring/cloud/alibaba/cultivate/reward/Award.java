@@ -21,14 +21,22 @@ public class Award extends BaseMessage implements Serializable {
      * 钻石
      */
     private int diamond;
+
+    /**
+     * 经验
+     */
+    private int exp;
+
     /**
      * 道具
      */
     private List<Prop> props;
 
-    public Award(int coin, int diamond, List<Prop> props) {
+
+    public Award(int coin, int diamond, int exp, List<Prop> props) {
         this.coin = coin;
         this.diamond = diamond;
+        this.exp = exp;
         this.props = props;
     }
 }

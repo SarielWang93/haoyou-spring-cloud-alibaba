@@ -356,9 +356,9 @@ public class FightingPet implements Serializable {
     private void upLevel() {
         Integer level = this.pet.getLevel() + 1;
         this.pet.setLevel(level);
-        this.refreshMbByLevel();
         //TODO 更新升级所需经验值
 
+        this.refreshMbByLevel();
     }
 
     /**
@@ -517,10 +517,10 @@ public class FightingPet implements Serializable {
              */
             List<Skill> skillsOpening = this.getSkillsByType(SkillType.OPENING);
             //获取光环状态
-            List<FightingState> ghFightingStates= new ArrayList<>();
+            List<FightingState> ghFightingStates = new ArrayList<>();
             for (Skill skill : skillsOpening) {
                 for (Resout resout : skill.getResouts()) {
-                    if(resout.getNumType().equals(3)){
+                    if (resout.getNumType().equals(3)) {
                         ghFightingStates.add(FightingState.creatFightingState(resout, skill.getQuality(), this, 0));
                     }
                 }
@@ -635,7 +635,7 @@ public class FightingPet implements Serializable {
      */
     public void addFightingState(FightingState fightingState) {
         //判断是否立即执行
-        if (fightingState.getType().equals(StateType.FORTHWITH) ) {
+        if (fightingState.getType().equals(StateType.FORTHWITH)) {
             this.StateDoAction(fightingState);
         } else {
             /**
@@ -721,7 +721,7 @@ public class FightingPet implements Serializable {
             if (deleteType == StateType.ROUND)
             //回合制删除状态
             {
-                if (fightingState.getRound().equals(0) ) {
+                if (fightingState.getRound().equals(0)) {
                     remove.add(fightingState);
                 }
             } else {
@@ -879,7 +879,7 @@ public class FightingPet implements Serializable {
         List<FightingState> rl = new ArrayList<>();
         for (FightingState fightingState : this.fightingStates) {
 
-            if (fightingState.getType().equals(type) ) {
+            if (fightingState.getType().equals(type)) {
                 rl.add(fightingState);
             }
 
@@ -897,7 +897,7 @@ public class FightingPet implements Serializable {
     public List<Skill> getSkillsByType(Integer type) {
         List<Skill> tSkills = new ArrayList<>();
         for (Skill skill : skills) {
-            if (type.equals(skill.getType()) ) {
+            if (type.equals(skill.getType())) {
                 tSkills.add(skill);
             }
         }

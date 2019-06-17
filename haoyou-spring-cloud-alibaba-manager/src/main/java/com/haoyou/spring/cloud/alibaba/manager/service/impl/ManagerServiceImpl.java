@@ -96,13 +96,8 @@ public class ManagerServiceImpl implements ManagerService {
         ManagerHandle managerHandle = managerHanderMap.get(type);
         //处理并返回信息
         BaseMessage baseMessage = managerHandle.handle(req);
-        String json = "";
-        try {
-            json = MapperUtils.obj2jsonIgnoreNull(baseMessage);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        logger.info(String.format("manager-return：%s %s %s", type, useruid, json));
+
+        logger.info(String.format("manager-return：%s %s %s", type, useruid, baseMessage));
 
         return baseMessage;
 
