@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.haoyou.spring.cloud.alibaba.commons.mapper.StateMapper">
+  <resultMap id="BaseResultMap" type="com.haoyou.spring.cloud.alibaba.commons.entity.State">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="uid" jdbcType="VARCHAR" property="uid" />
+    <result column="type" jdbcType="INTEGER" property="type" />
+    <result column="action_type" jdbcType="INTEGER" property="actionType" />
+    <result column="delete_type" jdbcType="VARCHAR" property="deleteType" />
+    <result column="l10n" jdbcType="VARCHAR" property="l10n" />
+    <result column="name" jdbcType="VARCHAR" property="name" />
+    <result column="describe" jdbcType="VARCHAR" property="describe" />
+    <result column="blood_threshold" jdbcType="INTEGER" property="bloodThreshold" />
+    <result column="inf_attr" jdbcType="VARCHAR" property="infAttr" />
+    <result column="percent" jdbcType="INTEGER" property="percent" />
+    <result column="fixed" jdbcType="INTEGER" property="fixed" />
+    <result column="round" jdbcType="INTEGER" property="round" />
+    <result column="action_name" jdbcType="VARCHAR" property="actionName" />
+    <result column="eliminate_attr" jdbcType="VARCHAR" property="eliminateAttr" />
+    <result column="eliminate2" jdbcType="INTEGER" property="eliminate2" />
+    <result column="eliminate3" jdbcType="INTEGER" property="eliminate3" />
+    <result column="eliminate4" jdbcType="INTEGER" property="eliminate4" />
+    <result column="eliminate5" jdbcType="INTEGER" property="eliminate5" />
+    <result column="eliminate6" jdbcType="INTEGER" property="eliminate6" />
+    <result column="eliminate7" jdbcType="INTEGER" property="eliminate7" />
+    <result column="quality_attr" jdbcType="VARCHAR" property="qualityAttr" />
+    <result column="quality1" jdbcType="INTEGER" property="quality1" />
+    <result column="quality2" jdbcType="INTEGER" property="quality2" />
+    <result column="quality3" jdbcType="INTEGER" property="quality3" />
+    <result column="quality4" jdbcType="INTEGER" property="quality4" />
+  </resultMap>
+</mapper>

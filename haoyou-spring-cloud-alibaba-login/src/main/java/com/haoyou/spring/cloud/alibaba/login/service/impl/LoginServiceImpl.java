@@ -15,8 +15,9 @@ import com.haoyou.spring.cloud.alibaba.commons.mapper.UserMapper;
 import com.haoyou.spring.cloud.alibaba.commons.util.MapperUtils;
 import com.haoyou.spring.cloud.alibaba.commons.util.RedisKeyUtil;
 import com.haoyou.spring.cloud.alibaba.login.UserCatch.UserDateSynchronization;
+import com.haoyou.spring.cloud.alibaba.redis.service.ScoreRankService;
 import com.haoyou.spring.cloud.alibaba.sofabolt.protocol.MyRequest;
-import com.haoyou.spring.cloud.alibaba.service.redis.ScoreRankService;
+
 
 import com.haoyou.spring.cloud.alibaba.service.login.LoginService;
 import com.haoyou.spring.cloud.alibaba.util.RedisObjectUtil;
@@ -41,7 +42,7 @@ public class LoginServiceImpl implements LoginService {
     private UserMapper userMapper;
     @Autowired
     private UserDateSynchronization serializerRotation;
-    @Reference(version = "${score-rank.service.version}")
+    @Autowired
     private ScoreRankService scoreRankService;
 
     /**

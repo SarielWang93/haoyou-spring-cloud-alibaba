@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.haoyou</groupId>
+        <artifactId>haoyou-spring-cloud-alibaba-01-dependencies</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+        <relativePath>../haoyou-spring-cloud-alibaba-01-dependencies/pom.xml</relativePath>
+    </parent>
+
+    <artifactId>haoyou-spring-cloud-alibaba-05-dubbo-core</artifactId>
+    <packaging>jar</packaging>
+
+    <name>haoyou-spring-cloud-alibaba-05-dubbo-core</name>
+    <url>http://www.haoyou.com</url>
+
+    <dependencies>
+        <!-- Feign+Sentinel 通信 -->
+        <!--改为dubbo+Sentinel-->
+        <!--<dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-alibaba-sentinel</artifactId>
+        </dependency>-->
+        <!--<dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-openfeign</artifactId>
+        </dependency>-->
+        <!-- Feign+Sentinel 通信 END-->
+
+        <!-- Dubbo+Sentinel 通信 -->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-alibaba-sentinel</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>dubbo</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.alibaba.boot</groupId>
+            <artifactId>dubbo-spring-boot-starter</artifactId>
+        </dependency>
+
+
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>dubbo-registry-nacos</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>dubbo-serialization-kryo</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>log4j</groupId>
+                    <artifactId>log4j</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <!-- Dubbo END-->
+
+
+        <!-- Alibaba -->
+        <dependency>
+            <groupId>com.alibaba.spring</groupId>
+            <artifactId>spring-context-support</artifactId>
+        </dependency>
+
+
+        <dependency>
+            <groupId>com.haoyou</groupId>
+            <artifactId>haoyou-spring-cloud-alibaba-04-commons-mapper</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+    </dependencies>
+</project>

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.haoyou.spring.cloud.alibaba.commons.mapper.PetTypeMapper">
+  <resultMap id="BaseResultMap" type="com.haoyou.spring.cloud.alibaba.commons.entity.PetType">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="l10n" jdbcType="VARCHAR" property="l10n" />
+    <result column="name" jdbcType="VARCHAR" property="name" />
+    <result column="uid" jdbcType="VARCHAR" property="uid" />
+    <result column="type" jdbcType="INTEGER" property="type" />
+    <result column="atn" jdbcType="INTEGER" property="atn" />
+    <result column="def" jdbcType="INTEGER" property="def" />
+    <result column="spd" jdbcType="INTEGER" property="spd" />
+    <result column="hp" jdbcType="INTEGER" property="hp" />
+    <result column="luk" jdbcType="INTEGER" property="luk" />
+    <result column="star_class" jdbcType="INTEGER" property="starClass" />
+    <result column="inh_skill" jdbcType="VARCHAR" property="inhSkill" />
+    <result column="unique_skill" jdbcType="VARCHAR" property="uniqueSkill" />
+    <result column="talent_skill" jdbcType="VARCHAR" property="talentSkill" />
+    <result column="special_attack" jdbcType="VARCHAR" property="specialAttack" />
+    <result column="atn_gr" jdbcType="INTEGER" property="atnGr" />
+    <result column="def_gr" jdbcType="INTEGER" property="defGr" />
+    <result column="hp_gr" jdbcType="INTEGER" property="hpGr" />
+    <result column="skill_board" jdbcType="LONGVARBINARY" property="skillBoard" />
+  </resultMap>
+</mapper>

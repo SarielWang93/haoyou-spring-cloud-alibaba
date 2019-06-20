@@ -13,12 +13,12 @@ import lombok.EqualsAndHashCode;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * 房间对象
  */
 @Data
-@EqualsAndHashCode(callSuper = false)
 @JsonIgnoreProperties(value = {"matchPoolPlayer"},ignoreUnknown = true)
 public class PlayerRoomInfo extends BaseMessage implements Serializable {
 
@@ -99,4 +99,18 @@ public class PlayerRoomInfo extends BaseMessage implements Serializable {
         }
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        PlayerRoomInfo that = (PlayerRoomInfo) o;
+        return Objects.equals(uid, that.uid) &&
+                Objects.equals(creatTime, that.creatTime) &&
+                Objects.equals(matchPoolPlayer, that.matchPoolPlayer);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(uid, creatTime, matchPoolPlayer);
+    }
 }

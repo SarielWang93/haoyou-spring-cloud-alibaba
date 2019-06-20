@@ -2,27 +2,31 @@
 
 xxl_url=${HOME}/Desktop/fsdownload/xxl
 
-cd haoyou-spring-cloud-alibaba-dependencies
+cd haoyou-spring-cloud-alibaba-01-dependencies
 mvn  clean install -DskipTests
 cd ../
 
-cd haoyou-spring-cloud-alibaba-commons
+cd haoyou-spring-cloud-alibaba-02-commons
 mvn  clean install -DskipTests
 cd ../
 
-cd haoyou-spring-cloud-alibaba-commons-domain
+cd haoyou-spring-cloud-alibaba-03-commons-domain
 mvn  clean install -DskipTests
 cd ../
 
-cd haoyou-spring-cloud-alibaba-commons-mapper
+cd haoyou-spring-cloud-alibaba-04-commons-mapper
 mvn  clean install -DskipTests
 cd ../
 
-cd haoyou-spring-cloud-alibaba-dubbo-core
+cd haoyou-spring-cloud-alibaba-05-dubbo-core
 mvn  clean install -DskipTests
 cd ../
 
-cd haoyou-spring-cloud-alibaba-commons-service
+cd haoyou-spring-cloud-alibaba-06-redis
+mvn  clean install -DskipTests
+cd ../
+
+cd haoyou-spring-cloud-alibaba-07-commons-service
 mvn  clean install -DskipTests
 cd ../
 
@@ -49,11 +53,6 @@ cd ../
 cd haoyou-spring-cloud-alibaba-match
 mvn  clean install -DskipTests
 mv target/haoyou-spring-cloud-alibaba-match-1.0.0-SNAPSHOT.jar ${xxl_url}/match
-cd ../
-
-cd haoyou-spring-cloud-alibaba-redis
-mvn  clean install -DskipTests
-mv target/haoyou-spring-cloud-alibaba-redis-1.0.0-SNAPSHOT.jar ${xxl_url}/myredis
 cd ../
 
 cd haoyou-spring-cloud-alibaba-sofabolt

@@ -1,0 +1,215 @@
+package com.haoyou.spring.cloud.alibaba.commons.entity;
+
+
+
+import cn.hutool.core.util.StrUtil;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.haoyou.spring.cloud.alibaba.commons.domain.message.BaseMessage;
+import com.haoyou.spring.cloud.alibaba.commons.util.MapperUtils;
+import com.haoyou.spring.cloud.alibaba.commons.util.ZIP;
+import lombok.Data;
+
+import javax.persistence.*;
+import java.io.Serializable;
+import java.util.*;
+
+
+@Data
+@JsonIgnoreProperties(value = {}, ignoreUnknown = true)
+public class User extends BaseMessage implements Serializable {
+    private static final long serialVersionUID = 5542845286421320049L;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
+
+    /**
+     * 昵称
+     */
+    private String name;
+
+    /**
+     * 用户名
+     */
+    private String username;
+
+    /**
+     * 密码
+     */
+    private String password;
+
+    /**
+     * 电话
+     */
+    private String phone;
+
+    /**
+     * 邮箱
+     */
+    private String email;
+
+    /**
+     * 登录平台提供登陆码
+     */
+    private String uid;
+
+    /**
+     * 货币
+     */
+    private Integer coin;
+
+    /**
+     * 包裹道具栏个数
+     */
+    @Column(name = "prop_max")
+    private Integer propMax;
+
+    /**
+     * 状态（正常，删除，封号，等）
+     */
+    private Integer state;
+
+    /**
+     * 登录平台（腾讯，小米，网易……）
+     */
+    private String platform;
+
+    /**
+     * 道具（json存储）
+     */
+    private byte[] props;
+
+
+
+    /**
+     * 平台提供信息（json存储）
+     */
+    @Column(name = "platform_param")
+    private byte[] platformParam;
+
+    /**
+     * 匹配基准值
+     */
+    @Column(name = "`rank`")
+    private Integer rank;
+
+    /**
+     * 钻石
+     */
+    private Integer diamond;
+
+    /**
+     * 体力
+     */
+    private Integer vitality;
+
+    /**
+     * 创建时间
+     */
+    @Column(name = "creat_date")
+    private Date creatDate;
+
+    /**
+     * 最新修改时间
+     */
+    @Column(name = "last_update_date")
+    private Date lastUpdateDate;
+
+    /**
+     * 最后一次登陆时间
+     */
+    @Column(name = "last_login_date")
+    private Date lastLoginDate;
+
+    /**
+     * 最后一次登出时间
+     */
+    @Column(name = "last_login_out_date")
+    private Date lastLoginOutDate;
+
+
+    /**
+     * 昵称
+     */
+    @Column(name = "last_login_url")
+    private String lastLoginUrl;
+
+
+    @Transient
+    private boolean onLine;
+
+    public User notTooLong(){
+        this.props=null;
+        this.platformParam=null;
+        return this;
+    }
+
+    public List<Prop> propList(){
+        List<Prop> props = null;
+        if (this.props!=null) {
+            try {
+                props = MapperUtils.json2list(new String(ZIP.unGZip(this.props), "UTF-8"), Prop.class);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        } else {
+            props = new ArrayList<>();
+        }
+        return props;
+    }
+
+    public boolean addProps(List<Prop> propList){
+        try {
+            List<Prop> propsThis = this.propList();
+            if(propsThis.size() < this.propMax){
+                for(Prop prop:propList){
+                    int i = 0;
+                    if ((i = propsThis.indexOf(prop)) != -1) {
+                        propsThis.get(i).setCount(propsThis.get(i).getCount() + 1);
+                    } else {
+                        prop.setCount(1);
+                        propsThis.add(prop);
+                    }
+                }
+                this.props=ZIP.gZip(MapperUtils.obj2jsonIgnoreNull(propsThis).getBytes("UTF-8"));
+                return true;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        User user = (User) o;
+        return Objects.equals(id, user.id) &&
+                Objects.equals(name, user.name) &&
+                Objects.equals(username, user.username) &&
+                Objects.equals(password, user.password) &&
+                Objects.equals(phone, user.phone) &&
+                Objects.equals(email, user.email) &&
+                Objects.equals(uid, user.uid) &&
+                Objects.equals(coin, user.coin) &&
+                Objects.equals(propMax, user.propMax) &&
+                Objects.equals(platform, user.platform) &&
+                Arrays.equals(props, user.props) &&
+                Arrays.equals(platformParam, user.platformParam) &&
+                Objects.equals(rank, user.rank) &&
+                Objects.equals(diamond, user.diamond) &&
+                Objects.equals(vitality, user.vitality) &&
+                Objects.equals(creatDate, user.creatDate) &&
+                Objects.equals(lastUpdateDate, user.lastUpdateDate) &&
+                Objects.equals(lastLoginDate, user.lastLoginDate) &&
+                Objects.equals(lastLoginOutDate, user.lastLoginOutDate);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = Objects.hash(id, name, username, password, phone, email, uid, coin, propMax, platform, rank, diamond, vitality, creatDate, lastUpdateDate, lastLoginDate, lastLoginOutDate);
+        result = 31 * result + Arrays.hashCode(props);
+        result = 31 * result + Arrays.hashCode(platformParam);
+        return result;
+    }
+}

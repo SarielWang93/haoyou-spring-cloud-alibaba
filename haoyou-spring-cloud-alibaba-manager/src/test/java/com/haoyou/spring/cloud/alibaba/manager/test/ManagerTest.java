@@ -10,10 +10,11 @@ import com.haoyou.spring.cloud.alibaba.commons.mapper.HiFightingRoomMapper;
 import com.haoyou.spring.cloud.alibaba.commons.mapper.UserMapper;
 
 import com.haoyou.spring.cloud.alibaba.commons.util.MapperUtils;
+import com.haoyou.spring.cloud.alibaba.redis.service.RedisService;
+import com.haoyou.spring.cloud.alibaba.redis.service.ScoreRankService;
 import com.haoyou.spring.cloud.alibaba.service.login.LoginService;
 import com.haoyou.spring.cloud.alibaba.serialization.JsonSerializer;
-import com.haoyou.spring.cloud.alibaba.service.redis.RedisService;
-import com.haoyou.spring.cloud.alibaba.service.redis.ScoreRankService;
+
 import com.haoyou.spring.cloud.alibaba.service.sofabolt.SendMsgService;
 import com.haoyou.spring.cloud.alibaba.util.RedisObjectUtil;
 import com.haoyou.spring.cloud.alibaba.commons.util.ZIP;

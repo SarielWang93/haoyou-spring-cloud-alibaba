@@ -5,9 +5,9 @@
 
     <parent>
         <groupId>com.haoyou</groupId>
-        <artifactId>haoyou-spring-cloud-alibaba-dependencies</artifactId>
+        <artifactId>haoyou-spring-cloud-alibaba-01-dependencies</artifactId>
         <version>1.0.0-SNAPSHOT</version>
-        <relativePath>../haoyou-spring-cloud-alibaba-dependencies/pom.xml</relativePath>
+        <relativePath>../haoyou-spring-cloud-alibaba-01-dependencies/pom.xml</relativePath>
     </parent>
 
     <artifactId>haoyou-spring-cloud-alibaba-manager</artifactId>
@@ -22,7 +22,7 @@
         <!-- Projects Begin -->
         <dependency>
             <groupId>com.haoyou</groupId>
-            <artifactId>haoyou-spring-cloud-alibaba-commons-service</artifactId>
+            <artifactId>haoyou-spring-cloud-alibaba-07-commons-service</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
         <!--<dependency>-->

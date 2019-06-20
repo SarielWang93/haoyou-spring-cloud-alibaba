@@ -7,6 +7,7 @@ import lombok.Data;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Objects;
 
 @Data
 @JsonIgnoreProperties(value = {}, ignoreUnknown = true)
@@ -38,5 +39,21 @@ public class Award extends BaseMessage implements Serializable {
         this.diamond = diamond;
         this.exp = exp;
         this.props = props;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Award award = (Award) o;
+        return coin == award.coin &&
+                diamond == award.diamond &&
+                exp == award.exp &&
+                Objects.equals(props, award.props);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(coin, diamond, exp, props);
     }
 }

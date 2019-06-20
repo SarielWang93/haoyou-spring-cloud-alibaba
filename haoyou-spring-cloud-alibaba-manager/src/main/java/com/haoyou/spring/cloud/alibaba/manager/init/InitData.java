@@ -5,7 +5,7 @@ import com.haoyou.spring.cloud.alibaba.commons.domain.RedisKey;
 import com.haoyou.spring.cloud.alibaba.commons.entity.*;
 import com.haoyou.spring.cloud.alibaba.commons.mapper.*;
 import com.haoyou.spring.cloud.alibaba.commons.util.RedisKeyUtil;
-import com.haoyou.spring.cloud.alibaba.service.redis.ScoreRankService;
+import com.haoyou.spring.cloud.alibaba.redis.service.ScoreRankService;
 import com.haoyou.spring.cloud.alibaba.util.RedisObjectUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
@@ -26,7 +26,7 @@ public class InitData implements ApplicationRunner {
     @Autowired
     private RedisObjectUtil redisObjectUtil;
 
-    @Reference(version = "${score-rank.service.version}")
+    @Autowired
     private ScoreRankService scoreRankService;
     @Autowired
     private UserMapper userMapper;
