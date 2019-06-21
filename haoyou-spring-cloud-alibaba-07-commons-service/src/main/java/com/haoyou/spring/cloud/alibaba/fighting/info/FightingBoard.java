@@ -343,6 +343,13 @@ public class FightingBoard implements Serializable {
     }
 
 
+    /**
+     * AI主方法
+     * @param fightingPet
+     * @param own
+     * @param petTypeAi
+     * @return
+     */
     public List<BlockInfo> doAI(FightingPet fightingPet, FightingCamp own, PetTypeAi petTypeAi) {
 
         //权重
