@@ -20,6 +20,8 @@ public class SkillConfigMsg implements Serializable {
     public static final int ADD_PET_SKILL = 1;
     //删除宠物技能
     public static final int REMOVE_PET_SKILL = 2;
+
+
     private static final long serialVersionUID = -6508254959491612118L;
 
 

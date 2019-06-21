@@ -21,6 +21,12 @@ public interface CultivateService {
      */
     boolean petGeneration(MyRequest req);
 
+    /**
+     * 宠物抽卡
+     * @param req
+     * @return
+     */
+    boolean petPumping (MyRequest req);
 
     /**
      * 奖励获取

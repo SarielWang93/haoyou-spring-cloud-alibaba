@@ -1,5 +1,6 @@
 package com.haoyou.spring.cloud.alibaba.commons.entity;
 
+import cn.hutool.core.util.IdUtil;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.haoyou.spring.cloud.alibaba.commons.util.MapperUtils;
 import lombok.Data;
@@ -13,6 +14,8 @@ import java.util.List;
 @JsonIgnoreProperties(value = {}, ignoreUnknown = true)
 public class Pet implements Serializable {
     private static final long serialVersionUID = -8413159346985913469L;
+
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
@@ -169,7 +172,6 @@ public class Pet implements Serializable {
     private byte[] skillBoard;
 
 
-
     /**
      * 创建时间
      */
@@ -182,15 +184,55 @@ public class Pet implements Serializable {
     @Column(name = "last_update_date")
     private Date lastUpdateDate;
 
+    public Pet() {
+    }
+
+    /**
+     * 根据用户和宠物种类生成宠物对象
+     * @param user
+     * @param petType
+     */
+    public Pet(User user, PetType petType,int iswork) {
+        this.uid = IdUtil.simpleUUID();
+        this.atn = petType.getAtn();
+        this.atnGr = petType.getAtnGr();
+        this.def = petType.getDef();
+        this.defGr = petType.getDefGr();
+        this.hp = petType.getHp();
+        this.hpGr = petType.getHpGr();
+        this.typeUid = petType.getUid();
+        this.userUid = user.getUid();
+        this.type = petType.getType();
+        this.spd = petType.getSpd();
+        this.luk = petType.getLuk();
+        this.starClass = petType.getStarClass();
+
+        this.iswork = iswork;
+
+        this.inhSkill = petType.getInhSkill();
+        this.uniqueSkill = petType.getUniqueSkill();
+        this.talentSkill = petType.getTalentSkill();
+        this.specialAttack = petType.getSpecialAttack();
+        this.skillBoard = petType.getSkillBoard();
+        this.exp = 0;
+        this.levUpExp = 260;
+        this.level = 1;
+        this.loyalty = 0;
+        this.ingredients = 0;
+        this.nickname = petType.getL10n();
+        this.creatDate = new Date();
+
+    }
 
     /**
      * 通过技能uid获取中间链接类
+     *
      * @param skillUid
      * @return
      */
-    public PetSkill getBySkillUid(String skillUid){
-        for(PetSkill petSkill:this.otherSkill){
-            if(petSkill.getSkillUid().equals(skillUid)){
+    public PetSkill getBySkillUid(String skillUid) {
+        for (PetSkill petSkill : this.otherSkill) {
+            if (petSkill.getSkillUid().equals(skillUid)) {
                 return petSkill;
             }
         }

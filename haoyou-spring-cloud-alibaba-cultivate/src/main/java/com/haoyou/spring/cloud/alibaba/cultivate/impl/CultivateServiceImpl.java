@@ -1,6 +1,8 @@
 package com.haoyou.spring.cloud.alibaba.cultivate.impl;
 
+import cn.hutool.core.lang.WeightRandom;
 import cn.hutool.core.util.IdUtil;
+import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.haoyou.spring.cloud.alibaba.commons.domain.RedisKey;
@@ -57,6 +59,7 @@ public class CultivateServiceImpl implements CultivateService {
 
     /**
      * 技能配置处理
+     *
      * @param req
      * @return
      */
@@ -80,6 +83,7 @@ public class CultivateServiceImpl implements CultivateService {
 
     /**
      * 注册时生成三个宠物
+     *
      * @param req
      * @return
      */
@@ -92,69 +96,68 @@ public class CultivateServiceImpl implements CultivateService {
             l.add(1);
             l.add(2);
             l.add(3);
-        }else{
+        } else {
             l.add(4);
             l.add(5);
             l.add(6);
         }
         HashMap<String, PetType> stringPetTypeHashMap = redisObjectUtil.getlkMap(RedisKeyUtil.getlkKey(RedisKey.PET_TYPE), PetType.class);
 
-        for (PetType petType:stringPetTypeHashMap.values()) {
-            if(l.contains(petType.getId())){
-                Pet pet=new Pet();
-                pet.setUid(IdUtil.simpleUUID());
-                pet.setAtn(petType.getAtn());
-                pet.setAtnGr(petType.getAtnGr());
-                pet.setDef(petType.getDef());
-                pet.setDefGr(petType.getDefGr());
-                pet.setHp(petType.getHp());
-                pet.setHpGr(petType.getHpGr());
-                pet.setTypeUid(petType.getUid());
-                pet.setUserUid(user.getUid());
-                pet.setType(petType.getType());
-                pet.setSpd(petType.getSpd());
-                pet.setLuk(petType.getLuk());
-                pet.setStarClass(petType.getStarClass());
-                if(petType.getId()>3){
-                    pet.setIswork(petType.getId()-3);
-                }else{
-                    pet.setIswork(petType.getId());
+        for (PetType petType : stringPetTypeHashMap.values()) {
+            if (l.contains(petType.getId())) {
+                int iswork ;
+                if (petType.getId() > 3) {
+                    iswork = petType.getId() - 3;
+                } else {
+                    iswork = petType.getId();
                 }
-                pet.setInhSkill(petType.getInhSkill());
-                pet.setUniqueSkill(petType.getUniqueSkill());
-                pet.setTalentSkill(petType.getTalentSkill());
-                pet.setSpecialAttack(petType.getSpecialAttack());
-                pet.setSkillBoard(petType.getSkillBoard());
-                pet.setExp(0);
-                pet.setLevUpExp(260);
-                pet.setLevel(1);
-                pet.setLoyalty(0);
-                pet.setIngredients(0);
-                pet.setNickname(petType.getL10n());
-                pet.setCreatDate(new Date());
-
-                petMapper.insertSelective(pet);
+                petMapper.insertSelective(new Pet(user, petType, iswork));
             }
         }
         la.add(1);
         return true;
     }
 
+    /**
+     * 宠物蛋孵化
+     *
+     * @param req
+     * @return
+     */
+    @Override
+    public boolean petPumping(MyRequest req) {
+        User user = req.getUser();
+        HashMap<String, PetType> stringPetTypeHashMap = redisObjectUtil.getlkMap(RedisKeyUtil.getlkKey(RedisKey.PET_TYPE), PetType.class);
+        PetType[] petTypes = (PetType[]) stringPetTypeHashMap.values().toArray();
+        //权重随机
+        WeightRandom.WeightObj<PetType>[] weightObjs = new WeightRandom.WeightObj[petTypes.length];
+        /**
+         * TODO 权重策略，临时待定，
+         */
+        for (int i = 0; i < petTypes.length; i++) {
+            PetType petType = petTypes[i];
+            weightObjs[i] = new WeightRandom.WeightObj(petType, 100 / petType.getStarClass());
+        }
+        WeightRandom<PetType> weightRandom = RandomUtil.weightRandom(weightObjs);
+        PetType petType = weightRandom.next();
+
+        petMapper.insertSelective(new Pet(user, petType, 0));
+
+        return false;
+    }
+
 
     /**
      * 奖励分发，根据type获取不同奖励模式
+     *
      * @param user
      * @param type
      * @return
      */
     @Override
     public boolean rewards(User user, int type) {
-        return rewardService.rewards(user,type);
+        return rewardService.rewards(user, type);
     }
-
-
-
-
 
 
     /**
