@@ -3,6 +3,7 @@ package com.haoyou.spring.cloud.alibaba.fighting.info.skill.shape;
 import cn.hutool.core.clone.CloneSupport;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.util.Objects;
 

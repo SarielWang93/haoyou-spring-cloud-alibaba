@@ -1,7 +1,6 @@
 package com.haoyou.spring.cloud.alibaba.login.UserCatch;
 
-import cn.hutool.core.thread.ThreadUtil;
-import com.alibaba.dubbo.config.annotation.Reference;
+import org.apache.dubbo.config.annotation.Reference;
 import com.haoyou.spring.cloud.alibaba.commons.mapper.UserMapper;
 import com.haoyou.spring.cloud.alibaba.fighting.info.FightingPet;
 import com.haoyou.spring.cloud.alibaba.commons.domain.RedisKey;

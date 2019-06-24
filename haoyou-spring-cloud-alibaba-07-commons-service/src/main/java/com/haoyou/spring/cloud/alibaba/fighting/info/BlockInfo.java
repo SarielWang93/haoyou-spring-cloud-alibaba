@@ -3,11 +3,13 @@ package com.haoyou.spring.cloud.alibaba.fighting.info;
 import cn.hutool.core.clone.CloneSupport;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.io.Serializable;
 
 @Data
 @JsonIgnoreProperties(value = {},ignoreUnknown = true)
+@EqualsAndHashCode(callSuper = false)
 public class BlockInfo extends CloneSupport<BlockInfo> implements Serializable {
     private static final long serialVersionUID = -1469748303950691453L;
 

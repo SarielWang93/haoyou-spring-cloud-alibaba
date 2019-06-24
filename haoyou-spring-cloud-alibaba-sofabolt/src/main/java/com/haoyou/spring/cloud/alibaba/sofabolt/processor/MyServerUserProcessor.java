@@ -1,7 +1,7 @@
 package com.haoyou.spring.cloud.alibaba.sofabolt.processor;
 
 import cn.hutool.core.util.StrUtil;
-import com.alibaba.dubbo.config.annotation.Reference;
+import org.apache.dubbo.config.annotation.Reference;
 import com.alipay.remoting.BizContext;
 import com.alipay.remoting.Connection;
 import com.alipay.remoting.exception.RemotingException;
@@ -10,20 +10,15 @@ import com.haoyou.spring.cloud.alibaba.commons.domain.SendType;
 import com.haoyou.spring.cloud.alibaba.commons.domain.message.BaseMessage;
 import com.haoyou.spring.cloud.alibaba.commons.domain.ResponseMsg;
 import com.haoyou.spring.cloud.alibaba.commons.entity.User;
-import com.haoyou.spring.cloud.alibaba.commons.util.MapperUtils;
 import com.haoyou.spring.cloud.alibaba.sofabolt.connection.Connections;
 import com.haoyou.spring.cloud.alibaba.service.manager.ManagerService;
 import com.haoyou.spring.cloud.alibaba.sofabolt.protocol.MyRequest;
 import com.haoyou.spring.cloud.alibaba.sofabolt.server.MyServer;
-import com.haoyou.spring.cloud.alibaba.sofabolt.service.impl.SendMsgServiceImpl;
 import com.haoyou.spring.cloud.alibaba.util.SendMsgUtil;
-import io.netty.channel.Channel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import java.io.UnsupportedEncodingException;
 import java.util.Date;
 
 

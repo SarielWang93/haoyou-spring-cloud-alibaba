@@ -1,13 +1,10 @@
 package com.haoyou.spring.cloud.alibaba.util;
 
-import com.alibaba.dubbo.config.annotation.Reference;
-import com.alipay.remoting.Connection;
+import org.apache.dubbo.config.annotation.Reference;
 import com.alipay.remoting.exception.CodecException;
-import com.alipay.remoting.serialization.Serializer;
 import com.alipay.remoting.serialization.SerializerManager;
 import com.haoyou.spring.cloud.alibaba.commons.domain.message.BaseMessage;
 import com.haoyou.spring.cloud.alibaba.commons.domain.message.MapBody;
-import com.haoyou.spring.cloud.alibaba.commons.util.ZIP;
 import com.haoyou.spring.cloud.alibaba.sofabolt.protocol.MyRequest;
 import com.haoyou.spring.cloud.alibaba.service.sofabolt.SendMsgService;
 import com.haoyou.spring.cloud.alibaba.serialization.JsonSerializer;

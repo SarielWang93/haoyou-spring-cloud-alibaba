@@ -1,12 +1,12 @@
 package com.haoyou.spring.cloud.alibaba.config;
 
-import com.alibaba.dubbo.common.serialize.support.SerializationOptimizer;
 import com.haoyou.spring.cloud.alibaba.commons.domain.message.BaseMessage;
 import com.haoyou.spring.cloud.alibaba.commons.domain.message.MapBody;
 import com.haoyou.spring.cloud.alibaba.commons.entity.Pet;
 import com.haoyou.spring.cloud.alibaba.commons.entity.User;
 import com.haoyou.spring.cloud.alibaba.sofabolt.protocol.MyRequest;
 import com.haoyou.spring.cloud.alibaba.redis.RedisObjKV;
+import org.apache.dubbo.common.serialize.support.SerializationOptimizer;
 
 import java.util.*;
 

@@ -1,8 +1,7 @@
 package com.haoyou.spring.cloud.alibaba.match.controller;
 
-import com.alibaba.dubbo.config.annotation.Service;
+import org.apache.dubbo.config.annotation.Service;
 import com.haoyou.spring.cloud.alibaba.commons.entity.User;
-import com.haoyou.spring.cloud.alibaba.commons.util.RedisKeyUtil;
 import com.haoyou.spring.cloud.alibaba.match.info.PlayerRoomInfo;
 import com.haoyou.spring.cloud.alibaba.match.service.MatchPoolService;
 import com.haoyou.spring.cloud.alibaba.util.RedisObjectUtil;

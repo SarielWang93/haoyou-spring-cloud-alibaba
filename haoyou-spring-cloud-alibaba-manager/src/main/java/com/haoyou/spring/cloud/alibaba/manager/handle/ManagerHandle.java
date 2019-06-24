@@ -1,6 +1,6 @@
 package com.haoyou.spring.cloud.alibaba.manager.handle;
 
-import com.alibaba.dubbo.config.annotation.Reference;
+import org.apache.dubbo.config.annotation.Reference;
 import com.haoyou.spring.cloud.alibaba.commons.domain.message.BaseMessage;
 import com.haoyou.spring.cloud.alibaba.commons.domain.SendType;
 import com.haoyou.spring.cloud.alibaba.manager.service.impl.ManagerServiceImpl;

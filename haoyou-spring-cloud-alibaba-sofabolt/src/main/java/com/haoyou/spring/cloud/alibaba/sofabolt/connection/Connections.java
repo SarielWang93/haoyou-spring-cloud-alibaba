@@ -1,15 +1,12 @@
 package com.haoyou.spring.cloud.alibaba.sofabolt.connection;
 
 
-import cn.hutool.core.lang.Console;
-import com.alibaba.dubbo.config.annotation.Reference;
+import org.apache.dubbo.config.annotation.Reference;
 import com.alipay.remoting.Connection;
 
-import com.alipay.remoting.ConnectionManager;
 import com.alipay.remoting.DefaultConnectionManager;
 import com.haoyou.spring.cloud.alibaba.commons.domain.RedisKey;
 import com.haoyou.spring.cloud.alibaba.commons.domain.SendType;
-import com.haoyou.spring.cloud.alibaba.commons.domain.message.BaseMessage;
 import com.haoyou.spring.cloud.alibaba.commons.entity.User;
 import com.haoyou.spring.cloud.alibaba.commons.util.RedisKeyUtil;
 import com.haoyou.spring.cloud.alibaba.sofabolt.protocol.MyRequest;
@@ -143,8 +140,8 @@ public class Connections {
          * 清理内存中连接不存在的玩家
          */
         HashMap<String, User> stringUserHashMap = this.redisObjectUtil.getlkMap(RedisKeyUtil.getlkKey(RedisKey.USER), User.class);
-        for(User user:stringUserHashMap.values()){
-            if(!connections.containsKey(user.getUid())){
+        for (User user : stringUserHashMap.values()) {
+            if (!connections.containsKey(user.getUid())) {
                 //登出
                 this.managerService.handle(new MyRequest(SendType.LOGINOUT, user.getUid(), null));
             }
@@ -154,11 +151,11 @@ public class Connections {
          * 清理不存在的链接
          */
         DefaultConnectionManager connectionManager = MyServer.server.getConnectionManager();
-        if(connectionManager!=null){
+        if (connectionManager != null) {
 //            Console.log(connectionManager.getAll());
-            for(List<Connection> connectionls : connectionManager.getAll().values()){
-                for(Connection connection:connectionls){
-                    if(!connections.containsValue(connection)){
+            for (List<Connection> connectionls : connectionManager.getAll().values()) {
+                for (Connection connection : connectionls) {
+                    if (!connections.containsValue(connection)) {
                         connectionManager.remove(connection);
                     }
                 }
@@ -183,7 +180,7 @@ public class Connections {
             Date now = new Date();
 
 
-            if (heart !=null && now.getTime()-heart.getTime()<(heartTime*heartTry)) {
+            if (heart != null && now.getTime() - heart.getTime() < (heartTime * heartTry)) {
 //                logger.info(String.format("%s %s",now.getTime(),heart.getTime()));
                 return true;
             }

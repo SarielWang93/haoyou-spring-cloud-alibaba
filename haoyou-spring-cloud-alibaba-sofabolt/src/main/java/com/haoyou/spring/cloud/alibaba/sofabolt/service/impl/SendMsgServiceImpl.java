@@ -1,19 +1,17 @@
 package com.haoyou.spring.cloud.alibaba.sofabolt.service.impl;
 
-import com.alibaba.dubbo.config.annotation.Service;
+import org.apache.dubbo.config.annotation.Service;
 import com.alipay.remoting.Connection;
 import com.haoyou.spring.cloud.alibaba.service.sofabolt.SendMsgService;
 import com.haoyou.spring.cloud.alibaba.sofabolt.connection.Connections;
 import com.haoyou.spring.cloud.alibaba.sofabolt.protocol.MyRequest;
 import com.haoyou.spring.cloud.alibaba.sofabolt.server.MyServer;
-import io.netty.channel.Channel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
 
-import java.util.Date;
 
 /**
  * 通过链接 发送信息
