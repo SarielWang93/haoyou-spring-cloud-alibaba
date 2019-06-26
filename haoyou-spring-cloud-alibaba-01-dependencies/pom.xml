@@ -32,9 +32,6 @@
 
         <!-- Dubbo  -->
         <dubbo.version>2.7.1</dubbo.version>
-        <dubbo-spring-boot.version>2.7.1</dubbo-spring-boot.version>
-        <dubbo-registry-nacos.version>2.7.1</dubbo-registry-nacos.version>
-        <dubbo-serialization-kryo.version>2.7.1</dubbo-serialization-kryo.version>
 
         <alibaba-spring-context-support.version>1.0.2</alibaba-spring-context-support.version>
 
@@ -45,9 +42,9 @@
 
         <sofa.version>5.5.2</sofa.version>
         <mysql.version>8.0.15</mysql.version>
-        <hutool.version>4.5.13</hutool.version>
-        <fescar.version>0.4.1</fescar.version>
+        <hutool.version>4.5.15</hutool.version>
         <proto.version>3.7.1</proto.version>
+        <shiro.version>1.4.1</shiro.version>
     </properties>
 
     <dependencyManagement>
@@ -115,17 +112,22 @@
             <dependency>
                 <groupId>org.apache.dubbo</groupId>
                 <artifactId>dubbo-spring-boot-starter</artifactId>
-                <version>${dubbo-spring-boot.version}</version>
+                <version>${dubbo.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.dubbo</groupId>
                 <artifactId>dubbo-registry-nacos</artifactId>
-                <version>${dubbo-registry-nacos.version}</version>
+                <version>${dubbo.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.dubbo</groupId>
                 <artifactId>dubbo-serialization-kryo</artifactId>
-                <version>${dubbo-serialization-kryo.version}</version>
+                <version>${dubbo.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.dubbo</groupId>
+                <artifactId>dubbo-metadata-report-redis</artifactId>
+                <version>${dubbo.version}</version>
             </dependency>
 
             <!-- Dubbo End -->
@@ -147,14 +149,6 @@
             </dependency>
             <!-- hutool -->
 
-            <!-- fescar 分布式事务管理 -->
-            <dependency>
-                <groupId>com.alibaba.fescar</groupId>
-                <artifactId>fescar-spring</artifactId>
-                <version>${fescar.version}</version>
-            </dependency>
-            <!-- fescar -->
-
             <!-- protobuf -->
             <dependency>
                 <groupId>com.google.protobuf</groupId>
@@ -162,6 +156,14 @@
                 <version>${proto.version}</version>
             </dependency>
             <!-- protobuf -->
+
+            <!-- shiro -->
+            <dependency>
+                <groupId>org.apache.shiro</groupId>
+                <artifactId>shiro-all</artifactId>
+                <version>${shiro.version}</version>
+            </dependency>
+            <!-- shiro -->
         </dependencies>
     </dependencyManagement>
 

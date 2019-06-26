@@ -52,15 +52,12 @@ public class ManagerTest {
         //sendMsgService.sendMsgAll(SendType.MATCH_READY,user.toJson());
         Console.log(user);
     }
-    @Test
-    public void contextLoads4() throws Exception {
 
-
-
-
-    }
 
     public static void main(String[] args) throws InterruptedException {
+
+
+
 
 
     }

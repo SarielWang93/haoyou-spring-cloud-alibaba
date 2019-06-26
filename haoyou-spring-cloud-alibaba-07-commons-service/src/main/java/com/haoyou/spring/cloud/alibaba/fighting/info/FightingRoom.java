@@ -156,6 +156,7 @@ public class FightingRoom implements Serializable {
         MapBody<String, Object> room = getRoomMSG();
 
         room.put("steps", this.nowSteps);
+        room.put("shotNum", this.shotNum);
         room.remove("maps");
         Map<Integer, Map> pets = getPetsMSG();
         Map<String, Object> playerLeft = (Map<String, Object>) room.get("playerLeft");

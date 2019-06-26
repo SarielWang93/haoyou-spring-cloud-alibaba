@@ -13,6 +13,7 @@ import com.haoyou.spring.cloud.alibaba.util.RedisObjectUtil;
 import com.haoyou.spring.cloud.alibaba.util.SendMsgUtil;
 import com.haoyou.spring.cloud.alibaba.sofabolt.protocol.MyRequest;
 import com.haoyou.spring.cloud.alibaba.service.manager.ManagerService;
+import org.apache.dubbo.registry.integration.RegistryDirectory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,7 +50,6 @@ public class ManagerServiceImpl implements ManagerService {
     @Override
     @GlobalTransactional
     public BaseMessage handle(MyRequest req) {
-
 
         Integer type = req.getId();
         byte[] msg = req.getMsg();
