@@ -111,6 +111,24 @@ public class PetType implements Serializable {
     @Column(name = "skill_board")
     private byte[] skillBoard;
 
+    /**
+     * 食材1
+     */
+    @Column(name = "ingredients_name1")
+    private String ingredientsName1;
+
+    /**
+     * 食材2
+     */
+    @Column(name = "ingredients_name2")
+    private String ingredientsName2;
+
+    /**
+     * 食材3
+     */
+    @Column(name = "ingredients_name3")
+    private String ingredientsName3;
+
 
     /**
      * 其他技能uid

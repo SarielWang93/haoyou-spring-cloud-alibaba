@@ -33,14 +33,16 @@ public class SendType {
     public final static int FIGHTING_AI = 25;//战斗信息
     public final static int FIGHTING_AI2 = 26;//战斗信息
     /**
-     * 养成
-     */
-    public final static int SKILL_CONFIG = 41;//技能配置
-    /**
      * 获取信息
      */
     public final static int GET_PROPS = 51;//获取仓库信息
     public final static int GET_HALL = 52;//获取仓库信息
+
+    /**
+     * 养成 60 - 90
+     */
+    public final static int SKILL_CONFIG = 61;//技能配置
+    public final static int PET_UP_LEV = 62;//技能配置
 
 //    *****************************************以上为接受信息类型，以下为主动发送*********************************************************
 

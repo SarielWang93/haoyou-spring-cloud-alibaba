@@ -1,6 +1,7 @@
 package com.haoyou.spring.cloud.alibaba.manager.test;
 
 import cn.hutool.core.lang.Console;
+import cn.hutool.core.util.RandomUtil;
 import com.haoyou.spring.cloud.alibaba.commons.entity.User;
 import com.haoyou.spring.cloud.alibaba.commons.mapper.HiFightingRoomMapper;
 import com.haoyou.spring.cloud.alibaba.commons.mapper.UserMapper;
@@ -57,7 +58,7 @@ public class ManagerTest {
     public static void main(String[] args) throws InterruptedException {
 
 
-
+        Console.log(RandomUtil.randomInt(100));
 
 
     }

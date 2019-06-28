@@ -1,5 +1,6 @@
 package com.haoyou.spring.cloud.alibaba.service.cultivate;
 
+import com.haoyou.spring.cloud.alibaba.commons.domain.message.MapBody;
 import com.haoyou.spring.cloud.alibaba.commons.entity.User;
 import com.haoyou.spring.cloud.alibaba.sofabolt.protocol.MyRequest;
 
@@ -29,7 +30,13 @@ public interface CultivateService {
     boolean petPumping (MyRequest req);
 
     /**
+     * 宠物升级
+     */
+    MapBody petUpLev(MyRequest req);
+
+    /**
      * 奖励获取
      */
     boolean rewards(User user,int type);
+
 }

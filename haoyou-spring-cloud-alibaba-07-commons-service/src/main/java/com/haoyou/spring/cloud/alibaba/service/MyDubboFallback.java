@@ -7,6 +7,7 @@ import com.alibaba.csp.sentinel.slots.block.SentinelRpcException;
 import org.apache.dubbo.rpc.Invocation;
 import org.apache.dubbo.rpc.Invoker;
 import org.apache.dubbo.rpc.Result;
+import org.apache.dubbo.rpc.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -26,7 +27,6 @@ public class MyDubboFallback implements DubboFallback {
     public Result handle(Invoker<?> invoker, Invocation invocation, BlockException ex) {
         // Just wrap and throw the exception.
         logger.info(String.format("dubbo熔断机制：$s",invocation.getMethodName()));
-        ex.printStackTrace();
-        throw new SentinelRpcException(ex);
+        return new RpcResult(ex);
     }
 }

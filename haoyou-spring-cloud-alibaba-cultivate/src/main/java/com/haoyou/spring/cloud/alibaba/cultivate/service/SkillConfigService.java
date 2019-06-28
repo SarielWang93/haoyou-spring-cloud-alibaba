@@ -17,6 +17,7 @@ import com.haoyou.spring.cloud.alibaba.util.SendMsgUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -58,6 +59,9 @@ public class SkillConfigService {
                     //添加数据库
                     PetSkill ps=new PetSkill(fightingPet.getUid(),prop.getProperty1());
                     petSkillMapper.insertSelective(ps);
+
+
+                    user.useOneProp(prop);
                     return true;
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -92,6 +96,7 @@ public class SkillConfigService {
                     petMapper.updateByPrimaryKeySelective(fightingPet.getPet());
                     //删除数据库
                     petSkillMapper.delete(bySkillUid);
+
                     return true;
                 } catch (Exception e) {
                     e.printStackTrace();

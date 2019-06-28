@@ -166,7 +166,7 @@ public class LoginServiceImpl implements LoginService {
         if (StrUtil.isEmpty(user.getUid())) {
             user.setUid(IdUtil.simpleUUID());
         }
-
+        user.setName(user.getUsername());
         user.setState(1);
         user.setCoin(0);
         user.setRank(1);

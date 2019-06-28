@@ -128,11 +128,16 @@ public class User extends BaseMessage implements Serializable {
 
 
     /**
-     * 昵称
+     * 最终登录ip地址
      */
     @Column(name = "last_login_url")
     private String lastLoginUrl;
 
+    /**
+     * 宠物升级经验
+     */
+    @Column(name = "pet_exp")
+    private Long petExp;
 
     @Transient
     private boolean onLine;
@@ -173,6 +178,25 @@ public class User extends BaseMessage implements Serializable {
                 this.props=ZIP.gZip(MapperUtils.obj2jsonIgnoreNull(propsThis).getBytes("UTF-8"));
                 return true;
             }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+    public boolean useOneProp(Prop prop){
+        try {
+            List<Prop> propsThis = this.propList();
+
+            int i = 0;
+            if ((i = propsThis.indexOf(prop)) != -1) {
+                propsThis.get(i).setCount(propsThis.get(i).getCount() - 1);
+                if(propsThis.get(i).getCount()<=0){
+                    propsThis.remove(i);
+                }
+            }
+
+            this.props=ZIP.gZip(MapperUtils.obj2jsonIgnoreNull(propsThis).getBytes("UTF-8"));
+            return true;
         } catch (Exception e) {
             e.printStackTrace();
         }

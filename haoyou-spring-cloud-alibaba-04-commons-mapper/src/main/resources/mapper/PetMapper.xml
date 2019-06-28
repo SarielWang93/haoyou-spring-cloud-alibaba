@@ -25,8 +25,13 @@
     <result column="exp" jdbcType="INTEGER" property="exp" />
     <result column="lev_up_exp" jdbcType="INTEGER" property="levUpExp" />
     <result column="level" jdbcType="INTEGER" property="level" />
-    <result column="loyalty" jdbcType="INTEGER" property="loyalty" />
-    <result column="ingredients" jdbcType="INTEGER" property="ingredients" />
+    <result column="loyalty_lev" jdbcType="INTEGER" property="loyaltyLev" />
+    <result column="ingredients_name1" jdbcType="VARCHAR" property="ingredientsName1" />
+    <result column="ingredients_count1" jdbcType="INTEGER" property="ingredientsCount1" />
+    <result column="ingredients_name2" jdbcType="VARCHAR" property="ingredientsName2" />
+    <result column="ingredients_count2" jdbcType="INTEGER" property="ingredientsCount2" />
+    <result column="ingredients_name3" jdbcType="VARCHAR" property="ingredientsName3" />
+    <result column="ingredients_count3" jdbcType="INTEGER" property="ingredientsCount3" />
     <result column="atn_gr" jdbcType="INTEGER" property="atnGr" />
     <result column="def_gr" jdbcType="INTEGER" property="defGr" />
     <result column="hp_gr" jdbcType="INTEGER" property="hpGr" />

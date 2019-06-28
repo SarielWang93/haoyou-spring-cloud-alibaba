@@ -23,6 +23,9 @@
     <result column="atn_gr" jdbcType="INTEGER" property="atnGr" />
     <result column="def_gr" jdbcType="INTEGER" property="defGr" />
     <result column="hp_gr" jdbcType="INTEGER" property="hpGr" />
+    <result column="ingredients_name1" jdbcType="VARCHAR" property="ingredientsName1" />
+    <result column="ingredients_name2" jdbcType="VARCHAR" property="ingredientsName2" />
+    <result column="ingredients_name3" jdbcType="VARCHAR" property="ingredientsName3" />
     <result column="skill_board" jdbcType="LONGVARBINARY" property="skillBoard" />
   </resultMap>
 </mapper>

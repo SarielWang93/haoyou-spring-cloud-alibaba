@@ -435,6 +435,11 @@ public class FightingServiceImpl implements FightingService {
                     int newAction_time = action_time1 - action_time;
                     value1.setAction_time(newAction_time);
                     fightingPets.put(newAction_time, value1);
+
+                    //清除暴击状态
+                    if(value1.isLuky()){
+                        fightingPet.setLuky(false);
+                    }
                 }
                 //清理临时状态
                 value1.removeState(StateType.TEMPORARY);

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.haoyou.spring.cloud.alibaba.commons.mapper.LevLoyaltyMapper">
+  <resultMap id="BaseResultMap" type="com.haoyou.spring.cloud.alibaba.commons.entity.LevLoyalty">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="loyalty_lev" jdbcType="INTEGER" property="loyaltyLev" />
+    <result column="level_max" jdbcType="INTEGER" property="levelMax" />
+    <result column="ingredients12" jdbcType="INTEGER" property="ingredients12" />
+    <result column="ingredients12_sum" jdbcType="INTEGER" property="ingredients12Sum" />
+    <result column="ingredients34" jdbcType="INTEGER" property="ingredients34" />
+    <result column="ingredients34_sum" jdbcType="INTEGER" property="ingredients34Sum" />
+    <result column="ingredients56" jdbcType="INTEGER" property="ingredients56" />
+    <result column="ingredients56_sum" jdbcType="INTEGER" property="ingredients56Sum" />
+    <result column="ingredients_star" jdbcType="INTEGER" property="ingredientsStar" />
+  </resultMap>
+</mapper>

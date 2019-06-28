@@ -95,18 +95,19 @@ public abstract class RewardHandle {
             //增加货币
             user.setCoin(user.getCoin() + award.getCoin());
             user.setDiamond(user.getDiamond() + award.getDiamond());
+            user.setPetExp(user.getPetExp() + award.getExp());
             this.save(user);
 
-            //增加经验
-            List<FightingPet> fightingPets = FightingPet.getByUser(user, redisObjectUtil);
-            for (FightingPet fightingPet : fightingPets) {
-                Integer iswork = fightingPet.getIswork();
-                if (iswork != null && iswork != 0) {
-                    fightingPet.upExp(award.getExp());
-                    fightingPet.save();
-                    petMapper.updateByPrimaryKeySelective(fightingPet.getPet());
-                }
-            }
+//            //增加经验
+//            List<FightingPet> fightingPets = FightingPet.getByUser(user, redisObjectUtil);
+//            for (FightingPet fightingPet : fightingPets) {
+//                Integer iswork = fightingPet.getIswork();
+//                if (iswork != null && iswork != 0) {
+//                    fightingPet.upExp(award.getExp());
+//                    fightingPet.save();
+//                    petMapper.updateByPrimaryKeySelective(fightingPet.getPet());
+//                }
+//            }
 
             //增加道具
             if(user.addProps(award.getProps())){

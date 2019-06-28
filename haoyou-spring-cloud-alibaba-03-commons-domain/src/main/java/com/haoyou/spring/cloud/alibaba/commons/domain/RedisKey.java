@@ -10,6 +10,9 @@ public class RedisKey {
     public static final String SKILL = "skill";
 
 
+    public static final String LEVEL_UP_EXP = "level_up_exp";
+    public static final String LEV_LOYALTY = "lev_loyalty";
+
     public static final String PROP = "prop";
 
     public static final String VERSION = "version";

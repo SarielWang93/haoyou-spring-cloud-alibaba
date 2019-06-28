@@ -40,6 +40,7 @@
         <spring-boot-tk-mybatis.version>2.1.5</spring-boot-tk-mybatis.version>
         <spring-boot-pagehelper.version>1.2.10</spring-boot-pagehelper.version>
 
+        <sentinel.version>1.6.2</sentinel.version>
         <sofa.version>5.5.2</sofa.version>
         <mysql.version>8.0.15</mysql.version>
         <hutool.version>4.5.15</hutool.version>
@@ -129,7 +130,16 @@
                 <artifactId>dubbo-metadata-report-redis</artifactId>
                 <version>${dubbo.version}</version>
             </dependency>
-
+            <dependency>
+                <groupId>com.alibaba.csp</groupId>
+                <artifactId>sentinel-apache-dubbo-adapter</artifactId>
+                <version>${sentinel.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.alibaba.csp</groupId>
+                <artifactId>sentinel-core</artifactId>
+                <version>${sentinel.version}</version>
+            </dependency>
             <!-- Dubbo End -->
 
 

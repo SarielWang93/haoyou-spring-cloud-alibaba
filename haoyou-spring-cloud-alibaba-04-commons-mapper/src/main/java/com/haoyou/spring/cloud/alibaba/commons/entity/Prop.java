@@ -93,13 +93,11 @@ public class Prop implements Serializable {
                 Objects.equals(property2, prop.property2) &&
                 Objects.equals(property3, prop.property3) &&
                 Objects.equals(property4, prop.property4) &&
-                Objects.equals(property5, prop.property5) &&
-                Objects.equals(describe, prop.describe) &&
-                Objects.equals(propertyDescribe, prop.propertyDescribe);
+                Objects.equals(property5, prop.property5) ;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, uid, l10n, name, property1, property2, property3, property4, property5, describe, propertyDescribe);
+        return Objects.hash(id, uid, l10n, name, property1, property2, property3, property4, property5);
     }
 }

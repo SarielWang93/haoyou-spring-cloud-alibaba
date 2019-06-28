@@ -4,12 +4,13 @@ import cn.hutool.core.lang.WeightRandom;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.StrUtil;
+import com.haoyou.spring.cloud.alibaba.commons.domain.ResponseMsg;
+import com.haoyou.spring.cloud.alibaba.commons.domain.message.MapBody;
+import com.haoyou.spring.cloud.alibaba.commons.entity.*;
+import com.haoyou.spring.cloud.alibaba.cultivate.msg.PetUpLevMsg;
+import com.haoyou.spring.cloud.alibaba.fighting.info.FightingPet;
 import org.apache.dubbo.config.annotation.Service;
 import com.haoyou.spring.cloud.alibaba.commons.domain.RedisKey;
-import com.haoyou.spring.cloud.alibaba.commons.entity.Pet;
-import com.haoyou.spring.cloud.alibaba.commons.entity.PetType;
-import com.haoyou.spring.cloud.alibaba.commons.entity.Prop;
-import com.haoyou.spring.cloud.alibaba.commons.entity.User;
 import com.haoyou.spring.cloud.alibaba.commons.mapper.PetMapper;
 import com.haoyou.spring.cloud.alibaba.commons.mapper.PetSkillMapper;
 import com.haoyou.spring.cloud.alibaba.commons.util.MapperUtils;
@@ -51,8 +52,6 @@ public class CultivateServiceImpl implements CultivateService {
     @Autowired
     private PetMapper petMapper;
     @Autowired
-    private PetSkillMapper petSkillMapper;
-    @Autowired
     private SkillConfigService skillConfigService;
     @Autowired
     private RewardService rewardService;
@@ -70,7 +69,9 @@ public class CultivateServiceImpl implements CultivateService {
         SkillConfigMsg skillConfigMsg = sendMsgUtil.deserialize(req.getMsg(), SkillConfigMsg.class);
         Prop prop = skillConfigMsg.getProp();
         //验证道具
-        if (checkProp(user, prop)) {
+        prop = checkProp(user, prop);
+        if (prop != null) {
+            skillConfigMsg.setProp(prop);
             switch (skillConfigMsg.getType()) {
                 case ADD_PET_SKILL:
                     return skillConfigService.addPetSkill(user, skillConfigMsg);
@@ -105,7 +106,7 @@ public class CultivateServiceImpl implements CultivateService {
 
         for (PetType petType : stringPetTypeHashMap.values()) {
             if (l.contains(petType.getId())) {
-                int iswork ;
+                int iswork;
                 if (petType.getId() > 3) {
                     iswork = petType.getId() - 3;
                 } else {
@@ -146,6 +147,66 @@ public class CultivateServiceImpl implements CultivateService {
         return false;
     }
 
+    /**
+     * 宠物升级
+     */
+    @Override
+    public MapBody petUpLev(MyRequest req) {
+        MapBody rt = new MapBody();
+        User user = req.getUser();
+        if (user == null) {
+            rt.setState(ResponseMsg.MSG_ERR);
+        }
+        //解析msg
+        PetUpLevMsg petUpLevMsg = sendMsgUtil.deserialize(req.getMsg(), PetUpLevMsg.class);
+        //获取要升级的宠物
+        FightingPet fightingPet = FightingPet.getByUserAndPetUid(user, petUpLevMsg.getPetUid(), redisObjectUtil);
+
+        //当前等级
+        Integer level = fightingPet.getPet().getLevel();
+
+        //获取升级所需经验
+        String levelUpExpKey = RedisKeyUtil.getKey(RedisKey.LEVEL_UP_EXP, level.toString());
+        LevelUpExp levelUpExp = redisObjectUtil.get(levelUpExpKey, LevelUpExp.class);
+        //玩家拥有的经验
+        Long petExp = user.getPetExp();
+
+        if (levelUpExp.getUpLevExp() > petExp) {
+            //经验不足不能升级 ，1
+            rt.setState(ResponseMsg.MSG_ERR);
+            rt.put("errMsg", 1);
+            return rt;
+        }
+
+
+        //忠诚等级
+        Integer loyaltyLev = fightingPet.getPet().getLoyaltyLev();
+        //获取忠诚等级关系
+        String levLoyaltyKey = RedisKeyUtil.getKey(RedisKey.LEV_LOYALTY, loyaltyLev.toString());
+        LevLoyalty levLoyalty = redisObjectUtil.get(levLoyaltyKey, LevLoyalty.class);
+
+        if (level >= levLoyalty.getLevelMax()) {
+            //忠诚等级不足 ，2
+            rt.setState(ResponseMsg.MSG_ERR);
+            rt.put("errMsg", 2);
+            return rt;
+        }
+
+        //升级
+        fightingPet.upLevel();
+        //减掉经验,保存
+        user.setPetExp(petExp - levelUpExp.getUpLevExp());
+        redisObjectUtil.save(RedisKeyUtil.getKey(RedisKey.USER, user.getUid()), user);
+
+        //修改升级所需经验
+        LevelUpExp nextLevelUpExp = redisObjectUtil.get(RedisKeyUtil.getKey(RedisKey.LEVEL_UP_EXP, Integer.toString(level + 1)), LevelUpExp.class);
+        fightingPet.getPet().setLevUpExp(nextLevelUpExp.getUpLevExp());
+        fightingPet.save();
+
+
+        return rt;
+    }
+
 
     /**
      * 奖励分发，根据type获取不同奖励模式
@@ -167,19 +228,19 @@ public class CultivateServiceImpl implements CultivateService {
      * @param prop
      * @return
      */
-    private boolean checkProp(User user, Prop prop) {
+    private Prop checkProp(User user, Prop prop) {
 
         List<Prop> props = user.propList();
 
         if (props != null && props.size() > 0) {
             for (Prop propTrue : props) {
                 if (propTrue.getPropInstenceUid().equals(prop.getPropInstenceUid())) {
-                    if (propTrue.equals(prop)) {
-                        return true;
+                    if(propTrue.equals(prop)){
+                        return propTrue;
                     }
                 }
             }
         }
-        return false;
+        return null;
     }
 }

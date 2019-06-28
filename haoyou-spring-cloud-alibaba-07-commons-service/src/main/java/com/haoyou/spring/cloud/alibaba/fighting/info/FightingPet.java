@@ -331,33 +331,32 @@ public class FightingPet implements Serializable {
     private boolean luky;
 
 
-    /**
-     * 获得经验
-     *
-     * @param upExp
-     */
-    public void upExp(Integer upExp) {
-        Integer exp = this.pet.getExp();
-        Integer levUpExp = this.pet.getLevUpExp();
-
-        //升级判断
-        Integer expl = exp + upExp - levUpExp;
-        if (expl >= 0) {
-            upLevel();
-            this.pet.setExp(expl);
-        } else {
-            this.pet.setExp(exp + upExp);
-        }
-    }
+//    /**
+//     * 获得经验
+//     *
+//     * @param upExp
+//     */
+//    public void upExp(Integer upExp) {
+//        Integer exp = this.pet.getExp();
+//        Integer levUpExp = this.pet.getLevUpExp();
+//
+//        //升级判断
+//        Integer expl = exp + upExp - levUpExp;
+//        if (expl >= 0) {
+//            upLevel();
+//            this.pet.setExp(expl);
+//        } else {
+//            this.pet.setExp(exp + upExp);
+//        }
+//
+//    }
 
     /**
      * 升级操作
      */
-    private void upLevel() {
+    public void upLevel() {
         Integer level = this.pet.getLevel() + 1;
         this.pet.setLevel(level);
-        //TODO 更新升级所需经验值
-
         this.refreshMbByLevel();
     }
 
@@ -586,7 +585,7 @@ public class FightingPet implements Serializable {
             int random = RandomUtil.randomInt(100);
             if (random < this.ft_luk) {
                 this.luky = true;
-                this.attack *= LukFactor / 100;
+                this.attack = this.attack*LukFactor / 100;
             } else {
                 this.luky = false;
             }

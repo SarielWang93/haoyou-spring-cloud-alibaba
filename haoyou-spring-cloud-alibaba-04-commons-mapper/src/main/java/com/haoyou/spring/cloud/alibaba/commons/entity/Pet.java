@@ -119,12 +119,32 @@ public class Pet implements Serializable {
     /**
      * 忠诚度
      */
-    private Integer loyalty;
+    @Column(name = "loyalty_lev")
+    private Integer loyaltyLev;
 
     /**
-     * 食材
+     * 食材1
      */
-    private Integer ingredients;
+    @Column(name = "ingredients_name1")
+    private String ingredientsName1;
+    @Column(name = "ingredients_count1")
+    private Integer ingredientsCount1;
+
+    /**
+     * 食材2
+     */
+    @Column(name = "ingredients_name2")
+    private String ingredientsName2;
+    @Column(name = "ingredients_count2")
+    private Integer ingredientsCount2;
+
+    /**
+     * 食材3
+     */
+    @Column(name = "ingredients_name3")
+    private String ingredientsName3;
+    @Column(name = "ingredients_count3")
+    private Integer ingredientsCount3;
 
 
     /**
@@ -217,8 +237,13 @@ public class Pet implements Serializable {
         this.exp = 0;
         this.levUpExp = 260;
         this.level = 1;
-        this.loyalty = 0;
-        this.ingredients = 0;
+        this.loyaltyLev = 0;
+        this.ingredientsName1=petType.getIngredientsName1();
+        this.ingredientsCount1 = 0;
+        this.ingredientsName2=petType.getIngredientsName2();
+        this.ingredientsCount2 = 0;
+        this.ingredientsName3=petType.getIngredientsName3();
+        this.ingredientsCount3 = 0;
         this.nickname = petType.getL10n();
         this.creatDate = new Date();
 

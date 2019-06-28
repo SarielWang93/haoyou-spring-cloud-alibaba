@@ -32,14 +32,14 @@ public class FightingBoard implements Serializable {
     public final static int ATTACK_SPECIAL = 2;//特殊攻击块
     public final static int SHIELD = 3;//护盾块
     public final static int SKILL = 4;//技能块
-
+    public final static int ALL_IN = 5;//万能块
     //步骤操作块
     public final static int FROZEN = 1;//冰冻
     public final static int UPGRADE = 2;//升级
     public final static int THAW = 3;//解冻
 
 
-    private static WeightRandom.WeightObj<Integer>[] weightObjs = new WeightRandom.WeightObj[4];
+    private static WeightRandom.WeightObj<Integer>[] weightObjs = new WeightRandom.WeightObj[5];
 
     static {
 
@@ -47,7 +47,7 @@ public class FightingBoard implements Serializable {
         weightObjs[1] = new WeightRandom.WeightObj(ATTACK_SPECIAL, 20.0);
         weightObjs[2] = new WeightRandom.WeightObj(SHIELD, 30.0);
         weightObjs[3] = new WeightRandom.WeightObj(SKILL, 20.0);
-
+        weightObjs[4] = new WeightRandom.WeightObj(ALL_IN, 5.0);
     }
 
 
@@ -125,7 +125,7 @@ public class FightingBoard implements Serializable {
             int blockType = destroyInfos.get(0).getRandomID();
             //是否同一类型，以及是否与当前棋盘一致,是否冰冻
             for (BlockInfo blockInfo : destroyInfos) {
-                if (blockInfo.getDisType() != 0 || blockInfo.getRandomID() != blockType || blockInfo.getRandomID() != this.board[blockInfo.getX()][blockInfo.getY()].getRandomID()) {
+                if (blockInfo.getDisType() != 0 || (blockInfo.getRandomID() != blockType && blockInfo.getRandomID() != ALL_IN) || blockInfo.getRandomID() != this.board[blockInfo.getX()][blockInfo.getY()].getRandomID()) {
                     return false;
                 }
             }
@@ -345,6 +345,7 @@ public class FightingBoard implements Serializable {
 
     /**
      * AI主方法
+     *
      * @param fightingPet
      * @param own
      * @param petTypeAi
@@ -389,7 +390,7 @@ public class FightingBoard implements Serializable {
             maxBlockCount = starClass + 1;
         }
         List<BlockInfo> blockInfo = null;
-        for (int i = maxBlockCount-1; i > 1; i--) {
+        for (int i = maxBlockCount - 1; i > 1; i--) {
             blockInfo = doAI(own.getUser().getUid(), i, maxBlockCount, attack, specialAttack, shield, skill);
             if (blockInfo.size() > 0) {
 
@@ -476,7 +477,7 @@ public class FightingBoard implements Serializable {
 
 
         for (BlockInfo son : all) {
-            if (son.getDisType() == 0 && son.getRandomID() == father.getRandomID() && !blockInfo.contains(son) && son.getDisType() == 0) {
+            if (son.getDisType() == 0 && (son.getRandomID() == father.getRandomID() || son.getRandomID() == ALL_IN) && !blockInfo.contains(son) && son.getDisType() == 0) {
                 blockInfo.add(son);
                 if (blockInfo.size() >= maxBlockCount) {
                     return;

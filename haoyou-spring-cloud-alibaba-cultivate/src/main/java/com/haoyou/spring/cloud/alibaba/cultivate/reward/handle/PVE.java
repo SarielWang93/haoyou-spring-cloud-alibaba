@@ -54,7 +54,7 @@ public class PVE extends RewardHandle {
          */
 
 
-        Award award = new Award(100,20,0,props);
+        Award award = new Award(100,20,100,props);
 
         super.doAward(user,award);
 

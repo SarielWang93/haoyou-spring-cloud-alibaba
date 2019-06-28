@@ -49,38 +49,71 @@ public class InitData implements ApplicationRunner {
     private PropMapper propMapper;
     @Autowired
     private VersionControlMapper versionControlMapper;
+    @Autowired
+    private LevLoyaltyMapper levLoyaltyMapper;
 
+    @Autowired
+    private LevelUpExpMapper levelUpExpMapper;
 
     private Date lastDo;
 
     @Override
-    public void run(ApplicationArguments args){
+    public void run(ApplicationArguments args) {
         //TODO 数据库中的公共数据缓存到内存或redis中
         doInit();
     }
 
-    public boolean doInit(){
+    public boolean doInit() {
         Date now = new Date();
         /**
          * 每次加载必须间隔一分钟以上，防止攻击
          */
-        if(lastDo == null || now.getTime()-lastDo.getTime()>60*1000){
-            //初始化道具
+        if (lastDo == null || now.getTime() - lastDo.getTime() > 60 * 1000) {
+            //加载版本信息
             initVersion();
-            //初始化排行榜
+            //加载排行榜
             initRanking();
-            //初始化技能
+            //加载技能
             initSkill();
-            //初始化宠物类型
+            //加载宠物类型
             initPetType();
-            //初始化道具
+            //加载道具
             initProp();
-            lastDo=now;
+            //加载忠诚度/等级关系列表
+            initLevLoyalty();
+            //加载宠物等级提升所需经验表
+            initLevelUpExp();
+            lastDo = now;
             return true;
         }
         return false;
     }
 
+    /**
+     * 宠物等级提升所需经验表
+     */
+    private void initLevelUpExp() {
+        redisObjectUtil.deleteAll(RedisKeyUtil.getlkKey(RedisKey.LEVEL_UP_EXP));
+        List<LevelUpExp> levelUpExps = levelUpExpMapper.selectAll();
+        for (LevelUpExp levelUpExp : levelUpExps) {
+            String levelUpExpKey = RedisKeyUtil.getKey(RedisKey.LEVEL_UP_EXP, levelUpExp.getLevel().toString());
+            redisObjectUtil.save(levelUpExpKey,levelUpExp,-1);
+        }
+
+    }
+
+    /**
+     * 加载忠诚度/等级关系列表
+     */
+    private void initLevLoyalty() {
+        redisObjectUtil.deleteAll(RedisKeyUtil.getlkKey(RedisKey.LEV_LOYALTY));
+        List<LevLoyalty> levLoyalties = levLoyaltyMapper.selectAll();
+        for (LevLoyalty levLoyalty : levLoyalties) {
+            String levLoyaltyKey = RedisKeyUtil.getKey(RedisKey.LEV_LOYALTY, levLoyalty.getLoyaltyLev().toString());
+            redisObjectUtil.save(levLoyaltyKey,levLoyalty,-1);
+        }
+
+    }
 
 
     /**
@@ -88,7 +121,7 @@ public class InitData implements ApplicationRunner {
      *
      * @throws Exception
      */
-    public void initRanking(){
+    public void initRanking() {
 
         //初始化缓存排行榜
         final String ranking = RedisKey.RANKING;
@@ -111,25 +144,25 @@ public class InitData implements ApplicationRunner {
 
         List<Skill> skills = skillMapper.selectAll();
 
-        for(Skill skill:skills){
+        for (Skill skill : skills) {
             this.getSkillResout(skill);
             String skillKey = RedisKeyUtil.getKey(RedisKey.SKILL, skill.getUid());
-            redisObjectUtil.save(skillKey,skill,-1);
+            redisObjectUtil.save(skillKey, skill, -1);
         }
     }
 
-    private void getSkillResout(Skill skill){
-        List<Resout> resouts=new ArrayList<>();
+    private void getSkillResout(Skill skill) {
+        List<Resout> resouts = new ArrayList<>();
         /**
          * 查询技能效果
          */
-        SkillResout skillfResout =new SkillResout();
+        SkillResout skillfResout = new SkillResout();
         skillfResout.setSkillUid(skill.getUid());
         List<SkillResout> skillResouts = skillResoutMapper.select(skillfResout);
 
-        for(SkillResout skillResout :skillResouts){
+        for (SkillResout skillResout : skillResouts) {
             String skillResoutUid = skillResout.getResoutUid();
-            Resout resout =new Resout();
+            Resout resout = new Resout();
             resout.setUid(skillResoutUid);
             resout = resoutMapper.selectOne(resout);
 
@@ -142,10 +175,11 @@ public class InitData implements ApplicationRunner {
 
     /**
      * 获取结果状态
+     *
      * @param resout
      */
 
-    private void getResoutState(Resout resout){
+    private void getResoutState(Resout resout) {
         State state = new State();
         state.setUid(resout.getStateUid());
         state = stareMapper.selectOne(state);
@@ -156,17 +190,18 @@ public class InitData implements ApplicationRunner {
 
     /**
      * 获取状态产生的结果（会有递归问题，不过取决于数据库的数据）
+     *
      * @param state
      */
-    private void getStateResout(State state){
+    private void getStateResout(State state) {
 
-        List<Resout> resouts=new ArrayList<>();
+        List<Resout> resouts = new ArrayList<>();
         StateResout statefResout = new StateResout();
         statefResout.setStateUid(state.getUid());
         List<StateResout> stateResouts = stateResoutMapper.select(statefResout);
 
-        for(StateResout stateResout:stateResouts){
-            Resout resout =new Resout();
+        for (StateResout stateResout : stateResouts) {
+            Resout resout = new Resout();
             resout.setUid(stateResout.getResoutUid());
             resout = resoutMapper.selectOne(resout);
             this.getResoutState(resout);
@@ -179,14 +214,15 @@ public class InitData implements ApplicationRunner {
 
     /**
      * 初始化宠物类型
+     *
      * @throws Exception
      */
-    public void initPetType(){
+    public void initPetType() {
         redisObjectUtil.deleteAll(RedisKeyUtil.getlkKey(RedisKey.PET_TYPE));
 
 
         List<PetType> petTypes = petTypeMapper.selectAll();
-        for(PetType petType:petTypes){
+        for (PetType petType : petTypes) {
             //获取ai权重信息
             PetTypeAi petTypeAi = new PetTypeAi();
             petTypeAi.setPetTypeUid(petType.getUid());
@@ -194,35 +230,35 @@ public class InitData implements ApplicationRunner {
             petType.setPetTypeAi(petTypeAi1);
 
             String petTypeKey = RedisKeyUtil.getKey(RedisKey.PET_TYPE, petType.getUid());
-            redisObjectUtil.save(petTypeKey,petType,-1);
+            redisObjectUtil.save(petTypeKey, petType, -1);
         }
     }
 
     /**
      * 初始化道具表
      */
-    public void initProp(){
+    public void initProp() {
 
         redisObjectUtil.deleteAll(RedisKeyUtil.getlkKey(RedisKey.PROP));
 
         List<Prop> props = propMapper.selectAll();
-        for(Prop prop:props){
+        for (Prop prop : props) {
             String propKey = RedisKeyUtil.getKey(RedisKey.PROP, prop.getUid());
-            redisObjectUtil.save(propKey,prop,-1);
+            redisObjectUtil.save(propKey, prop, -1);
         }
     }
 
     /**
      * 初始化版本表
      */
-    public void initVersion(){
+    public void initVersion() {
 
         redisObjectUtil.deleteAll(RedisKeyUtil.getlkKey(RedisKey.VERSION));
 
         List<VersionControl> versions = versionControlMapper.selectAll();
-        for(VersionControl version:versions){
+        for (VersionControl version : versions) {
             String propKey = RedisKeyUtil.getKey(RedisKey.VERSION, version.getUid());
-            redisObjectUtil.save(propKey,version,-1);
+            redisObjectUtil.save(propKey, version, -1);
         }
 
     }
