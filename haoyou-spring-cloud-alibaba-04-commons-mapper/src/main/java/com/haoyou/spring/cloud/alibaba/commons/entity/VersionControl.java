@@ -12,6 +12,7 @@ import java.util.Date;
 @Data
 @JsonIgnoreProperties(value = {}, ignoreUnknown = true)
 public class VersionControl implements Serializable {
+    private static final long serialVersionUID = 3662280592926870389L;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;

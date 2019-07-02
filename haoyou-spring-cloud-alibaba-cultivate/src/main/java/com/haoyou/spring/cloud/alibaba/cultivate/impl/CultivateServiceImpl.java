@@ -4,6 +4,7 @@ import cn.hutool.core.lang.WeightRandom;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.StrUtil;
+import com.alibaba.fescar.spring.annotation.GlobalTransactional;
 import com.haoyou.spring.cloud.alibaba.commons.domain.ResponseMsg;
 import com.haoyou.spring.cloud.alibaba.commons.domain.message.MapBody;
 import com.haoyou.spring.cloud.alibaba.commons.entity.*;
@@ -12,8 +13,6 @@ import com.haoyou.spring.cloud.alibaba.fighting.info.FightingPet;
 import org.apache.dubbo.config.annotation.Service;
 import com.haoyou.spring.cloud.alibaba.commons.domain.RedisKey;
 import com.haoyou.spring.cloud.alibaba.commons.mapper.PetMapper;
-import com.haoyou.spring.cloud.alibaba.commons.mapper.PetSkillMapper;
-import com.haoyou.spring.cloud.alibaba.commons.util.MapperUtils;
 import com.haoyou.spring.cloud.alibaba.commons.util.RedisKeyUtil;
 import com.haoyou.spring.cloud.alibaba.cultivate.msg.SkillConfigMsg;
 import com.haoyou.spring.cloud.alibaba.cultivate.service.RewardService;
@@ -63,22 +62,24 @@ public class CultivateServiceImpl implements CultivateService {
      * @return
      */
     @Override
+    @GlobalTransactional
     public boolean skillConfig(MyRequest req) {
 
         User user = req.getUser();
         SkillConfigMsg skillConfigMsg = sendMsgUtil.deserialize(req.getMsg(), SkillConfigMsg.class);
-        Prop prop = skillConfigMsg.getProp();
-        //验证道具
-        prop = checkProp(user, prop);
-        if (prop != null) {
-            skillConfigMsg.setProp(prop);
-            switch (skillConfigMsg.getType()) {
-                case ADD_PET_SKILL:
-                    return skillConfigService.addPetSkill(user, skillConfigMsg);
-                case REMOVE_PET_SKILL:
-                    return skillConfigService.removePetSkill(user, skillConfigMsg);
-            }
+        String propInstenceUid = skillConfigMsg.getPropInstenceUid();
+        switch (skillConfigMsg.getType()) {
+            case ADD_PET_SKILL:
+                //验证道具
+                Prop prop = checkProp(user, propInstenceUid);
+                if (prop != null) {
+                    return skillConfigService.addPetSkill(user, skillConfigMsg, prop);
+                }
+                break;
+            case REMOVE_PET_SKILL:
+                return skillConfigService.removePetSkill(user, skillConfigMsg);
         }
+
         return false;
     }
 
@@ -89,6 +90,7 @@ public class CultivateServiceImpl implements CultivateService {
      * @return
      */
     @Override
+    @GlobalTransactional
     public boolean petGeneration(MyRequest req) {
         logger.debug("注册赠送宠物！！！");
         User user = req.getUser();
@@ -126,6 +128,7 @@ public class CultivateServiceImpl implements CultivateService {
      * @return
      */
     @Override
+    @GlobalTransactional
     public boolean petPumping(MyRequest req) {
         User user = req.getUser();
         HashMap<String, PetType> stringPetTypeHashMap = redisObjectUtil.getlkMap(RedisKeyUtil.getlkKey(RedisKey.PET_TYPE), PetType.class);
@@ -151,6 +154,7 @@ public class CultivateServiceImpl implements CultivateService {
      * 宠物升级
      */
     @Override
+    @GlobalTransactional
     public MapBody petUpLev(MyRequest req) {
         MapBody rt = new MapBody();
         User user = req.getUser();
@@ -169,7 +173,7 @@ public class CultivateServiceImpl implements CultivateService {
         String levelUpExpKey = RedisKeyUtil.getKey(RedisKey.LEVEL_UP_EXP, level.toString());
         LevelUpExp levelUpExp = redisObjectUtil.get(levelUpExpKey, LevelUpExp.class);
         //玩家拥有的经验
-        Long petExp = user.getPetExp();
+        Long petExp = user.getCurrency().getPetExp();
 
         if (levelUpExp.getUpLevExp() > petExp) {
             //经验不足不能升级 ，1
@@ -195,7 +199,7 @@ public class CultivateServiceImpl implements CultivateService {
         //升级
         fightingPet.upLevel();
         //减掉经验,保存
-        user.setPetExp(petExp - levelUpExp.getUpLevExp());
+        user.getCurrency().setPetExp(petExp - levelUpExp.getUpLevExp());
         redisObjectUtil.save(RedisKeyUtil.getKey(RedisKey.USER, user.getUid()), user);
 
         //修改升级所需经验
@@ -216,6 +220,7 @@ public class CultivateServiceImpl implements CultivateService {
      * @return
      */
     @Override
+    @GlobalTransactional
     public boolean rewards(User user, int type) {
         return rewardService.rewards(user, type);
     }
@@ -225,19 +230,17 @@ public class CultivateServiceImpl implements CultivateService {
      * 校验道具
      *
      * @param user
-     * @param prop
+     * @param propInstenceUid
      * @return
      */
-    private Prop checkProp(User user, Prop prop) {
+    private Prop checkProp(User user, String propInstenceUid) {
 
         List<Prop> props = user.propList();
 
         if (props != null && props.size() > 0) {
             for (Prop propTrue : props) {
-                if (propTrue.getPropInstenceUid().equals(prop.getPropInstenceUid())) {
-                    if(propTrue.equals(prop)){
-                        return propTrue;
-                    }
+                if (propTrue.getPropInstenceUid().equals(propInstenceUid)) {
+                    return propTrue;
                 }
             }
         }

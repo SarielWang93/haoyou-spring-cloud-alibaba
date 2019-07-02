@@ -165,14 +165,17 @@ public class FightingRoom implements Serializable {
         Map<String, Object>[] petsL = new Map[3];
         Map<String, Object>[] petsR = new Map[3];
 
-        for (int i = 0; i < 3; i++) {
+        for (Map.Entry<Integer, Map> entry : pets.entrySet()) {
+            Map pet = entry.getValue();
+            Integer iswork = entry.getKey();
+            pet.remove("skillInfos");
 
-            pets.get(i).remove("skillInfos");
-            pets.get(i + 3).remove("skillInfos");
+            if (iswork<3) {
+                petsL[iswork] = pet;
+            }else{
+                petsR[iswork-3] = pet;
+            }
 
-            petsL[i] = pets.get(i);
-
-            petsR[i] = pets.get(i + 3);
 
         }
 

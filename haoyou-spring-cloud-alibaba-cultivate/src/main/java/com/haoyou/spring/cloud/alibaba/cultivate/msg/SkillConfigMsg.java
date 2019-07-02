@@ -26,7 +26,7 @@ public class SkillConfigMsg implements Serializable {
 
 
     private Tetromino tetromino;
-    private Prop prop;
+    private String propInstenceUid;
     private String petUid;
 
     private Integer type;

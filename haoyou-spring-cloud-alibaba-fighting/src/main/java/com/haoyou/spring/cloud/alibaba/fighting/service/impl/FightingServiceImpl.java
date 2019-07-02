@@ -314,6 +314,10 @@ public class FightingServiceImpl implements FightingService {
 
             FightingRoom fightingRoom = this.getFightingRoomByUserUid(userUid, 5);
 
+            if(fightingRoom==null){
+                return;
+            }
+
             List<String> userUids = new LinkedList<>();
             for (FightingCamp fightingCamp : fightingRoom.getFightingCamps().values()) {
                 if (fightingCamp.isReady()) {

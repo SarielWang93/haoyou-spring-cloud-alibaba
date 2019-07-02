@@ -12,14 +12,9 @@
     <result column="email" jdbcType="VARCHAR" property="email" />
     <result column="phone" jdbcType="VARCHAR" property="phone" />
     <result column="uid" jdbcType="VARCHAR" property="uid" />
-    <result column="coin" jdbcType="INTEGER" property="coin" />
-    <result column="prop_max" jdbcType="INTEGER" property="propMax" />
     <result column="state" jdbcType="INTEGER" property="state" />
     <result column="platform" jdbcType="VARCHAR" property="platform" />
     <result column="rank" jdbcType="INTEGER" property="rank" />
-    <result column="diamond" jdbcType="INTEGER" property="diamond" />
-    <result column="vitality" jdbcType="INTEGER" property="vitality" />
-    <result column="props" jdbcType="LONGVARBINARY" property="props" />
     <result column="platform_param" jdbcType="LONGVARBINARY" property="platformParam" />
     <result column="creat_date" jdbcType="TIMESTAMP" property="creatDate" />
     <result column="last_login_date" jdbcType="TIMESTAMP" property="lastLoginDate" />

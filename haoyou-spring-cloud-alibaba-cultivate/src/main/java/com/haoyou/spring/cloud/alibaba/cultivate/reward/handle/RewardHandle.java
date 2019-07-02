@@ -66,7 +66,8 @@ public abstract class RewardHandle {
      */
     public boolean save(User user){
         if(redisObjectUtil.save(RedisKeyUtil.getKey(RedisKey.USER, user.getUid()), user)){
-            return userMapper.updateByPrimaryKeySelective(user)==1;
+            //return userMapper.updateByPrimaryKeySelective(user)==1;
+            return true;
         }
         return false;
     }
@@ -93,10 +94,9 @@ public abstract class RewardHandle {
         boolean mail=true;
         if(this.send(user,award)){
             //增加货币
-            user.setCoin(user.getCoin() + award.getCoin());
-            user.setDiamond(user.getDiamond() + award.getDiamond());
-            user.setPetExp(user.getPetExp() + award.getExp());
-            this.save(user);
+            user.getCurrency().setCoin(user.getCurrency().getCoin() + award.getCoin());
+            user.getCurrency().setDiamond(user.getCurrency().getDiamond() + award.getDiamond());
+            user.getCurrency().setPetExp(user.getCurrency().getPetExp() + award.getExp());
 
 //            //增加经验
 //            List<FightingPet> fightingPets = FightingPet.getByUser(user, redisObjectUtil);
@@ -111,10 +111,9 @@ public abstract class RewardHandle {
 
             //增加道具
             if(user.addProps(award.getProps())){
-                if(this.save(user)){
-                    mail=false;
-                }
+                mail=false;
             }
+            this.save(user);
         }
 
         if(mail){

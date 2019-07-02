@@ -52,16 +52,6 @@ public class User extends BaseMessage implements Serializable {
      */
     private String uid;
 
-    /**
-     * 货币
-     */
-    private Integer coin;
-
-    /**
-     * 包裹道具栏个数
-     */
-    @Column(name = "prop_max")
-    private Integer propMax;
 
     /**
      * 状态（正常，删除，封号，等）
@@ -72,11 +62,6 @@ public class User extends BaseMessage implements Serializable {
      * 登录平台（腾讯，小米，网易……）
      */
     private String platform;
-
-    /**
-     * 道具（json存储）
-     */
-    private byte[] props;
 
 
 
@@ -92,15 +77,6 @@ public class User extends BaseMessage implements Serializable {
     @Column(name = "`rank`")
     private Integer rank;
 
-    /**
-     * 钻石
-     */
-    private Integer diamond;
-
-    /**
-     * 体力
-     */
-    private Integer vitality;
 
     /**
      * 创建时间
@@ -126,33 +102,28 @@ public class User extends BaseMessage implements Serializable {
     @Column(name = "last_login_out_date")
     private Date lastLoginOutDate;
 
-
     /**
      * 最终登录ip地址
      */
     @Column(name = "last_login_url")
     private String lastLoginUrl;
 
-    /**
-     * 宠物升级经验
-     */
-    @Column(name = "pet_exp")
-    private Long petExp;
-
     @Transient
     private boolean onLine;
 
+    @Transient
+    private Currency currency;
+
     public User notTooLong(){
-        this.props=null;
         this.platformParam=null;
         return this;
     }
 
     public List<Prop> propList(){
         List<Prop> props = null;
-        if (this.props!=null) {
+        if (this.currency.getProps()!=null) {
             try {
-                props = MapperUtils.json2list(new String(ZIP.unGZip(this.props), "UTF-8"), Prop.class);
+                props = MapperUtils.json2list(new String(ZIP.unGZip(this.currency.getProps()), "UTF-8"), Prop.class);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -165,7 +136,7 @@ public class User extends BaseMessage implements Serializable {
     public boolean addProps(List<Prop> propList){
         try {
             List<Prop> propsThis = this.propList();
-            if(propsThis.size() < this.propMax){
+            if(propsThis.size() < this.currency.getPropMax()){
                 for(Prop prop:propList){
                     int i = 0;
                     if ((i = propsThis.indexOf(prop)) != -1) {
@@ -175,7 +146,7 @@ public class User extends BaseMessage implements Serializable {
                         propsThis.add(prop);
                     }
                 }
-                this.props=ZIP.gZip(MapperUtils.obj2jsonIgnoreNull(propsThis).getBytes("UTF-8"));
+                this.currency.setProps(ZIP.gZip(MapperUtils.obj2jsonIgnoreNull(propsThis).getBytes("UTF-8")));
                 return true;
             }
         } catch (Exception e) {
@@ -193,10 +164,10 @@ public class User extends BaseMessage implements Serializable {
                 if(propsThis.get(i).getCount()<=0){
                     propsThis.remove(i);
                 }
+                this.currency.setProps(ZIP.gZip(MapperUtils.obj2jsonIgnoreNull(propsThis).getBytes("UTF-8")));
+                return true;
             }
 
-            this.props=ZIP.gZip(MapperUtils.obj2jsonIgnoreNull(propsThis).getBytes("UTF-8"));
-            return true;
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -209,31 +180,18 @@ public class User extends BaseMessage implements Serializable {
         if (o == null || getClass() != o.getClass()) return false;
         User user = (User) o;
         return Objects.equals(id, user.id) &&
-                Objects.equals(name, user.name) &&
+
                 Objects.equals(username, user.username) &&
                 Objects.equals(password, user.password) &&
-                Objects.equals(phone, user.phone) &&
-                Objects.equals(email, user.email) &&
                 Objects.equals(uid, user.uid) &&
-                Objects.equals(coin, user.coin) &&
-                Objects.equals(propMax, user.propMax) &&
-                Objects.equals(platform, user.platform) &&
-                Arrays.equals(props, user.props) &&
-                Arrays.equals(platformParam, user.platformParam) &&
-                Objects.equals(rank, user.rank) &&
-                Objects.equals(diamond, user.diamond) &&
-                Objects.equals(vitality, user.vitality) &&
+
                 Objects.equals(creatDate, user.creatDate) &&
-                Objects.equals(lastUpdateDate, user.lastUpdateDate) &&
-                Objects.equals(lastLoginDate, user.lastLoginDate) &&
-                Objects.equals(lastLoginOutDate, user.lastLoginOutDate);
+                Objects.equals(lastUpdateDate, user.lastUpdateDate);
     }
 
     @Override
     public int hashCode() {
-        int result = Objects.hash(id, name, username, password, phone, email, uid, coin, propMax, platform, rank, diamond, vitality, creatDate, lastUpdateDate, lastLoginDate, lastLoginOutDate);
-        result = 31 * result + Arrays.hashCode(props);
-        result = 31 * result + Arrays.hashCode(platformParam);
+        int result = Objects.hash(id, username, password, uid, creatDate, lastUpdateDate);
         return result;
     }
 }

@@ -1,12 +1,15 @@
 package com.haoyou.spring.cloud.alibaba.cultivate.service;
 
 import cn.hutool.core.util.StrUtil;
+import com.haoyou.spring.cloud.alibaba.commons.domain.RedisKey;
 import com.haoyou.spring.cloud.alibaba.commons.entity.PetSkill;
 import com.haoyou.spring.cloud.alibaba.commons.entity.Prop;
 import com.haoyou.spring.cloud.alibaba.commons.entity.User;
 import com.haoyou.spring.cloud.alibaba.commons.mapper.PetMapper;
 import com.haoyou.spring.cloud.alibaba.commons.mapper.PetSkillMapper;
+import com.haoyou.spring.cloud.alibaba.commons.mapper.UserMapper;
 import com.haoyou.spring.cloud.alibaba.commons.util.MapperUtils;
+import com.haoyou.spring.cloud.alibaba.commons.util.RedisKeyUtil;
 import com.haoyou.spring.cloud.alibaba.cultivate.msg.SkillConfigMsg;
 import com.haoyou.spring.cloud.alibaba.fighting.info.FightingPet;
 import com.haoyou.spring.cloud.alibaba.fighting.info.skill.SkillBoard;
@@ -18,6 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -36,14 +40,16 @@ public class SkillConfigService {
     @Autowired
     private PetSkillMapper petSkillMapper;
 
+    @Autowired
+    protected UserMapper userMapper;
+
     /**
      * 宠物添加技能
      * @param user
      * @param skillConfigMsg
      * @return
      */
-    public boolean addPetSkill(User user, SkillConfigMsg skillConfigMsg){
-        Prop prop = skillConfigMsg.getProp();
+    public boolean addPetSkill(User user, SkillConfigMsg skillConfigMsg,Prop prop){
         FightingPet fightingPet = FightingPet.getByUserAndPetUid(user, skillConfigMsg.getPetUid(), redisObjectUtil);
         //获取宠物对应的技能盘
         SkillBoard skillBoard=getSkillBoard(fightingPet);
@@ -55,13 +61,20 @@ public class SkillConfigService {
                     fightingPet.getPet().setSkillBoard(redisObjectUtil.serialize(skillBoard));
                     fightingPet.getPet().getOtherSkill().add(new PetSkill(fightingPet.getUid(),prop.getProperty1()));
                     fightingPet.save();
+
                     petMapper.updateByPrimaryKeySelective(fightingPet.getPet());
                     //添加数据库
                     PetSkill ps=new PetSkill(fightingPet.getUid(),prop.getProperty1());
                     petSkillMapper.insertSelective(ps);
 
+                    //删除道具并修改玩家信息
+                    if(user.useOneProp(prop)){
+                        user.setLastUpdateDate(new Date());
+                        redisObjectUtil.save(RedisKeyUtil.getKey(RedisKey.USER,user.getUid()),user);
+                        userMapper.updateByPrimaryKeySelective(user);
+                    }
 
-                    user.useOneProp(prop);
+
                     return true;
                 } catch (Exception e) {
                     e.printStackTrace();

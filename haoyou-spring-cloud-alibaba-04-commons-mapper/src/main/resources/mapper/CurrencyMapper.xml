@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.haoyou.spring.cloud.alibaba.commons.mapper.CurrencyMapper">
+  <resultMap id="BaseResultMap" type="com.haoyou.spring.cloud.alibaba.commons.entity.Currency">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="user_uid" jdbcType="VARCHAR" property="userUid" />
+    <result column="coin" jdbcType="INTEGER" property="coin" />
+    <result column="diamond" jdbcType="INTEGER" property="diamond" />
+    <result column="vitality" jdbcType="INTEGER" property="vitality" />
+    <result column="pet_exp" jdbcType="BIGINT" property="petExp" />
+    <result column="prop_max" jdbcType="INTEGER" property="propMax" />
+    <result column="props" jdbcType="LONGVARBINARY" property="props" />
+  </resultMap>
+</mapper>
