@@ -1,5 +1,6 @@
 package com.haoyou.spring.cloud.alibaba.manager.handle.cultivate;
 
+import com.haoyou.spring.cloud.alibaba.commons.domain.ResponseMsg;
 import com.haoyou.spring.cloud.alibaba.commons.domain.SendType;
 import com.haoyou.spring.cloud.alibaba.commons.domain.message.BaseMessage;
 import com.haoyou.spring.cloud.alibaba.manager.handle.ManagerHandle;
@@ -10,18 +11,24 @@ import com.haoyou.spring.cloud.alibaba.sofabolt.protocol.MyRequest;
  * @version 1.0
  * @date 2019/6/28 16:14
  */
-public class PropUseHandle extends ManagerHandle {
+public class PetUpdateIsworkHandle extends ManagerHandle {
 
 
-    private static final long serialVersionUID = -4036178040357255009L;
+    private static final long serialVersionUID = -6086584787045513214L;
 
     @Override
     protected void setHandleType() {
-        this.handleType = SendType.PROP_USE;
+        this.handleType = SendType.PET_UPDATE_ISWORK;
     }
 
     @Override
     public BaseMessage handle(MyRequest req) {
-        return cultivateService.propUse(req);
+        BaseMessage baseMessage = new BaseMessage();
+        if(cultivateService.updateIsWork(req)){
+            baseMessage.setState(ResponseMsg.MSG_SUCCESS);
+        }else{
+            baseMessage.setState(ResponseMsg.MSG_ERR);
+        }
+        return baseMessage;
     }
 }

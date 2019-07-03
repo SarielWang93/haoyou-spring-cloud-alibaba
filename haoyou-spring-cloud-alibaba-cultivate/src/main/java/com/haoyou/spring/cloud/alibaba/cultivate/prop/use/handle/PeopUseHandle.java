@@ -85,7 +85,7 @@ public abstract class PeopUseHandle {
         User user=propUseMsg.getUser();
         Prop prop=propUseMsg.getProp();
         //删除道具并修改玩家信息
-        if(user.useOneProp(prop)){
+        if(user.deleteProp(prop,propUseMsg.getPropCount())){
             user.setLastUpdateDate(new Date());
             return redisObjectUtil.save(RedisKeyUtil.getKey(RedisKey.USER,user.getUid()),user);
             //userMapper.updateByPrimaryKeySelective(user);

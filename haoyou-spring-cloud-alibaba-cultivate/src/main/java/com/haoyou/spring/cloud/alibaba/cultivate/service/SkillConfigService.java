@@ -68,7 +68,7 @@ public class SkillConfigService {
                     petSkillMapper.insertSelective(ps);
 
                     //删除道具并修改玩家信息
-                    if(user.useOneProp(prop)){
+                    if(user.deleteProp(prop,1)){
                         user.setLastUpdateDate(new Date());
                         redisObjectUtil.save(RedisKeyUtil.getKey(RedisKey.USER,user.getUid()),user);
                         //userMapper.updateByPrimaryKeySelective(user);

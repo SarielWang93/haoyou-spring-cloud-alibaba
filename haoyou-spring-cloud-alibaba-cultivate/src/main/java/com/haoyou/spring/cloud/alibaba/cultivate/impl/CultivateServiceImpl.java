@@ -8,6 +8,7 @@ import com.haoyou.spring.cloud.alibaba.commons.domain.message.MapBody;
 import com.haoyou.spring.cloud.alibaba.commons.entity.*;
 import com.haoyou.spring.cloud.alibaba.cultivate.msg.PetUpLevMsg;
 import com.haoyou.spring.cloud.alibaba.cultivate.msg.PropUseMsg;
+import com.haoyou.spring.cloud.alibaba.cultivate.msg.UpdateIsworkMsg;
 import com.haoyou.spring.cloud.alibaba.cultivate.service.PropUseService;
 import com.haoyou.spring.cloud.alibaba.fighting.info.FightingPet;
 import org.apache.dubbo.config.annotation.Service;
@@ -86,6 +87,7 @@ public class CultivateServiceImpl implements CultivateService {
 
     /**
      * 使用道具
+     *
      * @param req
      * @return
      */
@@ -97,23 +99,23 @@ public class CultivateServiceImpl implements CultivateService {
         String propInstenceUid = propUseMsg.getPropInstenceUid();
         Prop prop = getProp(user, propInstenceUid);
 
-        if(prop!=null){
-            propUseMsg.setProp(prop);
-            propUseMsg.setUser(user);
-            if(propUseService.propUse(propUseMsg)){
-                rt.setState(ResponseMsg.MSG_SUCCESS);
-                return rt;
+        if (prop != null) {
+            if (propUseMsg.getPropCount() <= prop.getCount()) {
+                propUseMsg.setProp(prop);
+                propUseMsg.setUser(user);
+                if (propUseService.propUse(propUseMsg)) {
+                    rt.setState(ResponseMsg.MSG_SUCCESS);
+                    return rt;
+                }
+            }else{
+                rt.put("errMsg", "prop count too mach!");
             }
-        }else{
-            rt.put("errMsg","prop not find!");
+        } else {
+            rt.put("errMsg", "prop not find!");
         }
         rt.setState(ResponseMsg.MSG_ERR);
         return rt;
     }
-
-
-
-
 
 
     /**
@@ -127,29 +129,31 @@ public class CultivateServiceImpl implements CultivateService {
         logger.debug("注册赠送宠物！！！");
         User user = req.getUser();
         List<Integer> l = new ArrayList<>();
-        if (la.longValue() % 2 == 0) {
-            l.add(1);
-            l.add(2);
-            l.add(3);
-        } else {
-            l.add(4);
-            l.add(5);
-            l.add(6);
-        }
+//        if (la.longValue() % 2 == 0) {
+//            l.add(1);
+//            l.add(2);
+//            l.add(3);
+//        } else {
+//            l.add(4);
+//            l.add(5);
+//            l.add(6);
+//        }
         HashMap<String, PetType> stringPetTypeHashMap = redisObjectUtil.getlkMap(RedisKeyUtil.getlkKey(RedisKey.PET_TYPE), PetType.class);
 
         for (PetType petType : stringPetTypeHashMap.values()) {
-            if (l.contains(petType.getId())) {
-                int iswork;
-                if (petType.getId() > 3) {
-                    iswork = petType.getId() - 3;
-                } else {
-                    iswork = petType.getId();
-                }
+//            if (l.contains(petType.getId())) {
+                int iswork = 0;
+//                if (petType.getId() > 3) {
+//                    iswork = petType.getId() - 3;
+//                } else {
+//                    iswork = petType.getId();
+//                }
                 petMapper.insertSelective(new Pet(user, petType, iswork));
-            }
+                petMapper.insertSelective(new Pet(user, petType, iswork));
+                petMapper.insertSelective(new Pet(user, petType, iswork));
+//            }
         }
-        la.add(1);
+//        la.add(1);
         return true;
     }
 
@@ -274,5 +278,39 @@ public class CultivateServiceImpl implements CultivateService {
             }
         }
         return null;
+    }
+
+
+    /**
+     * 修改出战
+     * @param req
+     * @return
+     */
+    @Override
+    public boolean updateIsWork(MyRequest req){
+        User user = req.getUser();
+        UpdateIsworkMsg updateIsworkMsg = sendMsgUtil.deserialize(req.getMsg(), UpdateIsworkMsg.class);
+        FightingPet fightingPet = FightingPet.getByUserAndPetUid(user, updateIsworkMsg.getPetUid(), redisObjectUtil);
+        Integer isworkbf = fightingPet.getPet().getIswork();
+
+        //交换位置
+        String userUidKey = RedisKeyUtil.getKey(RedisKey.FIGHT_PETS, user.getUid());
+        String key = RedisKeyUtil.getlkKey(userUidKey);
+        HashMap<String, FightingPet> fightingPets = redisObjectUtil.getlkMap(key, FightingPet.class);
+        for(FightingPet fightingPetOne:fightingPets.values()){
+            Pet pet = fightingPetOne.getPet();
+            if(pet.getIswork() == updateIsworkMsg.getIswork()){
+                pet.setIswork(isworkbf);
+                fightingPetOne.setRedisObjectUtil(redisObjectUtil);
+                fightingPetOne.save();
+            }
+        }
+
+        fightingPet.getPet().setIswork(updateIsworkMsg.getIswork());
+
+        fightingPet.save();
+
+
+        return false;
     }
 }

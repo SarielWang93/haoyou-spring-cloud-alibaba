@@ -46,4 +46,12 @@ public interface CultivateService {
      */
     boolean rewards(User user,int type);
 
+
+    /**
+     * 修改出战
+     * @param req
+     * @return
+     */
+    boolean updateIsWork(MyRequest req);
+
 }

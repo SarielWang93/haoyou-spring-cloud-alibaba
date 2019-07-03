@@ -37,6 +37,7 @@ public class SendType {
      */
     public final static int GET_PROPS = 51;//获取仓库信息
     public final static int GET_HALL = 52;//获取仓库信息
+    public final static int GET_PETS = 53;//获取宠物信息
 
     /**
      * 养成 60 - 90
@@ -44,7 +45,7 @@ public class SendType {
     public final static int SKILL_CONFIG = 61;//技能配置
     public final static int PET_UP_LEV = 62;//宠物升级
     public final static int PROP_USE = 63;//道具使用
-
+    public final static int PET_UPDATE_ISWORK = 64;//宠物修改出战状态
 
 //    *****************************************以上为接受信息类型，以下为主动发送*********************************************************
 

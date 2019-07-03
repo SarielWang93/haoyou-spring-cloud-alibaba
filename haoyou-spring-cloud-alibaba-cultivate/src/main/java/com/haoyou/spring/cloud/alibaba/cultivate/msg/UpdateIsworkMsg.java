@@ -14,15 +14,12 @@ import java.io.Serializable;
  */
 @Data
 @JsonIgnoreProperties(value = {}, ignoreUnknown = true)
-public class PropUseMsg implements Serializable {
+public class UpdateIsworkMsg implements Serializable {
 
 
-    private static final long serialVersionUID = 3809867545634783274L;
-
+    private static final long serialVersionUID = -7334221920628541249L;
 
     private String petUid;
-    private String propInstenceUid;
-    private int propCount;
-    private Prop prop;
-    private User user;
+    private int iswork;
+
 }
