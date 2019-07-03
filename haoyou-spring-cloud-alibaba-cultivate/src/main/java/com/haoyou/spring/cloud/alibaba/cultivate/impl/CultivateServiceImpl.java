@@ -104,6 +104,8 @@ public class CultivateServiceImpl implements CultivateService {
                 rt.setState(ResponseMsg.MSG_SUCCESS);
                 return rt;
             }
+        }else{
+            rt.put("errMsg","prop not find!");
         }
         rt.setState(ResponseMsg.MSG_ERR);
         return rt;
