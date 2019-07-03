@@ -1,6 +1,7 @@
 package com.haoyou.spring.cloud.alibaba.manager.handle.fighting;
 
 
+import com.haoyou.spring.cloud.alibaba.commons.domain.FightingType;
 import com.haoyou.spring.cloud.alibaba.commons.domain.ResponseMsg;
 import com.haoyou.spring.cloud.alibaba.commons.domain.RewardType;
 import com.haoyou.spring.cloud.alibaba.commons.domain.SendType;
@@ -34,7 +35,7 @@ public class FightingAIHandle extends ManagerHandle {
         User user = req.getUser();
         List<User> users = new ArrayList<>();
         users.add(user);
-        if(fightingService.start(users,new HashMap<>(), RewardType.PVE)){
+        if(fightingService.start(users,new HashMap<>(), RewardType.PVE, FightingType.PVE)){
             baseMessage.setState(ResponseMsg.MSG_SUCCESS);
         }else {
             baseMessage.setState(ResponseMsg.MSG_ERR);

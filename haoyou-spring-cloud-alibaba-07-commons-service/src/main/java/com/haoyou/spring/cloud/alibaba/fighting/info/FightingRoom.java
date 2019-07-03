@@ -27,12 +27,17 @@ public class FightingRoom implements Serializable {
     //房间uid
     private String uid;
 
+    //战斗种类（PVE,PVP）
+    private int fightingType;
+
+    //奖励种类
+    private int rewardType;
+
     //创建时间
     private Date creatTime;
     //结束时间
     private Date overTime;
 
-    private int rewardType;
 
     //详细步骤
     private int step;
@@ -62,10 +67,10 @@ public class FightingRoom implements Serializable {
     public FightingRoom() {
     }
 
-    public FightingRoom(List<User> users, int rewardType) {
+    public FightingRoom(List<User> users, int rewardType,int fightingType) {
 
         this.rewardType = rewardType;
-
+        this.fightingType = fightingType;
 
         this.step = 0;
         this.shotNum = 0;
@@ -190,7 +195,7 @@ public class FightingRoom implements Serializable {
     private MapBody<String, Object> getRoomMSG() {
         MapBody<String, Object> room = new MapBody<>();
         room.put("roomid", this.uid);
-
+        room.put("fightingType",this.fightingType);
         room.put("maps", this.fightingBoard.getBoard());
 
 
@@ -199,6 +204,7 @@ public class FightingRoom implements Serializable {
             Map<String, Object> player = new HashMap<>();
             player.put("useruid", fightingCamp.getUser().getUid());
             player.put("name", fightingCamp.getUser().getUsername());
+            player.put("isAi", fightingCamp.isAi());
             player.put("energy", fightingCamp.getEnergy());
 
             if (this.campNow.equals(fightingCamp.getUser().getUid())) {

@@ -1,6 +1,7 @@
 package com.haoyou.spring.cloud.alibaba.manager.handle.fighting;
 
 
+import com.haoyou.spring.cloud.alibaba.commons.domain.FightingType;
 import com.haoyou.spring.cloud.alibaba.commons.domain.ResponseMsg;
 import com.haoyou.spring.cloud.alibaba.commons.domain.RewardType;
 import com.haoyou.spring.cloud.alibaba.commons.domain.SendType;
@@ -23,6 +24,7 @@ import java.util.List;
 public class FightingAI2Handle extends ManagerHandle {
     private static final long serialVersionUID = 4622211830483903591L;
     private static final Logger logger = LoggerFactory.getLogger(FightingAI2Handle.class);
+
     @Override
     protected void setHandleType() {
         this.handleType = SendType.FIGHTING_AI2;
@@ -35,10 +37,10 @@ public class FightingAI2Handle extends ManagerHandle {
         List<User> users = new ArrayList<>();
         users.add(user);
         HashMap<String, Boolean> allIsAi = new HashMap<>();
-        allIsAi.put(user.getUid(),true);
-        if(fightingService.start(users,allIsAi, RewardType.PVE)){
+        allIsAi.put(user.getUid(), true);
+        if (fightingService.start(users, allIsAi, RewardType.PVE, FightingType.PVE)) {
             baseMessage.setState(ResponseMsg.MSG_SUCCESS);
-        }else {
+        } else {
             baseMessage.setState(ResponseMsg.MSG_ERR);
         }
         return baseMessage;

@@ -26,7 +26,7 @@ public class PVE extends RewardHandle {
     }
 
     @Override
-    public boolean handle(User user) {
+    public Award handle(User user) {
 
         String skillLkKey = RedisKeyUtil.getlkKey(RedisKey.SKILL);
         HashMap<String, Skill> skills = this.redisObjectUtil.getlkMap(skillLkKey, Skill.class);
@@ -56,8 +56,6 @@ public class PVE extends RewardHandle {
 
         Award award = new Award(100,20,100,props);
 
-        super.doAward(user,award);
-
-        return false;
+        return award;
     }
 }

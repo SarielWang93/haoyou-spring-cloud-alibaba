@@ -23,6 +23,6 @@ public class RewardService {
 
 
     public boolean rewards(User user, int type) {
-        return rewardHandleMap.get(type).handle(user);
+        return rewardHandleMap.get(type).reward(user);
     }
 }

@@ -58,7 +58,23 @@ public abstract class RewardHandle {
      * @param user
      * @return
      */
-    public abstract boolean handle(User user);
+    public abstract Award handle(User user);
+
+
+    /**
+     * 发放奖励
+     * @param user
+     * @return
+     */
+    public boolean reward(User user){
+        Award award = handle(user);
+        if(award!=null){
+            doAward(user,award);
+            return true;
+        }
+
+        return false;
+    }
 
     /**
      * 奖励存储给玩家

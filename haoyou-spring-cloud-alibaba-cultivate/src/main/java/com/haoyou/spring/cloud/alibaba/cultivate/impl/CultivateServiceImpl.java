@@ -1,14 +1,14 @@
 package com.haoyou.spring.cloud.alibaba.cultivate.impl;
 
 import cn.hutool.core.lang.WeightRandom;
-import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.RandomUtil;
-import cn.hutool.core.util.StrUtil;
 import com.alibaba.fescar.spring.annotation.GlobalTransactional;
 import com.haoyou.spring.cloud.alibaba.commons.domain.ResponseMsg;
 import com.haoyou.spring.cloud.alibaba.commons.domain.message.MapBody;
 import com.haoyou.spring.cloud.alibaba.commons.entity.*;
 import com.haoyou.spring.cloud.alibaba.cultivate.msg.PetUpLevMsg;
+import com.haoyou.spring.cloud.alibaba.cultivate.msg.PropUseMsg;
+import com.haoyou.spring.cloud.alibaba.cultivate.service.PropUseService;
 import com.haoyou.spring.cloud.alibaba.fighting.info.FightingPet;
 import org.apache.dubbo.config.annotation.Service;
 import com.haoyou.spring.cloud.alibaba.commons.domain.RedisKey;
@@ -54,6 +54,8 @@ public class CultivateServiceImpl implements CultivateService {
     private SkillConfigService skillConfigService;
     @Autowired
     private RewardService rewardService;
+    @Autowired
+    private PropUseService propUseService;
 
     /**
      * 技能配置处理
@@ -62,7 +64,6 @@ public class CultivateServiceImpl implements CultivateService {
      * @return
      */
     @Override
-    @GlobalTransactional
     public boolean skillConfig(MyRequest req) {
 
         User user = req.getUser();
@@ -70,8 +71,8 @@ public class CultivateServiceImpl implements CultivateService {
         String propInstenceUid = skillConfigMsg.getPropInstenceUid();
         switch (skillConfigMsg.getType()) {
             case ADD_PET_SKILL:
-                //验证道具
-                Prop prop = checkProp(user, propInstenceUid);
+                //获取道具
+                Prop prop = getProp(user, propInstenceUid);
                 if (prop != null) {
                     return skillConfigService.addPetSkill(user, skillConfigMsg, prop);
                 }
@@ -84,13 +85,42 @@ public class CultivateServiceImpl implements CultivateService {
     }
 
     /**
+     * 使用道具
+     * @param req
+     * @return
+     */
+    public MapBody propUse(MyRequest req) {
+        MapBody rt = new MapBody();
+
+        User user = req.getUser();
+        PropUseMsg propUseMsg = sendMsgUtil.deserialize(req.getMsg(), PropUseMsg.class);
+        String propInstenceUid = propUseMsg.getPropInstenceUid();
+        Prop prop = getProp(user, propInstenceUid);
+
+        if(prop!=null){
+            propUseMsg.setProp(prop);
+            propUseMsg.setUser(user);
+            if(propUseService.propUse(propUseMsg)){
+                rt.setState(ResponseMsg.MSG_SUCCESS);
+                return rt;
+            }
+        }
+        rt.setState(ResponseMsg.MSG_ERR);
+        return rt;
+    }
+
+
+
+
+
+
+    /**
      * 注册时生成三个宠物
      *
      * @param req
      * @return
      */
     @Override
-    @GlobalTransactional
     public boolean petGeneration(MyRequest req) {
         logger.debug("注册赠送宠物！！！");
         User user = req.getUser();
@@ -128,7 +158,6 @@ public class CultivateServiceImpl implements CultivateService {
      * @return
      */
     @Override
-    @GlobalTransactional
     public boolean petPumping(MyRequest req) {
         User user = req.getUser();
         HashMap<String, PetType> stringPetTypeHashMap = redisObjectUtil.getlkMap(RedisKeyUtil.getlkKey(RedisKey.PET_TYPE), PetType.class);
@@ -154,7 +183,6 @@ public class CultivateServiceImpl implements CultivateService {
      * 宠物升级
      */
     @Override
-    @GlobalTransactional
     public MapBody petUpLev(MyRequest req) {
         MapBody rt = new MapBody();
         User user = req.getUser();
@@ -220,20 +248,19 @@ public class CultivateServiceImpl implements CultivateService {
      * @return
      */
     @Override
-    @GlobalTransactional
     public boolean rewards(User user, int type) {
         return rewardService.rewards(user, type);
     }
 
 
     /**
-     * 校验道具
+     * 获取道具
      *
      * @param user
      * @param propInstenceUid
      * @return
      */
-    private Prop checkProp(User user, String propInstenceUid) {
+    private Prop getProp(User user, String propInstenceUid) {
 
         List<Prop> props = user.propList();
 

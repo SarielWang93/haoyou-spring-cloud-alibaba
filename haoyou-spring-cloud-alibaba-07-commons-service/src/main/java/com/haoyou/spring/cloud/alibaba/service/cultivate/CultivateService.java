@@ -18,6 +18,13 @@ public interface CultivateService {
     boolean skillConfig(MyRequest req);
 
     /**
+     * 道具使用
+     * @param req
+     * @return
+     */
+    MapBody propUse(MyRequest req);
+
+    /**
      * 宠物生成（临时）
      */
     boolean petGeneration(MyRequest req);

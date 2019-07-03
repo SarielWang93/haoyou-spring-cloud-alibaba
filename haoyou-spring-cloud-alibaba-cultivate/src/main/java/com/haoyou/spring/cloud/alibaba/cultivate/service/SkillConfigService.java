@@ -71,7 +71,7 @@ public class SkillConfigService {
                     if(user.useOneProp(prop)){
                         user.setLastUpdateDate(new Date());
                         redisObjectUtil.save(RedisKeyUtil.getKey(RedisKey.USER,user.getUid()),user);
-                        userMapper.updateByPrimaryKeySelective(user);
+                        //userMapper.updateByPrimaryKeySelective(user);
                     }
 
 

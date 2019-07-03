@@ -42,7 +42,9 @@ public class SendType {
      * 养成 60 - 90
      */
     public final static int SKILL_CONFIG = 61;//技能配置
-    public final static int PET_UP_LEV = 62;//技能配置
+    public final static int PET_UP_LEV = 62;//宠物升级
+    public final static int PROP_USE = 63;//道具使用
+
 
 //    *****************************************以上为接受信息类型，以下为主动发送*********************************************************
 

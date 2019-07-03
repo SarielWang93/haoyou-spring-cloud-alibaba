@@ -37,6 +37,7 @@ public class FightingServiceImpl implements FightingService {
     public final static int INIT_MSG = -10;//索要初始化信息
     public final static int INIT_OVER = -30;//汇报初始化完成
     public final static int RECON = -20;//断线重连
+    public final static int AI_DO = -40;//ai执行
 
     @Reference(version = "${cultivate.service.version}")
     protected CultivateService cultivateService;
@@ -66,12 +67,12 @@ public class FightingServiceImpl implements FightingService {
      * @return
      */
     @Override
-    public boolean start(List<User> users,Map<String,Boolean> allIsAi,int rewardType) {
+    public boolean start(List<User> users,Map<String,Boolean> allIsAi,int rewardType,int fightingType) {
 
         /**
          * 创建房间
          */
-        FightingRoom fightingRoom = new FightingRoom(users,rewardType);
+        FightingRoom fightingRoom = new FightingRoom(users,rewardType,fightingType);
         logger.info(String.format("创建战斗房间：%s", fightingRoom.getUid()));
 
         /**
@@ -239,6 +240,17 @@ public class FightingServiceImpl implements FightingService {
                  */
                 fightingRoom.sendMsgInit(user.getUid(), sendMsgUtil);
                 rt = ResponseMsg.MSG_SUCCESS;
+            }
+            /**
+             * 玩家动画完成跑AI
+             */
+            else if(fightingReq.getCurrentPetId().equals(AI_DO)){
+                if(campNow.startsWith("ai-")){
+                    this.doAI(fightingRoom);
+                    rt = ResponseMsg.MSG_SUCCESS;
+                    baseMessage.setState(rt);
+                    return baseMessage;
+                }
             }
             /**
              * 玩家初始化完成
@@ -483,6 +495,9 @@ public class FightingServiceImpl implements FightingService {
 
     }
 
+
+
+
     /**
      * 计时跳过/AI操作
      *
@@ -520,7 +535,7 @@ public class FightingServiceImpl implements FightingService {
                         if (thisCamp.isAi())
                         //ai操作
                         {
-                            doAI(fightingRoom, userUid);
+                            doAI(fightingRoom);
                         }
                         //执行跳过操作
                         else {
@@ -544,9 +559,8 @@ public class FightingServiceImpl implements FightingService {
      * AI操作
      *
      * @param fightingRoom
-     * @param userUid
      */
-    private void doAI(FightingRoom fightingRoom, String userUid) {
+    private void doAI(FightingRoom fightingRoom) {
         FightingCamp own = fightingRoom.getFightingCamps().get(fightingRoom.getCampNow());
         FightingPet fightingPet = own.getFightingPets().get(fightingRoom.getPetNow());
         //根据宠物种类获取ai权重

@@ -35,15 +35,12 @@ public class LoginServiceImpl implements LoginService {
     @Autowired
     private RedisObjectUtil redisObjectUtil;
     @Autowired
-    private SendMsgUtil sendMsgUtil;
-    @Autowired
     private UserMapper userMapper;
     @Autowired
     private CurrencyMapper currencyMapper;
     @Autowired
     private UserDateSynchronization userDateSynchronization;
-    @Autowired
-    private ScoreRankService scoreRankService;
+
 
     /**
      * 登录
