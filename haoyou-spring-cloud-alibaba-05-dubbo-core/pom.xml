@@ -17,6 +17,21 @@
     <url>http://www.haoyou.com</url>
 
     <dependencies>
+        <!-- nacos Begin -->
+        <!--放弃基于http的nacos注册，改为使用dubbo-->
+        <!--<dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-alibaba-nacos-discovery</artifactId>
+        </dependency>-->
+        <!-- nacos 云配置使用 -->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-alibaba-nacos-config</artifactId>
+        </dependency>
+        <!-- nacos End -->
+
+
+
         <!-- Feign+Sentinel 通信 -->
         <!--改为dubbo+Sentinel-->
         <!--<dependency>

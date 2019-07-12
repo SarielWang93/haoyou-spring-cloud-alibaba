@@ -73,6 +73,13 @@
                 <version>${alibaba-spring-context-support.version}</version>
             </dependency>
 
+            <dependency>
+                <groupId>com.aliyun.api.gateway</groupId>
+                <artifactId>java.demo</artifactId>
+                <version>1.0-SNAPSHOT</version>
+            </dependency>
+
+
             <!-- SOFABolt Begin -->
             <dependency>
                 <groupId>com.alipay.sofa</groupId>

@@ -5,7 +5,9 @@ import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fescar.spring.annotation.GlobalTransactional;
 import com.haoyou.spring.cloud.alibaba.commons.entity.Currency;
+import com.haoyou.spring.cloud.alibaba.commons.entity.UserData;
 import com.haoyou.spring.cloud.alibaba.commons.mapper.CurrencyMapper;
+import com.haoyou.spring.cloud.alibaba.commons.mapper.UserDataMapper;
 import org.apache.dubbo.config.annotation.Service;
 import com.haoyou.spring.cloud.alibaba.commons.domain.RedisKey;
 import com.haoyou.spring.cloud.alibaba.commons.domain.ResponseMsg;
@@ -40,7 +42,8 @@ public class LoginServiceImpl implements LoginService {
     private CurrencyMapper currencyMapper;
     @Autowired
     private UserDateSynchronization userDateSynchronization;
-
+    @Autowired
+    private UserDataMapper userDataMapper;
 
     /**
      * 登录
@@ -55,7 +58,7 @@ public class LoginServiceImpl implements LoginService {
 
         User userIn = req.getUser();
         User user = new User();
-
+        user.setUid(userIn.getUid());
         user.setUsername(userIn.getUsername());
 
 
@@ -70,7 +73,7 @@ public class LoginServiceImpl implements LoginService {
             return userIn;
         }
         if (userIn != null) {
-            if (!user.getPassword().equals(userIn.getPassword())) {
+            if (StrUtil.isEmpty(userIn.getUid()) && !user.getPassword().equals(userIn.getPassword())) {
                 userIn.setState(ResponseMsg.MSG_LOGIN_PASSWORD_WRONG);
                 return userIn;
             }
@@ -129,7 +132,7 @@ public class LoginServiceImpl implements LoginService {
             user.setState(ResponseMsg.MSG_LOGINOUT_WRONG);
             return user;
         }
-
+        user.setLastLoginOutDate(new Date());
         //清除缓存
         if (userDateSynchronization.removeCache(user)) {
             logger.info(String.format("%s 登出成功！！", user.getUsername()));
@@ -171,7 +174,7 @@ public class LoginServiceImpl implements LoginService {
         if (StrUtil.isEmpty(user.getUid())) {
             user.setUid(IdUtil.simpleUUID());
         }
-        user.setName(user.getUsername());
+
         user.setState(1);
 
         user.setRank(1);
@@ -186,7 +189,17 @@ public class LoginServiceImpl implements LoginService {
         currency.setVitality(100);
         currency.setDiamond(0);
         currency.setPropMax(20);
+        currency.setPetMax(5);
 
+        UserData userData = new UserData();
+        userData.setUserUid(user.getUid());
+        userData.setExp(0);
+        userData.setAvatar("defult");
+        userData.setLevel(1);
+        userData.setName(user.getUsername());
+        userData.setUpLevExp(260l);
+
+        userDataMapper.insertSelective(userData);
         currencyMapper.insertSelective(currency);
         logger.info(String.format("registerUser: %s", user.getUsername()));
         user.setState(ResponseMsg.MSG_SUCCESS);
@@ -206,22 +219,30 @@ public class LoginServiceImpl implements LoginService {
             String key1 = RedisKeyUtil.getKey(RedisKey.OUTLINE_USER, user1.getUid());
             User user2 = redisObjectUtil.get(key1, User.class);
             User userrt = null;
-            if (user2 != null && user1.getLastUpdateDate().getTime() == user2.getLastUpdateDate().getTime()) {
+            if (user2 != null && user1.getLastUpdateDate().getTime() < user2.getLastUpdateDate().getTime()) {
                 user2.setOnLine(true);
                 userrt = user2;
             } else {
                 //user  key中加载
                 String key2 = RedisKeyUtil.getKey(RedisKey.USER, user1.getUid());
                 User user3 = redisObjectUtil.get(key2, User.class);
-                if (user3 != null && user1.getLastUpdateDate().getTime() == user3.getLastUpdateDate().getTime()){
+                if (user3 != null && user1.getLastUpdateDate().getTime() < user3.getLastUpdateDate().getTime()){
                     user3.setOnLine(true);
                     userrt = user3;
                 }else{
                     //数据库中加载玩家
+
+                    //加载货币信息
                     Currency currency = new Currency();
                     currency.setUserUid(user1.getUid());
                     currency = currencyMapper.selectOne(currency);
                     user1.setCurrency(currency);
+                    //加载玩家信息
+                    UserData userData = new UserData();
+                    userData.setUserUid(user1.getUid());
+                    userData = userDataMapper.selectOne(userData);
+                    user1.setUserData(userData);
+                    //加载方式
                     user1.setOnLine(false);
                     userrt = user1;
                 }

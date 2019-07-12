@@ -1,10 +1,7 @@
 package com.haoyou.spring.cloud.alibaba.cultivate.impl;
 
-import cn.hutool.core.lang.WeightRandom;
-import cn.hutool.core.util.RandomUtil;
-import com.alibaba.fescar.spring.annotation.GlobalTransactional;
 import com.haoyou.spring.cloud.alibaba.commons.domain.ResponseMsg;
-import com.haoyou.spring.cloud.alibaba.commons.domain.message.MapBody;
+import com.haoyou.spring.cloud.alibaba.commons.message.MapBody;
 import com.haoyou.spring.cloud.alibaba.commons.entity.*;
 import com.haoyou.spring.cloud.alibaba.cultivate.msg.PetUpLevMsg;
 import com.haoyou.spring.cloud.alibaba.cultivate.msg.PropUseMsg;
@@ -75,13 +72,16 @@ public class CultivateServiceImpl implements CultivateService {
                 //获取道具
                 Prop prop = getProp(user, propInstenceUid);
                 if (prop != null) {
-                    return skillConfigService.addPetSkill(user, skillConfigMsg, prop);
+                    if (skillConfigService.addPetSkill(user, skillConfigMsg, prop)) {
+                        return this.saveUser(user);
+                    }
                 }
                 break;
             case REMOVE_PET_SKILL:
-                return skillConfigService.removePetSkill(user, skillConfigMsg);
+                if (skillConfigService.removePetSkill(user, skillConfigMsg)) {
+                    return this.saveUser(user);
+                }
         }
-
         return false;
     }
 
@@ -104,14 +104,18 @@ public class CultivateServiceImpl implements CultivateService {
                 propUseMsg.setProp(prop);
                 propUseMsg.setUser(user);
                 if (propUseService.propUse(propUseMsg)) {
-                    rt.setState(ResponseMsg.MSG_SUCCESS);
-                    return rt;
+                    if (this.saveUser(user)) {
+                        rt.setState(ResponseMsg.MSG_SUCCESS);
+                        return rt;
+                    }
+                }else {
+                    rt.put("errMsg", "道具无法使用！");
                 }
-            }else{
-                rt.put("errMsg", "prop count too mach!");
+            } else {
+                rt.put("errMsg", "道具数量不足！");
             }
         } else {
-            rt.put("errMsg", "prop not find!");
+            rt.put("errMsg", "道具未找到！");
         }
         rt.setState(ResponseMsg.MSG_ERR);
         return rt;
@@ -140,50 +144,29 @@ public class CultivateServiceImpl implements CultivateService {
 //        }
         HashMap<String, PetType> stringPetTypeHashMap = redisObjectUtil.getlkMap(RedisKeyUtil.getlkKey(RedisKey.PET_TYPE), PetType.class);
 
+        int i = 1;
         for (PetType petType : stringPetTypeHashMap.values()) {
 //            if (l.contains(petType.getId())) {
-                int iswork = 0;
+            int iswork = 0;
 //                if (petType.getId() > 3) {
 //                    iswork = petType.getId() - 3;
 //                } else {
 //                    iswork = petType.getId();
 //                }
-                petMapper.insertSelective(new Pet(user, petType, iswork));
-                petMapper.insertSelective(new Pet(user, petType, iswork));
-                petMapper.insertSelective(new Pet(user, petType, iswork));
+            if (i < 4) {
+                iswork = i++;
+            }
+            petMapper.insertSelective(new Pet(user, petType, iswork));
+            petMapper.insertSelective(new Pet(user, petType, 0));
+            petMapper.insertSelective(new Pet(user, petType, 0));
+
 //            }
         }
 //        la.add(1);
-        return true;
+
+        return this.saveUser(user);
     }
 
-    /**
-     * 宠物蛋孵化
-     *
-     * @param req
-     * @return
-     */
-    @Override
-    public boolean petPumping(MyRequest req) {
-        User user = req.getUser();
-        HashMap<String, PetType> stringPetTypeHashMap = redisObjectUtil.getlkMap(RedisKeyUtil.getlkKey(RedisKey.PET_TYPE), PetType.class);
-        PetType[] petTypes = (PetType[]) stringPetTypeHashMap.values().toArray();
-        //权重随机
-        WeightRandom.WeightObj<PetType>[] weightObjs = new WeightRandom.WeightObj[petTypes.length];
-        /**
-         * TODO 权重策略，临时待定，
-         */
-        for (int i = 0; i < petTypes.length; i++) {
-            PetType petType = petTypes[i];
-            weightObjs[i] = new WeightRandom.WeightObj(petType, 100 / petType.getStarClass());
-        }
-        WeightRandom<PetType> weightRandom = RandomUtil.weightRandom(weightObjs);
-        PetType petType = weightRandom.next();
-
-        petMapper.insertSelective(new Pet(user, petType, 0));
-
-        return false;
-    }
 
     /**
      * 宠物升级
@@ -240,8 +223,8 @@ public class CultivateServiceImpl implements CultivateService {
         LevelUpExp nextLevelUpExp = redisObjectUtil.get(RedisKeyUtil.getKey(RedisKey.LEVEL_UP_EXP, Integer.toString(level + 1)), LevelUpExp.class);
         fightingPet.getPet().setLevUpExp(nextLevelUpExp.getUpLevExp());
         fightingPet.save();
-
-
+        this.saveUser(user);
+        rt.setState(ResponseMsg.MSG_SUCCESS);
         return rt;
     }
 
@@ -255,9 +238,48 @@ public class CultivateServiceImpl implements CultivateService {
      */
     @Override
     public boolean rewards(User user, int type) {
-        return rewardService.rewards(user, type);
+        if (rewardService.rewards(user, type)) {
+            return this.saveUser(user);
+        }
+        return false;
     }
 
+
+    /**
+     * 修改出战
+     *
+     * @param req
+     * @return
+     */
+    @Override
+    public boolean updateIsWork(MyRequest req) {
+        User user = req.getUser();
+        UpdateIsworkMsg updateIsworkMsg = sendMsgUtil.deserialize(req.getMsg(), UpdateIsworkMsg.class);
+        FightingPet fightingPet = FightingPet.getByUserAndPetUid(user, updateIsworkMsg.getPetUid(), redisObjectUtil);
+
+
+        //交换位置
+        Integer isworkbf = fightingPet.getPet().getIswork();
+        String userUidKey = RedisKeyUtil.getKey(RedisKey.FIGHT_PETS, user.getUid());
+        String key = RedisKeyUtil.getlkKey(userUidKey);
+        HashMap<String, FightingPet> fightingPets = redisObjectUtil.getlkMap(key, FightingPet.class);
+        for (FightingPet fightingPetOne : fightingPets.values()) {
+            Pet pet = fightingPetOne.getPet();
+            if (updateIsworkMsg.getIswork() != 0 && pet.getIswork() == updateIsworkMsg.getIswork()) {
+                pet.setIswork(isworkbf);
+                fightingPetOne.setRedisObjectUtil(redisObjectUtil);
+                fightingPetOne.save();
+            }
+        }
+
+        fightingPet.getPet().setIswork(updateIsworkMsg.getIswork());
+
+        fightingPet.save();
+
+        this.saveUser(user);
+
+        return true;
+    }
 
     /**
      * 获取道具
@@ -280,37 +302,14 @@ public class CultivateServiceImpl implements CultivateService {
         return null;
     }
 
-
     /**
-     * 修改出战
-     * @param req
+     * 保存user
+     *
+     * @param user
      * @return
      */
-    @Override
-    public boolean updateIsWork(MyRequest req){
-        User user = req.getUser();
-        UpdateIsworkMsg updateIsworkMsg = sendMsgUtil.deserialize(req.getMsg(), UpdateIsworkMsg.class);
-        FightingPet fightingPet = FightingPet.getByUserAndPetUid(user, updateIsworkMsg.getPetUid(), redisObjectUtil);
-        Integer isworkbf = fightingPet.getPet().getIswork();
-
-        //交换位置
-        String userUidKey = RedisKeyUtil.getKey(RedisKey.FIGHT_PETS, user.getUid());
-        String key = RedisKeyUtil.getlkKey(userUidKey);
-        HashMap<String, FightingPet> fightingPets = redisObjectUtil.getlkMap(key, FightingPet.class);
-        for(FightingPet fightingPetOne:fightingPets.values()){
-            Pet pet = fightingPetOne.getPet();
-            if(pet.getIswork() == updateIsworkMsg.getIswork()){
-                pet.setIswork(isworkbf);
-                fightingPetOne.setRedisObjectUtil(redisObjectUtil);
-                fightingPetOne.save();
-            }
-        }
-
-        fightingPet.getPet().setIswork(updateIsworkMsg.getIswork());
-
-        fightingPet.save();
-
-
-        return false;
+    public boolean saveUser(User user) {
+        user.setLastUpdateDate(new Date());
+        return redisObjectUtil.save(RedisKeyUtil.getKey(RedisKey.USER, user.getUid()), user);
     }
 }

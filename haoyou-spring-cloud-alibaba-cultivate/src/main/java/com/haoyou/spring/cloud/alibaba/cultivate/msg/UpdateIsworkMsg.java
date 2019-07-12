@@ -16,7 +16,6 @@ import java.io.Serializable;
 @JsonIgnoreProperties(value = {}, ignoreUnknown = true)
 public class UpdateIsworkMsg implements Serializable {
 
-
     private static final long serialVersionUID = -7334221920628541249L;
 
     private String petUid;

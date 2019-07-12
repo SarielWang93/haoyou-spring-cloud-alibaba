@@ -6,13 +6,14 @@
       WARNING - @mbg.generated
     -->
     <id column="id" jdbcType="INTEGER" property="id" />
-    <result column="name" jdbcType="VARCHAR" property="name" />
     <result column="username" jdbcType="VARCHAR" property="username" />
     <result column="password" jdbcType="VARCHAR" property="password" />
     <result column="email" jdbcType="VARCHAR" property="email" />
     <result column="phone" jdbcType="VARCHAR" property="phone" />
     <result column="uid" jdbcType="VARCHAR" property="uid" />
-    <result column="state" jdbcType="INTEGER" property="state" />
+    <result column="id_num" jdbcType="VARCHAR" property="idNum" />
+    <result column="server_id" jdbcType="INTEGER" property="serverId" />
+    <result column="status" jdbcType="INTEGER" property="status" />
     <result column="platform" jdbcType="VARCHAR" property="platform" />
     <result column="rank" jdbcType="INTEGER" property="rank" />
     <result column="platform_param" jdbcType="LONGVARBINARY" property="platformParam" />

@@ -12,6 +12,7 @@
     <result column="vitality" jdbcType="INTEGER" property="vitality" />
     <result column="pet_exp" jdbcType="BIGINT" property="petExp" />
     <result column="prop_max" jdbcType="INTEGER" property="propMax" />
+    <result column="pet_max" jdbcType="INTEGER" property="petMax" />
     <result column="props" jdbcType="LONGVARBINARY" property="props" />
   </resultMap>
 </mapper>

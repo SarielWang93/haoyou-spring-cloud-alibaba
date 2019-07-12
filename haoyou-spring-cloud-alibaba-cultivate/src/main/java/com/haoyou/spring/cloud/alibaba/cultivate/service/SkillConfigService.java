@@ -61,21 +61,8 @@ public class SkillConfigService {
                     fightingPet.getPet().setSkillBoard(redisObjectUtil.serialize(skillBoard));
                     fightingPet.getPet().getOtherSkill().add(new PetSkill(fightingPet.getUid(),prop.getProperty1()));
                     fightingPet.save();
-
-                    petMapper.updateByPrimaryKeySelective(fightingPet.getPet());
-                    //添加数据库
-                    PetSkill ps=new PetSkill(fightingPet.getUid(),prop.getProperty1());
-                    petSkillMapper.insertSelective(ps);
-
-                    //删除道具并修改玩家信息
-                    if(user.deleteProp(prop,1)){
-                        user.setLastUpdateDate(new Date());
-                        redisObjectUtil.save(RedisKeyUtil.getKey(RedisKey.USER,user.getUid()),user);
-                        //userMapper.updateByPrimaryKeySelective(user);
-                    }
-
-
-                    return true;
+                    //删除道具
+                    return user.deleteProp(prop,1);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -106,10 +93,6 @@ public class SkillConfigService {
                     PetSkill bySkillUid = fightingPet.getPet().getBySkillUid(skillUid);
                     fightingPet.getPet().getOtherSkill().remove(bySkillUid);
                     fightingPet.save();
-                    petMapper.updateByPrimaryKeySelective(fightingPet.getPet());
-                    //删除数据库
-                    petSkillMapper.delete(bySkillUid);
-
                     return true;
                 } catch (Exception e) {
                     e.printStackTrace();

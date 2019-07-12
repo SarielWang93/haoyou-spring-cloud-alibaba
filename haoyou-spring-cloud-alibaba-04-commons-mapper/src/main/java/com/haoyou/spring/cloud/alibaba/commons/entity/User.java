@@ -2,9 +2,8 @@ package com.haoyou.spring.cloud.alibaba.commons.entity;
 
 
 
-import cn.hutool.core.util.StrUtil;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.haoyou.spring.cloud.alibaba.commons.domain.message.BaseMessage;
+import com.haoyou.spring.cloud.alibaba.commons.message.BaseMessage;
 import com.haoyou.spring.cloud.alibaba.commons.util.MapperUtils;
 import com.haoyou.spring.cloud.alibaba.commons.util.ZIP;
 import lombok.Data;
@@ -17,15 +16,14 @@ import java.util.*;
 @Data
 @JsonIgnoreProperties(value = {}, ignoreUnknown = true)
 public class User extends BaseMessage implements Serializable {
+
     private static final long serialVersionUID = 5542845286421320049L;
+
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    /**
-     * 昵称
-     */
-    private String name;
 
     /**
      * 用户名
@@ -52,11 +50,23 @@ public class User extends BaseMessage implements Serializable {
      */
     private String uid;
 
+    /**
+     * 玩家编号
+     */
+    @Column(name = "id_num")
+    private String idNard;
+
+
+    /**
+     * 服务器id
+     */
+    @Column(name = "server_id")
+    private Integer serverId;
 
     /**
      * 状态（正常，删除，封号，等）
      */
-    private Integer state;
+    private Integer status;
 
     /**
      * 登录平台（腾讯，小米，网易……）
@@ -114,7 +124,13 @@ public class User extends BaseMessage implements Serializable {
     @Transient
     private Currency currency;
 
+    @Transient
+    private UserData userData;
+
     public User notTooLong(){
+        if(this.currency!=null){
+            this.currency.setProps(null);
+        }
         this.platformParam=null;
         return this;
     }
@@ -138,11 +154,15 @@ public class User extends BaseMessage implements Serializable {
             List<Prop> propsThis = this.propList();
             if(propsThis.size() < this.currency.getPropMax()){
                 for(Prop prop:propList){
+                    int count = 1;
+                    if(prop.getCount() != 0){
+                        count = prop.getCount();
+                    }
                     int i = 0;
                     if ((i = propsThis.indexOf(prop)) != -1) {
-                        propsThis.get(i).setCount(propsThis.get(i).getCount() + 1);
+                        propsThis.get(i).setCount(propsThis.get(i).getCount() + count);
                     } else {
-                        prop.setCount(1);
+                        prop.setCount(count);
                         propsThis.add(prop);
                     }
                 }

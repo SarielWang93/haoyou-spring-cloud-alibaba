@@ -2,7 +2,7 @@ package com.haoyou.spring.cloud.alibaba.match.info;
 
 import cn.hutool.core.util.IdUtil;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.haoyou.spring.cloud.alibaba.commons.domain.message.BaseMessage;
+import com.haoyou.spring.cloud.alibaba.commons.message.BaseMessage;
 import com.haoyou.spring.cloud.alibaba.commons.domain.RedisKey;
 import com.haoyou.spring.cloud.alibaba.commons.util.RedisKeyUtil;
 import com.haoyou.spring.cloud.alibaba.match.service.impl.MatchPoolServiceImpl;
@@ -20,6 +20,7 @@ import java.util.Objects;
  */
 @Data
 @JsonIgnoreProperties(value = {"matchPoolPlayer"},ignoreUnknown = true)
+@EqualsAndHashCode(callSuper = false)
 public class PlayerRoomInfo extends BaseMessage implements Serializable {
 
 

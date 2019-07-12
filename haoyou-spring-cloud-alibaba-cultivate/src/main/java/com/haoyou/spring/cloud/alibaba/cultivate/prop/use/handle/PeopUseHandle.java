@@ -70,8 +70,8 @@ public abstract class PeopUseHandle {
      */
     public boolean useProp(PropUseMsg propUseMsg){
 
-        if(handle(propUseMsg)){
-            return deleteProp(propUseMsg);
+        if(deleteProp(propUseMsg)){
+            return handle(propUseMsg);
         }
         return false;
     }
@@ -85,12 +85,7 @@ public abstract class PeopUseHandle {
         User user=propUseMsg.getUser();
         Prop prop=propUseMsg.getProp();
         //删除道具并修改玩家信息
-        if(user.deleteProp(prop,propUseMsg.getPropCount())){
-            user.setLastUpdateDate(new Date());
-            return redisObjectUtil.save(RedisKeyUtil.getKey(RedisKey.USER,user.getUid()),user);
-            //userMapper.updateByPrimaryKeySelective(user);
-        }
-        return false;
+        return user.deleteProp(prop,propUseMsg.getPropCount());
     }
 
 }

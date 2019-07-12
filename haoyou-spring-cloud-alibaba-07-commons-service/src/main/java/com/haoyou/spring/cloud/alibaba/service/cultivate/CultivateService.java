@@ -1,6 +1,6 @@
 package com.haoyou.spring.cloud.alibaba.service.cultivate;
 
-import com.haoyou.spring.cloud.alibaba.commons.domain.message.MapBody;
+import com.haoyou.spring.cloud.alibaba.commons.message.MapBody;
 import com.haoyou.spring.cloud.alibaba.commons.entity.User;
 import com.haoyou.spring.cloud.alibaba.sofabolt.protocol.MyRequest;
 
@@ -29,12 +29,6 @@ public interface CultivateService {
      */
     boolean petGeneration(MyRequest req);
 
-    /**
-     * 宠物抽卡
-     * @param req
-     * @return
-     */
-    boolean petPumping (MyRequest req);
 
     /**
      * 宠物升级

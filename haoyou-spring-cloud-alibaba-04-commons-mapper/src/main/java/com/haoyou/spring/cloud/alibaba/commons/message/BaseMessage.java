@@ -1,8 +1,9 @@
-package com.haoyou.spring.cloud.alibaba.commons.domain.message;
+package com.haoyou.spring.cloud.alibaba.commons.message;
 
 
 import lombok.Data;
 
+import javax.persistence.Transient;
 import java.io.Serializable;
 import java.util.Objects;
 
@@ -17,6 +18,7 @@ public class BaseMessage implements Serializable {
     /**
      * 信息状态
      */
+    @Transient
     protected Integer state;
 
 

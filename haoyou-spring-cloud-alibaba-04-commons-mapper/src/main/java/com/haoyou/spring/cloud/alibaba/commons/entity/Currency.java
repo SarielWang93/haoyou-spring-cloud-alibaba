@@ -7,7 +7,7 @@ import javax.persistence.*;
 import java.io.Serializable;
 
 @Data
-@JsonIgnoreProperties(value = {}, ignoreUnknown = true)
+@JsonIgnoreProperties(value = {"userUid"}, ignoreUnknown = true)
 public class Currency implements Serializable {
     private static final long serialVersionUID = 5753446568150586341L;
     @Id
@@ -43,6 +43,12 @@ public class Currency implements Serializable {
      */
     @Column(name = "prop_max")
     private Integer propMax;
+
+    /**
+     * 宠物数量最大值
+     */
+    @Column(name = "pet_max")
+    private Integer petMax;
 
     /**
      * 道具（json存储）

@@ -6,7 +6,7 @@ import cn.hutool.core.util.StrUtil;
 import com.haoyou.spring.cloud.alibaba.commons.domain.FightingType;
 import org.apache.dubbo.config.annotation.Reference;
 import com.haoyou.spring.cloud.alibaba.commons.domain.RewardType;
-import com.haoyou.spring.cloud.alibaba.commons.domain.message.BaseMessage;
+import com.haoyou.spring.cloud.alibaba.commons.message.BaseMessage;
 import com.haoyou.spring.cloud.alibaba.commons.domain.RedisKey;
 import com.haoyou.spring.cloud.alibaba.commons.domain.SendType;
 import com.haoyou.spring.cloud.alibaba.commons.entity.User;
@@ -399,9 +399,9 @@ public class MatchPoolServiceImpl implements MatchPoolService {
     @Override
     public boolean playerAccept(User player, int accept, PlayerRoomInfo playerRoomrInfo) {
         if (accept == 1) {
-            logger.info(String.format("玩家接受匹配信息: $s", player.getName()));
+            logger.info(String.format("玩家接受匹配信息: $s", player.getUsername()));
         } else {
-            logger.info(String.format("玩家拒绝匹配信息: $s", player.getName()));
+            logger.info(String.format("玩家拒绝匹配信息: $s", player.getUsername()));
         }
 
         if (StrUtil.isEmpty(playerRoomrInfo.getUid())) {

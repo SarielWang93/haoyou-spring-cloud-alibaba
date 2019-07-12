@@ -76,17 +76,6 @@ public abstract class RewardHandle {
         return false;
     }
 
-    /**
-     * 奖励存储给玩家
-     * @param user
-     */
-    public boolean save(User user){
-        if(redisObjectUtil.save(RedisKeyUtil.getKey(RedisKey.USER, user.getUid()), user)){
-            //return userMapper.updateByPrimaryKeySelective(user)==1;
-            return true;
-        }
-        return false;
-    }
 
     /**
      * 发送奖励信息给玩家
@@ -108,32 +97,17 @@ public abstract class RewardHandle {
      */
     public void doAward(User user, Award award){
         boolean mail=true;
-        if(this.send(user,award)){
-            //增加货币
-            user.getCurrency().setCoin(user.getCurrency().getCoin() + award.getCoin());
-            user.getCurrency().setDiamond(user.getCurrency().getDiamond() + award.getDiamond());
-            user.getCurrency().setPetExp(user.getCurrency().getPetExp() + award.getExp());
-
-//            //增加经验
-//            List<FightingPet> fightingPets = FightingPet.getByUser(user, redisObjectUtil);
-//            for (FightingPet fightingPet : fightingPets) {
-//                Integer iswork = fightingPet.getIswork();
-//                if (iswork != null && iswork != 0) {
-//                    fightingPet.upExp(award.getExp());
-//                    fightingPet.save();
-//                    petMapper.updateByPrimaryKeySelective(fightingPet.getPet());
-//                }
-//            }
-
-            //增加道具
-            if(user.addProps(award.getProps())){
-                mail=false;
-            }
-            this.save(user);
-        }
-
-        if(mail){
+        //增加货币
+        user.getCurrency().setCoin(user.getCurrency().getCoin() + award.getCoin());
+        user.getCurrency().setDiamond(user.getCurrency().getDiamond() + award.getDiamond());
+        user.getCurrency().setPetExp(user.getCurrency().getPetExp() + award.getExp());
+        //增加道具
+        if(!user.addProps(award.getProps())){
             //TODO 发送邮件给玩家
         }
+
+        this.send(user,award);
+
+
     }
 }

@@ -1,4 +1,4 @@
-package com.haoyou.spring.cloud.alibaba.commons.domain.message;
+package com.haoyou.spring.cloud.alibaba.commons.message;
 
 
 import lombok.Data;

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.haoyou.spring.cloud.alibaba.commons.mapper.UserDataMapper">
+  <resultMap id="BaseResultMap" type="com.haoyou.spring.cloud.alibaba.commons.entity.UserData">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="user_uid" jdbcType="VARCHAR" property="userUid" />
+    <result column="name" jdbcType="VARCHAR" property="name" />
+    <result column="avatar" jdbcType="VARCHAR" property="avatar" />
+    <result column="level" jdbcType="INTEGER" property="level" />
+    <result column="exp" jdbcType="INTEGER" property="exp" />
+    <result column="up_lev_exp" jdbcType="BIGINT" property="upLevExp" />
+  </resultMap>
+</mapper>

@@ -148,6 +148,12 @@ public class Pet implements Serializable {
 
 
     /**
+     * 状态
+     */
+    @Column(name = "status")
+    private Integer status;
+
+    /**
      * 上阵位置（123），未上阵（0）
      */
     private Integer iswork;

@@ -4,13 +4,12 @@ import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.RandomUtil;
 import com.haoyou.spring.cloud.alibaba.commons.domain.RedisKey;
 import com.haoyou.spring.cloud.alibaba.commons.domain.RewardType;
-import com.haoyou.spring.cloud.alibaba.commons.domain.message.MapBody;
+import com.haoyou.spring.cloud.alibaba.commons.message.MapBody;
 import com.haoyou.spring.cloud.alibaba.commons.entity.Prop;
 import com.haoyou.spring.cloud.alibaba.commons.entity.Skill;
 import com.haoyou.spring.cloud.alibaba.commons.entity.User;
 import com.haoyou.spring.cloud.alibaba.commons.util.RedisKeyUtil;
 import com.haoyou.spring.cloud.alibaba.cultivate.reward.Award;
-import com.haoyou.spring.cloud.alibaba.fighting.info.FightingPet;
 import com.haoyou.spring.cloud.alibaba.fighting.info.skill.shape.Tetromino;
 import org.springframework.stereotype.Service;
 
@@ -27,6 +26,16 @@ public class PVE extends RewardHandle {
 
     @Override
     public Award handle(User user) {
+        Award award =redisObjectUtil.get("award:pve",Award.class);
+        if(award!=null){
+
+            for(Prop prop:award.getProps()){
+                prop.setPropInstenceUid(IdUtil.simpleUUID());
+            }
+
+            return award;
+        }
+
 
         String skillLkKey = RedisKeyUtil.getlkKey(RedisKey.SKILL);
         HashMap<String, Skill> skills = this.redisObjectUtil.getlkMap(skillLkKey, Skill.class);
@@ -54,7 +63,7 @@ public class PVE extends RewardHandle {
          */
 
 
-        Award award = new Award(100,20,100,props);
+        award = new Award(100,20,100,props);
 
         return award;
     }

@@ -7,7 +7,7 @@ import com.alipay.remoting.Connection;
 import com.alipay.remoting.exception.RemotingException;
 import com.alipay.remoting.rpc.protocol.SyncUserProcessor;
 import com.haoyou.spring.cloud.alibaba.commons.domain.SendType;
-import com.haoyou.spring.cloud.alibaba.commons.domain.message.BaseMessage;
+import com.haoyou.spring.cloud.alibaba.commons.message.BaseMessage;
 import com.haoyou.spring.cloud.alibaba.commons.domain.ResponseMsg;
 import com.haoyou.spring.cloud.alibaba.commons.entity.User;
 import com.haoyou.spring.cloud.alibaba.sofabolt.connection.Connections;

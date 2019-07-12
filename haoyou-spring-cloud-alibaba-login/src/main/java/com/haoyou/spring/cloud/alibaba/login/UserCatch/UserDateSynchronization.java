@@ -1,15 +1,12 @@
 package com.haoyou.spring.cloud.alibaba.login.UserCatch;
 
-import com.haoyou.spring.cloud.alibaba.commons.mapper.CurrencyMapper;
-import com.haoyou.spring.cloud.alibaba.commons.mapper.UserMapper;
+import com.haoyou.spring.cloud.alibaba.commons.mapper.*;
 import com.haoyou.spring.cloud.alibaba.fighting.info.FightingPet;
 import com.haoyou.spring.cloud.alibaba.commons.domain.RedisKey;
 import com.haoyou.spring.cloud.alibaba.commons.entity.Pet;
 import com.haoyou.spring.cloud.alibaba.commons.entity.PetSkill;
 import com.haoyou.spring.cloud.alibaba.commons.entity.PetType;
 import com.haoyou.spring.cloud.alibaba.commons.entity.User;
-import com.haoyou.spring.cloud.alibaba.commons.mapper.PetMapper;
-import com.haoyou.spring.cloud.alibaba.commons.mapper.PetSkillMapper;
 import com.haoyou.spring.cloud.alibaba.commons.util.RedisKeyUtil;
 import com.haoyou.spring.cloud.alibaba.util.RedisObjectUtil;
 import org.slf4j.Logger;
@@ -17,7 +14,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-import tk.mybatis.mapper.entity.Example;
 
 import java.util.*;
 
@@ -35,6 +31,8 @@ public class UserDateSynchronization {
     @Autowired
     private UserMapper userMapper;
     @Autowired
+    private UserDataMapper userDataMapper;
+    @Autowired
     private CurrencyMapper currencyMapper;
     @Autowired
     private RedisObjectUtil redisObjectUtil;
@@ -44,10 +42,17 @@ public class UserDateSynchronization {
      */
     @Scheduled(cron = "0 */30 * * * ?")
     public void synchronization() {
-        logger.info(String.format("synchronization"));
+        logger.info(String.format("synchronization begin ......"));
         HashMap<String, User> users = redisObjectUtil.getlkMap(RedisKeyUtil.getlkKey(RedisKey.USER), User.class);
-        for (User user : users.values()) {
-            this.saveSqlUserAndPets(user);
+        users.putAll(redisObjectUtil.getlkMap(RedisKeyUtil.getlkKey(RedisKey.OUTLINE_USER), User.class));
+        for (Map.Entry<String, User> entry : users.entrySet()) {
+            User user = entry.getValue();
+            User user1 = userMapper.selectByPrimaryKey(user.getId());
+            //只同步修改过的user
+            if (user1.getLastUpdateDate().getTime() < user.getLastUpdateDate().getTime()) {
+                redisObjectUtil.refreshTime(entry.getKey());
+                this.saveSqlUserAndPets(user);
+            }
         }
     }
 
@@ -64,22 +69,10 @@ public class UserDateSynchronization {
         String key = RedisKeyUtil.getKey(RedisKey.USER, user.getUid());
 
         if (redisObjectUtil.save(key, user)) {
-
             if (!user.isOnLine()) {
+                //从数据库获取的user
                 this.cachePet(user);
                 user.setOnLine(true);
-            }else{
-                //获取宠物个数
-                Example e = new Example(Pet.class);
-                e.setCountProperty("id");
-                e.createCriteria().andEqualTo("userUid",user.getUid());
-                int i = petMapper.selectCountByExample(e);
-                String userUidKey = RedisKeyUtil.getKey(RedisKey.FIGHT_PETS, user.getUid());
-                String allKey = RedisKeyUtil.getlkKey(userUidKey);
-                HashMap<String, Pet> allPet = redisObjectUtil.getlkMap(allKey,Pet.class);
-                if(i!=allPet.size()){
-                    this.cachePet(user);
-                }
             }
             //缓存宠物信息
             logger.info(String.format("%s 登录成功！！", user.getUsername()));
@@ -141,22 +134,23 @@ public class UserDateSynchronization {
 
     /**
      * redis向数据库同步玩家以及宠物信息
+     *
      * @param user
      */
     public void saveSqlUserAndPets(User user) {
         this.saveSqlUser(user);
         this.saveSqlPet(user);
     }
+
     /**
      * 向数据库同步玩家信息
      *
      * @param user
      */
     public void saveSqlUser(User user) {
-        user.setLastLoginOutDate(new Date());
-        user.setLastUpdateDate(new Date());
         userMapper.updateByPrimaryKeySelective(user);
         currencyMapper.updateByPrimaryKeySelective(user.getCurrency());
+        userDataMapper.updateByPrimaryKeySelective(user.getUserData());
     }
 
     /**
@@ -173,23 +167,33 @@ public class UserDateSynchronization {
             /**
              * 刷新数据库
              */
-            petMapper.updateByPrimaryKeySelective(entry.getValue().getPet());
+            Pet pet = entry.getValue().getPet();
+            Pet pet1 = petMapper.selectByPrimaryKey(pet.getId());
+            if (pet1 != null) {
+                petMapper.updateByPrimaryKeySelective(pet);
+            } else {
+                petMapper.insertSelective(pet);
+            }
+
+
             PetSkill ps = new PetSkill(entry.getValue().getUid(), null);
             List<PetSkill> otherSkills = petSkillMapper.select(ps);
 
             //修改与增加
-            for (PetSkill petSkill : entry.getValue().getPet().getOtherSkill()) {
-                PetSkill petSkill1 = petSkillMapper.selectOne(petSkill);
-                if (petSkill1 == null) {
-                    petSkillMapper.insertSelective(petSkill);
-                } else if (!petSkill1.equals(petSkill)) {
-                    petSkillMapper.updateByPrimaryKeySelective(petSkill);
+            if (entry.getValue().getPet().getOtherSkill() != null) {
+                for (PetSkill petSkill : entry.getValue().getPet().getOtherSkill()) {
+                    PetSkill petSkill1 = petSkillMapper.selectOne(petSkill);
+                    if (petSkill1 == null) {
+                        petSkillMapper.insertSelective(petSkill);
+                    } else if (!petSkill1.equals(petSkill)) {
+                        petSkillMapper.updateByPrimaryKeySelective(petSkill);
+                    }
                 }
-            }
-            //删除
-            otherSkills.removeAll(entry.getValue().getPet().getOtherSkill());
-            for (PetSkill petSkill : otherSkills) {
-                petSkillMapper.delete(petSkill);
+                //删除
+                otherSkills.removeAll(entry.getValue().getPet().getOtherSkill());
+                for (PetSkill petSkill : otherSkills) {
+                    petSkillMapper.delete(petSkill);
+                }
             }
 
         }

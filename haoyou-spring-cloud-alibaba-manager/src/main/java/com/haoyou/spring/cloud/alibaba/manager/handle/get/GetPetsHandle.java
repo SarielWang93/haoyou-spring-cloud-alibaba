@@ -4,9 +4,9 @@ package com.haoyou.spring.cloud.alibaba.manager.handle.get;
 import com.haoyou.spring.cloud.alibaba.commons.domain.RedisKey;
 import com.haoyou.spring.cloud.alibaba.commons.domain.ResponseMsg;
 import com.haoyou.spring.cloud.alibaba.commons.domain.SendType;
-import com.haoyou.spring.cloud.alibaba.commons.domain.message.BaseMessage;
-import com.haoyou.spring.cloud.alibaba.commons.domain.message.MapBody;
-import com.haoyou.spring.cloud.alibaba.commons.entity.Prop;
+import com.haoyou.spring.cloud.alibaba.commons.message.BaseMessage;
+import com.haoyou.spring.cloud.alibaba.commons.message.MapBody;
+import com.haoyou.spring.cloud.alibaba.commons.entity.Pet;
 import com.haoyou.spring.cloud.alibaba.commons.entity.User;
 import com.haoyou.spring.cloud.alibaba.commons.util.RedisKeyUtil;
 import com.haoyou.spring.cloud.alibaba.fighting.info.FightingPet;
@@ -16,8 +16,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 获取背包道具
@@ -27,7 +29,7 @@ public class GetPetsHandle extends ManagerHandle {
 
 
     private static final long serialVersionUID = -7233847046616375275L;
-    private static final Logger logger = LoggerFactory.getLogger(GetPetsHandle.class);
+    private  static final Logger logger = LoggerFactory.getLogger(GetPetsHandle.class);
 
     @Override
     protected void setHandleType() {
@@ -46,11 +48,31 @@ public class GetPetsHandle extends ManagerHandle {
         String key = RedisKeyUtil.getlkKey(userUidKey);
         HashMap<String, FightingPet> fightingPets = redisObjectUtil.getlkMap(key, FightingPet.class);
 
+        List<Map> pets = new ArrayList<>();
+
         for(FightingPet fightingPet:fightingPets.values()){
-            mapBody.put("fightingPet",fightingPet);
-            sendMsgUtil.sendMsgOneNoReturn(user.getUid(),req.getId(),mapBody);
+
+            Pet pet = fightingPet.getPet();
+
+            Map<String, Object> petMap = new HashMap<>();
+
+            petMap.put("petUid",pet.getUid());
+            petMap.put("iswork",pet.getIswork());
+            petMap.put("starClass",pet.getStarClass());
+            petMap.put("level",pet.getLevel());
+            petMap.put("type",pet.getType());
+            petMap.put("typeId",pet.getTypeId());
+
+            petMap.put("mb_max_hp",fightingPet.getMb_max_hp());
+            petMap.put("mb_atn",fightingPet.getMb_atn());
+            petMap.put("mb_def",fightingPet.getMb_def());
+            petMap.put("mb_spd",fightingPet.getMb_spd());
+            petMap.put("mb_luk",fightingPet.getMb_luk());
+
+            pets.add(petMap);
+//            sendMsgUtil.sendMsgOneNoReturn(user.getUid(),req.getId(),mapBody);
         }
-        mapBody.remove("fightingPet");
+        mapBody.put("pets",pets);
         return mapBody;
     }
 }

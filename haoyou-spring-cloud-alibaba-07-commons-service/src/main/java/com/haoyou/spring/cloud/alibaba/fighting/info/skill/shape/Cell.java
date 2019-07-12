@@ -14,6 +14,7 @@ import java.util.Objects;
  */
 @Data
 @JsonIgnoreProperties(value = {}, ignoreUnknown = true)
+@EqualsAndHashCode(callSuper = false)
 public class Cell extends CloneSupport<Cell> {
     /*
      * 俄罗斯方块中最小单位

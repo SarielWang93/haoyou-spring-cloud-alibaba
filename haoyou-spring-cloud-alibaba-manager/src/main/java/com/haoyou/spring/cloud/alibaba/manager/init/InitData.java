@@ -1,6 +1,5 @@
 package com.haoyou.spring.cloud.alibaba.manager.init;
 
-import com.alibaba.dubbo.config.annotation.Reference;
 import com.haoyou.spring.cloud.alibaba.commons.domain.RedisKey;
 import com.haoyou.spring.cloud.alibaba.commons.entity.*;
 import com.haoyou.spring.cloud.alibaba.commons.mapper.*;

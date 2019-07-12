@@ -47,6 +47,12 @@
         </dependency>
         <!-- lombok -->
 
+        <!-- sofabolt Begin-->
+        <dependency>
+            <groupId>com.alipay.sofa</groupId>
+            <artifactId>sofa-rpc-all</artifactId>
+        </dependency>
+        <!-- sofabolt End -->
 
         <!-- protobuf -->
         <dependency>

@@ -145,6 +145,8 @@ public class FightingPet implements Serializable {
 
         FightingPet fightingPet = redisObjectUtil.get(key, FightingPet.class);
 
+        fightingPet.setRedisObjectUtil(redisObjectUtil);
+
         return fightingPet;
     }
 
@@ -203,12 +205,14 @@ public class FightingPet implements Serializable {
             skills.add(this.redisObjectUtil.get(RedisKeyUtil.getKey(RedisKey.SKILL, pet.getSpecialAttack()), Skill.class));
 
 
-        for (PetSkill petSkill : skillUids) {
-            String skillUid = petSkill.getSkillUid();
-            if (!StrUtil.isEmpty(skillUid)) {
-                String skillKey = RedisKeyUtil.getKey(RedisKey.SKILL, skillUid);
-                Skill skill = this.redisObjectUtil.get(skillKey, Skill.class);
-                skills.add(skill);
+        if (skillUids != null) {
+            for (PetSkill petSkill : skillUids) {
+                String skillUid = petSkill.getSkillUid();
+                if (!StrUtil.isEmpty(skillUid)) {
+                    String skillKey = RedisKeyUtil.getKey(RedisKey.SKILL, skillUid);
+                    Skill skill = this.redisObjectUtil.get(skillKey, Skill.class);
+                    skills.add(skill);
+                }
             }
         }
 
@@ -234,12 +238,14 @@ public class FightingPet implements Serializable {
      */
     public void save(String key) {
         //redis存储
+        this.pet.setLastUpdateDate(new Date());
         this.ridesKey = key;
         this.redisObjectUtil.save(key, this);
     }
 
     public void save() {
         //redis存储
+        this.pet.setLastUpdateDate(new Date());
         this.redisObjectUtil.save(this.ridesKey, this);
     }
 
@@ -585,7 +591,7 @@ public class FightingPet implements Serializable {
             int random = RandomUtil.randomInt(100);
             if (random < this.ft_luk) {
                 this.luky = true;
-                this.attack = this.attack*LukFactor / 100;
+                this.attack = this.attack * LukFactor / 100;
             } else {
                 this.luky = false;
             }

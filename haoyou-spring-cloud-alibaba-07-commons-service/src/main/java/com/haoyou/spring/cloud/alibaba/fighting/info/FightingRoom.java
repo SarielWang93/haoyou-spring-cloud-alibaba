@@ -1,13 +1,10 @@
 package com.haoyou.spring.cloud.alibaba.fighting.info;
 
-import cn.hutool.core.lang.Console;
-import cn.hutool.core.text.StrBuilder;
-
 import cn.hutool.core.util.IdUtil;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.haoyou.spring.cloud.alibaba.util.SendMsgUtil;
 import com.haoyou.spring.cloud.alibaba.commons.domain.SendType;
-import com.haoyou.spring.cloud.alibaba.commons.domain.message.MapBody;
+import com.haoyou.spring.cloud.alibaba.commons.message.MapBody;
 import com.haoyou.spring.cloud.alibaba.commons.entity.Skill;
 import com.haoyou.spring.cloud.alibaba.commons.entity.User;
 
@@ -206,6 +203,7 @@ public class FightingRoom implements Serializable {
             player.put("name", fightingCamp.getUser().getUsername());
             player.put("isAi", fightingCamp.isAi());
             player.put("energy", fightingCamp.getEnergy());
+            player.put("petsCount",fightingCamp.getFightingPets().size());
 
             if (this.campNow.equals(fightingCamp.getUser().getUid())) {
                 player.put("currentPetId", this.petNow - 1);

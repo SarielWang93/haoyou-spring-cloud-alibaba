@@ -1,9 +1,10 @@
 package com.haoyou.spring.cloud.alibaba.cultivate.reward;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.haoyou.spring.cloud.alibaba.commons.domain.message.BaseMessage;
+import com.haoyou.spring.cloud.alibaba.commons.message.BaseMessage;
 import com.haoyou.spring.cloud.alibaba.commons.entity.Prop;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.io.Serializable;
 import java.util.List;
@@ -11,6 +12,7 @@ import java.util.Objects;
 
 @Data
 @JsonIgnoreProperties(value = {}, ignoreUnknown = true)
+@EqualsAndHashCode(callSuper = false)
 public class Award extends BaseMessage implements Serializable {
     private static final long serialVersionUID = 8040903642874170701L;
 

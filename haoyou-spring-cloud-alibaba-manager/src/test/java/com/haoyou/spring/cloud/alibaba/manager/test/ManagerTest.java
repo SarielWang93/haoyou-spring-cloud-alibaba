@@ -1,14 +1,19 @@
 package com.haoyou.spring.cloud.alibaba.manager.test;
 
 import cn.hutool.core.lang.Console;
+import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.RandomUtil;
 import com.haoyou.spring.cloud.alibaba.commons.entity.User;
 import com.haoyou.spring.cloud.alibaba.commons.mapper.HiFightingRoomMapper;
 import com.haoyou.spring.cloud.alibaba.commons.mapper.UserMapper;
+import com.haoyou.spring.cloud.alibaba.commons.util.HttpUtils;
+import com.haoyou.spring.cloud.alibaba.commons.util.MapperUtils;
 import com.haoyou.spring.cloud.alibaba.redis.service.RedisService;
 import com.haoyou.spring.cloud.alibaba.redis.service.ScoreRankService;
 import com.haoyou.spring.cloud.alibaba.serialization.JsonSerializer;
 import com.haoyou.spring.cloud.alibaba.util.RedisObjectUtil;
+import org.apache.http.HttpResponse;
+import org.apache.http.util.EntityUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,14 +60,137 @@ public class ManagerTest {
     }
 
 
-    public static void main(String[] args) throws InterruptedException {
+
+    public static void main(String[] args) throws InterruptedException{
+
+    }
+
+    /**
+     * 敏感词
+     * @param str
+     * @throws InterruptedException
+     */
+    public static void mgc(String str) throws InterruptedException {
+
+        String host = "http://monitoring.market.alicloudapi.com";
+        String path = "/neirongjiance";
+        String method = "POST";
+        String appcode = "cc7cfea9a84440119c153aad46cc8742";
+        Map<String, String> headers = new HashMap<String, String>();
+        //最后在header中的格式(中间是英文空格)为Authorization:APPCODE 83359fd73fe94948385f570e3c139105
+        headers.put("Authorization", "APPCODE " + appcode);
+        //根据API的要求，定义相对应的Content-Type
+        headers.put("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
+        Map<String, String> querys = new HashMap<String, String>();
+        Map<String, String> bodys = new HashMap<String, String>();
+        bodys.put("in", str);
 
 
-        Console.log(RandomUtil.randomInt(100));
+        try {
+            /**
+             * 重要提示如下:
+             * HttpUtils请从
+             * https://github.com/aliyun/api-gateway-demo-sign-java/blob/master/src/main/java/com/aliyun/api/gateway/demo/util/HttpUtils.java
+             * 下载
+             *
+             * 相应的依赖请参照
+             * https://github.com/aliyun/api-gateway-demo-sign-java/blob/master/pom.xml
+             */
+            HttpResponse response = HttpUtils.doPost(host, path, method, headers, querys, bodys);
+            //获取response的body
+            String s = EntityUtils.toString(response.getEntity());
+            Console.log(s);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
 
 
     }
 
+    /**
+     * 身份证查询
+     * @param card
+     * @throws InterruptedException
+     */
+    public static void idCard(String card){
+
+        String host = "https://jisuidcard.market.alicloudapi.com";
+        String path = "/idcard/query";
+        String method = "GET";
+        String appcode = "cc7cfea9a84440119c153aad46cc8742";
+        Map<String, String> headers = new HashMap<String, String>();
+        //最后在header中的格式(中间是英文空格)为Authorization:APPCODE 83359fd73fe94948385f570e3c139105
+        headers.put("Authorization", "APPCODE " + appcode);
+        //根据API的要求，定义相对应的Content-Type
+        headers.put("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
+        Map<String, String> querys = new HashMap<String, String>();
+        querys.put("idcard", card);
 
 
+        try {
+            /**
+             * 重要提示如下:
+             * HttpUtils请从
+             * https://github.com/aliyun/api-gateway-demo-sign-java/blob/master/src/main/java/com/aliyun/api/gateway/demo/util/HttpUtils.java
+             * 下载
+             *
+             * 相应的依赖请参照
+             * https://github.com/aliyun/api-gateway-demo-sign-java/blob/master/pom.xml
+             */
+            HttpResponse response = HttpUtils.doGet(host, path, method, headers, querys);
+            //获取response的body
+            String s = EntityUtils.toString(response.getEntity());
+            Console.log(s);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+
+
+    }
+
+    /**
+     * 聊天机器人
+     * @param str
+     */
+    public static void iqa(String str) {
+
+        String host = "https://jisuiqa.market.alicloudapi.com";
+        String path = "/iqa/query";
+        String method = "GET";
+        String appcode = "cc7cfea9a84440119c153aad46cc8742";
+        Map<String, String> headers = new HashMap<String, String>();
+        //最后在header中的格式(中间是英文空格)为Authorization:APPCODE 83359fd73fe94948385f570e3c139105
+        headers.put("Authorization", "APPCODE " + appcode);
+        //根据API的要求，定义相对应的Content-Type
+        headers.put("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
+        Map<String, String> querys = new HashMap<String, String>();
+        querys.put("question", str);
+
+
+        try {
+            /**
+             * 重要提示如下:
+             * HttpUtils请从
+             * https://github.com/aliyun/api-gateway-demo-sign-java/blob/master/src/main/java/com/aliyun/api/gateway/demo/util/HttpUtils.java
+             * 下载
+             *
+             * 相应的依赖请参照
+             * https://github.com/aliyun/api-gateway-demo-sign-java/blob/master/pom.xml
+             */
+            HttpResponse response = HttpUtils.doGet(host, path, method, headers, querys);
+            //获取response的body
+            String s = EntityUtils.toString(response.getEntity());
+            Console.log(s);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+
+
+    }
 }

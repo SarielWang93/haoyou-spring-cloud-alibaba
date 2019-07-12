@@ -1,12 +1,24 @@
 package com.haoyou.spring.cloud.alibaba.manager.controller;
 
+import cn.hutool.core.util.IdUtil;
+import com.haoyou.spring.cloud.alibaba.commons.domain.RedisKey;
+import com.haoyou.spring.cloud.alibaba.commons.entity.Prop;
+import com.haoyou.spring.cloud.alibaba.commons.entity.User;
+import com.haoyou.spring.cloud.alibaba.commons.mapper.UserMapper;
+import com.haoyou.spring.cloud.alibaba.commons.util.MapperUtils;
+import com.haoyou.spring.cloud.alibaba.commons.util.RedisKeyUtil;
+import com.haoyou.spring.cloud.alibaba.fighting.info.FightingPet;
 import com.haoyou.spring.cloud.alibaba.manager.init.InitData;
 import com.haoyou.spring.cloud.alibaba.util.RedisObjectUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
 import javax.servlet.http.HttpServletResponse;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 @RestController
 public class ManagerController {
@@ -16,18 +28,20 @@ public class ManagerController {
     private InitData initData;
     @Autowired
     protected RedisObjectUtil redisObjectUtil;
+    @Autowired
+    private UserMapper userMapper;
 
     /**
      * 对外接口，用于刷新缓存
+     *
      * @param response
      * @return
      */
+    @CrossOrigin
     @GetMapping(value = "refreshCatch")
-    public String refreshCatch(HttpServletResponse response){
-        response.setHeader("Access-Control-Allow-Origin", "*");
-        response.setHeader("Access-Control-Allow-Methods","GET,POST");
+    public String refreshCatch(HttpServletResponse response) {
 
-        if(initData.doInit()){
+        if (initData.doInit()) {
             logger.info("刷新静态缓存信息，成功！！");
             return "success";
         }
@@ -35,116 +49,135 @@ public class ManagerController {
 
     }
 
+    /**
+     * 获取用户信息
+     *
+     * @return
+     */
+    @CrossOrigin
+    @GetMapping(value = "getUsers")
+    public String getUsers() {
+        List<User> users = userMapper.selectAll();
 
-//    /**
-//     * 文件下载
-//     * @param name
-//     * @param request
-//     * @param response
-//     * @throws FileNotFoundException
-//     */
-//    @RequestMapping("/download/{version}/{name}")
-//    public void getDownload(@PathVariable String version,@PathVariable String name, HttpServletRequest request, HttpServletResponse response) throws FileNotFoundException {
-//        // Get your file stream from wherever.
-//        String fullPath = ResourceUtils.getURL("classpath:").getPath() + "static/"+version+"/"+name;
-//        logger.info("下载文件:"+name);
-//        File downloadFile = new File(fullPath);
-//        if(downloadFile.length()==0){
-//            return;
-//        }
-//        ServletContext context = request.getServletContext();
-//        // get MIME type of the file
-//        String mimeType = context.getMimeType(fullPath);
-//        if (mimeType == null) {
-//            // set to binary type if MIME mapping not found
-//            mimeType = "application/octet-stream";
-//        }
-//
-//        // set content attributes for the response
-//        response.setContentType(mimeType);
-//        // response.setContentLength((int) downloadFile.length());
-//
-//        // set headers for the response
-//        String headerKey = "Content-Disposition";
-//        String headerValue = String.format("attachment; filename=\"%s\"", downloadFile.getName());
-//        response.setHeader(headerKey, headerValue);
-//        // 解析断点续传相关信息
-//        response.setHeader("Accept-Ranges", "bytes");
-//        long downloadSize = downloadFile.length();
-//        long fromPos = 0, toPos = 0;
-//        if (request.getHeader("Range") == null) {
-//            response.setHeader("Content-Length", downloadSize + "");
-//        } else {
-//            // 若客户端传来Range，说明之前下载了一部分，设置206状态(SC_PARTIAL_CONTENT)
-//            response.setStatus(HttpServletResponse.SC_PARTIAL_CONTENT);
-//            String range = request.getHeader("Range");
-//            String bytes = range.replaceAll("bytes=", "");
-//            String[] ary = bytes.split("-");
-//            fromPos = Long.parseLong(ary[0]);
-//            if (ary.length == 2) {
-//                toPos = Long.parseLong(ary[1]);
-//            }
-//            long size;
-//            if (toPos > fromPos) {
-//                size = toPos - fromPos;
-//            } else {
-//                size = downloadSize - fromPos;
-//            }
-//            response.setHeader("Content-Length", size + "");
-//            downloadSize = size;
-//        }
-//        // Copy the stream to the response's output stream.
-//        RandomAccessFile in = null;
-//        OutputStream out = null;
-//
-//        try {
-//            in = new RandomAccessFile(downloadFile, "rw");
-//            // 设置下载起始位置
-//            if (fromPos > 0) {
-//                in.seek(fromPos);
-//            }
-//            // 缓冲区大小
-//            int bufLen = (int)(downloadSize < 2048 ? downloadSize : 2048);
-//            byte[] buffer = new byte[bufLen];
-//            int num;
-//            int count = 0; // 当前写到客户端的大小
-//            out = response.getOutputStream();
-//            logger.debug("开始传输");
-//            while ((num = in.read(buffer)) != -1) {
-//                out.write(buffer, 0, num);
-//                count += num;
-//                //处理最后一段，计算不满缓冲区的大小
-//                if (downloadSize - count < bufLen) {
-//                    bufLen = (int) (downloadSize-count);
-//                    if(bufLen==0){
-//                        break;
-//                    }
-//                    buffer = new byte[bufLen];
-//                }
-//            }
-//            response.flushBuffer();
-//            logger.debug("传输完毕");
-//        } catch (IOException e) {
-//            logger.info("数据被暂停或中断。");
-////            e.printStackTrace();
-//        } finally {
-//            if (null != out) {
-//                try {
-//                    out.close();
-//                } catch (IOException e) {
-//                    logger.info("数据被暂停或中断。");
-////                    e.printStackTrace();
-//                }
-//            }
-//            if (null != in) {
-//                try {
-//                    in.close();
-//                } catch (IOException e) {
-//                    logger.info("数据被暂停或中断。");
-////                    e.printStackTrace();
-//                }
-//            }
-//        }
-//    }
+        for (User user : users) {
+            user.notTooLong();
+            user.setPassword("");
+        }
+        try {
+            return MapperUtils.obj2jsonIgnoreNull(users);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 
+    /**
+     * 获取用户信息
+     *
+     * @return
+     */
+    @CrossOrigin
+    @GetMapping(value = "getUser")
+    public String getUser(String userUid) {
+        User user = redisObjectUtil.get(RedisKeyUtil.getKey(RedisKey.USER, userUid), User.class);
+        if (user == null) {
+            user = redisObjectUtil.get(RedisKeyUtil.getKey(RedisKey.OUTLINE_USER, userUid), User.class);
+        }
+        if (user == null) {
+            return null;
+        }
+        user.notTooLong();
+        try {
+            return MapperUtils.obj2jsonIgnoreNull(user);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    /**
+     * 获取玩家的宠物信息
+     *
+     * @return
+     */
+    @CrossOrigin
+    @GetMapping(value = "getPets")
+    public String getPets(String userUid) {
+
+        HashMap<String, FightingPet> petMap = redisObjectUtil.getlkMap(RedisKeyUtil.getlkKey(RedisKeyUtil.getKey(RedisKey.FIGHT_PETS, userUid)), FightingPet.class);
+
+        try {
+            return MapperUtils.obj2jsonIgnoreNull(petMap.values());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+
+    /**
+     * 获取宠物信息
+     *
+     * @return
+     */
+    @CrossOrigin
+    @GetMapping(value = "getPet")
+    public String getPet(String userUid, String petUid) {
+
+
+        FightingPet pet = redisObjectUtil.get(RedisKeyUtil.getKey(RedisKeyUtil.getKey(RedisKey.FIGHT_PETS, userUid), petUid), FightingPet.class);
+
+        try {
+            return MapperUtils.obj2jsonIgnoreNull(pet);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    /**
+     * UUID在线工具
+     *
+     * @param count
+     * @return
+     */
+    @CrossOrigin
+    @GetMapping(value = "getSimpleUUID")
+    public String getSimpleUUID(int count, int type) {
+        List<String> uuids = new ArrayList<>();
+
+        for (int i = 0; i < count; i++) {
+            if(type == 1){
+                uuids.add(IdUtil.simpleUUID());
+            }else{
+                uuids.add(IdUtil.randomUUID());
+            }
+        }
+
+        try {
+            return MapperUtils.obj2jsonIgnoreNull(uuids);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+
+    /**
+     * 获取道具列表
+     *
+     * @return
+     */
+    @CrossOrigin
+    @GetMapping(value = "getProps")
+    public String getProps() {
+        HashMap<String, Prop> props = redisObjectUtil.getlkMap(RedisKeyUtil.getlkKey(RedisKey.PROP), Prop.class);
+
+        try {
+            return MapperUtils.obj2jsonIgnoreNull(props.values());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 }

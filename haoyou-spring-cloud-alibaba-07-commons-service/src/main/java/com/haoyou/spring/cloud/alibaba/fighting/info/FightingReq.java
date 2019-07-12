@@ -1,7 +1,7 @@
 package com.haoyou.spring.cloud.alibaba.fighting.info;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.haoyou.spring.cloud.alibaba.commons.domain.message.BaseMessage;
+import com.haoyou.spring.cloud.alibaba.commons.message.BaseMessage;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 

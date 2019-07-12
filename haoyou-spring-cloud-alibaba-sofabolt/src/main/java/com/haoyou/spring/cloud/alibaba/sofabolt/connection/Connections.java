@@ -136,16 +136,16 @@ public class Connections {
             }
         });
 
-        /**
-         * 清理内存中连接不存在的玩家
-         */
-        HashMap<String, User> stringUserHashMap = this.redisObjectUtil.getlkMap(RedisKeyUtil.getlkKey(RedisKey.USER), User.class);
-        for (User user : stringUserHashMap.values()) {
-            if (!connections.containsKey(user.getUid())) {
-                //登出
-                this.managerService.handle(new MyRequest(SendType.LOGINOUT, user.getUid(), null));
-            }
-        }
+//        /**
+//         * 清理内存中连接不存在的玩家
+//         */
+//        HashMap<String, User> stringUserHashMap = this.redisObjectUtil.getlkMap(RedisKeyUtil.getlkKey(RedisKey.USER), User.class);
+//        for (User user : stringUserHashMap.values()) {
+//            if (!connections.containsKey(user.getUid())) {
+//                //登出
+//                this.managerService.handle(new MyRequest(SendType.LOGINOUT, user.getUid(), null));
+//            }
+//        }
 
         /**
          * 清理不存在的链接

@@ -1,6 +1,7 @@
 package com.haoyou.spring.cloud.alibaba.cultivate.service;
 
 
+import cn.hutool.core.lang.Console;
 import com.haoyou.spring.cloud.alibaba.cultivate.msg.PropUseMsg;
 import com.haoyou.spring.cloud.alibaba.cultivate.prop.use.handle.PeopUseHandle;
 import org.springframework.stereotype.Service;
@@ -23,6 +24,7 @@ public class PropUseService {
 
 
     public boolean propUse(PropUseMsg propUseMsg) {
+        Console.log(propUseHandleMap);
         return propUseHandleMap.get(propUseMsg.getProp().getName()).useProp(propUseMsg);
     }
 }
