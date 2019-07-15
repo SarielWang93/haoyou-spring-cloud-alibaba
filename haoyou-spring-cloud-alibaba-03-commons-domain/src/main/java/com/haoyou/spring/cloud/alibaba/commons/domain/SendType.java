@@ -38,6 +38,8 @@ public class SendType {
     public final static int GET_PROPS = 51;//获取仓库信息
     public final static int GET_HALL = 52;//获取仓库信息
     public final static int GET_PETS = 53;//获取宠物信息
+    public final static int GET_PET = 54;//获取宠物列表信息
+    public final static int GET_RANK = 55;//获取宠物信息
 
     /**
      * 养成 60 - 90

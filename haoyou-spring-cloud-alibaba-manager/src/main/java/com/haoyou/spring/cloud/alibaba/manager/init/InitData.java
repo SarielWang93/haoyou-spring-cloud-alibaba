@@ -2,6 +2,7 @@ package com.haoyou.spring.cloud.alibaba.manager.init;
 
 import com.haoyou.spring.cloud.alibaba.commons.domain.RedisKey;
 import com.haoyou.spring.cloud.alibaba.commons.entity.*;
+import com.haoyou.spring.cloud.alibaba.commons.entity.Currency;
 import com.haoyou.spring.cloud.alibaba.commons.mapper.*;
 import com.haoyou.spring.cloud.alibaba.commons.util.RedisKeyUtil;
 import com.haoyou.spring.cloud.alibaba.redis.service.ScoreRankService;
@@ -53,6 +54,11 @@ public class InitData implements ApplicationRunner {
 
     @Autowired
     private LevelUpExpMapper levelUpExpMapper;
+
+    @Autowired
+    private UserDataMapper userDataMapper;
+    @Autowired
+    private CurrencyMapper currencyMapper;
 
     private Date lastDo;
 
@@ -127,7 +133,16 @@ public class InitData implements ApplicationRunner {
         List<User> users = userMapper.selectAll();
         Map<String, Long> msgs = new HashMap<>();
         for (User user : users) {
-            msgs.put(user.getUid(), user.getRank().longValue());
+            Currency currency = new Currency();
+            currency.setUserUid(user.getUid());
+            currency = currencyMapper.selectOne(currency);
+
+            UserData userData = new UserData();
+            userData.setUserUid(user.getUid());
+            userData = userDataMapper.selectOne(userData);
+
+
+            msgs.put(user.getUid(), currency.getRank().longValue());
         }
         scoreRankService.batchAdd(ranking, msgs);
     }

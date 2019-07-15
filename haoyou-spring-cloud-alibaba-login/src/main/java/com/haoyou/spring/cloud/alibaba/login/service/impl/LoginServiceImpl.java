@@ -8,6 +8,7 @@ import com.haoyou.spring.cloud.alibaba.commons.entity.Currency;
 import com.haoyou.spring.cloud.alibaba.commons.entity.UserData;
 import com.haoyou.spring.cloud.alibaba.commons.mapper.CurrencyMapper;
 import com.haoyou.spring.cloud.alibaba.commons.mapper.UserDataMapper;
+import com.haoyou.spring.cloud.alibaba.register.Register;
 import org.apache.dubbo.config.annotation.Service;
 import com.haoyou.spring.cloud.alibaba.commons.domain.RedisKey;
 import com.haoyou.spring.cloud.alibaba.commons.domain.ResponseMsg;
@@ -45,6 +46,9 @@ public class LoginServiceImpl implements LoginService {
     @Autowired
     private UserDataMapper userDataMapper;
 
+    @Autowired
+    private Register register;
+
     /**
      * 登录
      *
@@ -52,7 +56,6 @@ public class LoginServiceImpl implements LoginService {
      * @return
      */
     @Override
-    @GlobalTransactional
     public User login(MyRequest req) {
 
 
@@ -124,7 +127,6 @@ public class LoginServiceImpl implements LoginService {
      * @return
      */
     @Override
-    @GlobalTransactional
     public User logout(MyRequest req) {
         User user = req.getUser();
 
@@ -146,64 +148,15 @@ public class LoginServiceImpl implements LoginService {
     }
 
     /**
-     * 注册并查询
+     * 注册
      *
      * @param req
      * @return
      */
     @Override
-    @GlobalTransactional
     public User register(MyRequest req) {
         User user = req.getUser();
-
-        if (StrUtil.isEmpty(user.getUsername()) || StrUtil.isEmpty(user.getPassword())) {
-            user.setState(ResponseMsg.MSG_ERR);
-            return user.notTooLong();
-        }
-        //根据用户名查询是否已存在
-        User userx = new User();
-        userx.setUsername(user.getUsername());
-        userx = userMapper.selectOne(userx);
-        if (userx != null && StrUtil.isNotEmpty(userx.getUid())) {
-            user.setState(ResponseMsg.MSG_REGISTER_USERNAME_EXIST);
-            return user.notTooLong();
-        }
-
-
-        //TODO 注册的时候可以存储平台信息
-        if (StrUtil.isEmpty(user.getUid())) {
-            user.setUid(IdUtil.simpleUUID());
-        }
-
-        user.setState(1);
-
-        user.setRank(1);
-
-        user.setCreatDate(new Date());
-        user.setLastUpdateDate(new Date());
-        userMapper.insertSelective(user);
-
-        Currency currency = new Currency();
-        currency.setUserUid(user.getUid());
-        currency.setCoin(0);
-        currency.setVitality(100);
-        currency.setDiamond(0);
-        currency.setPropMax(20);
-        currency.setPetMax(5);
-
-        UserData userData = new UserData();
-        userData.setUserUid(user.getUid());
-        userData.setExp(0);
-        userData.setAvatar("defult");
-        userData.setLevel(1);
-        userData.setName(user.getUsername());
-        userData.setUpLevExp(260l);
-
-        userDataMapper.insertSelective(userData);
-        currencyMapper.insertSelective(currency);
-        logger.info(String.format("registerUser: %s", user.getUsername()));
-        user.setState(ResponseMsg.MSG_SUCCESS);
-        return user.notTooLong();
+        return register.register(user);
     }
 
     /**

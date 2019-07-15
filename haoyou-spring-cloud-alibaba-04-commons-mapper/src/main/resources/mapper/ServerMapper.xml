@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.haoyou.spring.cloud.alibaba.commons.mapper.ServerMapper">
+  <resultMap id="BaseResultMap" type="com.haoyou.spring.cloud.alibaba.commons.entity.Server">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="server_num" jdbcType="INTEGER" property="serverNum" />
+    <result column="server_name" jdbcType="VARCHAR" property="serverName" />
+    <result column="creat_date" jdbcType="TIMESTAMP" property="creatDate" />
+    <result column="last_update_date" jdbcType="TIMESTAMP" property="lastUpdateDate" />
+  </resultMap>
+</mapper>

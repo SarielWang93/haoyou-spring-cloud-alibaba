@@ -164,7 +164,7 @@ public class CultivateServiceImpl implements CultivateService {
         }
 //        la.add(1);
 
-        return this.saveUser(user);
+        return true;
     }
 
 

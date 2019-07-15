@@ -30,7 +30,7 @@ public class MatchPoolPlayerInfo implements Serializable {
         this.isAccept=0;
         this.playerId = player.getUid();
         this.player = player;
-        this.rank = player.getRank();
+        this.rank = player.getCurrency().getRank();
         this.startMatchTime = System.currentTimeMillis();
     }
 

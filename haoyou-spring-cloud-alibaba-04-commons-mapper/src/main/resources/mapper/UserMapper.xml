@@ -15,7 +15,6 @@
     <result column="server_id" jdbcType="INTEGER" property="serverId" />
     <result column="status" jdbcType="INTEGER" property="status" />
     <result column="platform" jdbcType="VARCHAR" property="platform" />
-    <result column="rank" jdbcType="INTEGER" property="rank" />
     <result column="platform_param" jdbcType="LONGVARBINARY" property="platformParam" />
     <result column="creat_date" jdbcType="TIMESTAMP" property="creatDate" />
     <result column="last_login_date" jdbcType="TIMESTAMP" property="lastLoginDate" />

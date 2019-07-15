@@ -62,7 +62,13 @@ public class ManagerTest {
 
 
     public static void main(String[] args) throws InterruptedException{
+        Integer num = 102156;
+        String n = num.toString();
+        String IdNum = "HY00000000";
 
+        String substring = IdNum.substring(0, 10 - n.length());
+
+        Console.log(substring+n);
     }
 
     /**

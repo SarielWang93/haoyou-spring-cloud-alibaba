@@ -1,5 +1,8 @@
 package com.haoyou.spring.cloud.alibaba.manager.handle;
 
+import com.haoyou.spring.cloud.alibaba.commons.domain.ResponseMsg;
+import com.haoyou.spring.cloud.alibaba.commons.util.MapperUtils;
+import com.haoyou.spring.cloud.alibaba.redis.service.ScoreRankService;
 import org.apache.dubbo.config.annotation.Reference;
 import com.haoyou.spring.cloud.alibaba.commons.message.BaseMessage;
 import com.haoyou.spring.cloud.alibaba.manager.service.impl.ManagerServiceImpl;
@@ -16,6 +19,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
 import java.io.Serializable;
+import java.util.Map;
 
 /**
  * 消息处理器基类
@@ -47,6 +51,9 @@ public abstract class ManagerHandle implements Serializable {
     @Autowired
     protected SendMsgUtil sendMsgUtil;
 
+    @Autowired
+    protected ScoreRankService scoreRankService;
+
     /**
      * 处理标识
      */
@@ -72,5 +79,20 @@ public abstract class ManagerHandle implements Serializable {
      * @return
      */
     public abstract BaseMessage handle(MyRequest req);
+
+
+    /**
+     * 获取参数map
+     * @param req
+     * @return
+     */
+    protected Map<String, Object> getMsgMap(MyRequest req){
+        try {
+            return MapperUtils.json2map(new String(req.getMsg()));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 
 }

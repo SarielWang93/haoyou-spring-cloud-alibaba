@@ -1,6 +1,7 @@
 package com.haoyou.spring.cloud.alibaba.manager.handle.get;
 
 
+import cn.hutool.core.util.StrUtil;
 import com.haoyou.spring.cloud.alibaba.commons.domain.ResponseMsg;
 import com.haoyou.spring.cloud.alibaba.commons.domain.SendType;
 import com.haoyou.spring.cloud.alibaba.commons.message.BaseMessage;
@@ -38,20 +39,20 @@ public class GetPropsHandle extends ManagerHandle {
         byte[] msg = req.getMsg();
         Map<String, Object> msgMap = null;
         try {
-            msgMap =  MapperUtils.json2map(new String(msg));
+            msgMap = MapperUtils.json2map(new String(msg));
         } catch (Exception e) {
             e.printStackTrace();
         }
 
         MapBody mapBody = new MapBody<>();
         mapBody.setState(ResponseMsg.MSG_ERR);
-        if(msgMap != null){
+        if (msgMap != null) {
             mapBody.setState(ResponseMsg.MSG_SUCCESS);
             List<Prop> props = user.propList();
-            for(Prop prop:props){
-                if(prop.getName().equals(msgMap.get("name"))){
-                    mapBody.put("prop",prop);
-                    sendMsgUtil.sendMsgOneNoReturn(user.getUid(),req.getId(),mapBody);
+            for (Prop prop : props) {
+                if (StrUtil.isEmpty((String) msgMap.get("name")) || prop.getName().equals(msgMap.get("name"))) {
+                    mapBody.put("prop", prop);
+                    sendMsgUtil.sendMsgOneNoReturn(user.getUid(), req.getId(), mapBody);
                 }
             }
         }

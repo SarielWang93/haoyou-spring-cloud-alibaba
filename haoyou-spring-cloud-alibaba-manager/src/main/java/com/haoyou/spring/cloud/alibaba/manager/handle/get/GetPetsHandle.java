@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 获取背包道具
+ * 获取宠物列表数据
  */
 @Service
 public class GetPetsHandle extends ManagerHandle {

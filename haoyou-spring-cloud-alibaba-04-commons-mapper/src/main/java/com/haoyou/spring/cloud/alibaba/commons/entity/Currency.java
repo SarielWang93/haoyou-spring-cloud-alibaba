@@ -55,4 +55,11 @@ public class Currency implements Serializable {
      */
     private byte[] props;
 
+
+    /**
+     * 匹配基准值
+     */
+    @Column(name = "`rank`")
+    private Integer rank;
+
 }

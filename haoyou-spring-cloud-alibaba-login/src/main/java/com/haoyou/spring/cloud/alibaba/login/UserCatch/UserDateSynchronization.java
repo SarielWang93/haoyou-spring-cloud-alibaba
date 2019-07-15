@@ -149,7 +149,9 @@ public class UserDateSynchronization {
      */
     public void saveSqlUser(User user) {
         userMapper.updateByPrimaryKeySelective(user);
+
         currencyMapper.updateByPrimaryKeySelective(user.getCurrency());
+
         userDataMapper.updateByPrimaryKeySelective(user.getUserData());
     }
 

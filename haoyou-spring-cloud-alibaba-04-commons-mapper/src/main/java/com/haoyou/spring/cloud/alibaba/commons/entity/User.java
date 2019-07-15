@@ -54,7 +54,7 @@ public class User extends BaseMessage implements Serializable {
      * 玩家编号
      */
     @Column(name = "id_num")
-    private String idNard;
+    private String idNum;
 
 
     /**
@@ -80,12 +80,6 @@ public class User extends BaseMessage implements Serializable {
      */
     @Column(name = "platform_param")
     private byte[] platformParam;
-
-    /**
-     * 匹配基准值
-     */
-    @Column(name = "`rank`")
-    private Integer rank;
 
 
     /**
