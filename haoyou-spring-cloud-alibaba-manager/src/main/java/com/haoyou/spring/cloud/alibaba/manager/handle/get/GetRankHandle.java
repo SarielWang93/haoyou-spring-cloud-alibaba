@@ -4,6 +4,7 @@ package com.haoyou.spring.cloud.alibaba.manager.handle.get;
 import com.haoyou.spring.cloud.alibaba.commons.domain.RedisKey;
 import com.haoyou.spring.cloud.alibaba.commons.domain.ResponseMsg;
 import com.haoyou.spring.cloud.alibaba.commons.domain.SendType;
+import com.haoyou.spring.cloud.alibaba.commons.entity.Server;
 import com.haoyou.spring.cloud.alibaba.commons.entity.User;
 import com.haoyou.spring.cloud.alibaba.commons.message.BaseMessage;
 import com.haoyou.spring.cloud.alibaba.commons.message.MapBody;
@@ -39,6 +40,7 @@ public class GetRankHandle extends ManagerHandle {
     @Override
     public BaseMessage handle(MyRequest req) {
         User user = req.getUser();
+        Server server = redisObjectUtil.get(RedisKeyUtil.getKey(RedisKey.SERVER, user.getServerId().toString()), Server.class);
 
         MapBody mapBody = new MapBody<>();
         mapBody.setState(ResponseMsg.MSG_SUCCESS);
@@ -49,23 +51,31 @@ public class GetRankHandle extends ManagerHandle {
         if (aLong > 100) {
             start = aLong - 100;
         }
-        List<String> list = scoreRankService.list(RedisKey.RANKING, start, aLong);
-
+        List<String> list = scoreRankService.list(RedisKeyUtil.getKey(RedisKey.RANKING, server.getServerNum().toString()), start, aLong);
         Map[] players = new Map[list.size()];
 
+        int myRanking = -1;
+
         for (int i = 0; i < list.size(); i++) {
-            Map<String, Object> player = new HashMap<>();
-            user = redisObjectUtil.get(RedisKeyUtil.getKey(RedisKey.USER, list.get(i)), User.class);
+            Map<String, Object> player = null;
 
-            player.put("name", user.getUserData().getName());
-            player.put("avatar", user.getUserData().getAvatar());
-            player.put("rank", user.getCurrency().getRank());
+            try {
+                player = MapperUtils.json2map(list.get(i));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
 
-            players[list.size()-1-i] = player;
+            if (player.get("useruid").equals(user.getUid())) {
+                myRanking = i + 1;
+            }
+
+            players[i] = player;
         }
 
-
         mapBody.put("players", players);
+        mapBody.put("ranking", myRanking);
+        mapBody.put("integral", user.getCurrency().getRank());
+
         return mapBody;
     }
 }

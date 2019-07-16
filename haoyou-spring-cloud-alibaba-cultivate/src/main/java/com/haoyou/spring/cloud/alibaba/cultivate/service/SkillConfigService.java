@@ -1,28 +1,20 @@
 package com.haoyou.spring.cloud.alibaba.cultivate.service;
 
 import cn.hutool.core.util.StrUtil;
-import com.haoyou.spring.cloud.alibaba.commons.domain.RedisKey;
 import com.haoyou.spring.cloud.alibaba.commons.entity.PetSkill;
 import com.haoyou.spring.cloud.alibaba.commons.entity.Prop;
 import com.haoyou.spring.cloud.alibaba.commons.entity.User;
 import com.haoyou.spring.cloud.alibaba.commons.mapper.PetMapper;
 import com.haoyou.spring.cloud.alibaba.commons.mapper.PetSkillMapper;
 import com.haoyou.spring.cloud.alibaba.commons.mapper.UserMapper;
-import com.haoyou.spring.cloud.alibaba.commons.util.MapperUtils;
-import com.haoyou.spring.cloud.alibaba.commons.util.RedisKeyUtil;
-import com.haoyou.spring.cloud.alibaba.cultivate.msg.SkillConfigMsg;
+import com.haoyou.spring.cloud.alibaba.pojo.cultivate.SkillConfigMsg;
 import com.haoyou.spring.cloud.alibaba.fighting.info.FightingPet;
 import com.haoyou.spring.cloud.alibaba.fighting.info.skill.SkillBoard;
 import com.haoyou.spring.cloud.alibaba.fighting.info.skill.shape.Tetromino;
-import com.haoyou.spring.cloud.alibaba.serialization.JsonSerializer;
 import com.haoyou.spring.cloud.alibaba.util.RedisObjectUtil;
 import com.haoyou.spring.cloud.alibaba.util.SendMsgUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
 
 /**
  * @Author: wanghui

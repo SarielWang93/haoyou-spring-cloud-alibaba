@@ -4,8 +4,8 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.thread.ThreadUtil;
 import cn.hutool.core.util.StrUtil;
 import com.haoyou.spring.cloud.alibaba.commons.domain.FightingType;
-import org.apache.dubbo.config.annotation.Reference;
 import com.haoyou.spring.cloud.alibaba.commons.domain.RewardType;
+import org.apache.dubbo.config.annotation.Reference;
 import com.haoyou.spring.cloud.alibaba.commons.message.BaseMessage;
 import com.haoyou.spring.cloud.alibaba.commons.domain.RedisKey;
 import com.haoyou.spring.cloud.alibaba.commons.domain.SendType;
@@ -379,7 +379,7 @@ public class MatchPoolServiceImpl implements MatchPoolService {
                 playerRoomInfoT.delete(redisObjectUtil);
                 logger.info(String.format("匹配成功进入对战：%s", CollUtil.join(users, ",")));
                 //创建战斗房间，开启战斗
-                fightingService.start(users,new HashMap<>(), RewardType.PVE , FightingType.PVP);
+                fightingService.start(users,new HashMap<>(), RewardType.PVP , FightingType.PVP);
                 break A;
             }
 

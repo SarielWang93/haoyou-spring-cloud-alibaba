@@ -3,16 +3,16 @@ package com.haoyou.spring.cloud.alibaba.cultivate.impl;
 import com.haoyou.spring.cloud.alibaba.commons.domain.ResponseMsg;
 import com.haoyou.spring.cloud.alibaba.commons.message.MapBody;
 import com.haoyou.spring.cloud.alibaba.commons.entity.*;
-import com.haoyou.spring.cloud.alibaba.cultivate.msg.PetUpLevMsg;
-import com.haoyou.spring.cloud.alibaba.cultivate.msg.PropUseMsg;
-import com.haoyou.spring.cloud.alibaba.cultivate.msg.UpdateIsworkMsg;
+import com.haoyou.spring.cloud.alibaba.pojo.cultivate.PetUpLevMsg;
+import com.haoyou.spring.cloud.alibaba.pojo.cultivate.PropUseMsg;
+import com.haoyou.spring.cloud.alibaba.pojo.cultivate.UpdateIsworkMsg;
 import com.haoyou.spring.cloud.alibaba.cultivate.service.PropUseService;
 import com.haoyou.spring.cloud.alibaba.fighting.info.FightingPet;
 import org.apache.dubbo.config.annotation.Service;
 import com.haoyou.spring.cloud.alibaba.commons.domain.RedisKey;
 import com.haoyou.spring.cloud.alibaba.commons.mapper.PetMapper;
 import com.haoyou.spring.cloud.alibaba.commons.util.RedisKeyUtil;
-import com.haoyou.spring.cloud.alibaba.cultivate.msg.SkillConfigMsg;
+import com.haoyou.spring.cloud.alibaba.pojo.cultivate.SkillConfigMsg;
 import com.haoyou.spring.cloud.alibaba.cultivate.service.RewardService;
 import com.haoyou.spring.cloud.alibaba.cultivate.service.SkillConfigService;
 import com.haoyou.spring.cloud.alibaba.service.cultivate.CultivateService;
@@ -30,7 +30,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.atomic.LongAdder;
 
-import static com.haoyou.spring.cloud.alibaba.cultivate.msg.SkillConfigMsg.*;
+import static com.haoyou.spring.cloud.alibaba.pojo.cultivate.SkillConfigMsg.*;
 
 /**
  * @Author: wanghui
@@ -41,7 +41,7 @@ import static com.haoyou.spring.cloud.alibaba.cultivate.msg.SkillConfigMsg.*;
 @RefreshScope
 public class CultivateServiceImpl implements CultivateService {
     private static final Logger logger = LoggerFactory.getLogger(CultivateServiceImpl.class);
-    private static LongAdder la = new LongAdder();
+
     @Autowired
     private RedisObjectUtil redisObjectUtil;
     @Autowired
@@ -237,7 +237,7 @@ public class CultivateServiceImpl implements CultivateService {
      * @return
      */
     @Override
-    public boolean rewards(User user, int type) {
+    public boolean rewards(User user, String type) {
         if (rewardService.rewards(user, type)) {
             return this.saveUser(user);
         }

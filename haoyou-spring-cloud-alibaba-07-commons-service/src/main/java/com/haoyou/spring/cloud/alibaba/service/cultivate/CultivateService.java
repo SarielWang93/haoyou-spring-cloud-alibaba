@@ -38,7 +38,7 @@ public interface CultivateService {
     /**
      * 奖励获取
      */
-    boolean rewards(User user,int type);
+    boolean rewards(User user,String type);
 
 
     /**

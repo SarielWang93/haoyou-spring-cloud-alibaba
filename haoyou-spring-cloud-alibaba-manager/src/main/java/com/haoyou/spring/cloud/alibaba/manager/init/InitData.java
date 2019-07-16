@@ -4,6 +4,7 @@ import com.haoyou.spring.cloud.alibaba.commons.domain.RedisKey;
 import com.haoyou.spring.cloud.alibaba.commons.entity.*;
 import com.haoyou.spring.cloud.alibaba.commons.entity.Currency;
 import com.haoyou.spring.cloud.alibaba.commons.mapper.*;
+import com.haoyou.spring.cloud.alibaba.commons.util.MapperUtils;
 import com.haoyou.spring.cloud.alibaba.commons.util.RedisKeyUtil;
 import com.haoyou.spring.cloud.alibaba.redis.service.ScoreRankService;
 import com.haoyou.spring.cloud.alibaba.util.RedisObjectUtil;
@@ -59,6 +60,11 @@ public class InitData implements ApplicationRunner {
     private UserDataMapper userDataMapper;
     @Autowired
     private CurrencyMapper currencyMapper;
+    @Autowired
+    private ServerMapper serverMapper;
+    @Autowired
+    private AwardMapper awardMapper;
+
 
     private Date lastDo;
 
@@ -74,6 +80,10 @@ public class InitData implements ApplicationRunner {
          * 每次加载必须间隔一分钟以上，防止攻击
          */
         if (lastDo == null || now.getTime() - lastDo.getTime() > 60 * 1000) {
+            //加载奖励信息
+            initAward();
+            //加载服务器信息
+            initServer();
             //加载版本信息
             initVersion();
             //加载排行榜
@@ -93,6 +103,27 @@ public class InitData implements ApplicationRunner {
         }
         return false;
     }
+
+    private void initAward() {
+        redisObjectUtil.deleteAll(RedisKeyUtil.getlkKey(RedisKey.AWARD));
+        List<Award> awards = awardMapper.selectAll();
+        for (Award award : awards) {
+            String awardKey = RedisKeyUtil.getKey(RedisKey.AWARD, award.getType());
+            redisObjectUtil.save(awardKey,award,-1);
+        }
+    }
+
+    //加载服务器信息
+    private void initServer() {
+        redisObjectUtil.deleteAll(RedisKeyUtil.getlkKey(RedisKey.SERVER));
+        List<Server> servers = serverMapper.selectAll();
+        for (Server server : servers) {
+            String levelUpExpKey = RedisKeyUtil.getKey(RedisKey.SERVER, server.getId().toString());
+            redisObjectUtil.save(levelUpExpKey,server,-1);
+        }
+
+    }
+
 
     /**
      * 宠物等级提升所需经验表
@@ -124,13 +155,33 @@ public class InitData implements ApplicationRunner {
     /**
      * 初始化排行榜
      *
-     * @throws Exception
      */
     public void initRanking() {
 
         //初始化缓存排行榜
-        final String ranking = RedisKey.RANKING;
+
+        //总榜
+        String rankKey = RedisKey.RANKING;
         List<User> users = userMapper.selectAll();
+        this.ranking(users,rankKey);
+
+        //分服
+        List<Server> servers = serverMapper.selectAll();
+        for(Server server : servers){
+            User user = new User();
+            user.setServerId(server.getId());
+            List<User> serverUsers = userMapper.select(user);
+            String serverRankKey = RedisKeyUtil.getKey(RedisKey.RANKING,server.getServerNum().toString());
+            this.ranking(serverUsers,serverRankKey);
+
+        }
+
+
+    }
+
+
+    private void ranking(List<User> users,String rankKey) {
+        redisObjectUtil.delete(rankKey);
         Map<String, Long> msgs = new HashMap<>();
         for (User user : users) {
             Currency currency = new Currency();
@@ -141,11 +192,29 @@ public class InitData implements ApplicationRunner {
             userData.setUserUid(user.getUid());
             userData = userDataMapper.selectOne(userData);
 
+            Map<String, Object> player = new HashMap<>();
 
-            msgs.put(user.getUid(), currency.getRank().longValue());
+            player.put("useruid", user.getUid());
+            player.put("name", userData.getName());
+            player.put("avatar", userData.getAvatar());
+            player.put("integral", currency.getRank());
+
+            String plj="";
+            try {
+                plj = MapperUtils.obj2json(player);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            msgs.put(plj, currency.getRank().longValue());
         }
-        scoreRankService.batchAdd(ranking, msgs);
+        scoreRankService.batchAdd(rankKey, msgs);
     }
+
+
+
+
+
 
     /**
      * 初始化技能

@@ -25,10 +25,10 @@ public class FightingRoom implements Serializable {
     private String uid;
 
     //战斗种类（PVE,PVP）
-    private int fightingType;
+    private String fightingType;
 
     //奖励种类
-    private int rewardType;
+    private String rewardType;
 
     //创建时间
     private Date creatTime;
@@ -64,7 +64,7 @@ public class FightingRoom implements Serializable {
     public FightingRoom() {
     }
 
-    public FightingRoom(List<User> users, int rewardType,int fightingType) {
+    public FightingRoom(List<User> users, String rewardType,String fightingType) {
 
         this.rewardType = rewardType;
         this.fightingType = fightingType;

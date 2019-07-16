@@ -2,6 +2,7 @@ package com.haoyou.spring.cloud.alibaba.commons.domain;
 
 public class RewardType {
 
-    //PVE
-    public final static int PVE = 1;
+    public final static String PVE = "pve";//
+
+    public final static String PVP = "pvp";//
 }

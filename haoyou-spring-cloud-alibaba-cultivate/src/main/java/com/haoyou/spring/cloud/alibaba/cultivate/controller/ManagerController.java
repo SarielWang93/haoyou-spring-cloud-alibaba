@@ -1,16 +1,19 @@
 package com.haoyou.spring.cloud.alibaba.cultivate.controller;
 
+import cn.hutool.core.util.StrUtil;
 import com.haoyou.spring.cloud.alibaba.commons.domain.RedisKey;
+import com.haoyou.spring.cloud.alibaba.commons.domain.RewardType;
+import com.haoyou.spring.cloud.alibaba.commons.entity.Award;
+import com.haoyou.spring.cloud.alibaba.commons.mapper.AwardMapper;
 import com.haoyou.spring.cloud.alibaba.commons.message.MapBody;
 import com.haoyou.spring.cloud.alibaba.commons.entity.Pet;
 import com.haoyou.spring.cloud.alibaba.commons.entity.PetType;
 import com.haoyou.spring.cloud.alibaba.commons.entity.User;
 import com.haoyou.spring.cloud.alibaba.commons.util.MapperUtils;
 import com.haoyou.spring.cloud.alibaba.commons.util.RedisKeyUtil;
-import com.haoyou.spring.cloud.alibaba.cultivate.msg.PetUpLevMsg;
-import com.haoyou.spring.cloud.alibaba.cultivate.msg.PropUseMsg;
-import com.haoyou.spring.cloud.alibaba.cultivate.msg.UpdateIsworkMsg;
-import com.haoyou.spring.cloud.alibaba.cultivate.reward.Award;
+import com.haoyou.spring.cloud.alibaba.pojo.cultivate.PetUpLevMsg;
+import com.haoyou.spring.cloud.alibaba.pojo.cultivate.PropUseMsg;
+import com.haoyou.spring.cloud.alibaba.pojo.cultivate.UpdateIsworkMsg;
 import com.haoyou.spring.cloud.alibaba.fighting.info.FightingPet;
 import com.haoyou.spring.cloud.alibaba.service.cultivate.CultivateService;
 import com.haoyou.spring.cloud.alibaba.sofabolt.protocol.MyRequest;
@@ -22,6 +25,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 @RestController
 public class ManagerController {
@@ -29,11 +33,13 @@ public class ManagerController {
 
 
     @Autowired
-    protected RedisObjectUtil redisObjectUtil;
+    private RedisObjectUtil redisObjectUtil;
     @Autowired
-    protected CultivateService cultivateService;
+    private CultivateService cultivateService;
     @Autowired
-    protected SendMsgUtil sendMsgUtil;
+    private SendMsgUtil sendMsgUtil;
+    @Autowired
+    private AwardMapper awardMapper;
 
     /**
      * 设置PVE胜利奖励
@@ -45,7 +51,21 @@ public class ManagerController {
     @PostMapping(value = "setPVEAward")
     public String setPVEAward(@RequestBody Award award) {
 
-        redisObjectUtil.save("award:pve", award);
+        Award awardOld = redisObjectUtil.get(RedisKeyUtil.getKey(RedisKey.AWARD, award.getType()), Award.class);
+
+        if (awardOld != null) {
+            awardOld.init(award.getCoin(), award.getDiamond(), award.getExp(), award.getPetExp(), award.getPropsList());
+
+            redisObjectUtil.save(RedisKeyUtil.getKey(RedisKey.AWARD, award.getType()), awardOld);
+
+            awardMapper.updateByPrimaryKeySelective(awardOld);
+        }else{
+            awardOld = new Award().init(award.getCoin(), award.getDiamond(), award.getExp(), award.getPetExp(), award.getPropsList());
+            awardOld.setType(award.getType());
+            awardMapper.insertSelective(awardOld);
+            redisObjectUtil.save(RedisKeyUtil.getKey(RedisKey.AWARD, awardOld.getType()), awardOld);
+        }
+
 
         return "success";
 
@@ -58,14 +78,27 @@ public class ManagerController {
      */
     @CrossOrigin
     @GetMapping(value = "getPVEAward")
-    public String getPVEAward() {
-
-        Award award = redisObjectUtil.get("award:pve", Award.class);
-
-        try {
-            return MapperUtils.obj2json(award);
-        } catch (Exception e) {
-            e.printStackTrace();
+    public String getPVEAward(String type) {
+        if (StrUtil.isEmpty(type)) {
+            HashMap<String, Award> awards = redisObjectUtil.getlkMap(RedisKeyUtil.getlkKey(RedisKey.AWARD), Award.class);
+            for (Award award : awards.values()) {
+                award.setPropsList(award.propList());
+                award.setProps(null);
+            }
+            try {
+                return MapperUtils.obj2jsonIgnoreNull(awards.values());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        } else {
+            Award award = redisObjectUtil.get(RedisKeyUtil.getKey(RedisKey.AWARD, type), Award.class);
+            award.setPropsList(award.propList());
+            award.setProps(null);
+            try {
+                return MapperUtils.obj2jsonIgnoreNull(award);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
         return null;
 
@@ -83,7 +116,7 @@ public class ManagerController {
 
         User user = redisObjectUtil.get(RedisKeyUtil.getKey(RedisKey.USER, userUid), User.class);
 
-        if (cultivateService.rewards(user, 1)) {
+        if (cultivateService.rewards(user, RewardType.PVE)) {
             return "success";
         }
         return "err";
@@ -147,7 +180,7 @@ public class ManagerController {
      */
     @CrossOrigin
     @GetMapping(value = "useProps")
-    public String useProps(String userUid, String petUid, String propInstenceUid, int propCount,int type) {
+    public String useProps(String userUid, String petUid, String propInstenceUid, int propCount, int type) {
 
         PropUseMsg propUseMsg = new PropUseMsg();
         propUseMsg.setPetUid(petUid);

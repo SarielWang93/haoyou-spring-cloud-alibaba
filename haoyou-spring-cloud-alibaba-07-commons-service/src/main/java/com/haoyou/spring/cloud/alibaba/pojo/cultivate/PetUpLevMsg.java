@@ -1,8 +1,8 @@
-package com.haoyou.spring.cloud.alibaba.cultivate.msg;
+package com.haoyou.spring.cloud.alibaba.pojo.cultivate;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.haoyou.spring.cloud.alibaba.commons.entity.Prop;
-import com.haoyou.spring.cloud.alibaba.commons.entity.User;
+import com.haoyou.spring.cloud.alibaba.fighting.info.skill.shape.Tetromino;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -14,11 +14,10 @@ import java.io.Serializable;
  */
 @Data
 @JsonIgnoreProperties(value = {}, ignoreUnknown = true)
-public class UpdateIsworkMsg implements Serializable {
+public class PetUpLevMsg implements Serializable {
 
-    private static final long serialVersionUID = -7334221920628541249L;
+    private static final long serialVersionUID = 3142197269533216894L;
 
     private String petUid;
-    private int iswork;
 
 }

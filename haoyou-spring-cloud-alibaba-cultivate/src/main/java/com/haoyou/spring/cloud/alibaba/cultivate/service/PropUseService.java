@@ -2,7 +2,7 @@ package com.haoyou.spring.cloud.alibaba.cultivate.service;
 
 
 import cn.hutool.core.lang.Console;
-import com.haoyou.spring.cloud.alibaba.cultivate.msg.PropUseMsg;
+import com.haoyou.spring.cloud.alibaba.pojo.cultivate.PropUseMsg;
 import com.haoyou.spring.cloud.alibaba.cultivate.prop.use.handle.PeopUseHandle;
 import org.springframework.stereotype.Service;
 

@@ -20,8 +20,8 @@ public class ScoreRankServiceImpl implements ScoreRankService {
 
         Set<ZSetOperations.TypedTuple<String>> tuples = new HashSet<>();
 
-        msgs.forEach((userUid, rank) -> {
-            DefaultTypedTuple<String> tuple = new DefaultTypedTuple<String>(userUid, rank.doubleValue());
+        msgs.forEach((user, rank) -> {
+            DefaultTypedTuple<String> tuple = new DefaultTypedTuple<String>(user, rank.doubleValue());
             tuples.add(tuple);
         });
         Long num = redisTemplate.opsForZSet().add(scoreRank, tuples);
@@ -38,9 +38,9 @@ public class ScoreRankServiceImpl implements ScoreRankService {
     @Override
     public List<String> list(String scoreRank,Long start, Long end) {
         Set<String> range = redisTemplate.opsForZSet().reverseRange(scoreRank, start, end);
-        List<String> userUids=new ArrayList<>();
-        userUids.addAll(range);
-        return userUids;
+        List<String> users=new ArrayList<>();
+        users.addAll(range);
+        return users;
     }
 
     @Override

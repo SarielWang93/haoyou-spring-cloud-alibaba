@@ -9,13 +9,13 @@ public class RedisKey {
 
     public static final String FIGHT_PETS = "fight_pets";
     public static final String SKILL = "skill";
-
+    public static final String SERVER = "server";
 
     public static final String LEVEL_UP_EXP = "level_up_exp";
     public static final String LEV_LOYALTY = "lev_loyalty";
 
     public static final String PROP = "prop";
-
+    public static final String AWARD = "award";
     public static final String VERSION = "version";
 
 

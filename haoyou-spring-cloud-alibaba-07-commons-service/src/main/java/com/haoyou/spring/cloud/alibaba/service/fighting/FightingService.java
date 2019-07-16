@@ -14,7 +14,7 @@ import java.util.Map;
 public interface FightingService {
 
 
-    boolean start(List<User> users, Map<String,Boolean> allIsAi, int rewardType,int fightingType);
+    boolean start(List<User> users, Map<String,Boolean> allIsAi, String rewardType,String fightingType);
 
 
     MapBody receiveFightingMsg(MyRequest req);

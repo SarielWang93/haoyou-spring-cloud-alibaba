@@ -7,11 +7,14 @@ import javax.persistence.Column;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import java.io.Serializable;
 import java.util.Date;
 
 @Data
 @JsonIgnoreProperties(value = {}, ignoreUnknown = true)
-public class Server {
+public class Server implements Serializable {
+    private static final long serialVersionUID = -2693592131474049664L;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;

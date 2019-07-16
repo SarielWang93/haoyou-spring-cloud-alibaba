@@ -64,7 +64,7 @@ public class FightingServiceImpl implements FightingService {
      * @return
      */
     @Override
-    public boolean start(List<User> users,Map<String,Boolean> allIsAi,int rewardType,int fightingType) {
+    public boolean start(List<User> users,Map<String,Boolean> allIsAi,String rewardType,String fightingType) {
 
         /**
          * 创建房间

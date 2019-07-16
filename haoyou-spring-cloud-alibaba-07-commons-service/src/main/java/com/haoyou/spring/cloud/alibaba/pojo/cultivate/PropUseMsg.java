@@ -1,4 +1,4 @@
-package com.haoyou.spring.cloud.alibaba.cultivate.msg;
+package com.haoyou.spring.cloud.alibaba.pojo.cultivate;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.haoyou.spring.cloud.alibaba.commons.entity.Prop;
