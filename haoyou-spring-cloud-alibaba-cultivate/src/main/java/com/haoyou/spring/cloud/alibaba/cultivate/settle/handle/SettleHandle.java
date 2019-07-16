@@ -5,7 +5,7 @@ import com.haoyou.spring.cloud.alibaba.commons.mapper.UserMapper;
 import com.haoyou.spring.cloud.alibaba.cultivate.service.PropUseService;
 import com.haoyou.spring.cloud.alibaba.cultivate.service.RewardService;
 import com.haoyou.spring.cloud.alibaba.cultivate.service.SkillConfigService;
-import com.haoyou.spring.cloud.alibaba.cultivate.settle.Settlement;
+import com.haoyou.spring.cloud.alibaba.cultivate.service.SettlementService;
 import com.haoyou.spring.cloud.alibaba.util.RedisObjectUtil;
 import com.haoyou.spring.cloud.alibaba.util.SendMsgUtil;
 import lombok.Data;
@@ -42,7 +42,7 @@ public abstract class SettleHandle {
      */
     @PostConstruct
     protected void init(){
-        Settlement.register(this);
+        SettlementService.register(this);
     }
 
 

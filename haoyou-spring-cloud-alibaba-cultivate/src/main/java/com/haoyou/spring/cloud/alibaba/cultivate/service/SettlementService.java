@@ -1,4 +1,4 @@
-package com.haoyou.spring.cloud.alibaba.cultivate.settle;
+package com.haoyou.spring.cloud.alibaba.cultivate.service;
 
 import com.haoyou.spring.cloud.alibaba.cultivate.settle.handle.SettleHandle;
 import lombok.Data;
@@ -15,7 +15,7 @@ import java.util.List;
  */
 @Service
 @Data
-public class Settlement {
+public class SettlementService {
 
 
     private static List<SettleHandle> handleList = new ArrayList<>();
