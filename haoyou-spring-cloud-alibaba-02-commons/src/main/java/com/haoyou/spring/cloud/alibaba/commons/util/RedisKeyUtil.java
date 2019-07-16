@@ -9,17 +9,15 @@ public class RedisKeyUtil {
 
     /**
      * redis的key
-     * 形式为：
-     * 表名:主键名:主键值
      *
-     * @param st1 表名
-     * @param st2 主键值
      * @return
      */
-    public static String getKey(String st1,String st2){
+    public static String getKey(String... strs){
         StrBuilder buffer = StrBuilder.create();
-        buffer.append(st1).append(":");
-        buffer.append(st2);
+        for(String str : strs){
+            buffer.append(str).append(":");
+        }
+        buffer.subSequence(0,buffer.length()-1);
         String s = buffer.toString();
         buffer.reset();
         return s;
@@ -33,7 +31,6 @@ public class RedisKeyUtil {
     public static String getlkKey(String st1){
         StrBuilder buffer = StrBuilder.create();
         buffer.append(st1).append(":");
-
         buffer.append("*");
         String s = buffer.toString();
         buffer.reset();

@@ -4,6 +4,7 @@ import com.haoyou.spring.cloud.alibaba.commons.entity.Prop;
 import com.haoyou.spring.cloud.alibaba.commons.entity.User;
 import com.haoyou.spring.cloud.alibaba.commons.mapper.PetMapper;
 import com.haoyou.spring.cloud.alibaba.commons.mapper.UserMapper;
+import com.haoyou.spring.cloud.alibaba.cultivate.service.RewardService;
 import com.haoyou.spring.cloud.alibaba.pojo.cultivate.PropUseMsg;
 import com.haoyou.spring.cloud.alibaba.cultivate.service.PropUseService;
 import com.haoyou.spring.cloud.alibaba.util.RedisObjectUtil;
@@ -30,6 +31,9 @@ public abstract class PeopUseHandle {
 
     @Autowired
     protected UserMapper userMapper;
+
+    @Autowired
+    protected RewardService rewardService;
 
 
     /**

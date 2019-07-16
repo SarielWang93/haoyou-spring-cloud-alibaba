@@ -1,11 +1,13 @@
 package com.haoyou.spring.cloud.alibaba.cultivate.settle.handle;
 
 import com.haoyou.spring.cloud.alibaba.commons.mapper.PetMapper;
+import com.haoyou.spring.cloud.alibaba.commons.mapper.ServerMapper;
 import com.haoyou.spring.cloud.alibaba.commons.mapper.UserMapper;
 import com.haoyou.spring.cloud.alibaba.cultivate.service.PropUseService;
 import com.haoyou.spring.cloud.alibaba.cultivate.service.RewardService;
 import com.haoyou.spring.cloud.alibaba.cultivate.service.SkillConfigService;
 import com.haoyou.spring.cloud.alibaba.cultivate.service.SettlementService;
+import com.haoyou.spring.cloud.alibaba.redis.service.ScoreRankService;
 import com.haoyou.spring.cloud.alibaba.util.RedisObjectUtil;
 import com.haoyou.spring.cloud.alibaba.util.SendMsgUtil;
 import lombok.Data;
@@ -29,6 +31,10 @@ public abstract class SettleHandle {
     protected PetMapper petMapper;
     @Autowired
     protected UserMapper userMapper;
+    @Autowired
+    protected ServerMapper serverMapper;
+    @Autowired
+    protected ScoreRankService scoreRankService;
     @Autowired
     protected SkillConfigService skillConfigService;
     @Autowired

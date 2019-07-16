@@ -4,6 +4,7 @@ package com.haoyou.spring.cloud.alibaba.manager.handle.get;
 import com.haoyou.spring.cloud.alibaba.commons.domain.RedisKey;
 import com.haoyou.spring.cloud.alibaba.commons.domain.ResponseMsg;
 import com.haoyou.spring.cloud.alibaba.commons.domain.SendType;
+import com.haoyou.spring.cloud.alibaba.commons.entity.Award;
 import com.haoyou.spring.cloud.alibaba.commons.entity.Server;
 import com.haoyou.spring.cloud.alibaba.commons.entity.User;
 import com.haoyou.spring.cloud.alibaba.commons.message.BaseMessage;
@@ -46,7 +47,7 @@ public class GetRankHandle extends ManagerHandle {
         mapBody.setState(ResponseMsg.MSG_SUCCESS);
 
 
-        Long aLong = scoreRankService.zCard(RedisKey.RANKING);
+        Long aLong = scoreRankService.zCard(RedisKeyUtil.getKey(RedisKey.RANKING, server.getServerNum().toString()));
         Long start = 0l;
         if (aLong > 100) {
             start = aLong - 100;
@@ -72,9 +73,14 @@ public class GetRankHandle extends ManagerHandle {
             players[i] = player;
         }
 
+        String key1 = RedisKeyUtil.getKey(RedisKey.USER_AWARD, user.getUid());
+        String key = RedisKeyUtil.getKey(key1, RedisKey.RANKING);
+        Award award = redisObjectUtil.get(key, Award.class);
+
         mapBody.put("players", players);
         mapBody.put("ranking", myRanking);
         mapBody.put("integral", user.getCurrency().getRank());
+        mapBody.put("award",award);
 
         return mapBody;
     }

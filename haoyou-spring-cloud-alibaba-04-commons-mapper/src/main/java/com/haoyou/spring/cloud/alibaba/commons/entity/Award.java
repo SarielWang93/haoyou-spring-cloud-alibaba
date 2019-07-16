@@ -49,6 +49,9 @@ public class Award extends BaseMessage implements Serializable {
     private byte[] props;
 
     @Transient
+    private boolean used;
+
+    @Transient
     private List<Prop> propsList;
 
     public Award() {
