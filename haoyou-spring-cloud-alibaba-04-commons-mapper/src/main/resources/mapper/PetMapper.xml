@@ -39,5 +39,6 @@
     <result column="creat_date" jdbcType="TIMESTAMP" property="creatDate" />
     <result column="last_update_date" jdbcType="TIMESTAMP" property="lastUpdateDate" />
     <result column="status" jdbcType="INTEGER" property="status" />
+    <result column="culture" jdbcType="INTEGER" property="culture" />
   </resultMap>
 </mapper>

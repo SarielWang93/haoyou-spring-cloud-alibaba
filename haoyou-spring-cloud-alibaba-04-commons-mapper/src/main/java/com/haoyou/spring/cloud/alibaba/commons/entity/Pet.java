@@ -100,6 +100,12 @@ public class Pet implements Serializable {
 
 
     /**
+     * 培养等级
+     */
+    private Integer culture;
+
+
+    /**
      * 经验值
      */
     private Integer exp;
@@ -227,6 +233,7 @@ public class Pet implements Serializable {
         this.hp = petType.getHp();
         this.hpGr = petType.getHpGr();
         this.typeUid = petType.getUid();
+        this.culture = 0;
         this.userUid = user.getUid();
         this.type = petType.getType();
         this.spd = petType.getSpd();
