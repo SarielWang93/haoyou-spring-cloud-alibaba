@@ -3,6 +3,7 @@ package com.haoyou.spring.cloud.alibaba.cultivate.impl;
 import com.haoyou.spring.cloud.alibaba.commons.domain.ResponseMsg;
 import com.haoyou.spring.cloud.alibaba.commons.message.MapBody;
 import com.haoyou.spring.cloud.alibaba.commons.entity.*;
+import com.haoyou.spring.cloud.alibaba.commons.util.MapperUtils;
 import com.haoyou.spring.cloud.alibaba.pojo.cultivate.PetUpLevMsg;
 import com.haoyou.spring.cloud.alibaba.pojo.cultivate.PropUseMsg;
 import com.haoyou.spring.cloud.alibaba.pojo.cultivate.UpdateIsworkMsg;
@@ -24,10 +25,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.atomic.LongAdder;
 
 import static com.haoyou.spring.cloud.alibaba.pojo.cultivate.SkillConfigMsg.*;
@@ -103,21 +101,25 @@ public class CultivateServiceImpl implements CultivateService {
             if (propUseMsg.getPropCount() <= prop.getCount()) {
                 propUseMsg.setProp(prop);
                 propUseMsg.setUser(user);
-                if (propUseService.propUse(propUseMsg)) {
+                int rsm = propUseService.propUse(propUseMsg);
+                if (rsm == ResponseMsg.MSG_SUCCESS) {
                     if (this.saveUser(user)) {
                         rt.setState(ResponseMsg.MSG_SUCCESS);
                         return rt;
                     }
                 }else {
+                    rt.setState(rsm);
                     rt.put("errMsg", "道具无法使用！");
                 }
             } else {
+                rt.setState(ResponseMsg.MSG_ERR);
                 rt.put("errMsg", "道具数量不足！");
             }
         } else {
+            rt.setState(ResponseMsg.MSG_ERR);
             rt.put("errMsg", "道具未找到！");
         }
-        rt.setState(ResponseMsg.MSG_ERR);
+
         return rt;
     }
 
@@ -242,6 +244,45 @@ public class CultivateServiceImpl implements CultivateService {
             return this.saveUser(user);
         }
         return false;
+    }
+
+    /**
+     * 领取奖励
+     * @param req
+     * @return
+     */
+    @Override
+    public MapBody receiveAward (MyRequest req) {
+        MapBody mapBody = new MapBody();
+        User user = req.getUser();
+        String type = "null";
+        try {
+            Map<String, Object> pro = MapperUtils.json2map(new String(req.getMsg()));
+            type = (String)pro.get("type");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        String key = RedisKeyUtil.getKey(RedisKey.USER_AWARD, user.getUid(), type);
+        Award award = redisObjectUtil.get(key, Award.class);
+        if(award != null && !award.isUsed()){
+            if (rewardService.doAward(user,award)) {
+                if(this.saveUser(user)){
+                    award.setUsed(true);
+                    redisObjectUtil.save(key,award);
+                    mapBody.setState(ResponseMsg.MSG_SUCCESS);
+                    return mapBody;
+                }else{
+                    mapBody.put("errMsg", "奖励保存未成功！");
+                }
+            }else{
+                mapBody.put("errMsg", "奖励获取错误！");
+            }
+        }else{
+            mapBody.put("errMsg", "奖励未找到，或者已经使用！");
+        }
+
+        mapBody.setState(ResponseMsg.MSG_ERR);
+        return mapBody;
     }
 
 

@@ -64,6 +64,10 @@ public class InitData implements ApplicationRunner {
     private ServerMapper serverMapper;
     @Autowired
     private AwardMapper awardMapper;
+    @Autowired
+    private PetEggMapper petEggMapper;
+    @Autowired
+    private PetEggPoolMapper petEggPoolMapper;
 
 
     private Date lastDo;
@@ -80,6 +84,8 @@ public class InitData implements ApplicationRunner {
          * 每次加载必须间隔一分钟以上，防止攻击
          */
         if (lastDo == null || now.getTime() - lastDo.getTime() > 60 * 1000) {
+            //加载卡池信息
+            initEggPool();
             //加载奖励信息
             initAward();
             //加载服务器信息
@@ -103,7 +109,27 @@ public class InitData implements ApplicationRunner {
         }
         return false;
     }
+    //卡池信息
+    private void initEggPool() {
+        redisObjectUtil.deleteAll(RedisKeyUtil.getlkKey(RedisKey.PET_EGG));
+        redisObjectUtil.deleteAll(RedisKeyUtil.getlkKey(RedisKey.PET_EGG_POOL));
 
+        List<PetEgg> petEggs = petEggMapper.selectAll();
+        for(PetEgg petEgg : petEggs){
+            String petEggKey = RedisKeyUtil.getKey(RedisKey.PET_EGG, petEgg.getId().toString());
+            redisObjectUtil.save(petEggKey,petEggKey,-1);
+        }
+
+        List<PetEggPool> petEggPools = petEggPoolMapper.selectAll();
+        for(PetEggPool petEggPool : petEggPools){
+            String petEggPoolKey = RedisKeyUtil.getKey(RedisKey.PET_EGG_POOL, petEggPool.getEggId().toString(),petEggPool.getId().toString());
+            redisObjectUtil.save(petEggPoolKey,petEggPool,-1);
+        }
+
+    }
+
+
+    //奖励信息
     private void initAward() {
         redisObjectUtil.deleteAll(RedisKeyUtil.getlkKey(RedisKey.AWARD));
         List<Award> awards = awardMapper.selectAll();
@@ -326,7 +352,7 @@ public class InitData implements ApplicationRunner {
 
         List<Prop> props = propMapper.selectAll();
         for (Prop prop : props) {
-            String propKey = RedisKeyUtil.getKey(RedisKey.PROP, prop.getUid());
+            String propKey = RedisKeyUtil.getKey(RedisKey.PROP, prop.getName());
             redisObjectUtil.save(propKey, prop, -1);
         }
     }

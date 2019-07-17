@@ -36,7 +36,7 @@ public class PVE extends RewardHandle {
         List<Prop> props = new ArrayList<>();
 
         //获取技能道具，并塞进去技能uid和形状
-        String propKey = RedisKeyUtil.getKey(RedisKey.PROP, "65e4552dc61052e3b5d99f640f245e93");
+        String propKey = RedisKeyUtil.getKey(RedisKey.PROP, "PetSkill");
 
         Prop prop = redisObjectUtil.get(propKey, Prop.class);
         prop.setPropInstenceUid(IdUtil.simpleUUID());

@@ -20,6 +20,8 @@ public class RedisKey {
     public static final String USER_AWARD = "user_award";
     public static final String VERSION = "version";
 
+    public static final String PET_EGG = "pet_egg";
+    public static final String PET_EGG_POOL = "pet_egg_pool";
 
     public static final String RANKING = "ranking";
 

@@ -1,6 +1,7 @@
 package com.haoyou.spring.cloud.alibaba.manager.test;
 
 import cn.hutool.core.lang.Console;
+import cn.hutool.core.text.StrBuilder;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.RandomUtil;
 import com.haoyou.spring.cloud.alibaba.commons.entity.User;
@@ -62,13 +63,8 @@ public class ManagerTest {
 
 
     public static void main(String[] args) throws InterruptedException{
-        Integer num = 102156;
-        String n = num.toString();
-        String IdNum = "HY00000000";
 
-        String substring = IdNum.substring(0, 10 - n.length());
 
-        Console.log(substring+n);
     }
 
     /**

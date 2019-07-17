@@ -9,7 +9,7 @@ public class RedisKeyUtil {
 
     /**
      * redis的key
-     *
+     * @param strs
      * @return
      */
     public static String getKey(String... strs){
@@ -17,20 +17,19 @@ public class RedisKeyUtil {
         for(String str : strs){
             buffer.append(str).append(":");
         }
-        buffer.subSequence(0,buffer.length()-1);
-        String s = buffer.toString();
+
+        String s = buffer.subString(0,buffer.length()-1);
         buffer.reset();
         return s;
     }
 
     /**
      * 获取模糊查询的key
-     * @param st1
+     * @param strs
      * @return
      */
-    public static String getlkKey(String st1){
-        StrBuilder buffer = StrBuilder.create();
-        buffer.append(st1).append(":");
+    public static String getlkKey(String... strs){
+        StrBuilder buffer = StrBuilder.create(getKey(strs));
         buffer.append("*");
         String s = buffer.toString();
         buffer.reset();

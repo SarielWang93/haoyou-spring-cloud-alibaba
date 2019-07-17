@@ -245,6 +245,9 @@ public class FightingPet implements Serializable {
 
     public void save() {
         //redis存储
+        if(this.ridesKey == null){
+            this.ridesKey = RedisKeyUtil.getKey(RedisKey.FIGHT_PETS,this.pet.getUserUid(),this.pet.getUid());
+        }
         this.pet.setLastUpdateDate(new Date());
         this.redisObjectUtil.save(this.ridesKey, this);
     }

@@ -48,9 +48,6 @@ public class RewardService {
             return false;
         }
 
-        for(Prop prop:award.propList()){
-            prop.setPropInstenceUid(IdUtil.simpleUUID());
-        }
         if(!award.isUsed()){
             this.doAward(user,award);
         }
@@ -78,7 +75,7 @@ public class RewardService {
      * @param user
      * @param award
      */
-    public void doAward(User user, Award award){
+    public boolean doAward(User user, Award award){
         boolean mail=true;
         //增加货币
         user.getCurrency().setCoin(user.getCurrency().getCoin() + award.getCoin());
@@ -96,11 +93,13 @@ public class RewardService {
         if(!user.addProps(award.propList())){
             //TODO 发送邮件给玩家
 
-            String key = RedisKeyUtil.getKey(RedisKey.EMIL, user.getUid(),RedisKey.USER_AWARD);
+            String key = RedisKeyUtil.getKey(RedisKey.USER_AWARD, user.getUid(), RedisKey.EMIL);
             redisObjectUtil.save(key,award);
 
         }
 
         this.send(user,award);
+
+        return true;
     }
 }

@@ -24,8 +24,7 @@ public class PropUseService {
         propUseHandleMap.put(peopUseHandle.getHandleType(),peopUseHandle);
     }
 
-    public boolean propUse(PropUseMsg propUseMsg) {
-        Console.log(propUseHandleMap);
+    public int propUse(PropUseMsg propUseMsg) {
         return propUseHandleMap.get(propUseMsg.getProp().getName()).useProp(propUseMsg);
     }
 }

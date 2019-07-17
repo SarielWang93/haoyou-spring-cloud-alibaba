@@ -1,5 +1,6 @@
 package com.haoyou.spring.cloud.alibaba.cultivate.prop.use.handle;
 
+import com.haoyou.spring.cloud.alibaba.commons.domain.ResponseMsg;
 import com.haoyou.spring.cloud.alibaba.commons.entity.Prop;
 import com.haoyou.spring.cloud.alibaba.commons.entity.User;
 import com.haoyou.spring.cloud.alibaba.commons.mapper.PetMapper;
@@ -21,6 +22,7 @@ import javax.annotation.PostConstruct;
 @Service
 @Data
 public abstract class PeopUseHandle {
+
 
     @Autowired
     protected RedisObjectUtil redisObjectUtil;
@@ -62,19 +64,19 @@ public abstract class PeopUseHandle {
      * @param propUseMsg
      * @return
      */
-    public abstract boolean handle(PropUseMsg propUseMsg);
+    public abstract int handle(PropUseMsg propUseMsg);
 
     /**
      * 道具使用
      * @param propUseMsg
      * @return
      */
-    public boolean useProp(PropUseMsg propUseMsg){
+    public int useProp(PropUseMsg propUseMsg){
 
         if(deleteProp(propUseMsg)){
             return handle(propUseMsg);
         }
-        return false;
+        return ResponseMsg.MSG_ERR;
     }
 
     /**

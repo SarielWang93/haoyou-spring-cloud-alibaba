@@ -76,6 +76,8 @@ public class GetRankHandle extends ManagerHandle {
         String key1 = RedisKeyUtil.getKey(RedisKey.USER_AWARD, user.getUid());
         String key = RedisKeyUtil.getKey(key1, RedisKey.RANKING);
         Award award = redisObjectUtil.get(key, Award.class);
+        award.setPropsList(award.propList());
+        award.setProps(null);
 
         mapBody.put("players", players);
         mapBody.put("ranking", myRanking);

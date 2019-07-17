@@ -3,6 +3,7 @@ package com.haoyou.spring.cloud.alibaba.cultivate.prop.use.handle;
 import cn.hutool.core.lang.WeightRandom;
 import cn.hutool.core.util.RandomUtil;
 import com.haoyou.spring.cloud.alibaba.commons.domain.RedisKey;
+import com.haoyou.spring.cloud.alibaba.commons.domain.ResponseMsg;
 import com.haoyou.spring.cloud.alibaba.commons.entity.*;
 import com.haoyou.spring.cloud.alibaba.commons.util.RedisKeyUtil;
 import com.haoyou.spring.cloud.alibaba.fighting.info.FightingPet;
@@ -22,11 +23,11 @@ import java.util.HashMap;
 public class GiftBoxHandle extends PeopUseHandle {
     @Override
     protected void setHandleType() {
-        this.handleType = "PetEgg";
+        this.handleType = "GiftBox";
     }
 
     @Override
-    public boolean handle(PropUseMsg propUseMsg) {
+    public int handle(PropUseMsg propUseMsg) {
 
         User user = propUseMsg.getUser();
         Prop prop = propUseMsg.getProp();
@@ -35,10 +36,10 @@ public class GiftBoxHandle extends PeopUseHandle {
         String key = RedisKeyUtil.getKey(RedisKey.AWARD, awardType);
         Award award = redisObjectUtil.get(key, Award.class);
 
-        if(!award.isUsed()){
-            rewardService.doAward(user,award);
-        }
 
-        return false;
+        rewardService.doAward(user,award);
+
+
+        return ResponseMsg.MSG_SUCCESS;
     }
 }

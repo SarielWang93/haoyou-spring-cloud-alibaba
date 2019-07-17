@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.haoyou.spring.cloud.alibaba.commons.mapper.PetEggMapper">
+  <resultMap id="BaseResultMap" type="com.haoyou.spring.cloud.alibaba.commons.entity.PetEgg">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="name" jdbcType="VARCHAR" property="name" />
+    <result column="l10n" jdbcType="VARCHAR" property="l10n" />
+    <result column="star5" jdbcType="INTEGER" property="star5" />
+    <result column="star4" jdbcType="INTEGER" property="star4" />
+    <result column="pet_type" jdbcType="VARCHAR" property="petType" />
+    <result column="is_pool" jdbcType="VARCHAR" property="isPool" />
+  </resultMap>
+</mapper>

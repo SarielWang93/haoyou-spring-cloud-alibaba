@@ -2,6 +2,7 @@ package com.haoyou.spring.cloud.alibaba.cultivate.prop.use.handle;
 
 import cn.hutool.core.util.IdUtil;
 import com.haoyou.spring.cloud.alibaba.commons.domain.RedisKey;
+import com.haoyou.spring.cloud.alibaba.commons.domain.ResponseMsg;
 import com.haoyou.spring.cloud.alibaba.commons.entity.LevLoyalty;
 import com.haoyou.spring.cloud.alibaba.commons.entity.Pet;
 import com.haoyou.spring.cloud.alibaba.commons.entity.Prop;
@@ -38,7 +39,7 @@ public class IngredientsHandle extends PeopUseHandle {
     }
 
     @Override
-    public boolean handle(PropUseMsg propUseMsg) {
+    public int handle(PropUseMsg propUseMsg) {
 
         User user = propUseMsg.getUser();
         Prop prop = propUseMsg.getProp();
@@ -57,7 +58,7 @@ public class IngredientsHandle extends PeopUseHandle {
              */
             int ingredientsStar = loyaltyLev / 10 + 1;
             if (propIngredientsStar != ingredientsStar) {
-                return false;
+                return ResponseMsg.MSG_ERR;
             }
 
             //食材总量
@@ -122,10 +123,10 @@ public class IngredientsHandle extends PeopUseHandle {
                 } else if (ingredientName.equals(pet.getIngredientsName3())) {
                     pet.setIngredientsCount3(pet.getIngredientsCount3() + propCount);
                 } else {
-                    return false;
+                    return ResponseMsg.MSG_ERR;
                 }
             } else {
-                return false;
+                return ResponseMsg.MSG_ERR;
             }
 
             /**
@@ -139,7 +140,7 @@ public class IngredientsHandle extends PeopUseHandle {
 
             //保存结果
             fightingPet.save();
-            return true;
+            return ResponseMsg.MSG_SUCCESS;
         }
         //合成道具
         else if(type == COM && propIngredientsStar < 3){
@@ -151,7 +152,7 @@ public class IngredientsHandle extends PeopUseHandle {
 
             propList.add(prop);
             user.addProps(propList);
-            return true;
+            return ResponseMsg.MSG_SUCCESS;
         }
         //拆分道具
         else if(type == SPLIT && propIngredientsStar > 1){
@@ -163,8 +164,8 @@ public class IngredientsHandle extends PeopUseHandle {
 
             propList.add(prop);
             user.addProps(propList);
-            return true;
+            return ResponseMsg.MSG_SUCCESS;
         }
-        return false;
+        return ResponseMsg.MSG_ERR;
     }
 }

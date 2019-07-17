@@ -2,6 +2,7 @@ package com.haoyou.spring.cloud.alibaba.commons.entity;
 
 
 
+import cn.hutool.core.util.IdUtil;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.haoyou.spring.cloud.alibaba.commons.message.BaseMessage;
 import com.haoyou.spring.cloud.alibaba.commons.util.MapperUtils;
@@ -142,7 +143,11 @@ public class User extends BaseMessage implements Serializable {
         }
         return props;
     }
-
+    public boolean addProp(Prop prop){
+        List<Prop> list = new ArrayList<>();
+        list.add(prop);
+        return addProps(list);
+    }
     public boolean addProps(List<Prop> propList){
         try {
             List<Prop> propsThis = this.propList();
@@ -156,6 +161,7 @@ public class User extends BaseMessage implements Serializable {
                     if ((i = propsThis.indexOf(prop)) != -1) {
                         propsThis.get(i).setCount(propsThis.get(i).getCount() + count);
                     } else {
+                        prop.setPropInstenceUid(IdUtil.simpleUUID());
                         prop.setCount(count);
                         propsThis.add(prop);
                     }

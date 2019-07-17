@@ -38,17 +38,19 @@ public class RankSettleHandle extends SettleHandle {
 
                 for (int i = 0; i < list.size(); i++) {
                     //名次
-                    int r = i+1;
+                    int r = i + 1;
                     Map<String, Object> player = null;
                     try {
                         player = MapperUtils.json2map(list.get(i));
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
-                    String useruid = (String)player.get("useruid");
+                    String useruid = (String) player.get("useruid");
                     Award award = this.getAward(r);
-                    String key = RedisKeyUtil.getKey(RedisKey.USER_AWARD,useruid,RedisKey.RANKING);
-                    redisObjectUtil.save(key,award,60*60*24);
+                    if (award != null) {
+                        String key = RedisKeyUtil.getKey(RedisKey.USER_AWARD, useruid, RedisKey.RANKING);
+                        redisObjectUtil.save(key, award);
+                    }
 
                 }
 
@@ -65,25 +67,29 @@ public class RankSettleHandle extends SettleHandle {
      * 1、2、3、4、5、6-10、
      * 11-20、21-50、51-100。
      * 如果再有1档为101-200。
-     *
+     * <p>
      * 排行榜奖励 type字段应该是 RedisKey.RANKING 与 范围的拼接 例子："ranking51-100"
+     *
      * @param r
      */
     private Award getAward(int r) {
 
-        String awardType = "";
+        String awardType = "null";
 
-        if(r > 100){
+        if (r > 100) {
             awardType = "101-200";
-        }else if(r>50){
+        } else if (r > 50) {
             awardType = "51-100";
-        }if(r>20){
+        }
+        if (r > 20) {
             awardType = "21-50";
-        }if(r>10){
+        }
+        if (r > 10) {
             awardType = "11-20";
-        }if(r>5){
+        }
+        if (r > 5) {
             awardType = "6-10";
-        }else{
+        } else {
             awardType = Integer.toString(r);
         }
 
