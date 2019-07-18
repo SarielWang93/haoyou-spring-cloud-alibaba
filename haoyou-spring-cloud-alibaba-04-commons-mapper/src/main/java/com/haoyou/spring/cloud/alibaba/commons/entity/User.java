@@ -174,10 +174,18 @@ public class User extends BaseMessage implements Serializable {
         }
         return false;
     }
+
+    public boolean deleteProp(Prop prop){
+        return deleteProp(prop,-1);
+    }
+
     public boolean deleteProp(Prop prop,int count){
         try {
             List<Prop> propsThis = this.propList();
 
+            if(count == -1){
+                count = prop.getCount();
+            }
             int i = 0;
             if ((i = propsThis.indexOf(prop)) != -1) {
                 propsThis.get(i).setCount(propsThis.get(i).getCount() - count);

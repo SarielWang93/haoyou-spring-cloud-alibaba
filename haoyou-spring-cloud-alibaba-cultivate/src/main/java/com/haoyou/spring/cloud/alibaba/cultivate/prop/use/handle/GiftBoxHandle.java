@@ -17,7 +17,7 @@ import java.util.HashMap;
  * @version 1.0
  * @date 2019/7/5 10:48
  *
- * 宠物蛋孵化类
+ * 宠物礼盒操作
  */
 @Service
 public class GiftBoxHandle extends PeopUseHandle {

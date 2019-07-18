@@ -11,6 +11,7 @@ import com.haoyou.spring.cloud.alibaba.commons.entity.PetType;
 import com.haoyou.spring.cloud.alibaba.commons.entity.User;
 import com.haoyou.spring.cloud.alibaba.commons.util.MapperUtils;
 import com.haoyou.spring.cloud.alibaba.commons.util.RedisKeyUtil;
+import com.haoyou.spring.cloud.alibaba.cultivate.settle.handle.RankSettleHandle;
 import com.haoyou.spring.cloud.alibaba.pojo.cultivate.PetUpLevMsg;
 import com.haoyou.spring.cloud.alibaba.pojo.cultivate.PropUseMsg;
 import com.haoyou.spring.cloud.alibaba.pojo.cultivate.UpdateIsworkMsg;
@@ -231,7 +232,12 @@ public class ManagerController {
         return "err";
     }
 
-
+    /**
+     * 重置宠物
+     * @param userUid
+     * @param petUid
+     * @return
+     */
     @CrossOrigin
     @GetMapping(value = "reInitPet")
     public String reInitPet(String userUid, String petUid) {
@@ -261,5 +267,22 @@ public class ManagerController {
         return null;
     }
 
+
+
+
+    @Autowired
+    private RankSettleHandle rankSettleHandle;
+    /**
+     * 分服排名结算
+     * @return
+     */
+    @CrossOrigin
+    @GetMapping(value = "rankSettle")
+    public String rankSettle() {
+
+        rankSettleHandle.handle();
+
+        return "success";
+    }
 
 }

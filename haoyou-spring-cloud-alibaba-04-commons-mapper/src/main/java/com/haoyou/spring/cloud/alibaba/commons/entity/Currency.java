@@ -62,4 +62,9 @@ public class Currency implements Serializable {
     @Column(name = "`rank`")
     private Integer rank;
 
+    /**
+     * 累计充值
+     */
+    private Double yuan;
+
 }

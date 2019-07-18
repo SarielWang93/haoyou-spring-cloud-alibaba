@@ -43,6 +43,9 @@ public abstract class SettleHandle {
     protected PropUseService propUseService;
 
 
+
+    protected int hour;
+
     /**
      * 设置类型并注册到处理中心
      */
@@ -59,6 +62,8 @@ public abstract class SettleHandle {
      * @return
      */
     public abstract void handle();
+
+    public abstract boolean chackDate();
 
 
 

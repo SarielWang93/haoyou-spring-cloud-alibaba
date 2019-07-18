@@ -15,5 +15,6 @@
     <result column="pet_max" jdbcType="INTEGER" property="petMax" />
     <result column="props" jdbcType="LONGVARBINARY" property="props" />
     <result column="rank" jdbcType="INTEGER" property="rank" />
+    <result column="yuan" jdbcType="DOUBLE" property="yuan" />
   </resultMap>
 </mapper>

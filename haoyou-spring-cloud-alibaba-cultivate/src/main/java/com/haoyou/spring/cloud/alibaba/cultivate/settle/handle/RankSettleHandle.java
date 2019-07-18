@@ -24,41 +24,41 @@ import java.util.Map;
 public class RankSettleHandle extends SettleHandle {
     @Override
     public void handle() {
-        DateTime date = DateUtil.date();
-        int hour = date.hour(true);
-        //每天三点结算
-        if (hour == 3) {
 
-            HashMap<String, Server> servers = redisObjectUtil.getlkMap(RedisKeyUtil.getlkKey(RedisKey.SERVER), Server.class);
-            for (Server server : servers.values()) {
-                Long aLong = scoreRankService.zCard(RedisKeyUtil.getKey(RedisKey.RANKING, server.getServerNum().toString()));
+        HashMap<String, Server> servers = redisObjectUtil.getlkMap(RedisKeyUtil.getlkKey(RedisKey.SERVER), Server.class);
+        for (Server server : servers.values()) {
+            Long aLong = scoreRankService.zCard(RedisKeyUtil.getKey(RedisKey.RANKING, server.getServerNum().toString()));
 
-                List<String> list = scoreRankService.list(RedisKeyUtil.getKey(RedisKey.RANKING, server.getServerNum().toString()), 0l, aLong);
+            List<String> list = scoreRankService.list(RedisKeyUtil.getKey(RedisKey.RANKING, server.getServerNum().toString()), 0l, aLong);
 
 
-                for (int i = 0; i < list.size(); i++) {
-                    //名次
-                    int r = i + 1;
-                    Map<String, Object> player = null;
-                    try {
-                        player = MapperUtils.json2map(list.get(i));
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                    String useruid = (String) player.get("useruid");
-                    Award award = this.getAward(r);
-                    if (award != null) {
-                        String key = RedisKeyUtil.getKey(RedisKey.USER_AWARD, useruid, RedisKey.RANKING);
-                        redisObjectUtil.save(key, award);
-                    }
-
+            for (int i = 0; i < list.size(); i++) {
+                //名次
+                int r = i + 1;
+                Map<String, Object> player = null;
+                try {
+                    player = MapperUtils.json2map(list.get(i));
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
-
+                String useruid = (String) player.get("useruid");
+                Award award = this.getAward(r);
+                if (award != null) {
+                    String key = RedisKeyUtil.getKey(RedisKey.USER_AWARD, useruid, RedisKey.RANKING);
+                    redisObjectUtil.save(key, award);
+                }
 
             }
 
 
         }
+    }
+
+    @Override
+    public boolean chackDate() {
+        DateTime date = DateUtil.date();
+        int hour = date.hour(true);
+        return hour == 3;
     }
 
     /**

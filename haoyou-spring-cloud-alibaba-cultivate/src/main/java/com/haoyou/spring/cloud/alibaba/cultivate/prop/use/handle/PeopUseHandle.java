@@ -31,6 +31,8 @@ public abstract class PeopUseHandle {
     final static public int WRONG_COUNT = 1003;
     //已拥有
     final static public int ALREADY_HAVE = 1004;
+    //参数有误
+    final static public int WRONG_PRO = 1005;
 
 
 
