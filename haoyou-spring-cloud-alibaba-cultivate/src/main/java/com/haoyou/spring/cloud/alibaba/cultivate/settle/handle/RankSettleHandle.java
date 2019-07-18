@@ -55,8 +55,7 @@ public class RankSettleHandle extends SettleHandle {
     }
 
     @Override
-    public boolean chackDate() {
-        DateTime date = DateUtil.date();
+    public boolean chackDate(DateTime date) {
         int hour = date.hour(true);
         return hour == 3;
     }

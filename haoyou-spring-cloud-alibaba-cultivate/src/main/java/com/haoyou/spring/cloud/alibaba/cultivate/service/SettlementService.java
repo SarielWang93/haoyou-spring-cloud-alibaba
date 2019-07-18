@@ -34,10 +34,11 @@ public class SettlementService {
     @Scheduled(cron = "0 0 */1 * * ?")
     public void inspect() {
 
+        DateTime date = DateUtil.date();
 
         for (SettleHandle settleHandle : handleList) {
             //定时结算
-            if (settleHandle.chackDate()) {
+            if (settleHandle.chackDate(date)) {
                 settleHandle.handle();
             }
         }

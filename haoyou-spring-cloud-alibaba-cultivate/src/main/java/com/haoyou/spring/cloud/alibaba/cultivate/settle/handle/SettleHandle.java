@@ -1,5 +1,6 @@
 package com.haoyou.spring.cloud.alibaba.cultivate.settle.handle;
 
+import cn.hutool.core.date.DateTime;
 import com.haoyou.spring.cloud.alibaba.commons.mapper.PetMapper;
 import com.haoyou.spring.cloud.alibaba.commons.mapper.ServerMapper;
 import com.haoyou.spring.cloud.alibaba.commons.mapper.UserMapper;
@@ -63,7 +64,7 @@ public abstract class SettleHandle {
      */
     public abstract void handle();
 
-    public abstract boolean chackDate();
+    public abstract boolean chackDate(DateTime date);
 
 
 
