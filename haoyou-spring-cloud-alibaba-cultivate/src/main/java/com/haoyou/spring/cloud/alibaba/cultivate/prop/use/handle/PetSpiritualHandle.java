@@ -15,15 +15,12 @@ import java.util.List;
  * @version 1.0
  * @date 2019/7/5 10:48
  *
- * 宠物蛋孵化类
+ * 宠物灵魂
  */
 @Service
 public class PetSpiritualHandle extends PeopUseHandle {
 
-    //容量不足
-    final static public int NO_SPACE = 1001;
-    //数量不对
-    final static public int WRONG_COUNT = 1002;
+
 
     @Override
     protected void setHandleType() {
@@ -43,8 +40,15 @@ public class PetSpiritualHandle extends PeopUseHandle {
             return NO_SPACE;
         }
 
-        //碎片对应宠物种类
         String petTypeUid = prop.getProperty2();
+
+        for(FightingPet fightingPet : pets){
+            if(fightingPet.getPet().getTypeUid().equals(petTypeUid)){
+                return ALREADY_HAVE;
+            }
+        }
+
+        //碎片对应宠物种类
         String key = RedisKeyUtil.getKey(RedisKey.PET_TYPE, petTypeUid);
         PetType petType = redisObjectUtil.get(key, PetType.class);
 

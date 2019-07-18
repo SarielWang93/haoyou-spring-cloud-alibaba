@@ -23,6 +23,16 @@ import javax.annotation.PostConstruct;
 @Data
 public abstract class PeopUseHandle {
 
+    //获取宠物失败
+    final static public int NO_PETTYPE = 1001;
+    //容量不足
+    final static public int NO_SPACE = 1002;
+    //数量不对
+    final static public int WRONG_COUNT = 1003;
+    //已拥有
+    final static public int ALREADY_HAVE = 1004;
+
+
 
     @Autowired
     protected RedisObjectUtil redisObjectUtil;

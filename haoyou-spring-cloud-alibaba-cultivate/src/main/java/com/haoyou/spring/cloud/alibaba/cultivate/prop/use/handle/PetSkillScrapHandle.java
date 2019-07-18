@@ -23,8 +23,6 @@ import java.util.List;
 @Service
 public class PetSkillScrapHandle extends PeopUseHandle {
 
-    //数量不对
-    final static public int WRONG_COUNT = 1002;
 
     @Override
     protected void setHandleType() {

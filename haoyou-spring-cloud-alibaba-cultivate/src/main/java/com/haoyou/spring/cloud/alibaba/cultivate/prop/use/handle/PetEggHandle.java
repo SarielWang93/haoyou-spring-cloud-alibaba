@@ -26,9 +26,6 @@ import java.util.List;
 public class PetEggHandle extends PeopUseHandle {
 
 
-    //获取宠物失败
-    final static public int NO_PETTYPE = 1001;
-
     @Override
     protected void setHandleType() {
         this.handleType = "PetEgg";
