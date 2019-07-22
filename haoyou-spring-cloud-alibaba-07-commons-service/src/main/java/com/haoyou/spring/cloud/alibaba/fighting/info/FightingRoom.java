@@ -88,7 +88,7 @@ public class FightingRoom implements Serializable {
      */
     public void startRount(FightingPet fightingPet) {
         this.campNow = fightingPet.getFightingCamp().getUser().getUid();
-        this.petNow = fightingPet.getIswork();
+        this.petNow = fightingPet.getPet().getIswork();
         this.creatTime = new Date();
         /**
          * 刷新回合
@@ -229,7 +229,7 @@ public class FightingRoom implements Serializable {
             for (FightingPet fightingPet : fightingCamp.getFightingPets().values()) {
                 Map<String, Object> pet = new HashMap<>();
 
-                Integer index = fightingPet.getIswork() - 1;
+                Integer index = fightingPet.getPet().getIswork() - 1;
                 if (!fightingCamp.isLeft()) {
                     index += 3;
                 }

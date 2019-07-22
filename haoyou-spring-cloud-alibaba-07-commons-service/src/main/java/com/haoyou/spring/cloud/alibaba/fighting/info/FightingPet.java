@@ -169,14 +169,10 @@ public class FightingPet implements Serializable {
         this.nickname = pet.getNickname();
         this.uid = pet.getUid();
 
-        //战斗相关
-        this.iswork = pet.getIswork();
-
 
 
 
         //面板暴击与速度与等级无关
-        this.mb_spd = this.pet.getSpd();
         this.mb_luk = this.pet.getLuk();
 
         this.mb_tpc = 100;
@@ -283,11 +279,6 @@ public class FightingPet implements Serializable {
 
 
     /**
-     * 阵型位置
-     */
-    private Integer iswork;
-
-    /**
      * 治疗系数（执行治疗操作时需要系数，部分状态会修改系数，如：增加治疗量）
      */
     private Integer mb_tpc;
@@ -366,6 +357,14 @@ public class FightingPet implements Serializable {
         this.pet.setLevel(level);
         this.refreshMbByLevel();
     }
+    /**
+     * 培养操作
+     */
+    public void upCulture(double r) {
+        this.pet.setCultureResoult(this.pet.getCultureResoult() + r);
+        this.pet.setCulture(this.pet.getCulture()+1);
+        this.refreshMbByLevel();
+    }
 
     /**
      * 根据等级刷新面板属性（经验值主要是用于显示）
@@ -374,6 +373,7 @@ public class FightingPet implements Serializable {
         this.mb_atn = this.pet.getAtn();
         this.mb_def = this.pet.getDef();
         this.mb_max_hp = this.pet.getHp();
+        this.mb_spd = this.pet.getSpd();
 
         int atn = 0,def = 0,max_hp = 0;
         //等级相加
@@ -394,6 +394,7 @@ public class FightingPet implements Serializable {
         this.mb_atn += atn;
         this.mb_def += def;
         this.mb_max_hp += max_hp;
+        this.mb_spd += this.pet.getLevel();
 
     }
 
@@ -1024,7 +1025,6 @@ public class FightingPet implements Serializable {
                 ", acceptHurtR=" + acceptHurtR +
                 ", acceptHurtFrom=" + acceptHurtFrom +
                 ", attack=" + attack +
-                ", iswork=" + iswork +
                 ", mb_tpc=" + mb_tpc +
                 ", ft_tpc=" + ft_tpc +
                 ", mb_atn=" + mb_atn +

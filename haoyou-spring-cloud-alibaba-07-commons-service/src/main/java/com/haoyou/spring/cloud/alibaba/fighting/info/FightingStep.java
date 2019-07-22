@@ -53,7 +53,7 @@ public class FightingStep implements Serializable {
     public FightingStep(int stepType, FightingPet fightingPet, String stepMsg) {
         this.stepType = stepType;
         this.stepMsg = stepMsg;
-        this.fightingPetIsWork = fightingPet.getIswork();
+        this.fightingPetIsWork = fightingPet.getPet().getIswork();
         this.left = fightingPet.getFightingCamp().isLeft();
     }
 }

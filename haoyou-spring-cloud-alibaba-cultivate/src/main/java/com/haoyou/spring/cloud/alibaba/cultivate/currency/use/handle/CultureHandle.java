@@ -9,7 +9,6 @@ import com.haoyou.spring.cloud.alibaba.fighting.info.FightingPet;
 import com.haoyou.spring.cloud.alibaba.pojo.cultivate.CyrrencyUseMsg;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -107,8 +106,7 @@ public class CultureHandle extends CurrencyUseHandle {
         }else{
             r = RandomUtil.randomInt(10, 21)/10d;
         }
-        pet.setCultureResoult(cultureResoult += r);
-        pet.setCulture(culture+=1);
+               fightingPet.upCulture(r);
 
         //保存
         if(!save(user,fightingPet)){

@@ -662,7 +662,7 @@ public class FightingServiceImpl implements FightingService {
         List<FightingPet> fightingPets = FightingPet.getByUser(user, redisObjectUtil);
 
         for (FightingPet fightingPet : fightingPets) {
-            Integer iswork = fightingPet.getIswork();
+            Integer iswork = fightingPet.getPet().getIswork();
             if (iswork != null && iswork != 0) {
                 fightingPet.setFightingCamp(fightingCamp);
                 fightingPet.initFighting();
