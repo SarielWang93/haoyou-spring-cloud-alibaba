@@ -11,6 +11,7 @@ import com.haoyou.spring.cloud.alibaba.commons.message.MapBody;
 import com.haoyou.spring.cloud.alibaba.commons.util.MapperUtils;
 import com.haoyou.spring.cloud.alibaba.commons.util.RedisKeyUtil;
 import com.haoyou.spring.cloud.alibaba.fighting.info.FightingPet;
+import com.haoyou.spring.cloud.alibaba.fighting.info.skill.SkillBoard;
 import com.haoyou.spring.cloud.alibaba.manager.handle.ManagerHandle;
 import com.haoyou.spring.cloud.alibaba.sofabolt.protocol.MyRequest;
 import org.slf4j.Logger;
@@ -54,7 +55,27 @@ public class GetPetHandle extends ManagerHandle {
         FightingPet fightingPet = redisObjectUtil.get(key, FightingPet.class);
 
 
+        mapBody.put("petSkillBoard",getSkillBoard(fightingPet));
+
+
+        Pet pet = fightingPet.getPet();
+        pet.setSkillBoard(null);
         mapBody.put("pet",fightingPet);
+
         return mapBody;
+    }
+
+    /**
+     * 获取技能配置盘
+     * @param fightingPet
+     * @return
+     */
+    private SkillBoard getSkillBoard(FightingPet fightingPet){
+
+        if(fightingPet.getPet().getSkillBoard()!=null){
+            return redisObjectUtil.deserialize(fightingPet.getPet().getSkillBoard(), SkillBoard.class);
+        }else{
+            return new SkillBoard(9,9);
+        }
     }
 }

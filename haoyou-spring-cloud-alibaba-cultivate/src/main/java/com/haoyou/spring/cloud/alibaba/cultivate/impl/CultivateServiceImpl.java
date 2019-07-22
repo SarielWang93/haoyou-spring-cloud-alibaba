@@ -4,16 +4,14 @@ import com.haoyou.spring.cloud.alibaba.commons.domain.ResponseMsg;
 import com.haoyou.spring.cloud.alibaba.commons.message.MapBody;
 import com.haoyou.spring.cloud.alibaba.commons.entity.*;
 import com.haoyou.spring.cloud.alibaba.commons.util.MapperUtils;
-import com.haoyou.spring.cloud.alibaba.pojo.cultivate.PetUpLevMsg;
-import com.haoyou.spring.cloud.alibaba.pojo.cultivate.PropUseMsg;
-import com.haoyou.spring.cloud.alibaba.pojo.cultivate.UpdateIsworkMsg;
+import com.haoyou.spring.cloud.alibaba.cultivate.service.CurrencyUseService;
+import com.haoyou.spring.cloud.alibaba.pojo.cultivate.*;
 import com.haoyou.spring.cloud.alibaba.cultivate.service.PropUseService;
 import com.haoyou.spring.cloud.alibaba.fighting.info.FightingPet;
 import org.apache.dubbo.config.annotation.Service;
 import com.haoyou.spring.cloud.alibaba.commons.domain.RedisKey;
 import com.haoyou.spring.cloud.alibaba.commons.mapper.PetMapper;
 import com.haoyou.spring.cloud.alibaba.commons.util.RedisKeyUtil;
-import com.haoyou.spring.cloud.alibaba.pojo.cultivate.SkillConfigMsg;
 import com.haoyou.spring.cloud.alibaba.cultivate.service.RewardService;
 import com.haoyou.spring.cloud.alibaba.cultivate.service.SkillConfigService;
 import com.haoyou.spring.cloud.alibaba.service.cultivate.CultivateService;
@@ -52,6 +50,8 @@ public class CultivateServiceImpl implements CultivateService {
     private RewardService rewardService;
     @Autowired
     private PropUseService propUseService;
+    @Autowired
+    private CurrencyUseService currencyUseService;
 
     /**
      * 技能配置处理
@@ -79,6 +79,12 @@ public class CultivateServiceImpl implements CultivateService {
                 if (skillConfigService.removePetSkill(user, skillConfigMsg)) {
                     return this.saveUser(user);
                 }
+                break;
+            case SET_PET_SKILL:
+                if (skillConfigService.setPetTypeSkill(user, skillConfigMsg)) {
+                    return true;
+                }
+                break;
         }
         return false;
     }
@@ -322,6 +328,47 @@ public class CultivateServiceImpl implements CultivateService {
         return true;
     }
 
+
+
+
+
+    /**
+     * 使用货币
+     * @param req
+     * @return
+     */
+    @Override
+    public MapBody currencyUse (MyRequest req){
+
+        MapBody mapBody = new MapBody();
+        User user = req.getUser();
+
+        CyrrencyUseMsg deserialize = sendMsgUtil.deserialize(req.getMsg(), CyrrencyUseMsg.class);
+        deserialize.setUser(user);
+
+
+        int bkMsg = currencyUseService.currencyUse(deserialize);
+
+
+        if(bkMsg == ResponseMsg.MSG_SUCCESS){
+            if(this.saveUser(user)){
+                mapBody.setState(bkMsg);
+            }else{
+                mapBody.setState(ResponseMsg.MSG_ERR);
+            }
+        }else{
+            mapBody.setState(bkMsg);
+        }
+
+
+        return mapBody;
+    }
+
+
+
+
+
+
     /**
      * 获取道具
      *
@@ -349,7 +396,7 @@ public class CultivateServiceImpl implements CultivateService {
      * @param user
      * @return
      */
-    public boolean saveUser(User user) {
+    private boolean saveUser(User user) {
         user.setLastUpdateDate(new Date());
         return redisObjectUtil.save(RedisKeyUtil.getKey(RedisKey.USER, user.getUid()), user);
     }

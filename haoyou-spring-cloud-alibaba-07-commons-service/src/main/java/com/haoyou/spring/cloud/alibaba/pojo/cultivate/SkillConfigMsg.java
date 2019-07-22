@@ -18,8 +18,12 @@ public class SkillConfigMsg implements Serializable {
 
     //添加宠物技能
     public static final int ADD_PET_SKILL = 1;
+
     //删除宠物技能
     public static final int REMOVE_PET_SKILL = 2;
+
+    //设置宠物类型原有技能
+    public static final int SET_PET_SKILL = 3;
 
 
     private static final long serialVersionUID = -6508254959491612118L;
@@ -28,6 +32,8 @@ public class SkillConfigMsg implements Serializable {
     private Tetromino tetromino;
     private String propInstenceUid;
     private String petUid;
-
     private Integer type;
+
+
+    private String skillUid;
 }

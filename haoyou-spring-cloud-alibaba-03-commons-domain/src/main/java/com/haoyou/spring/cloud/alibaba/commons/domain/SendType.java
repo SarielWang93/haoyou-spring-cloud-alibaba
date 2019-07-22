@@ -49,6 +49,7 @@ public class SendType {
     public final static int PROP_USE = 63;//道具使用
     public final static int PET_UPDATE_ISWORK = 64;//宠物修改出战状态
     public final static int REC_AWARD = 65;//领取奖励
+    public final static int CURRENCY_USE = 66;//货币使用
 
 //    *****************************************以上为接受信息类型，以下为主动发送*********************************************************
 

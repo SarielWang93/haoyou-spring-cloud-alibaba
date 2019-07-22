@@ -374,12 +374,25 @@ public class FightingPet implements Serializable {
      */
     private void refreshMbByLevel() {
 
+        int atn = 0,def = 0,max_hp = 0;
+        //等级相加
         for (int i = 0; i < this.pet.getLevel(); i++) {
-            this.mb_atn += this.pet.getAtnGr();
-            this.mb_def += this.pet.getDefGr();
-            this.mb_max_hp += this.pet.getHpGr();
+            atn += this.pet.getAtnGr();
+            def += this.pet.getDefGr();
+            max_hp += this.pet.getHpGr();
         }
+        //培养结果
+        Double cultureResoult = this.getPet().getCultureResoult();
+        cultureResoult = 1+cultureResoult/100;
 
+        atn *= cultureResoult;
+        def *= cultureResoult;
+        max_hp *= cultureResoult;
+
+
+        this.mb_atn += atn;
+        this.mb_def += def;
+        this.mb_max_hp += max_hp;
 
     }
 

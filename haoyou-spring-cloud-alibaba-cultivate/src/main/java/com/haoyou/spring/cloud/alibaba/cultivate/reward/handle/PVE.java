@@ -40,10 +40,10 @@ public class PVE extends RewardHandle {
 
         Prop prop = redisObjectUtil.get(propKey, Prop.class);
         prop.setPropInstenceUid(IdUtil.simpleUUID());
-        prop.setProperty1(skill.getUid());
-        prop.setProperty2(Tetromino.randomOne().type);
+        prop.setProperty1(skill.getL10n());
+        prop.setProperty2(Tetromino.randomOne().getType());
         prop.setProperty3(skill.getName());
-        prop.setProperty4(skill.getL10n());
+        prop.setProperty4(skill.getUid());
         prop.setProperty5(skill.getDescribe());
         props.add(prop);
         /**

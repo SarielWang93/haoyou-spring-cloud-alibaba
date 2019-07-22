@@ -171,6 +171,8 @@ public class UserDateSynchronization {
              */
             Pet pet = entry.getValue().getPet();
             Pet pet1 = petMapper.selectByPrimaryKey(pet.getId());
+            pet.setLastUpdateDate(null);
+
             if (pet1 != null) {
                 petMapper.updateByPrimaryKeySelective(pet);
             } else {

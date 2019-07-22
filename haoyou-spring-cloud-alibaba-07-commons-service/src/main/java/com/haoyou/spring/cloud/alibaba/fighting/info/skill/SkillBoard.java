@@ -51,7 +51,7 @@ public class SkillBoard implements Serializable {
         //不可以放入已有技能
         for (int x = 0; x < xLength; x++) {
             for (int y = 0; y < yLength; y++) {
-                if (prop.getProperty1().equals(board[x][y])) {
+                if (prop.getProperty4().equals(board[x][y])) {
                     return false;
                 }
             }

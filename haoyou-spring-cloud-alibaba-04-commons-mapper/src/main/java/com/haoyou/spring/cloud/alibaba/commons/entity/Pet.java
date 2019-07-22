@@ -104,6 +104,17 @@ public class Pet implements Serializable {
      */
     private Integer culture;
 
+    /**
+     * 培养上限提升值
+     */
+    @Column(name = "culture_limit")
+    private Integer cultureLimit;
+
+    /**
+     * 培养结果
+     */
+    @Column(name = "culture_resoult")
+    private Double cultureResoult;
 
     /**
      * 经验值

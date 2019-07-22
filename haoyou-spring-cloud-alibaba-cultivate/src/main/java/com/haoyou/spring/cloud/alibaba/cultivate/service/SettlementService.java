@@ -2,7 +2,6 @@ package com.haoyou.spring.cloud.alibaba.cultivate.service;
 
 import cn.hutool.core.date.DateTime;
 import cn.hutool.core.date.DateUtil;
-import cn.hutool.core.date.Week;
 import com.haoyou.spring.cloud.alibaba.cultivate.settle.handle.SettleHandle;
 import lombok.Data;
 import org.springframework.scheduling.annotation.Scheduled;

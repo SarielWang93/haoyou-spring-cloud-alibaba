@@ -78,7 +78,7 @@ public class Tetromino implements Serializable {
     //存储最初位置的
     protected Cell[] baseCells;
     //种类
-    public String type;
+    protected String type;
 
     //存储最初的位置和方向
     public void baseC(){

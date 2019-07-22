@@ -59,7 +59,7 @@ public class PetSkillScrapHandle extends PeopUseHandle {
         String tetromino = prop.getProperty2();
 
         if (StrUtil.isEmpty(tetromino)) {
-            tetromino = Tetromino.randomOne().type;
+            tetromino = Tetromino.randomOne().getType();
         }
 
 

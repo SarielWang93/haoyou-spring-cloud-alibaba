@@ -15,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -44,19 +45,29 @@ public class GetPropsHandle extends ManagerHandle {
             e.printStackTrace();
         }
 
+        List<Prop>  sdprops = new ArrayList<>();
+
         MapBody mapBody = new MapBody<>();
         mapBody.setState(ResponseMsg.MSG_ERR);
         if (msgMap != null) {
             mapBody.setState(ResponseMsg.MSG_SUCCESS);
             List<Prop> props = user.propList();
             for (Prop prop : props) {
-                if (StrUtil.isEmpty((String) msgMap.get("name")) || prop.getName().equals(msgMap.get("name"))) {
-                    mapBody.put("prop", prop);
-                    sendMsgUtil.sendMsgOneNoReturn(user.getUid(), req.getId(), mapBody);
+                if (prop.getName().equals(msgMap.get("name")) || StrUtil.isEmpty((String) msgMap.get("name"))) {
+                    sdprops.add(prop);
                 }
             }
         }
+
+
+        for(Prop prop : sdprops){
+            mapBody.put("prop", prop);
+            mapBody.put("count", sdprops.size());
+            sendMsgUtil.sendMsgOneNoReturn(user.getUid(), req.getId(), mapBody);
+        }
+
         mapBody.remove("prop");
+        mapBody.remove("count");
         return mapBody;
     }
 }

@@ -39,7 +39,7 @@ public class RewardService {
 
     public boolean rewards(User user, String type) {
 
-        Award award =redisObjectUtil.get(RedisKeyUtil.getKey(RedisKey.AWARD, type),Award.class);
+        Award award = redisObjectUtil.get(RedisKeyUtil.getKey(RedisKey.AWARD, type),Award.class);
         if(award == null){
             award = rewardHandleMap.get(type).handle();
         }
@@ -64,6 +64,9 @@ public class RewardService {
      */
     public boolean send(User user, Award award){
         if(sendMsgUtil.connectionIsAlive(user.getUid())){
+
+            award.setPropsList(award.propList());
+            award.setProps(null);
             return sendMsgUtil.sendMsgOneNoReturn(user.getUid(), SendType.AWARD, award);
         }else{
             return false;
@@ -79,18 +82,22 @@ public class RewardService {
         boolean mail=true;
         //增加货币
         user.getCurrency().setCoin(user.getCurrency().getCoin() + award.getCoin());
-        award.setCoin(0);
+
         user.getCurrency().setDiamond(user.getCurrency().getDiamond() + award.getDiamond());
-        award.setDiamond(0);
+
         user.getCurrency().setPetExp(user.getCurrency().getPetExp() + award.getPetExp());
-        award.setPetExp(0);
+
         user.getUserData().setExp(user.getUserData().getExp() + award.getExp());
-        award.setExp(0);
+
         //TODO 玩家升级
 
 
         //增加道具
         if(!user.addProps(award.propList())){
+            award.setCoin(0);
+            award.setDiamond(0);
+            award.setPetExp(0);
+            award.setExp(0);
             //TODO 发送邮件给玩家
 
             String key = RedisKeyUtil.getKey(RedisKey.USER_AWARD, user.getUid(), RedisKey.EMIL);

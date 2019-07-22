@@ -56,4 +56,11 @@ public interface CultivateService {
      */
     boolean updateIsWork(MyRequest req);
 
+    /**
+     * 使用货币
+     * @param req
+     * @return
+     */
+    MapBody currencyUse (MyRequest req);
+
 }

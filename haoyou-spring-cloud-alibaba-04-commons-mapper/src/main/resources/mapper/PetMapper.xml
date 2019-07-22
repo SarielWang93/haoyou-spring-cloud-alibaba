@@ -40,5 +40,7 @@
     <result column="last_update_date" jdbcType="TIMESTAMP" property="lastUpdateDate" />
     <result column="status" jdbcType="INTEGER" property="status" />
     <result column="culture" jdbcType="INTEGER" property="culture" />
+    <result column="culture_limit" jdbcType="INTEGER" property="cultureLimit" />
+    <result column="culture_resoult" jdbcType="DOUBLE" property="cultureResoult" />
   </resultMap>
 </mapper>
