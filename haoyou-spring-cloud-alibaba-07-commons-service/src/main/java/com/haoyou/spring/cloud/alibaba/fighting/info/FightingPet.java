@@ -173,9 +173,7 @@ public class FightingPet implements Serializable {
         this.iswork = pet.getIswork();
 
 
-        this.mb_atn = this.pet.getAtn();
-        this.mb_def = this.pet.getDef();
-        this.mb_max_hp = this.pet.getHp();
+
 
         //面板暴击与速度与等级无关
         this.mb_spd = this.pet.getSpd();
@@ -373,6 +371,9 @@ public class FightingPet implements Serializable {
      * 根据等级刷新面板属性（经验值主要是用于显示）
      */
     private void refreshMbByLevel() {
+        this.mb_atn = this.pet.getAtn();
+        this.mb_def = this.pet.getDef();
+        this.mb_max_hp = this.pet.getHp();
 
         int atn = 0,def = 0,max_hp = 0;
         //等级相加

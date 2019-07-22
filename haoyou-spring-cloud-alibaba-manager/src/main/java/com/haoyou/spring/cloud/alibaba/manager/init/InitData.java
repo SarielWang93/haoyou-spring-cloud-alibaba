@@ -117,7 +117,7 @@ public class InitData implements ApplicationRunner {
         List<PetEgg> petEggs = petEggMapper.selectAll();
         for(PetEgg petEgg : petEggs){
             String petEggKey = RedisKeyUtil.getKey(RedisKey.PET_EGG, petEgg.getId().toString());
-            redisObjectUtil.save(petEggKey,petEggKey,-1);
+            redisObjectUtil.save(petEggKey,petEgg,-1);
         }
 
         List<PetEggPool> petEggPools = petEggPoolMapper.selectAll();

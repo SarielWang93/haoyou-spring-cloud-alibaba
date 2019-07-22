@@ -75,7 +75,7 @@ public class GetPetHandle extends ManagerHandle {
         if(fightingPet.getPet().getSkillBoard()!=null){
             return redisObjectUtil.deserialize(fightingPet.getPet().getSkillBoard(), SkillBoard.class);
         }else{
-            return new SkillBoard(9,9);
+            return new SkillBoard(6,6);
         }
     }
 }

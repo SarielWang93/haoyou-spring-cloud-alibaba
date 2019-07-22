@@ -64,7 +64,6 @@ public class ManagerTest {
 
     public static void main(String[] args) throws InterruptedException{
 
-        Console.log(RandomUtil.randomInt(10, 21)/10d);
 
     }
 

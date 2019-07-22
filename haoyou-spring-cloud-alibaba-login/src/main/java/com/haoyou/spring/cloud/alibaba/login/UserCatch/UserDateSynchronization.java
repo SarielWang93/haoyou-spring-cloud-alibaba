@@ -177,6 +177,8 @@ public class UserDateSynchronization {
                 petMapper.updateByPrimaryKeySelective(pet);
             } else {
                 petMapper.insertSelective(pet);
+                entry.getValue().setRedisObjectUtil(redisObjectUtil);
+                entry.getValue().save();
             }
 
 
@@ -199,6 +201,8 @@ public class UserDateSynchronization {
                     petSkillMapper.delete(petSkill);
                 }
             }
+
+
 
         }
 
