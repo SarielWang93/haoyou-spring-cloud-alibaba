@@ -22,16 +22,22 @@
     <result column="talent_skill" jdbcType="VARCHAR" property="talentSkill" />
     <result column="special_attack" jdbcType="VARCHAR" property="specialAttack" />
     <result column="iswork" jdbcType="INTEGER" property="iswork" />
-    <result column="exp" jdbcType="INTEGER" property="exp" />
-    <result column="lev_up_exp" jdbcType="INTEGER" property="levUpExp" />
+    <result column="exp" jdbcType="BIGINT" property="exp" />
+    <result column="lev_up_exp" jdbcType="BIGINT" property="levUpExp" />
     <result column="level" jdbcType="INTEGER" property="level" />
     <result column="loyalty_lev" jdbcType="INTEGER" property="loyaltyLev" />
     <result column="ingredients_name1" jdbcType="VARCHAR" property="ingredientsName1" />
     <result column="ingredients_count1" jdbcType="INTEGER" property="ingredientsCount1" />
+    <result column="ingredients_attr1" jdbcType="VARCHAR" property="ingredientsAttr1" />
     <result column="ingredients_name2" jdbcType="VARCHAR" property="ingredientsName2" />
     <result column="ingredients_count2" jdbcType="INTEGER" property="ingredientsCount2" />
+    <result column="ingredients_attr2" jdbcType="VARCHAR" property="ingredientsAttr2" />
     <result column="ingredients_name3" jdbcType="VARCHAR" property="ingredientsName3" />
     <result column="ingredients_count3" jdbcType="INTEGER" property="ingredientsCount3" />
+    <result column="ingredients_attr3" jdbcType="VARCHAR" property="ingredientsAttr3" />
+    <result column="ingredients_name4" jdbcType="VARCHAR" property="ingredientsName4" />
+    <result column="ingredients_count4" jdbcType="INTEGER" property="ingredientsCount4" />
+    <result column="ingredients_attr4" jdbcType="VARCHAR" property="ingredientsAttr4" />
     <result column="atn_gr" jdbcType="INTEGER" property="atnGr" />
     <result column="def_gr" jdbcType="INTEGER" property="defGr" />
     <result column="hp_gr" jdbcType="INTEGER" property="hpGr" />

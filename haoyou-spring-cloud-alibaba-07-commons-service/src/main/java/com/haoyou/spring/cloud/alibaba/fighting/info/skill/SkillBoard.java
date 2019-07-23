@@ -45,13 +45,18 @@ public class SkillBoard implements Serializable {
      * @return
      */
     public boolean addSkill(Tetromino tetromino, Prop prop) {
+
         if (tetromino == null || prop == null) {
             return false;
         }
+        String skillUid = prop.getProperty4();
+        String type = prop.getProperty2();
+        String skillQuality = prop.getProperty3();
+
         //不可以放入已有技能
         for (int x = 0; x < xLength; x++) {
             for (int y = 0; y < yLength; y++) {
-                if (prop.getProperty4().equals(board[x][y])) {
+                if (skillUid.equals(board[x][y])) {
                     return false;
                 }
             }
@@ -59,7 +64,8 @@ public class SkillBoard implements Serializable {
 
         tetromino.baseC();
         String tType = tetromino.checkType();
-        if (tType.equals(prop.getProperty2())) {
+        //校验形状
+        if (tType.equals(type)) {
 
             //检查是否可放
             for (Cell c : tetromino.getBaseCells()) {
@@ -68,7 +74,7 @@ public class SkillBoard implements Serializable {
                 }
             }
             for (Cell c : tetromino.getBaseCells()) {
-                board[c.getX()][c.getY()] = prop.getProperty1();
+                board[c.getX()][c.getY()] = skillUid;
                 //board[c.getX()][c.getY()] = String.format("%s:%s",prop.getProperty1(),prop.getPropInstenceUid());
             }
             return true;
@@ -119,6 +125,20 @@ public class SkillBoard implements Serializable {
         return null;
     }
 
+    /**
+     * 是否是满的
+     * @return
+     */
+    public boolean isFull(){
+        for (int x = 0; x < xLength; x++) {
+            for (int y = 0; y < yLength; y++) {
+                if (StrUtil.isEmpty(board[x][y])) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
     /**
      * 打印出技能设置盘
      */

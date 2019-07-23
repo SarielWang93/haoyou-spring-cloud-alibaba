@@ -26,6 +26,11 @@
     <result column="ingredients_name1" jdbcType="VARCHAR" property="ingredientsName1" />
     <result column="ingredients_name2" jdbcType="VARCHAR" property="ingredientsName2" />
     <result column="ingredients_name3" jdbcType="VARCHAR" property="ingredientsName3" />
+    <result column="ingredients_name4" jdbcType="VARCHAR" property="ingredientsName4" />
+    <result column="ingredients_attr1" jdbcType="VARCHAR" property="ingredientsAttr1" />
+    <result column="ingredients_attr2" jdbcType="VARCHAR" property="ingredientsAttr2" />
+    <result column="ingredients_attr3" jdbcType="VARCHAR" property="ingredientsAttr3" />
+    <result column="ingredients_attr4" jdbcType="VARCHAR" property="ingredientsAttr4" />
     <result column="skill_board" jdbcType="LONGVARBINARY" property="skillBoard" />
   </resultMap>
 </mapper>

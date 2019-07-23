@@ -48,11 +48,7 @@ public class GetPetHandle extends ManagerHandle {
         Map<String, Object> msg = getMsgMap(req);
 
 
-        String userUidKey = RedisKeyUtil.getKey(RedisKey.FIGHT_PETS, user.getUid());
-
-        String key = RedisKeyUtil.getKey(userUidKey,(String)msg.get("petUid"));
-
-        FightingPet fightingPet = redisObjectUtil.get(key, FightingPet.class);
+        FightingPet fightingPet = FightingPet.getByUserAndPetUid(user,(String)msg.get("petUid"),redisObjectUtil);
 
 
         mapBody.put("petSkillBoard",getSkillBoard(fightingPet));
@@ -60,7 +56,7 @@ public class GetPetHandle extends ManagerHandle {
 
         Pet pet = fightingPet.getPet();
         pet.setSkillBoard(null);
-        mapBody.put("pet",fightingPet);
+        mapBody.put("fightingPet",fightingPet);
 
         return mapBody;
     }

@@ -1,6 +1,7 @@
 package com.haoyou.spring.cloud.alibaba.cultivate.prop.use.handle;
 
 import cn.hutool.core.util.IdUtil;
+import cn.hutool.core.util.ReflectUtil;
 import com.haoyou.spring.cloud.alibaba.commons.domain.RedisKey;
 import com.haoyou.spring.cloud.alibaba.commons.domain.ResponseMsg;
 import com.haoyou.spring.cloud.alibaba.commons.entity.LevLoyalty;
@@ -12,6 +13,7 @@ import com.haoyou.spring.cloud.alibaba.pojo.cultivate.PropUseMsg;
 import com.haoyou.spring.cloud.alibaba.fighting.info.FightingPet;
 import org.springframework.stereotype.Service;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,7 +21,7 @@ import java.util.List;
  * @author wanghui
  * @version 1.0
  * @date 2019/7/3 9:43
- *
+ * <p>
  * 食材道具使用控制类
  */
 @Service
@@ -47,40 +49,62 @@ public class IngredientsHandle extends PeopUseHandle {
         int propCount = propUseMsg.getPropCount();
         int type = propUseMsg.getType();
         //使用道具
-        if(type == USE){
+        if (type == USE) {
+
             FightingPet fightingPet = FightingPet.getByUserAndPetUid(user, propUseMsg.getPetUid(), redisObjectUtil);
             Pet pet = fightingPet.getPet();
             Integer loyaltyLev = pet.getLoyaltyLev();
             Integer starClass = pet.getStarClass();
             Integer level = pet.getLevel();
+            //食材名称
+            String ingredientName = prop.getProperty1();
+            //食材总量
+            int allIngredientsCount = pet.getIngredientsCount1() + pet.getIngredientsCount2() + pet.getIngredientsCount3() + pet.getIngredientsCount4();
+
             /**
              * 食材星级控制
              */
-            int ingredientsStar = loyaltyLev / 10 + 1;
+            int ingredientsStar = 0;
+            if (allIngredientsCount < 950) {
+                ingredientsStar = 1;
+            }else if(allIngredientsCount < 3000){
+                ingredientsStar = 2;
+            }else if(allIngredientsCount < 3000){
+                ingredientsStar = 3;
+            }
             if (propIngredientsStar != ingredientsStar) {
                 return ResponseMsg.MSG_ERR;
             }
 
-            //食材总量
-            int allIngredientsCount = pet.getIngredientsCount1() + pet.getIngredientsCount2() + pet.getIngredientsCount3();
 
             /**
              * 当前等级食材上限
              */
-            int base = 200;
-            if (starClass < 3) {
-                base *= 2;
-            } else if (starClass < 5) {
-                base *= starClass;
-            } else {
-                base = base * 2 * (starClass - 2);
+
+            int maxIngredientsCount = 100 * (level / 10 + 1);
+
+            Field ingredientsCountField = null ;
+            int ingredientsCount = Integer.MAX_VALUE;
+
+            if (ingredientName.equals(pet.getIngredientsName1())) {
+                ingredientsCount = pet.getIngredientsCount1();
+                ingredientsCountField = ReflectUtil.getField(Pet.class, "ingredientsCount1");
+            } else if (ingredientName.equals(pet.getIngredientsName2())) {
+                ingredientsCount = pet.getIngredientsCount2();
+                ingredientsCountField = ReflectUtil.getField(Pet.class, "ingredientsCount2");
+            } else if (ingredientName.equals(pet.getIngredientsName3())) {
+                ingredientsCount = pet.getIngredientsCount3();
+                ingredientsCountField = ReflectUtil.getField(Pet.class, "ingredientsCount3");
+            } else if (ingredientName.equals(pet.getIngredientsName4())) {
+                ingredientsCount = pet.getIngredientsCount4();
+                ingredientsCountField = ReflectUtil.getField(Pet.class, "ingredientsCount4");
+            }else {
+                return ResponseMsg.MSG_ERR;
             }
 
-            int maxIngredientsCount = base * (level / 10 + 1);
+            int toMaxCount = maxIngredientsCount - ingredientsCount;
 
-            int toMaxCount = maxIngredientsCount - allIngredientsCount;
-
-            if(toMaxCount < propCount){
+            if (toMaxCount < propCount) {
                 propCount = toMaxCount;
             }
 
@@ -91,40 +115,23 @@ public class IngredientsHandle extends PeopUseHandle {
             String levLoyaltyKey = RedisKeyUtil.getKey(RedisKey.LEV_LOYALTY, Integer.toString(loyaltyLev + 1));
             LevLoyalty levLoyalty = redisObjectUtil.get(levLoyaltyKey, LevLoyalty.class);
 
-            int upLevIngredientsCount = Integer.MAX_VALUE;
-            //根据星级获取升级所需食材量
-            if (starClass < 3) {
-                upLevIngredientsCount = levLoyalty.getIngredients12Sum();
-            } else if (starClass < 5) {
-                upLevIngredientsCount = levLoyalty.getIngredients34Sum();
-            } else {
-                upLevIngredientsCount = levLoyalty.getIngredients56Sum();
-            }
+            //获取升级所需食材量
+            int upLevIngredientsCount = levLoyalty.getIngredientsSum();
             //升级所需数量
-            int upNeedCount =  upLevIngredientsCount - allIngredientsCount;
+            int upNeedCount = upLevIngredientsCount - allIngredientsCount;
             //下一等级食材星级
-            ingredientsStar = (loyaltyLev+1) / 10 + 1;
+            ingredientsStar = (loyaltyLev + 1) / 10 + 1;
 
-            if(upNeedCount <= 0){
+            if (upNeedCount <= 0) {
                 propCount = 0;
-            }else if(upNeedCount < propCount && propIngredientsStar != ingredientsStar){
+            } else if (upNeedCount < propCount && propIngredientsStar != ingredientsStar) {
                 propCount = upNeedCount;
             }
 
 
             if (propCount > 0) {
-                //食材名称
-                String ingredientName = prop.getProperty1();
                 //宠物食材数量添加
-                if (ingredientName.equals(pet.getIngredientsName1())) {
-                    pet.setIngredientsCount1(pet.getIngredientsCount1() + propCount);
-                } else if (ingredientName.equals(pet.getIngredientsName2())) {
-                    pet.setIngredientsCount2(pet.getIngredientsCount2() + propCount);
-                } else if (ingredientName.equals(pet.getIngredientsName3())) {
-                    pet.setIngredientsCount3(pet.getIngredientsCount3() + propCount);
-                } else {
-                    return ResponseMsg.MSG_ERR;
-                }
+                ReflectUtil.setFieldValue(pet,ingredientsCountField,ingredientsCount+propCount);
             } else {
                 return ResponseMsg.MSG_ERR;
             }
@@ -136,31 +143,34 @@ public class IngredientsHandle extends PeopUseHandle {
                 pet.setLoyaltyLev(loyaltyLev + 1);
             }
 
-
+            //刷新面板数据
+            fightingPet.refreshMbByLevel();
+            //刷新条数
+            fightingPet.getPet().initIngredientsPieces();
 
             //保存结果
             fightingPet.save();
             return ResponseMsg.MSG_SUCCESS;
         }
         //合成道具
-        else if(type == COM && propIngredientsStar < 3){
+        else if (type == COM && propIngredientsStar < 3) {
             List<Prop> propList = new ArrayList<>();
 
             prop.setPropInstenceUid(IdUtil.simpleUUID());
-            prop.setProperty2(Integer.toString(propIngredientsStar+1));
-            prop.setCount(propCount/5);
+            prop.setProperty2(Integer.toString(propIngredientsStar + 1));
+            prop.setCount(propCount / 5);
 
             propList.add(prop);
             user.addProps(propList);
             return ResponseMsg.MSG_SUCCESS;
         }
         //拆分道具
-        else if(type == SPLIT && propIngredientsStar > 1){
+        else if (type == SPLIT && propIngredientsStar > 1) {
             List<Prop> propList = new ArrayList<>();
 
             prop.setPropInstenceUid(IdUtil.simpleUUID());
-            prop.setProperty2(Integer.toString(propIngredientsStar-1));
-            prop.setCount(propCount*5);
+            prop.setProperty2(Integer.toString(propIngredientsStar - 1));
+            prop.setCount(propCount * 5);
 
             propList.add(prop);
             user.addProps(propList);

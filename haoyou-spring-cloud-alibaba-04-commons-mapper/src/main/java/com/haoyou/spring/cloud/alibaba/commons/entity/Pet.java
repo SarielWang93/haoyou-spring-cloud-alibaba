@@ -1,6 +1,7 @@
 package com.haoyou.spring.cloud.alibaba.commons.entity;
 
 import cn.hutool.core.util.IdUtil;
+import cn.hutool.core.util.ReflectUtil;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.haoyou.spring.cloud.alibaba.commons.util.MapperUtils;
 import lombok.Data;
@@ -119,13 +120,13 @@ public class Pet implements Serializable {
     /**
      * 经验值
      */
-    private Integer exp;
+    private Long exp;
 
     /**
      * 升级所需经验值
      */
     @Column(name = "lev_up_exp")
-    private Integer levUpExp;
+    private Long levUpExp;
 
 
     /**
@@ -146,6 +147,10 @@ public class Pet implements Serializable {
     private String ingredientsName1;
     @Column(name = "ingredients_count1")
     private Integer ingredientsCount1;
+    @Column(name = "ingredients_attr1")
+    private String ingredientsAttr1;
+    @Transient
+    private Integer ingredientsPieces1;
 
     /**
      * 食材2
@@ -154,6 +159,10 @@ public class Pet implements Serializable {
     private String ingredientsName2;
     @Column(name = "ingredients_count2")
     private Integer ingredientsCount2;
+    @Column(name = "ingredients_attr2")
+    private String ingredientsAttr2;
+    @Transient
+    private Integer ingredientsPieces2;
 
     /**
      * 食材3
@@ -162,6 +171,22 @@ public class Pet implements Serializable {
     private String ingredientsName3;
     @Column(name = "ingredients_count3")
     private Integer ingredientsCount3;
+    @Column(name = "ingredients_attr3")
+    private String ingredientsAttr3;
+    @Transient
+    private Integer ingredientsPieces3;
+
+    /**
+     * 食材4
+     */
+    @Column(name = "ingredients_name4")
+    private String ingredientsName4;
+    @Column(name = "ingredients_count4")
+    private Integer ingredientsCount4;
+    @Column(name = "ingredients_attr4")
+    private String ingredientsAttr4;
+    @Transient
+    private Integer ingredientsPieces4;
 
 
     /**
@@ -232,10 +257,11 @@ public class Pet implements Serializable {
 
     /**
      * 根据用户和宠物种类生成宠物对象
+     *
      * @param user
      * @param petType
      */
-    public Pet(User user, PetType petType,int iswork) {
+    public Pet(User user, PetType petType, int iswork) {
         this.uid = IdUtil.simpleUUID();
         this.atn = petType.getAtn();
         this.atnGr = petType.getAtnGr();
@@ -260,16 +286,26 @@ public class Pet implements Serializable {
         this.talentSkill = petType.getTalentSkill();
         this.specialAttack = petType.getSpecialAttack();
         this.skillBoard = petType.getSkillBoard();
-        this.exp = 0;
-        this.levUpExp = 260;
+        this.exp = 0l;
+        this.levUpExp = 260l;
         this.level = 1;
         this.loyaltyLev = 0;
-        this.ingredientsName1=petType.getIngredientsName1();
+
+
+        this.ingredientsName1 = petType.getIngredientsName1();
+        this.ingredientsAttr1 = petType.getIngredientsAttr1();
         this.ingredientsCount1 = 0;
-        this.ingredientsName2=petType.getIngredientsName2();
+        this.ingredientsName2 = petType.getIngredientsName2();
+        this.ingredientsAttr2 = petType.getIngredientsAttr2();
         this.ingredientsCount2 = 0;
-        this.ingredientsName3=petType.getIngredientsName3();
+        this.ingredientsName3 = petType.getIngredientsName3();
+        this.ingredientsAttr3 = petType.getIngredientsAttr3();
         this.ingredientsCount3 = 0;
+        this.ingredientsName4 = petType.getIngredientsName4();
+        this.ingredientsAttr4 = petType.getIngredientsAttr4();
+        this.ingredientsCount4 = 0;
+
+
         this.nickname = petType.getL10n();
         this.creatDate = new Date();
 
@@ -288,6 +324,25 @@ public class Pet implements Serializable {
             }
         }
         return null;
+    }
+
+    /**
+     * 刷新食材条数
+     */
+    public void initIngredientsPieces() {
+        for (int i = 1; i < 5; i++) {
+            Integer count = (Integer) ReflectUtil.getFieldValue(this, String.format("ingredientsCount%s", i));
+
+            int needCount = 0;
+
+            for (int pieces = 1; ; pieces++) {
+                needCount += (pieces / 20 + 2) * 5;
+                if(needCount > count){
+                    ReflectUtil.setFieldValue(this, String.format("ingredientsPieces%s", i),pieces);
+                    break;
+                }
+            }
+        }
     }
 
 }

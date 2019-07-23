@@ -116,18 +116,34 @@ public class PetType implements Serializable {
      */
     @Column(name = "ingredients_name1")
     private String ingredientsName1;
+    @Column(name = "ingredients_attr1")
+    private String ingredientsAttr1;
 
     /**
      * 食材2
      */
     @Column(name = "ingredients_name2")
     private String ingredientsName2;
+    @Column(name = "ingredients_attr2")
+    private String ingredientsAttr2;
+
 
     /**
      * 食材3
      */
     @Column(name = "ingredients_name3")
     private String ingredientsName3;
+    @Column(name = "ingredients_attr3")
+    private String ingredientsAttr3;
+
+
+    /**
+     * 食材4
+     */
+    @Column(name = "ingredients_name4")
+    private String ingredientsName4;
+    @Column(name = "ingredients_attr4")
+    private String ingredientsAttr4;
 
 
     /**

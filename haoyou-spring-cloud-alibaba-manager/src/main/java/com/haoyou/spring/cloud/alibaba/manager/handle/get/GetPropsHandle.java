@@ -49,7 +49,11 @@ public class GetPropsHandle extends ManagerHandle {
 
         MapBody mapBody = new MapBody<>();
         mapBody.setState(ResponseMsg.MSG_ERR);
+
+        String reqUid = "";
+
         if (msgMap != null) {
+            reqUid = (String)msgMap.get("reqUid");
             mapBody.setState(ResponseMsg.MSG_SUCCESS);
             List<Prop> props = user.propList();
             for (Prop prop : props) {
@@ -57,10 +61,12 @@ public class GetPropsHandle extends ManagerHandle {
                     sdprops.add(prop);
                 }
             }
+
         }
 
 
         for(Prop prop : sdprops){
+            mapBody.put("reqUid", reqUid);
             mapBody.put("prop", prop);
             mapBody.put("count", sdprops.size());
             sendMsgUtil.sendMsgOneNoReturn(user.getUid(), req.getId(), mapBody);
@@ -68,6 +74,7 @@ public class GetPropsHandle extends ManagerHandle {
 
         mapBody.remove("prop");
         mapBody.remove("count");
+        mapBody.remove("reqUid");
         return mapBody;
     }
 }

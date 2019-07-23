@@ -7,6 +7,6 @@
     -->
     <id column="id" jdbcType="INTEGER" property="id" />
     <result column="level" jdbcType="INTEGER" property="level" />
-    <result column="up_lev_exp" jdbcType="INTEGER" property="upLevExp" />
+    <result column="up_lev_exp" jdbcType="BIGINT" property="upLevExp" />
   </resultMap>
 </mapper>

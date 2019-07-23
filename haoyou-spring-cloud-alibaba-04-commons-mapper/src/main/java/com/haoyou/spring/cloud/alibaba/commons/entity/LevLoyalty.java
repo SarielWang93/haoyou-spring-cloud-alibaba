@@ -30,31 +30,10 @@ public class LevLoyalty implements Serializable {
     /**
      * 1/2星宠物需要食材
      */
-    private Integer ingredients12;
+    private Integer ingredients;
 
-    @Column(name = "ingredients12_sum")
-    private Integer ingredients12Sum;
+    @Column(name = "ingredients_sum")
+    private Integer ingredientsSum;
 
-    /**
-     * 3/4星宠物需要食材
-     */
-    private Integer ingredients34;
-
-    @Column(name = "ingredients34_sum")
-    private Integer ingredients34Sum;
-
-    /**
-     * 5/6星宠物需要食材
-     */
-    private Integer ingredients56;
-
-    @Column(name = "ingredients56_sum")
-    private Integer ingredients56Sum;
-
-    /**
-     * 食材星级
-     */
-    @Column(name = "ingredients_star")
-    private Integer ingredientsStar;
 
 }

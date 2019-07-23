@@ -1,6 +1,7 @@
 package com.haoyou.spring.cloud.alibaba.fighting.info;
 
 import cn.hutool.core.util.RandomUtil;
+import cn.hutool.core.util.ReflectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.haoyou.spring.cloud.alibaba.commons.domain.PunishValue;
@@ -160,9 +161,31 @@ public class FightingPet implements Serializable {
      * @param pet
      */
     public FightingPet(Pet pet, RedisObjectUtil redisObjectUtil) {
-
         this.redisObjectUtil = redisObjectUtil;
+        this.init(pet);
+    }
 
+    /**
+     * petType初始化
+     *
+     * @param petType
+     * @param isWork  阵型位置
+     */
+    public FightingPet(PetType petType, Integer isWork, Integer level, RedisObjectUtil redisObjectUtil) {
+        Pet pet = new Pet(new User(), petType, isWork);
+        pet.setLevel(level);
+        this.redisObjectUtil = redisObjectUtil;
+        this.init(pet);
+    }
+
+    /**
+     * 根据宠物初始化
+     * @param pet
+     */
+    private void init(Pet pet){
+
+
+        pet.initIngredientsPieces();
         this.pet = pet;
 
         //基础属性
@@ -170,11 +193,9 @@ public class FightingPet implements Serializable {
         this.uid = pet.getUid();
 
 
-
-
         //面板暴击与速度与等级无关
         this.mb_luk = this.pet.getLuk();
-
+        this.mb_spd = this.pet.getSpd();
         this.mb_tpc = 100;
 
 
@@ -217,17 +238,6 @@ public class FightingPet implements Serializable {
     }
 
     /**
-     * petType初始化
-     *
-     * @param petType
-     * @param isWork  阵型位置
-     */
-    public FightingPet(PetType petType, Integer isWork, Integer level, RedisObjectUtil redisObjectUtil) {
-
-
-    }
-
-    /**
      * 缓存
      */
     public void save(String key) {
@@ -239,8 +249,8 @@ public class FightingPet implements Serializable {
 
     public void save() {
         //redis存储
-        if(this.ridesKey == null){
-            this.ridesKey = RedisKeyUtil.getKey(RedisKey.FIGHT_PETS,this.pet.getUserUid(),this.pet.getUid());
+        if (this.ridesKey == null) {
+            this.ridesKey = RedisKeyUtil.getKey(RedisKey.FIGHT_PETS, this.pet.getUserUid(), this.pet.getUid());
         }
         this.pet.setLastUpdateDate(new Date());
         this.redisObjectUtil.save(this.ridesKey, this);
@@ -357,25 +367,26 @@ public class FightingPet implements Serializable {
         this.pet.setLevel(level);
         this.refreshMbByLevel();
     }
+
     /**
      * 培养操作
      */
     public void upCulture(double r) {
         this.pet.setCultureResoult(this.pet.getCultureResoult() + r);
-        this.pet.setCulture(this.pet.getCulture()+1);
+        this.pet.setCulture(this.pet.getCulture() + 1);
         this.refreshMbByLevel();
     }
 
     /**
      * 根据等级刷新面板属性（经验值主要是用于显示）
      */
-    private void refreshMbByLevel() {
+    public void refreshMbByLevel() {
         this.mb_atn = this.pet.getAtn();
         this.mb_def = this.pet.getDef();
         this.mb_max_hp = this.pet.getHp();
-        this.mb_spd = this.pet.getSpd();
+        //this.mb_spd = this.pet.getSpd();
 
-        int atn = 0,def = 0,max_hp = 0;
+        int atn = 0, def = 0, max_hp = 0;
         //等级相加
         for (int i = 0; i < this.pet.getLevel(); i++) {
             atn += this.pet.getAtnGr();
@@ -384,20 +395,50 @@ public class FightingPet implements Serializable {
         }
         //培养结果
         Double cultureResoult = this.getPet().getCultureResoult();
-        cultureResoult = 1+cultureResoult/100;
+        cultureResoult = 1 + cultureResoult / 100;
 
         atn *= cultureResoult;
         def *= cultureResoult;
         max_hp *= cultureResoult;
 
+        //喂食，果实效果
+
+        this.ingredients();
 
         this.mb_atn += atn;
         this.mb_def += def;
         this.mb_max_hp += max_hp;
-        this.mb_spd += this.pet.getLevel();
+        //this.mb_spd += this.pet.getLevel();
 
     }
 
+    /**
+     * 喂食，果实效果
+     */
+    private void ingredients() {
+        for (int i = 1; i < 5; i++) {
+            String attr = (String) ReflectUtil.getFieldValue(this.pet, String.format("ingredientsAttr%s", i));
+            Integer pieces = (Integer) ReflectUtil.getFieldValue(this.pet, String.format("ingredientsPieces%s", i));
+
+            Integer starClass = this.getPet().getStarClass();
+
+            //提升基数
+            int up = 0;
+            if (starClass < 3) {
+                up = starClass;
+            } else {
+                up = (starClass - 2) * 5;
+            }
+
+            //提升对应属性
+            if (attr.equals("hp")) {
+                this.mb_max_hp += up * 5 * (pieces - 1);
+            } else {
+                Integer mb_attr = (Integer)ReflectUtil.getFieldValue(this, String.format("mb_%s", attr));
+                ReflectUtil.setFieldValue(this, String.format("mb_%s", attr), mb_attr + up * (pieces - 1));
+            }
+        }
+    }
 
     /**
      * 初始化战斗属性

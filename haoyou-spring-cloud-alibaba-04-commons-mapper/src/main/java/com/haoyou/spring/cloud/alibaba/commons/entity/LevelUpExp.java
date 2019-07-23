@@ -24,6 +24,6 @@ public class LevelUpExp implements Serializable {
      * 升级所需经验
      */
     @Column(name = "up_lev_exp")
-    private Integer upLevExp;
+    private Long upLevExp;
 
 }
