@@ -2,13 +2,11 @@ package com.haoyou.spring.cloud.alibaba.manager.handle.get;
 
 
 import cn.hutool.core.util.ReflectUtil;
+import cn.hutool.core.util.StrUtil;
 import com.haoyou.spring.cloud.alibaba.commons.domain.RedisKey;
 import com.haoyou.spring.cloud.alibaba.commons.domain.ResponseMsg;
 import com.haoyou.spring.cloud.alibaba.commons.domain.SendType;
-import com.haoyou.spring.cloud.alibaba.commons.entity.LevLoyalty;
-import com.haoyou.spring.cloud.alibaba.commons.entity.LevelUpExp;
-import com.haoyou.spring.cloud.alibaba.commons.entity.Pet;
-import com.haoyou.spring.cloud.alibaba.commons.entity.User;
+import com.haoyou.spring.cloud.alibaba.commons.entity.*;
 import com.haoyou.spring.cloud.alibaba.commons.message.BaseMessage;
 import com.haoyou.spring.cloud.alibaba.commons.message.MapBody;
 import com.haoyou.spring.cloud.alibaba.commons.util.MapperUtils;
@@ -52,10 +50,13 @@ public class GetPetHandle extends ManagerHandle {
 
 
         FightingPet fightingPet = FightingPet.getByUserAndPetUid(user, (String) msg.get("petUid"), redisObjectUtil);
+        Pet pet = fightingPet.getPet();
         //宠物信息
         mapBody.put("fightingPet", fightingPet);
 
 
+        if (StrUtil.isNotEmpty(pet.getFullSkillBoard()))
+            fightingPet.getSkills().add(this.redisObjectUtil.get(RedisKeyUtil.getKey(RedisKey.SKILL, pet.getFullSkillBoard()), Skill.class));
         //技能盘信息
         mapBody.put("petSkillBoard", this.getSkillBoard(fightingPet));
 
@@ -63,7 +64,7 @@ public class GetPetHandle extends ManagerHandle {
         //食材限定
         mapBody.put("ingredientsMsg", this.getIngredientsMsg(fightingPet));
 
-        Pet pet = fightingPet.getPet();
+
         pet.setSkillBoard(null);
 
         return mapBody;
@@ -114,7 +115,7 @@ public class GetPetHandle extends ManagerHandle {
             if (ingredientsAttr.equals("hp")) {
                 up *= 5;
             }
-
+            //属性加的量
             ingredient.put("ingredientsAttrCount",up);
 
             Integer count = (Integer) ReflectUtil.getFieldValue(pet, String.format("ingredientsCount%s", i));

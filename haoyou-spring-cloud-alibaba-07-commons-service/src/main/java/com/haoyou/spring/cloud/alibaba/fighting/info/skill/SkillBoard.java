@@ -54,13 +54,13 @@ public class SkillBoard implements Serializable {
         String skillQuality = prop.getProperty3();
 
         //不可以放入已有技能
-        for (int x = 0; x < xLength; x++) {
-            for (int y = 0; y < yLength; y++) {
-                if (skillUid.equals(board[x][y])) {
-                    return false;
-                }
-            }
-        }
+//        for (int x = 0; x < xLength; x++) {
+//            for (int y = 0; y < yLength; y++) {
+//                if (skillUid.equals(board[x][y])) {
+//                    return false;
+//                }
+//            }
+//        }
 
         tetromino.baseC();
         String tType = tetromino.checkType();
@@ -74,8 +74,8 @@ public class SkillBoard implements Serializable {
                 }
             }
             for (Cell c : tetromino.getBaseCells()) {
-                board[c.getX()][c.getY()] = skillUid;
-                //board[c.getX()][c.getY()] = String.format("%s:%s",prop.getProperty1(),prop.getPropInstenceUid());
+//                board[c.getX()][c.getY()] = skillUid;
+                board[c.getX()][c.getY()] = String.format("%s:%s",prop.getProperty1(),prop.getPropInstenceUid());
             }
             return true;
 

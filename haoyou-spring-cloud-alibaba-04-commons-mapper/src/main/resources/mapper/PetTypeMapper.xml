@@ -20,6 +20,7 @@
     <result column="unique_skill" jdbcType="VARCHAR" property="uniqueSkill" />
     <result column="talent_skill" jdbcType="VARCHAR" property="talentSkill" />
     <result column="special_attack" jdbcType="VARCHAR" property="specialAttack" />
+    <result column="full_skill_board" jdbcType="VARCHAR" property="fullSkillBoard" />
     <result column="atn_gr" jdbcType="INTEGER" property="atnGr" />
     <result column="def_gr" jdbcType="INTEGER" property="defGr" />
     <result column="hp_gr" jdbcType="INTEGER" property="hpGr" />

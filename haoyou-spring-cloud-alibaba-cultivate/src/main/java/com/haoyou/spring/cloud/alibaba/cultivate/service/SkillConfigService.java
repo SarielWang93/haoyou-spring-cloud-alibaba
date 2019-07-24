@@ -60,7 +60,7 @@ public class SkillConfigService {
                     fightingPet.getPet().getOtherSkill().add(new PetSkill(fightingPet.getUid(),prop.getProperty4()));
                     //删除道具
                     if(user.deleteProp(prop,1)){
-                        fightingPet.save();
+                        fightingPet.init().save();
                         return true;
                     }
 
@@ -93,7 +93,7 @@ public class SkillConfigService {
                     fightingPet.getPet().setSkillBoard(redisObjectUtil.serialize(skillBoard));
                     PetSkill bySkillUid = fightingPet.getPet().getBySkillUid(skillUid);
                     fightingPet.getPet().getOtherSkill().remove(bySkillUid);
-                    fightingPet.save();
+                    fightingPet.init().save();
                     return true;
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -146,15 +146,15 @@ public class SkillConfigService {
                     petTypeMapper.updateByPrimaryKeySelective(petType);
 
 
-                    Pet spet = new Pet();
-                    spet.setTypeUid(petType.getUid());
-
-                    List<Pet> select = petMapper.select(spet);
-                    for(Pet petx:select){
-                        petx.setSkillBoard(petType.getSkillBoard());
-                        petx.setLastUpdateDate(null);
-                        petMapper.updateByPrimaryKeySelective(petx);
-                    }
+//                    Pet spet = new Pet();
+//                    spet.setTypeUid(petType.getUid());
+//
+//                    List<Pet> select = petMapper.select(spet);
+//                    for(Pet petx:select){
+//                        petx.setSkillBoard(petType.getSkillBoard());
+//                        petx.setLastUpdateDate(null);
+//                        petMapper.updateByPrimaryKeySelective(petx);
+//                    }
 
 
                     return true;

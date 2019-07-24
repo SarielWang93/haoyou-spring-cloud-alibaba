@@ -106,6 +106,12 @@ public class PetType implements Serializable {
     private String specialAttack;
 
     /**
+     * 技能盘满的时候加成技能
+     */
+    @Column(name = "full_skill_board")
+    private String fullSkillBoard;
+
+    /**
      * 既能配置对象
      */
     @Column(name = "skill_board")

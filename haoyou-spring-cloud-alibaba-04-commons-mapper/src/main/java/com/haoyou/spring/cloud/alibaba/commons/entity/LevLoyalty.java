@@ -28,7 +28,7 @@ public class LevLoyalty implements Serializable {
     private Integer levelMax;
 
     /**
-     * 1/2星宠物需要食材
+     * 需要食材
      */
     private Integer ingredients;
 

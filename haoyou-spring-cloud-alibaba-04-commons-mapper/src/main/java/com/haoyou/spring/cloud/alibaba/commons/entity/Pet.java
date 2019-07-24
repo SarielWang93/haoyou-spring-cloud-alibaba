@@ -225,7 +225,11 @@ public class Pet implements Serializable {
     @Column(name = "special_attack")
     private String specialAttack;
 
-
+    /**
+     * 技能盘满的时候加成技能
+     */
+    @Column(name = "full_skill_board")
+    private String fullSkillBoard;
     /**
      * 其他技能uid
      */
@@ -285,6 +289,7 @@ public class Pet implements Serializable {
         this.uniqueSkill = petType.getUniqueSkill();
         this.talentSkill = petType.getTalentSkill();
         this.specialAttack = petType.getSpecialAttack();
+        this.fullSkillBoard = petType.getFullSkillBoard();
         this.skillBoard = petType.getSkillBoard();
         this.exp = 0l;
         this.levUpExp = 260l;

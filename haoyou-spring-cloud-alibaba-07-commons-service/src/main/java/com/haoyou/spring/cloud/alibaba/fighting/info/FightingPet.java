@@ -12,6 +12,7 @@ import com.haoyou.spring.cloud.alibaba.commons.entity.*;
 
 import com.haoyou.spring.cloud.alibaba.commons.util.RedisKeyUtil;
 import com.haoyou.spring.cloud.alibaba.fighting.info.fightingstate.FightingState;
+import com.haoyou.spring.cloud.alibaba.fighting.info.skill.SkillBoard;
 import com.haoyou.spring.cloud.alibaba.util.RedisObjectUtil;
 import lombok.Data;
 
@@ -180,9 +181,13 @@ public class FightingPet implements Serializable {
 
     /**
      * 根据宠物初始化
-     * @param pet
      */
-    private void init(Pet pet){
+    public FightingPet init() {
+        init(this.pet);
+        return this;
+    }
+
+    public void init(Pet pet) {
 
 
         pet.initIngredientsPieces();
@@ -202,23 +207,36 @@ public class FightingPet implements Serializable {
         //养成相关
         this.refreshMbByLevel();
 
-
         /**
          * 初始化宠物技能
          */
+        initSkill();
+    }
 
+    /**
+     * 初始化宠物技能
+     */
+    public FightingPet initSkill() {
         List<Skill> skills = new ArrayList<>();
-        List<PetSkill> skillUids = pet.getOtherSkill();
+        List<PetSkill> skillUids = this.pet.getOtherSkill();
 
-        if (StrUtil.isNotEmpty(pet.getInhSkill()))
-            skills.add(this.redisObjectUtil.get(RedisKeyUtil.getKey(RedisKey.SKILL, pet.getInhSkill()), Skill.class));
-        if (StrUtil.isNotEmpty(pet.getTalentSkill()))
-            skills.add(this.redisObjectUtil.get(RedisKeyUtil.getKey(RedisKey.SKILL, pet.getTalentSkill()), Skill.class));
-        if (StrUtil.isNotEmpty(pet.getUniqueSkill()))
-            skills.add(this.redisObjectUtil.get(RedisKeyUtil.getKey(RedisKey.SKILL, pet.getUniqueSkill()), Skill.class));
-        if (StrUtil.isNotEmpty(pet.getSpecialAttack()))
-            skills.add(this.redisObjectUtil.get(RedisKeyUtil.getKey(RedisKey.SKILL, pet.getSpecialAttack()), Skill.class));
+        if (StrUtil.isNotEmpty(this.pet.getInhSkill()))
+            skills.add(this.redisObjectUtil.get(RedisKeyUtil.getKey(RedisKey.SKILL, this.pet.getInhSkill()), Skill.class));
+        if (StrUtil.isNotEmpty(this.pet.getTalentSkill()))
+            skills.add(this.redisObjectUtil.get(RedisKeyUtil.getKey(RedisKey.SKILL, this.pet.getTalentSkill()), Skill.class));
+        if (StrUtil.isNotEmpty(this.pet.getUniqueSkill()))
+            skills.add(this.redisObjectUtil.get(RedisKeyUtil.getKey(RedisKey.SKILL, this.pet.getUniqueSkill()), Skill.class));
+        if (StrUtil.isNotEmpty(this.pet.getSpecialAttack()))
+            skills.add(this.redisObjectUtil.get(RedisKeyUtil.getKey(RedisKey.SKILL, this.pet.getSpecialAttack()), Skill.class));
 
+        //技能盘满的时候加成技能
+        if (this.pet.getSkillBoard() != null) {
+            SkillBoard skillBoard = redisObjectUtil.deserialize(this.pet.getSkillBoard(), SkillBoard.class);
+            if (skillBoard.isFull()) {
+                if (StrUtil.isNotEmpty(pet.getFullSkillBoard()))
+                    skills.add(this.redisObjectUtil.get(RedisKeyUtil.getKey(RedisKey.SKILL, this.pet.getFullSkillBoard()), Skill.class));
+            }
+        }
 
         if (skillUids != null) {
             for (PetSkill petSkill : skillUids) {
@@ -226,7 +244,25 @@ public class FightingPet implements Serializable {
                 if (!StrUtil.isEmpty(skillUid)) {
                     String skillKey = RedisKeyUtil.getKey(RedisKey.SKILL, skillUid);
                     Skill skill = this.redisObjectUtil.get(skillKey, Skill.class);
-                    skills.add(skill);
+
+                    //相同名称的只保留最高品质
+                    boolean has = false;
+                    Skill skillLess = null;
+                    for (Skill skillh : skills) {
+                        if (skillh.getName().equals(skill.getName())) {
+                            if (skill.getQuality() > skillh.getQuality()) {
+                                skillLess = skillh;
+                            } else {
+                                has = true;
+                            }
+                        }
+                    }
+                    if (skillLess != null) {
+                        skills.remove(skillLess);
+                    }
+                    if (!has) {
+                        skills.add(skill);
+                    }
                 }
             }
         }
@@ -235,7 +271,9 @@ public class FightingPet implements Serializable {
 
         //执行全局技能
         this.overAll();
+        return this;
     }
+
 
     /**
      * 缓存
@@ -434,7 +472,7 @@ public class FightingPet implements Serializable {
             if (attr.equals("hp")) {
                 this.mb_max_hp += up * 5 * (pieces - 1);
             } else {
-                Integer mb_attr = (Integer)ReflectUtil.getFieldValue(this, String.format("mb_%s", attr));
+                Integer mb_attr = (Integer) ReflectUtil.getFieldValue(this, String.format("mb_%s", attr));
                 ReflectUtil.setFieldValue(this, String.format("mb_%s", attr), mb_attr + up * (pieces - 1));
             }
         }
@@ -960,7 +998,7 @@ public class FightingPet implements Serializable {
      */
     public List<Skill> getSkillsByType(Integer type) {
         List<Skill> tSkills = new ArrayList<>();
-        for (Skill skill : skills) {
+        for (Skill skill : this.skills) {
             if (type.equals(skill.getType())) {
                 tSkills.add(skill);
             }

@@ -21,6 +21,7 @@
     <result column="unique_skill" jdbcType="VARCHAR" property="uniqueSkill" />
     <result column="talent_skill" jdbcType="VARCHAR" property="talentSkill" />
     <result column="special_attack" jdbcType="VARCHAR" property="specialAttack" />
+    <result column="full_skill_board" jdbcType="VARCHAR" property="fullSkillBoard" />
     <result column="iswork" jdbcType="INTEGER" property="iswork" />
     <result column="exp" jdbcType="BIGINT" property="exp" />
     <result column="lev_up_exp" jdbcType="BIGINT" property="levUpExp" />
