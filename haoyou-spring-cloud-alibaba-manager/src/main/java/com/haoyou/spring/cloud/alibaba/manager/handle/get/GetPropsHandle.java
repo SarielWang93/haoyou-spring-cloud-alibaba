@@ -51,6 +51,7 @@ public class GetPropsHandle extends ManagerHandle {
             reqUid = (String)msgMap.get("reqUid");
             mapBody.setState(ResponseMsg.MSG_SUCCESS);
             List<Prop> props = user.propList();
+
             for (Prop prop : props) {
                 if (prop.getName().equals(msgMap.get("name")) || StrUtil.isEmpty((String) msgMap.get("name"))) {
                     sdprops.add(prop);
