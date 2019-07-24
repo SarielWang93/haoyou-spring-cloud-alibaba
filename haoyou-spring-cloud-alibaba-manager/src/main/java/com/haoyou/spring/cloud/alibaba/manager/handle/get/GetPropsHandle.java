@@ -37,13 +37,8 @@ public class GetPropsHandle extends ManagerHandle {
     @Override
     public BaseMessage handle(MyRequest req) {
         User user = req.getUser();
-        byte[] msg = req.getMsg();
-        Map<String, Object> msgMap = null;
-        try {
-            msgMap = MapperUtils.json2map(new String(msg));
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+
+        Map<String, Object> msgMap = getMsgMap(req);
 
         List<Prop>  sdprops = new ArrayList<>();
 

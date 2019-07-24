@@ -54,27 +54,13 @@ public class IngredientsHandle extends PeopUseHandle {
             FightingPet fightingPet = FightingPet.getByUserAndPetUid(user, propUseMsg.getPetUid(), redisObjectUtil);
             Pet pet = fightingPet.getPet();
             Integer loyaltyLev = pet.getLoyaltyLev();
-            Integer starClass = pet.getStarClass();
+
             Integer level = pet.getLevel();
             //食材名称
             String ingredientName = prop.getProperty1();
             //食材总量
-            int allIngredientsCount = pet.getIngredientsCount1() + pet.getIngredientsCount2() + pet.getIngredientsCount3() + pet.getIngredientsCount4();
+            int allIngredientsCount = pet.allIngredientsCount();
 
-            /**
-             * 食材星级控制
-             */
-            int ingredientsStar = 0;
-            if (allIngredientsCount < 950) {
-                ingredientsStar = 1;
-            }else if(allIngredientsCount < 3000){
-                ingredientsStar = 2;
-            }else if(allIngredientsCount < 3000){
-                ingredientsStar = 3;
-            }
-            if (propIngredientsStar != ingredientsStar) {
-                return ResponseMsg.MSG_ERR;
-            }
 
 
             /**
@@ -102,11 +88,31 @@ public class IngredientsHandle extends PeopUseHandle {
                 return ResponseMsg.MSG_ERR;
             }
 
-            int toMaxCount = maxIngredientsCount - ingredientsCount;
-
-            if (toMaxCount < propCount) {
-                propCount = toMaxCount;
+            /**
+             * 食材星级控制
+             */
+            int ingredientsStar = 0;
+            if (ingredientsCount < 950) {
+                ingredientsStar = 1;
+            }else if(ingredientsCount < 3000){
+                ingredientsStar = 2;
+            }else if(ingredientsCount < 6050){
+                ingredientsStar = 3;
+            }else{
+                return ResponseMsg.MSG_ERR;
             }
+            if (propIngredientsStar != ingredientsStar) {
+                return ResponseMsg.MSG_ERR;
+            }
+
+
+            //根据上限调整道具数量
+            int toMaxCount = maxIngredientsCount - ingredientsCount;
+            if (toMaxCount < propCount) {
+                return ResponseMsg.MSG_ERR;
+            }
+
+
 
 
             /**
@@ -123,9 +129,9 @@ public class IngredientsHandle extends PeopUseHandle {
             ingredientsStar = (loyaltyLev + 1) / 10 + 1;
 
             if (upNeedCount <= 0) {
-                propCount = 0;
+                return ResponseMsg.MSG_ERR;
             } else if (upNeedCount < propCount && propIngredientsStar != ingredientsStar) {
-                propCount = upNeedCount;
+                return ResponseMsg.MSG_ERR;
             }
 
 

@@ -337,12 +337,37 @@ public class Pet implements Serializable {
 
             for (int pieces = 1; ; pieces++) {
                 needCount += (pieces / 20 + 2) * 5;
-                if(needCount > count){
-                    ReflectUtil.setFieldValue(this, String.format("ingredientsPieces%s", i),pieces);
+                if (needCount > count) {
+                    ReflectUtil.setFieldValue(this, String.format("ingredientsPieces%s", i), pieces);
                     break;
                 }
             }
         }
+    }
+
+    /**
+     * 根据条数算出食材当前条吃满所需
+     *
+     * @return
+     */
+    public int piecesNeedCount(int pieces) {
+        int needCount = 0;
+
+        for (int i = 1; i <= pieces; i++) {
+            needCount += (i / 20 + 2) * 5;
+        }
+
+        return needCount;
+    }
+
+    /**
+     * 食材总数
+     *
+     * @return
+     */
+    public int allIngredientsCount() {
+        return this.ingredientsCount1 + this.ingredientsCount2 + this.ingredientsCount3 + this.ingredientsCount4;
+
     }
 
 }
