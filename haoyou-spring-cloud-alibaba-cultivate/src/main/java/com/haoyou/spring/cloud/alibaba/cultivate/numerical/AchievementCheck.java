@@ -21,11 +21,11 @@ public class AchievementCheck extends NumericalCheck {
     public void check(User user, String numericalName, long addValue) {
         //查找数值对应的成就
         HashMap<String, Achievement> stringAchievementHashMap = redisObjectUtil.getlkMap(RedisKeyUtil.getlkKey(RedisKey.ACHIEVEMENT), Achievement.class);
-        if(stringAchievementHashMap!=null){
+        if (stringAchievementHashMap != null) {
             UserNumerical userNumerical = user.getUserNumericalMap().get(numericalName);
-            for(Achievement achievement:stringAchievementHashMap.values()){
-                if(achievement.getNumericalName().equals(numericalName)){
-                    this.checkAchievement(achievement,userNumerical,addValue);
+            for (Achievement achievement : stringAchievementHashMap.values()) {
+                if (achievement.getNumericalName().equals(numericalName)) {
+                    this.checkAchievement(achievement, userNumerical, addValue);
                 }
             }
         }
@@ -33,10 +33,11 @@ public class AchievementCheck extends NumericalCheck {
 
     /**
      * 数值查询
+     *
      * @param achievement
      * @param userNumerical
      */
-    private void checkAchievement(Achievement achievement,UserNumerical userNumerical, long addValue){
+    private void checkAchievement(Achievement achievement, UserNumerical userNumerical, long addValue) {
 
         List<AchievementAims> achievementAims = achievement.getAchievementAims();
         Long oldvalue = userNumerical.getValue();
@@ -44,21 +45,19 @@ public class AchievementCheck extends NumericalCheck {
         Long newvalue = oldvalue + addValue;
 
 
-        for(AchievementAims achievementAim : achievementAims){
-            if(achievementAim.getAim() > oldvalue && achievementAim.getAim()<newvalue){
+        for (AchievementAims achievementAim : achievementAims) {
+            if (achievementAim.getAim() > oldvalue && achievementAim.getAim() <= newvalue) {
 
                 Award award = rewardService.getAward(achievementAim.getAwardType());
 
-                String type = RedisKeyUtil.getKey(RedisKey.ACHIEVEMENT,achievement.getName(),achievementAim.getPriorityOrder().toString());
+                String type = RedisKeyUtil.getKey(RedisKey.ACHIEVEMENT, achievement.getName(), achievementAim.getPriorityOrder().toString());
 
-                rewardService.upAward(userNumerical.getUserUid(),award,type);
+                rewardService.upAward(userNumerical.getUserUid(), award, type);
             }
         }
 
 
-
     }
-
 
 
 }
