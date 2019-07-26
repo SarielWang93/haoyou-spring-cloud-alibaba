@@ -45,6 +45,7 @@ public class GetAchievementHandle extends ManagerHandle {
         String achievementName = (String)msgMap.get("achievementName");
         HashMap<String, Achievement> stringAchievementHashMap = null;
 
+        //如果传入了成就名称，则只返回本成就的信息
         if(StrUtil.isNotEmpty(achievementName)){
             stringAchievementHashMap = new HashMap<>();
             Achievement achievement = redisObjectUtil.get(RedisKeyUtil.getKey(RedisKey.ACHIEVEMENT, achievementName), Achievement.class);
