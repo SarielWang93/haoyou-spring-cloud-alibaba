@@ -27,8 +27,5 @@ public class UserNumerical implements Serializable {
 
 
     private Long value;
-    /**
-     * 当前待领取的成就奖励目标看节点
-     */
-    private Integer achievementAimAward;
+
 }

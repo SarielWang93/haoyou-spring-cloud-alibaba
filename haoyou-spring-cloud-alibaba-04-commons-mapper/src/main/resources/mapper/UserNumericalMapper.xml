@@ -9,6 +9,5 @@
     <result column="user_uid" jdbcType="VARCHAR" property="userUid" />
     <result column="numerical_name" jdbcType="VARCHAR" property="numericalName" />
     <result column="value" jdbcType="BIGINT" property="value" />
-    <result column="achievement_aim_award" jdbcType="INTEGER" property="achievementAimAward" />
   </resultMap>
 </mapper>
