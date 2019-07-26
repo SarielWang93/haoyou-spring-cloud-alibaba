@@ -1,6 +1,7 @@
 package com.haoyou.spring.cloud.alibaba.manager.handle.get;
 
 
+import cn.hutool.core.util.StrUtil;
 import com.haoyou.spring.cloud.alibaba.commons.domain.RedisKey;
 import com.haoyou.spring.cloud.alibaba.commons.domain.ResponseMsg;
 import com.haoyou.spring.cloud.alibaba.commons.domain.SendType;
@@ -39,7 +40,18 @@ public class GetAchievementHandle extends ManagerHandle {
 
         List<Map> achievementsMsg = new ArrayList<>();
 
-        HashMap<String, Achievement> stringAchievementHashMap = redisObjectUtil.getlkMap(RedisKeyUtil.getlkKey(RedisKey.ACHIEVEMENT), Achievement.class);
+        Map<String, Object> msgMap = this.getMsgMap(req);
+
+        String achievementName = (String)msgMap.get("achievementName");
+        HashMap<String, Achievement> stringAchievementHashMap = null;
+
+        if(StrUtil.isNotEmpty(achievementName)){
+            stringAchievementHashMap = new HashMap<>();
+            Achievement achievement = redisObjectUtil.get(RedisKeyUtil.getKey(RedisKey.ACHIEVEMENT, achievementName), Achievement.class);
+            stringAchievementHashMap.put(achievementName,achievement);
+        }else{
+            stringAchievementHashMap = redisObjectUtil.getlkMap(RedisKeyUtil.getlkKey(RedisKey.ACHIEVEMENT), Achievement.class);
+        }
         //所有成就
         for (Achievement achievement : stringAchievementHashMap.values()) {
 
