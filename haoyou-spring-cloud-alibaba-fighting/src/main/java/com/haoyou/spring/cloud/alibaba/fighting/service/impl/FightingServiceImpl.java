@@ -829,8 +829,6 @@ public class FightingServiceImpl implements FightingService {
                 }
 
             }
-
-
         }
 
 

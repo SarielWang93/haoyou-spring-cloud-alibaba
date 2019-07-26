@@ -42,15 +42,15 @@ public class GetAchievementHandle extends ManagerHandle {
 
         Map<String, Object> msgMap = this.getMsgMap(req);
 
-        String achievementName = (String)msgMap.get("achievementName");
+        String achievementName = (String) msgMap.get("achievementName");
         HashMap<String, Achievement> stringAchievementHashMap = null;
 
         //如果传入了成就名称，则只返回本成就的信息
-        if(StrUtil.isNotEmpty(achievementName)){
+        if (StrUtil.isNotEmpty(achievementName)) {
             stringAchievementHashMap = new HashMap<>();
             Achievement achievement = redisObjectUtil.get(RedisKeyUtil.getKey(RedisKey.ACHIEVEMENT, achievementName), Achievement.class);
-            stringAchievementHashMap.put(achievementName,achievement);
-        }else{
+            stringAchievementHashMap.put(achievementName, achievement);
+        } else {
             stringAchievementHashMap = redisObjectUtil.getlkMap(RedisKeyUtil.getlkKey(RedisKey.ACHIEVEMENT), Achievement.class);
         }
         //所有成就
@@ -85,7 +85,7 @@ public class GetAchievementHandle extends ManagerHandle {
             //无带领取的奖励
             else {
                 UserNumerical userNumerical = user.getUserNumericalMap().get(achievement.getNumericalName());
-                if(userNumerical!=null){
+                if (userNumerical != null) {
                     //当前数值
                     achievementMsg.put("numerical", userNumerical.getValue());
 
@@ -97,6 +97,9 @@ public class GetAchievementHandle extends ManagerHandle {
                             achievementMsg.put("achievementAim", achievementAim.getAim());
                             break;
                         }
+                    }
+                    if (achievementMsg.get("achievementAim") == null) {
+                        achievementMsg.put("achievementAim",achievementAims.get(achievementAims.size()-1).getAim());
                     }
                 }
 
