@@ -42,10 +42,7 @@ public class RankSettleHandle extends SettleHandle {
                 }
                 String useruid = (String) player.get("useruid");
                 Award award = this.getAward(r);
-                if (award != null) {
-                    String key = RedisKeyUtil.getKey(RedisKey.USER_AWARD, useruid, RedisKey.RANKING);
-                    redisObjectUtil.save(key, award);
-                }
+                rewardService.upAward(useruid,award,RedisKey.RANKING);
 
             }
 

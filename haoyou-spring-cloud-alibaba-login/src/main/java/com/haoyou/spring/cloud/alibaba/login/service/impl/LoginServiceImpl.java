@@ -6,8 +6,10 @@ import cn.hutool.core.util.StrUtil;
 import com.alibaba.fescar.spring.annotation.GlobalTransactional;
 import com.haoyou.spring.cloud.alibaba.commons.entity.Currency;
 import com.haoyou.spring.cloud.alibaba.commons.entity.UserData;
+import com.haoyou.spring.cloud.alibaba.commons.entity.UserNumerical;
 import com.haoyou.spring.cloud.alibaba.commons.mapper.CurrencyMapper;
 import com.haoyou.spring.cloud.alibaba.commons.mapper.UserDataMapper;
+import com.haoyou.spring.cloud.alibaba.commons.mapper.UserNumericalMapper;
 import com.haoyou.spring.cloud.alibaba.register.Register;
 import org.apache.dubbo.config.annotation.Service;
 import com.haoyou.spring.cloud.alibaba.commons.domain.RedisKey;
@@ -43,9 +45,6 @@ public class LoginServiceImpl implements LoginService {
     private CurrencyMapper currencyMapper;
     @Autowired
     private UserDateSynchronization userDateSynchronization;
-    @Autowired
-    private UserDataMapper userDataMapper;
-
     @Autowired
     private Register register;
 
@@ -131,6 +130,7 @@ public class LoginServiceImpl implements LoginService {
         User user = req.getUser();
 
         if (user == null) {
+            user = new User();
             user.setState(ResponseMsg.MSG_LOGINOUT_WRONG);
             return user;
         }
@@ -183,18 +183,6 @@ public class LoginServiceImpl implements LoginService {
                     user3.setOnLine(true);
                     userrt = user3;
                 }else{
-                    //数据库中加载玩家
-
-                    //加载货币信息
-                    Currency currency = new Currency();
-                    currency.setUserUid(user1.getUid());
-                    currency = currencyMapper.selectOne(currency);
-                    user1.setCurrency(currency);
-                    //加载玩家信息
-                    UserData userData = new UserData();
-                    userData.setUserUid(user1.getUid());
-                    userData = userDataMapper.selectOne(userData);
-                    user1.setUserData(userData);
                     //加载方式
                     user1.setOnLine(false);
                     userrt = user1;
@@ -206,6 +194,4 @@ public class LoginServiceImpl implements LoginService {
         }
         return null;
     }
-
-
 }

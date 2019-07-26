@@ -60,4 +60,12 @@ public class ManagerController {
         loginService.logout(myRequest);
         return "success";
     }
+    @CrossOrigin
+    @GetMapping(value = "deleteAllUserCatch")
+    public String deleteAllUserCatch(){
+        redisObjectUtil.deleteAll(RedisKeyUtil.getlkKey(RedisKey.USER));
+        redisObjectUtil.deleteAll(RedisKeyUtil.getlkKey(RedisKey.OUTLINE_USER));
+        redisObjectUtil.deleteAll(RedisKeyUtil.getlkKey(RedisKey.FIGHT_PETS));
+        return "success";
+    }
 }

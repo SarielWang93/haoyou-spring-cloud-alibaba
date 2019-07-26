@@ -1,7 +1,6 @@
 package com.haoyou.spring.cloud.alibaba.commons.entity;
 
 
-
 import cn.hutool.core.util.IdUtil;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.haoyou.spring.cloud.alibaba.commons.message.BaseMessage;
@@ -75,7 +74,6 @@ public class User extends BaseMessage implements Serializable {
     private String platform;
 
 
-
     /**
      * 平台提供信息（json存储）
      */
@@ -122,17 +120,26 @@ public class User extends BaseMessage implements Serializable {
     @Transient
     private UserData userData;
 
-    public User notTooLong(){
-        if(this.currency!=null){
+    @Transient
+    private Map<String, UserNumerical> userNumericalMap;
+
+    /**
+     * 简洁返回用户信息
+     * @return
+     */
+    public User notTooLong() {
+        if (this.currency != null) {
             this.currency.setProps(null);
         }
-        this.platformParam=null;
+        this.platformParam = null;
+        this.userNumericalMap = null;
+        this.password = null;
         return this;
     }
 
-    public List<Prop> propList(){
+    public List<Prop> propList() {
         List<Prop> props = null;
-        if (this.currency.getProps()!=null) {
+        if (this.currency.getProps() != null) {
             try {
                 props = MapperUtils.json2list(new String(ZIP.unGZip(this.currency.getProps()), "UTF-8"), Prop.class);
             } catch (Exception e) {
@@ -143,18 +150,20 @@ public class User extends BaseMessage implements Serializable {
         }
         return props;
     }
-    public boolean addProp(Prop prop){
+
+    public boolean addProp(Prop prop) {
         List<Prop> list = new ArrayList<>();
         list.add(prop);
         return addProps(list);
     }
-    public boolean addProps(List<Prop> propList){
+
+    public boolean addProps(List<Prop> propList) {
         try {
             List<Prop> propsThis = this.propList();
-            if(propsThis.size() < this.currency.getPropMax()){
-                for(Prop prop:propList){
+            if (propsThis.size() < this.currency.getPropMax()) {
+                for (Prop prop : propList) {
                     int count = 1;
-                    if(prop.getCount() != 0){
+                    if (prop.getCount() != 0) {
                         count = prop.getCount();
                     }
                     int i = 0;
@@ -175,21 +184,21 @@ public class User extends BaseMessage implements Serializable {
         return false;
     }
 
-    public boolean deleteProp(Prop prop){
+    public boolean deleteProp(Prop prop) {
 
         int count = prop.getCount();
 
-        return deleteProp(prop,count);
+        return deleteProp(prop, count);
     }
 
-    public boolean deleteProp(Prop prop,int count){
+    public boolean deleteProp(Prop prop, int count) {
         try {
             List<Prop> propsThis = this.propList();
 
             int i = 0;
             if ((i = propsThis.indexOf(prop)) != -1) {
                 propsThis.get(i).setCount(propsThis.get(i).getCount() - count);
-                if(propsThis.get(i).getCount()<=0){
+                if (propsThis.get(i).getCount() <= 0) {
                     propsThis.remove(i);
                 }
                 this.currency.setProps(ZIP.gZip(MapperUtils.obj2jsonIgnoreNull(propsThis).getBytes("UTF-8")));

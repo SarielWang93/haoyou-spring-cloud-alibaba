@@ -39,6 +39,7 @@
     <result column="ingredients_name4" jdbcType="VARCHAR" property="ingredientsName4" />
     <result column="ingredients_count4" jdbcType="INTEGER" property="ingredientsCount4" />
     <result column="ingredients_attr4" jdbcType="VARCHAR" property="ingredientsAttr4" />
+    <result column="ingredients_limit" jdbcType="INTEGER" property="ingredientsLimit" />
     <result column="atn_gr" jdbcType="INTEGER" property="atnGr" />
     <result column="def_gr" jdbcType="INTEGER" property="defGr" />
     <result column="hp_gr" jdbcType="INTEGER" property="hpGr" />

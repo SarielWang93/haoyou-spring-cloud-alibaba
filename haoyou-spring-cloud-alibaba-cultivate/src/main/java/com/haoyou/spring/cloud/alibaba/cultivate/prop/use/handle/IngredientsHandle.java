@@ -67,7 +67,7 @@ public class IngredientsHandle extends PeopUseHandle {
              * 当前等级食材上限
              */
 
-            int maxIngredientsCount = 100 * (level / 10 + 1);
+            int maxIngredientsCount = 100 * (level / 10 + 1)+pet.getIngredientsLimit()*10;
 
             Field ingredientsCountField = null ;
             int ingredientsCount = Integer.MAX_VALUE;
@@ -94,9 +94,9 @@ public class IngredientsHandle extends PeopUseHandle {
             int ingredientsStar = 0;
             if (ingredientsCount < 950) {
                 ingredientsStar = 1;
-            }else if(ingredientsCount < 3000){
+            }else if(ingredientsCount < 3950){
                 ingredientsStar = 2;
-            }else if(ingredientsCount < 6050){
+            }else if(ingredientsCount < 10000 + pet.getIngredientsLimit()*10){
                 ingredientsStar = 3;
             }else{
                 return ResponseMsg.MSG_ERR;

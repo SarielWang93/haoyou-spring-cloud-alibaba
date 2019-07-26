@@ -3,12 +3,15 @@ package com.haoyou.spring.cloud.alibaba.cultivate.service;
 
 import cn.hutool.core.util.IdUtil;
 import com.haoyou.spring.cloud.alibaba.commons.domain.RedisKey;
+import com.haoyou.spring.cloud.alibaba.commons.domain.ResponseMsg;
 import com.haoyou.spring.cloud.alibaba.commons.domain.SendType;
 import com.haoyou.spring.cloud.alibaba.commons.entity.Award;
 import com.haoyou.spring.cloud.alibaba.commons.entity.Prop;
 import com.haoyou.spring.cloud.alibaba.commons.entity.User;
+import com.haoyou.spring.cloud.alibaba.commons.message.MapBody;
 import com.haoyou.spring.cloud.alibaba.commons.util.RedisKeyUtil;
 import com.haoyou.spring.cloud.alibaba.cultivate.reward.handle.RewardHandle;
+import com.haoyou.spring.cloud.alibaba.sofabolt.protocol.MyRequest;
 import com.haoyou.spring.cloud.alibaba.util.RedisObjectUtil;
 import com.haoyou.spring.cloud.alibaba.util.SendMsgUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,8 +41,8 @@ public class RewardService {
 
 
     public boolean rewards(User user, String type) {
+        Award award = this.getAward(type);
 
-        Award award = redisObjectUtil.get(RedisKeyUtil.getKey(RedisKey.AWARD, type),Award.class);
         if(award == null){
             award = rewardHandleMap.get(type).handle();
         }
@@ -53,6 +56,10 @@ public class RewardService {
         }
 
         return true;
+    }
+
+    public Award getAward(String type){
+         return redisObjectUtil.get(RedisKeyUtil.getKey(RedisKey.AWARD, type),Award.class);
     }
 
 
@@ -108,5 +115,47 @@ public class RewardService {
         this.send(user,award);
 
         return true;
+    }
+
+
+    /**
+     * 把奖励存入内存，等待领取
+     * @param userUid
+     * @param award
+     * @return
+     */
+    public boolean upAward(String userUid, Award award ,String type){
+        if (award != null) {
+            String key = RedisKeyUtil.getKey(RedisKey.USER_AWARD, userUid, type);
+            return redisObjectUtil.save(key, award);
+        }
+        return false;
+    }
+
+    /**
+     * 领取内存中的奖励
+     * @param user
+     * @param type
+     * @return
+     */
+    public MapBody receiveAward (User user,String type) {
+        MapBody mapBody = new MapBody();
+        String key = RedisKeyUtil.getKey(RedisKey.USER_AWARD, user.getUid(), type);
+        Award award = redisObjectUtil.get(key, Award.class);
+        if(award != null && !award.isUsed()){
+            if (this.doAward(user,award)) {
+                award.setUsed(true);
+                redisObjectUtil.save(key,award);
+                mapBody.setState(ResponseMsg.MSG_SUCCESS);
+                return mapBody;
+            }else{
+                mapBody.put("errMsg", "奖励获取错误！");
+            }
+        }else{
+            mapBody.put("errMsg", "奖励未找到，或者已经领取！");
+        }
+
+        mapBody.setState(ResponseMsg.MSG_ERR);
+        return mapBody;
     }
 }

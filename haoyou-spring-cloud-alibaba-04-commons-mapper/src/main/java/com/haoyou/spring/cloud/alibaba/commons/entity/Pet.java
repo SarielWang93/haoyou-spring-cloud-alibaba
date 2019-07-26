@@ -188,6 +188,12 @@ public class Pet implements Serializable {
     @Transient
     private Integer ingredientsPieces4;
 
+    /**
+     * 培养上限提升值
+     */
+    @Column(name = "ingredients_limit")
+    private Integer ingredientsLimit;
+
 
     /**
      * 状态

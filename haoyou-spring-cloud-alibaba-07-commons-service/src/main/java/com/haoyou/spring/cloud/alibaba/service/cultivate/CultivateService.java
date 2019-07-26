@@ -63,4 +63,14 @@ public interface CultivateService {
      */
     MapBody currencyUse (MyRequest req);
 
+
+    /**
+     *  数值系统
+     * @param user
+     * @param numericalName
+     * @param value
+     * @return
+     */
+    boolean numericalAdd (User user,String numericalName,long value);
+
 }

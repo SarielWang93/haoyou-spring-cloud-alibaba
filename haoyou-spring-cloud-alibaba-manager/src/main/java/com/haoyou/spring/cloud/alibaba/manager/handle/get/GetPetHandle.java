@@ -62,7 +62,7 @@ public class GetPetHandle extends ManagerHandle {
 
 
         //食材限定
-        mapBody.put("ingredientsMsg", this.getIngredientsMsg(fightingPet));
+        mapBody.put("ingredientsMsg", this.getIngredientsMsg(user, fightingPet));
 
 
         pet.setSkillBoard(null);
@@ -71,9 +71,11 @@ public class GetPetHandle extends ManagerHandle {
     }
 
 
-    private Map<String, Object> getIngredientsMsg(FightingPet fightingPet) {
+    private Map<String, Object> getIngredientsMsg(User user, FightingPet fightingPet) {
         Map<String, Object> ingredientsMsg = new HashMap<>();
         Pet pet = fightingPet.getPet();
+
+        List<Prop> props = user.propList();
 
         Integer level = pet.getLevel();
         Integer starClass = pet.getStarClass();
@@ -83,26 +85,27 @@ public class GetPetHandle extends ManagerHandle {
         //获取忠诚等级关系
         String levLoyaltyKey = RedisKeyUtil.getKey(RedisKey.LEV_LOYALTY, loyaltyLev.toString());
         LevLoyalty levLoyalty = redisObjectUtil.get(levLoyaltyKey, LevLoyalty.class);
-        String nextLevLoyaltyKey = RedisKeyUtil.getKey(RedisKey.LEV_LOYALTY, Integer.toString(loyaltyLev+1));
+        String nextLevLoyaltyKey = RedisKeyUtil.getKey(RedisKey.LEV_LOYALTY, Integer.toString(loyaltyLev + 1));
         LevLoyalty nextLevLoyalty = redisObjectUtil.get(nextLevLoyaltyKey, LevLoyalty.class);
 
         //等级上限
-        ingredientsMsg.put("levelMax",levLoyalty.getLevelMax());
+        ingredientsMsg.put("levelMax", levLoyalty.getLevelMax());
         //忠诚等级
-        ingredientsMsg.put("loyaltyLev",levLoyalty.getLoyaltyLev());
+        ingredientsMsg.put("loyaltyLev", levLoyalty.getLoyaltyLev());
         //忠诚升级
-        ingredientsMsg.put("nextLevIngredients",nextLevLoyalty.getIngredients());
-        ingredientsMsg.put("nowAllIngredients",nextLevLoyalty.getIngredients()-(nextLevLoyalty.getIngredientsSum()-allIngredientsCount));
+        ingredientsMsg.put("nextLevIngredients", nextLevLoyalty.getIngredients());
+        ingredientsMsg.put("nowAllIngredients", nextLevLoyalty.getIngredients() - (nextLevLoyalty.getIngredientsSum() - allIngredientsCount));
 
         List<Map> list = new ArrayList<>();
-        for(int i = 1; i < 5; i++){
+        for (int i = 1; i < 5; i++) {
 
             Map<String, Object> ingredient = new HashMap<>();
-            String ingredientsAttr = (String)ReflectUtil.getFieldValue(pet, String.format("ingredientsAttr%s", i));
+            String ingredientsAttr = (String) ReflectUtil.getFieldValue(pet, String.format("ingredientsAttr%s", i));
+            String ingredientsName = (String) ReflectUtil.getFieldValue(pet, String.format("ingredientsName%s", i));
             //食材名称
-            ingredient.put("ingredientsName",ReflectUtil.getFieldValue(pet, String.format("ingredientsName%s", i)));
+            ingredient.put("ingredientsName", ingredientsName);
             //食材加的属性
-            ingredient.put("ingredientsAttr",ingredientsAttr);
+            ingredient.put("ingredientsAttr", ingredientsAttr);
 
             //提升基数
             int up = 0;
@@ -116,39 +119,54 @@ public class GetPetHandle extends ManagerHandle {
                 up *= 5;
             }
             //属性加的量
-            ingredient.put("ingredientsAttrCount",up);
+            ingredient.put("ingredientsAttrCount", up);
 
             Integer count = (Integer) ReflectUtil.getFieldValue(pet, String.format("ingredientsCount%s", i));
-            int maxIngredientsCount = 100 * (level / 10 + 1);
+            int maxIngredientsCount = 100 * (level / 10 + 1) + pet.getIngredientsLimit() * 10;
             if (count < 950) {
+                if (maxIngredientsCount > 950) {
+                    maxIngredientsCount = 950;
+                }
                 //食材上限
-                ingredient.put("maxIngredients",maxIngredientsCount);
+                ingredient.put("maxIngredients", maxIngredientsCount);
                 //食材当前数量
-                ingredient.put("nowIngredients",count);
+                ingredient.put("nowIngredients", count);
                 //食材星级
-                ingredient.put("starIngredients",1);
-            }else if(count < 3000){
-                ingredient.put("maxIngredients",maxIngredientsCount-950);
-                ingredient.put("nowIngredients",count-950);
-                ingredient.put("starIngredients",2);
-            }else if(count < 6050){
-                ingredient.put("maxIngredients",maxIngredientsCount-950-3000);
-                ingredient.put("nowIngredients",count-950-3000);
-                ingredient.put("starIngredients",3);
+                ingredient.put("starIngredients", 1);
+            } else if (count < 3950) {
+                if (maxIngredientsCount > 3950) {
+                    maxIngredientsCount = 3000;
+                }
+                ingredient.put("maxIngredients", maxIngredientsCount - 950);
+                ingredient.put("nowIngredients", count - 950);
+                ingredient.put("starIngredients", 2);
+            } else if (count <= 10000 + pet.getIngredientsLimit() * 10) {
+                ingredient.put("maxIngredients", maxIngredientsCount - 950 - 3000);
+                ingredient.put("nowIngredients", count - 950 - 3000);
+                ingredient.put("starIngredients", 3);
             }
             Integer pieces = (Integer) ReflectUtil.getFieldValue(pet, String.format("ingredientsPieces%s", i));
             int thisPiecesNeedCount = (pieces / 20 + 2) * 5;
             int needCount = pet.piecesNeedCount(pieces);
 
             //食材当当前条的上限
-            ingredient.put("piecesNeedCount",thisPiecesNeedCount);
+            ingredient.put("piecesNeedCount", thisPiecesNeedCount);
             //食材当当前条的数量
-            ingredient.put("piecesNowCount",thisPiecesNeedCount-(needCount-count));
+            ingredient.put("piecesNowCount", thisPiecesNeedCount - (needCount - count));
+
+            //可用食材道具数量
+
+            for (Prop prop : props) {
+                if(prop.getProperty1().equals(ingredientsName) && Integer.valueOf(prop.getProperty2()).equals(ingredient.get("starIngredients")) ){
+                    ingredient.put("ingredientPropsCount",prop.getCount());
+                }
+            }
+
 
             list.add(ingredient);
         }
 
-        ingredientsMsg.put("ingredients",list);
+        ingredientsMsg.put("ingredients", list);
 
         return ingredientsMsg;
     }

@@ -64,12 +64,12 @@ public class FightingServiceImpl implements FightingService {
      * @return
      */
     @Override
-    public boolean start(List<User> users,Map<String,Boolean> allIsAi,String rewardType,String fightingType) {
+    public boolean start(List<User> users, Map<String, Boolean> allIsAi, String rewardType, String fightingType) {
 
         /**
          * 创建房间
          */
-        FightingRoom fightingRoom = new FightingRoom(users,rewardType,fightingType);
+        FightingRoom fightingRoom = new FightingRoom(users, rewardType, fightingType);
         logger.info(String.format("创建战斗房间：%s", fightingRoom.getUid()));
 
         /**
@@ -82,7 +82,7 @@ public class FightingServiceImpl implements FightingService {
              * 删除旧的战斗
              */
             String fightingRoomOldUid = redisObjectUtil.get(RedisKeyUtil.getKey(RedisKey.PLAYER_FIGHTING_ROOM, user.getUid()), String.class);
-            if(StrUtil.isNotEmpty(fightingRoomOldUid)){
+            if (StrUtil.isNotEmpty(fightingRoomOldUid)) {
                 FightingRoom fightingRoomOld = this.getFightingRoomByUserUid(user.getUid(), 2);
                 if (fightingRoomOld != null) {
                     this.deleteFightingRoom(fightingRoomOld);
@@ -90,18 +90,17 @@ public class FightingServiceImpl implements FightingService {
             }
 
 
-
             FightingCamp fightingCamp = this.initFightingCamp(fightingRoom, user);
 
-            if(allIsAi.get(user.getUid())!=null && allIsAi.get(user.getUid())){
+            if (allIsAi.get(user.getUid()) != null && allIsAi.get(user.getUid())) {
                 fightingCamp.setAi(true);
-            }else{
+            } else {
                 fightingCamp.setAi(false);
             }
 
             fightingCamps.put(user.getUid(), fightingCamp);
 
-            if(users.size()==1){
+            if (users.size() == 1) {
                 FightingCamp fightingCamp2 = this.initFightingCamp(fightingRoom, user);
                 User user2 = new User();
                 user2.setUid(String.format("ai-%s", user.getUid()));
@@ -240,8 +239,8 @@ public class FightingServiceImpl implements FightingService {
             /**
              * 玩家动画完成跑AI
              */
-            else if(fightingReq.getCurrentPetId().equals(AI_DO)){
-                if(campNow.startsWith("ai-")){
+            else if (fightingReq.getCurrentPetId().equals(AI_DO)) {
+                if (campNow.startsWith("ai-")) {
                     this.doAI(fightingRoom);
                     rt = ResponseMsg.MSG_SUCCESS;
                     baseMessage.setState(rt);
@@ -322,7 +321,7 @@ public class FightingServiceImpl implements FightingService {
 
             FightingRoom fightingRoom = this.getFightingRoomByUserUid(userUid, 5);
 
-            if(fightingRoom==null){
+            if (fightingRoom == null) {
                 return;
             }
 
@@ -330,7 +329,7 @@ public class FightingServiceImpl implements FightingService {
             for (FightingCamp fightingCamp : fightingRoom.getFightingCamps().values()) {
                 if (fightingCamp.isReady()) {
                     userUids.add(fightingCamp.getUser().getUid());
-                }else{
+                } else {
                     fightingCamp.setReady(true);
                 }
             }
@@ -434,7 +433,6 @@ public class FightingServiceImpl implements FightingService {
         }
 
 
-
         /**
          * 非当前宠物 行动权计算（红黑树TreeMap）
          */
@@ -449,7 +447,7 @@ public class FightingServiceImpl implements FightingService {
                     fightingPets.put(newAction_time, value1);
 
                     //清除暴击状态
-                    if(value1.isLuky()){
+                    if (value1.isLuky()) {
                         fightingPet.setLuky(false);
                     }
                 }
@@ -465,7 +463,6 @@ public class FightingServiceImpl implements FightingService {
                 break;
             }
         }
-
 
 
         /**
@@ -490,8 +487,6 @@ public class FightingServiceImpl implements FightingService {
 
 
     }
-
-
 
 
     /**
@@ -585,7 +580,7 @@ public class FightingServiceImpl implements FightingService {
         String fightingRoomUid = null;
         FightingRoom fightingRoom = null;
         for (int i = 0; i < times; i++) {
-            if(StrUtil.isEmpty(fightingRoomUid)){
+            if (StrUtil.isEmpty(fightingRoomUid)) {
                 fightingRoomUid = redisObjectUtil.get(RedisKeyUtil.getKey(RedisKey.PLAYER_FIGHTING_ROOM, userUid), String.class);
             }
             if (StrUtil.isEmpty(fightingRoomUid)) {
@@ -799,6 +794,45 @@ public class FightingServiceImpl implements FightingService {
      */
 
     public void operation(FightingReq fightingReq, FightingPet fightingPet) {
+
+        //数值系统计数
+        User user = redisObjectUtil.get(RedisKeyUtil.getKey(RedisKey.USER, fightingPet.getPet().getUserUid()), User.class);
+        if(user!=null){
+            Map<Integer,Integer> c = new HashMap<>();
+            for (BlockInfo blockInfo : fightingReq.getDestroyInfos()) {
+                Integer integer = c.get(blockInfo.getRandomID());
+                if(integer == null){
+                    c.put(blockInfo.getRandomID(),1);
+                }else{
+                    c.put(blockInfo.getRandomID(),integer+1);
+                }
+            }
+
+            for(Map.Entry<Integer,Integer> entry:c.entrySet()){
+
+                switch (entry.getKey()){
+                    case FightingBoard.ATTACK_NORMAL:
+                        cultivateService.numericalAdd(user,"block_attack_normal",entry.getValue());
+                        break;
+                    case FightingBoard.ATTACK_SPECIAL:
+                        cultivateService.numericalAdd(user,"block_attack_special",entry.getValue());
+                        break;
+                    case FightingBoard.SHIELD:
+                        cultivateService.numericalAdd(user,"block_shield",entry.getValue());
+                        break;
+                    case FightingBoard.SKILL:
+                        cultivateService.numericalAdd(user,"block_skill",entry.getValue());
+                        break;
+                    case FightingBoard.ALL_IN:
+                        cultivateService.numericalAdd(user,"block_all_in",entry.getValue());
+                        break;
+                }
+
+            }
+
+
+        }
+
 
 
         FightingCamp own = fightingPet.getDistinguish().get("own");

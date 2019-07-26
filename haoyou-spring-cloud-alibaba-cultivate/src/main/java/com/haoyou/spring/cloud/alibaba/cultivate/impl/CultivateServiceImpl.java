@@ -4,16 +4,13 @@ import com.haoyou.spring.cloud.alibaba.commons.domain.ResponseMsg;
 import com.haoyou.spring.cloud.alibaba.commons.message.MapBody;
 import com.haoyou.spring.cloud.alibaba.commons.entity.*;
 import com.haoyou.spring.cloud.alibaba.commons.util.MapperUtils;
-import com.haoyou.spring.cloud.alibaba.cultivate.service.CurrencyUseService;
+import com.haoyou.spring.cloud.alibaba.cultivate.service.*;
 import com.haoyou.spring.cloud.alibaba.pojo.cultivate.*;
-import com.haoyou.spring.cloud.alibaba.cultivate.service.PropUseService;
 import com.haoyou.spring.cloud.alibaba.fighting.info.FightingPet;
 import org.apache.dubbo.config.annotation.Service;
 import com.haoyou.spring.cloud.alibaba.commons.domain.RedisKey;
 import com.haoyou.spring.cloud.alibaba.commons.mapper.PetMapper;
 import com.haoyou.spring.cloud.alibaba.commons.util.RedisKeyUtil;
-import com.haoyou.spring.cloud.alibaba.cultivate.service.RewardService;
-import com.haoyou.spring.cloud.alibaba.cultivate.service.SkillConfigService;
 import com.haoyou.spring.cloud.alibaba.service.cultivate.CultivateService;
 import com.haoyou.spring.cloud.alibaba.sofabolt.protocol.MyRequest;
 import com.haoyou.spring.cloud.alibaba.util.RedisObjectUtil;
@@ -52,6 +49,8 @@ public class CultivateServiceImpl implements CultivateService {
     private PropUseService propUseService;
     @Autowired
     private CurrencyUseService currencyUseService;
+    @Autowired
+    private NumericalService numericalService;
 
     /**
      * 技能配置处理
@@ -259,7 +258,6 @@ public class CultivateServiceImpl implements CultivateService {
      */
     @Override
     public MapBody receiveAward (MyRequest req) {
-        MapBody mapBody = new MapBody();
         User user = req.getUser();
         String type = "null";
         try {
@@ -268,28 +266,41 @@ public class CultivateServiceImpl implements CultivateService {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        String key = RedisKeyUtil.getKey(RedisKey.USER_AWARD, user.getUid(), type);
-        Award award = redisObjectUtil.get(key, Award.class);
-        if(award != null && !award.isUsed()){
-            if (rewardService.doAward(user,award)) {
-                if(this.saveUser(user)){
-                    award.setUsed(true);
-                    redisObjectUtil.save(key,award);
-                    mapBody.setState(ResponseMsg.MSG_SUCCESS);
-                    return mapBody;
-                }else{
-                    mapBody.put("errMsg", "奖励保存未成功！");
-                }
-            }else{
-                mapBody.put("errMsg", "奖励获取错误！");
-            }
-        }else{
-            mapBody.put("errMsg", "奖励未找到，或者已经使用！");
-        }
 
-        mapBody.setState(ResponseMsg.MSG_ERR);
+        MapBody mapBody = rewardService.receiveAward(user, type);
+
+        if(mapBody.getState().equals(ResponseMsg.MSG_SUCCESS)){
+            if(this.saveUser(user)){
+
+            }else{
+                mapBody.setState(ResponseMsg.MSG_ERR);
+                mapBody.put("errMsg", "奖励保存未成功！");
+            }
+        }
         return mapBody;
     }
+
+
+    /**
+     * 数值系统
+     * @param user
+     * @param numericalName
+     * @param value
+     * @return
+     */
+    @Override
+    public boolean numericalAdd (User user,String numericalName,long value){
+
+        if(numericalService.numericalAdd(user,numericalName,value)){
+            if(this.saveUser(user)){
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+
 
 
     /**

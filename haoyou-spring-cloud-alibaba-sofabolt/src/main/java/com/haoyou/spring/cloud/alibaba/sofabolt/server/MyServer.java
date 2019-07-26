@@ -16,7 +16,6 @@ import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 @Component
-@RefreshScope
 @Order(value = 1)
 public class MyServer  implements ApplicationRunner {
     private final static Logger logger = LoggerFactory.getLogger(MyServer.class);

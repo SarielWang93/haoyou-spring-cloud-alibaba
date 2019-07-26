@@ -26,7 +26,7 @@ import java.util.Date;
 @Data
 public abstract class PeopUseHandle {
 
-    //获取宠物失败
+    //获取宠物类型失败
     final static public int NO_PETTYPE = 1001;
     //容量不足
     final static public int NO_SPACE = 1002;
@@ -34,8 +34,11 @@ public abstract class PeopUseHandle {
     final static public int WRONG_COUNT = 1003;
     //已拥有
     final static public int ALREADY_HAVE = 1004;
+    //超出上限
+    final static public int LIMIT = 1005;
     //参数有误
-    final static public int WRONG_PRO = 1005;
+    final static public int WRONG_PRO = 1006;
+
 
 
 
@@ -105,7 +108,8 @@ public abstract class PeopUseHandle {
         //删除道具并修改玩家信息
         if(user.deleteProp(prop,propUseMsg.getPropCount())){
             user.setLastUpdateDate(new Date());
-            return redisObjectUtil.save(RedisKeyUtil.getKey(RedisKey.USER, user.getUid()), user);
+//            return redisObjectUtil.save(RedisKeyUtil.getKey(RedisKey.USER, user.getUid()), user);
+            return true;
         }
         return false;
 

@@ -42,10 +42,33 @@ public class CultureLimitHandle extends CurrencyUseHandle {
 
         Pet pet = fightingPet.getPet();
 
+        //培养液道具
+        List<Prop> props = user.propList();
+
+        Prop cultureMedium = null;
+
+        for (Prop prop : props) {
+            if ("CultureMedium".equals(prop.getName())) {
+                cultureMedium = prop;
+            }
+        }
+
         //培养上限
 
         Integer cultureLimit = pet.getCultureLimit();
 
+        if(cultureLimit >=100 ){
+            return LIMIT;
+        }
+
+        //所需道具
+        int propCount = cultureLimit / 10 * 10 * cultureLimit + (cultureLimit % 10);
+        int nprop = cultureMedium.getCount() - propCount;
+        if(nprop <0){
+            return PROP_LESS;
+        }else{
+            user.deleteProp(cultureMedium,propCount);
+        }
 
         //所需钻石
         int diamondCount = cultureLimit / 10 * 10 * cultureLimit + (cultureLimit % 10)*10;
@@ -56,7 +79,7 @@ public class CultureLimitHandle extends CurrencyUseHandle {
             user.getCurrency().setDiamond(nDiamond);
         }
 
-        pet.setCultureLimit(cultureLimit+=1);
+        pet.setCultureLimit(cultureLimit+1);
 
 
         //保存修改
