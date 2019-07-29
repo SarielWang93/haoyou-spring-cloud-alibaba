@@ -43,14 +43,28 @@ public class PetSkillScrapHandle extends PeopUseHandle {
         Prop prop = propUseMsg.getProp();
         int propCount = propUseMsg.getPropCount();
 
-        Integer quality = Integer.valueOf(prop.getProperty1());
+        //校验容量
+        Integer propMax = user.getCurrency().getPropMax();
+        int scount = 0;
+        for (Prop propHas : user.propList()) {
+            if ("PetSkill".equals(propHas.getName())) {
+                scount++;
+            }
+        }
+        if (scount >= propMax) {
+            rt.setState(NO_SPACE);
+            return rt;
+        }
+
+
 
         //碎片需要数量
+        Integer quality = Integer.valueOf(prop.getProperty1());
         int count = Integer.MAX_VALUE;
 
-        if(quality<5){
-            count = quality*10;
-        }else if(quality == 5){
+        if (quality < 5) {
+            count = quality * 10;
+        } else if (quality == 5) {
             count = 100;
         }
 
@@ -71,14 +85,14 @@ public class PetSkillScrapHandle extends PeopUseHandle {
         HashMap<String, Skill> skills = redisObjectUtil.getlkMap(RedisKeyUtil.getlkKey(RedisKey.SKILL), Skill.class);
         List<Skill> skillPool = new ArrayList<>();
         for (Skill skill : skills.values()) {
-            if(skill.getQuality().equals(quality)){
+            if (skill.getQuality().equals(quality)) {
                 skillPool.add(skill);
             }
         }
         //权重随机
         WeightRandom.WeightObj<Skill>[] weightObjs = new WeightRandom.WeightObj[skillPool.size()];
-        for(int i = 0;i<skillPool.size();i++){
-            weightObjs[i] = new WeightRandom.WeightObj(skillPool.get(i),10d);
+        for (int i = 0; i < skillPool.size(); i++) {
+            weightObjs[i] = new WeightRandom.WeightObj(skillPool.get(i), 10d);
         }
         WeightRandom<Skill> petTypeWeightRandom = RandomUtil.weightRandom(weightObjs);
         Skill skill = petTypeWeightRandom.next();
@@ -89,13 +103,13 @@ public class PetSkillScrapHandle extends PeopUseHandle {
         prop1.setProperty3(quality.toString());
         prop1.setProperty4(skill.getUid());
         prop1.setProperty5(skill.getDescribe());
-        UserUtil.addProp(user,prop1);
+        UserUtil.addProp(user, prop1);
 
         List<Prop> propList = new ArrayList<>();
         propList.add(prop1);
         Award award = new Award();
         award.setPropsList(propList);
-        rt.put("award",award);
+        rt.put("award", award);
         rt.setState(ResponseMsg.MSG_SUCCESS);
         return rt;
 

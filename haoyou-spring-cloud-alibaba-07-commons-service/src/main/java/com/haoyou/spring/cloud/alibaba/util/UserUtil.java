@@ -42,16 +42,12 @@ public class UserUtil {
                     count = prop.getCount();
                 }
                 int i = 0;
-                if ((i = propsThis.indexOf(prop)) != -1) {
+                if ((i = propsThis.indexOf(prop)) != -1 && !"PetSkill".equals(prop.getName())) {
                     propsThis.get(i).setCount(propsThis.get(i).getCount() + count);
                 } else {
-                    if (propsThis.size() < user.getCurrency().getPropMax()) {
-                        prop.setPropInstenceUid(IdUtil.simpleUUID());
-                        prop.setCount(count);
-                        propsThis.add(prop);
-                    }else{
-                        propsOver.add(prop);
-                    }
+                    prop.setPropInstenceUid(IdUtil.simpleUUID());
+                    prop.setCount(count);
+                    propsThis.add(prop);
                 }
                 user.getCurrency().setProps(ZIP.gZip(MapperUtils.obj2jsonIgnoreNull(propsThis).getBytes("UTF-8")));
             }
