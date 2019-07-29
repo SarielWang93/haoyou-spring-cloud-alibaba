@@ -6,6 +6,7 @@ import cn.hutool.core.util.StrUtil;
 import com.haoyou.spring.cloud.alibaba.commons.domain.RedisKey;
 import com.haoyou.spring.cloud.alibaba.commons.domain.ResponseMsg;
 import com.haoyou.spring.cloud.alibaba.commons.entity.*;
+import com.haoyou.spring.cloud.alibaba.commons.message.MapBody;
 import com.haoyou.spring.cloud.alibaba.commons.util.RedisKeyUtil;
 import com.haoyou.spring.cloud.alibaba.fighting.info.FightingPet;
 import com.haoyou.spring.cloud.alibaba.fighting.info.skill.shape.Tetromino;
@@ -34,7 +35,9 @@ public class PetSkillScrapHandle extends PeopUseHandle {
     }
 
     @Override
-    public int handle(PropUseMsg propUseMsg) {
+    public MapBody handle(PropUseMsg propUseMsg) {
+
+        MapBody rt = new MapBody();
 
         User user = propUseMsg.getUser();
         Prop prop = propUseMsg.getProp();
@@ -53,7 +56,8 @@ public class PetSkillScrapHandle extends PeopUseHandle {
 
 
         if (count > propCount) {
-            return WRONG_COUNT;
+            rt.setState(WRONG_COUNT);
+            return rt;
         }
 
 
@@ -87,6 +91,13 @@ public class PetSkillScrapHandle extends PeopUseHandle {
         prop1.setProperty5(skill.getDescribe());
         UserUtil.addProp(user,prop1);
 
-        return ResponseMsg.MSG_SUCCESS;
+        List<Prop> propList = new ArrayList<>();
+        propList.add(prop1);
+        Award award = new Award();
+        award.setPropsList(propList);
+        rt.put("award",award);
+        rt.setState(ResponseMsg.MSG_SUCCESS);
+        return rt;
+
     }
 }

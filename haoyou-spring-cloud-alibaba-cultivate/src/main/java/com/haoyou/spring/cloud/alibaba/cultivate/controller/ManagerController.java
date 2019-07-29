@@ -5,6 +5,7 @@ import com.haoyou.spring.cloud.alibaba.commons.domain.RedisKey;
 import com.haoyou.spring.cloud.alibaba.commons.domain.RewardType;
 import com.haoyou.spring.cloud.alibaba.commons.entity.Award;
 import com.haoyou.spring.cloud.alibaba.commons.mapper.AwardMapper;
+import com.haoyou.spring.cloud.alibaba.commons.message.BaseMessage;
 import com.haoyou.spring.cloud.alibaba.commons.message.MapBody;
 import com.haoyou.spring.cloud.alibaba.commons.entity.Pet;
 import com.haoyou.spring.cloud.alibaba.commons.entity.PetType;
@@ -142,9 +143,9 @@ public class ManagerController {
         MyRequest myRequest = new MyRequest();
         myRequest.setMsg(sendMsgUtil.serialize(msg));
         myRequest.setUser(user);
-        MapBody mapBody = cultivateService.petUpLev(myRequest);
+        BaseMessage baseMessage = cultivateService.petUpLev(myRequest);
         try {
-            return MapperUtils.obj2jsonIgnoreNull(mapBody);
+            return MapperUtils.obj2jsonIgnoreNull(baseMessage);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -196,10 +197,10 @@ public class ManagerController {
         myRequest.setMsg(sendMsgUtil.serialize(propUseMsg));
         myRequest.setUser(user);
 
-        MapBody mapBody = cultivateService.propUse(myRequest);
+        BaseMessage baseMessage = cultivateService.propUse(myRequest);
 
         try {
-            return MapperUtils.obj2jsonIgnoreNull(mapBody);
+            return MapperUtils.obj2jsonIgnoreNull(baseMessage);
         } catch (Exception e) {
             e.printStackTrace();
         }

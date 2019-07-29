@@ -2,6 +2,8 @@ package com.haoyou.spring.cloud.alibaba.cultivate.service;
 
 
 import cn.hutool.core.lang.Console;
+import com.haoyou.spring.cloud.alibaba.commons.message.BaseMessage;
+import com.haoyou.spring.cloud.alibaba.commons.message.MapBody;
 import com.haoyou.spring.cloud.alibaba.pojo.cultivate.PropUseMsg;
 import com.haoyou.spring.cloud.alibaba.cultivate.prop.use.handle.PeopUseHandle;
 import com.haoyou.spring.cloud.alibaba.util.SendMsgUtil;
@@ -25,7 +27,7 @@ public class PropUseService {
         propUseHandleMap.put(peopUseHandle.getHandleType(),peopUseHandle);
     }
 
-    public int propUse(PropUseMsg propUseMsg) {
+    public MapBody propUse(PropUseMsg propUseMsg) {
         return propUseHandleMap.get(propUseMsg.getProp().getName()).useProp(propUseMsg);
     }
 }

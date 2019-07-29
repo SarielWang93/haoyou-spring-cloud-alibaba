@@ -6,6 +6,8 @@ import com.haoyou.spring.cloud.alibaba.commons.entity.Prop;
 import com.haoyou.spring.cloud.alibaba.commons.entity.User;
 import com.haoyou.spring.cloud.alibaba.commons.mapper.PetMapper;
 import com.haoyou.spring.cloud.alibaba.commons.mapper.UserMapper;
+import com.haoyou.spring.cloud.alibaba.commons.message.BaseMessage;
+import com.haoyou.spring.cloud.alibaba.commons.message.MapBody;
 import com.haoyou.spring.cloud.alibaba.commons.util.RedisKeyUtil;
 import com.haoyou.spring.cloud.alibaba.cultivate.service.RewardService;
 import com.haoyou.spring.cloud.alibaba.pojo.cultivate.PropUseMsg;
@@ -82,7 +84,7 @@ public abstract class PeopUseHandle {
      * @param propUseMsg
      * @return
      */
-    public abstract int handle(PropUseMsg propUseMsg);
+    public abstract MapBody handle(PropUseMsg propUseMsg);
 
     /**
      * 道具使用
@@ -90,19 +92,20 @@ public abstract class PeopUseHandle {
      * @param propUseMsg
      * @return
      */
-    public int useProp(PropUseMsg propUseMsg) {
-
+    public MapBody useProp(PropUseMsg propUseMsg) {
+        MapBody rt = new MapBody();
         if (deleteProp(propUseMsg)) {
-            int handle = handle(propUseMsg);
-            if (handle != ResponseMsg.MSG_SUCCESS) {
+            rt = handle(propUseMsg);
+            if (rt.getState() != ResponseMsg.MSG_SUCCESS) {
                 User user = propUseMsg.getUser();
                 Prop prop = propUseMsg.getProp();
                 prop.setCount(propUseMsg.getPropCount());
                 UserUtil.addProp(user,prop);
             }
-            return handle;
+            return rt;
         }
-        return ResponseMsg.MSG_ERR;
+        rt.setState(ResponseMsg.MSG_ERR);
+        return rt;
     }
 
     /**

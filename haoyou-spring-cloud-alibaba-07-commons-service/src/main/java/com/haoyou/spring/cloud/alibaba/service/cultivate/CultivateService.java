@@ -1,6 +1,7 @@
 package com.haoyou.spring.cloud.alibaba.service.cultivate;
 
 import com.haoyou.spring.cloud.alibaba.commons.entity.Award;
+import com.haoyou.spring.cloud.alibaba.commons.message.BaseMessage;
 import com.haoyou.spring.cloud.alibaba.commons.message.MapBody;
 import com.haoyou.spring.cloud.alibaba.commons.entity.User;
 import com.haoyou.spring.cloud.alibaba.sofabolt.protocol.MyRequest;
@@ -23,7 +24,7 @@ public interface CultivateService {
      * @param req
      * @return
      */
-    MapBody propUse(MyRequest req);
+    BaseMessage propUse(MyRequest req);
 
     /**
      * 宠物生成（临时）
@@ -34,7 +35,7 @@ public interface CultivateService {
     /**
      * 宠物升级
      */
-    MapBody petUpLev(MyRequest req);
+    BaseMessage petUpLev(MyRequest req);
 
     /**
      * 奖励获取
@@ -46,7 +47,7 @@ public interface CultivateService {
      * @param req
      * @return
      */
-    MapBody receiveAward(MyRequest req);
+    BaseMessage receiveAward(MyRequest req);
 
 
     /**
@@ -61,7 +62,7 @@ public interface CultivateService {
      * @param req
      * @return
      */
-    MapBody currencyUse (MyRequest req);
+    BaseMessage currencyUse (MyRequest req);
 
 
     /**

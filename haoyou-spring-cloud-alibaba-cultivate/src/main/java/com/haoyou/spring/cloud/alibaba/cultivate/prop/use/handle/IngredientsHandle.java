@@ -8,6 +8,7 @@ import com.haoyou.spring.cloud.alibaba.commons.entity.LevLoyalty;
 import com.haoyou.spring.cloud.alibaba.commons.entity.Pet;
 import com.haoyou.spring.cloud.alibaba.commons.entity.Prop;
 import com.haoyou.spring.cloud.alibaba.commons.entity.User;
+import com.haoyou.spring.cloud.alibaba.commons.message.MapBody;
 import com.haoyou.spring.cloud.alibaba.commons.util.RedisKeyUtil;
 import com.haoyou.spring.cloud.alibaba.pojo.cultivate.PropUseMsg;
 import com.haoyou.spring.cloud.alibaba.fighting.info.FightingPet;
@@ -42,7 +43,9 @@ public class IngredientsHandle extends PeopUseHandle {
     }
 
     @Override
-    public int handle(PropUseMsg propUseMsg) {
+    public MapBody handle(PropUseMsg propUseMsg) {
+
+        MapBody rt = new MapBody();
 
         User user = propUseMsg.getUser();
         Prop prop = propUseMsg.getProp();
@@ -86,7 +89,8 @@ public class IngredientsHandle extends PeopUseHandle {
                 ingredientsCount = pet.getIngredientsCount4();
                 ingredientsCountField = ReflectUtil.getField(Pet.class, "ingredientsCount4");
             }else {
-                return ResponseMsg.MSG_ERR;
+                rt.setState(ResponseMsg.MSG_ERR);
+                return rt;
             }
 
             /**
@@ -100,17 +104,20 @@ public class IngredientsHandle extends PeopUseHandle {
             }else if(ingredientsCount < 10000 + pet.getIngredientsLimit()*10){
                 ingredientsStar = 3;
             }else{
-                return ResponseMsg.MSG_ERR;
+                rt.setState(ResponseMsg.MSG_ERR);
+                return rt;
             }
             if (propIngredientsStar != ingredientsStar) {
-                return ResponseMsg.MSG_ERR;
+                rt.setState(ResponseMsg.MSG_ERR);
+                return rt;
             }
 
 
             //根据上限调整道具数量
             int toMaxCount = maxIngredientsCount - ingredientsCount;
             if (toMaxCount < propCount) {
-                return ResponseMsg.MSG_ERR;
+                rt.setState(ResponseMsg.MSG_ERR);
+                return rt;
             }
 
 
@@ -130,9 +137,11 @@ public class IngredientsHandle extends PeopUseHandle {
             ingredientsStar = (loyaltyLev + 1) / 10 + 1;
 
             if (upNeedCount <= 0) {
-                return ResponseMsg.MSG_ERR;
+                rt.setState(ResponseMsg.MSG_ERR);
+                return rt;
             } else if (upNeedCount < propCount && propIngredientsStar != ingredientsStar) {
-                return ResponseMsg.MSG_ERR;
+                rt.setState(ResponseMsg.MSG_ERR);
+                return rt;
             }
 
 
@@ -140,7 +149,8 @@ public class IngredientsHandle extends PeopUseHandle {
                 //宠物食材数量添加
                 ReflectUtil.setFieldValue(pet,ingredientsCountField,ingredientsCount+propCount);
             } else {
-                return ResponseMsg.MSG_ERR;
+                rt.setState(ResponseMsg.MSG_ERR);
+                return rt;
             }
 
             /**
@@ -161,8 +171,8 @@ public class IngredientsHandle extends PeopUseHandle {
             //数值系统
             cultivateService.numericalAdd(user,"feeding_pets",propCount);
 
-
-            return ResponseMsg.MSG_SUCCESS;
+            rt.setState(ResponseMsg.MSG_SUCCESS);
+            return rt;
         }
         //合成道具
         else if (type == COM && propIngredientsStar < 3) {
@@ -174,7 +184,8 @@ public class IngredientsHandle extends PeopUseHandle {
 
             propList.add(prop);
             UserUtil.addProps(user,propList);
-            return ResponseMsg.MSG_SUCCESS;
+            rt.setState(ResponseMsg.MSG_SUCCESS);
+            return rt;
         }
         //拆分道具
         else if (type == SPLIT && propIngredientsStar > 1) {
@@ -186,8 +197,10 @@ public class IngredientsHandle extends PeopUseHandle {
 
             propList.add(prop);
             UserUtil.addProps(user,propList);
-            return ResponseMsg.MSG_SUCCESS;
+            rt.setState(ResponseMsg.MSG_SUCCESS);
+            return rt;
         }
-        return ResponseMsg.MSG_ERR;
+        rt.setState(ResponseMsg.MSG_ERR);
+        return rt;
     }
 }

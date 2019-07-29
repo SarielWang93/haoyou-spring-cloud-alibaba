@@ -5,6 +5,7 @@ import cn.hutool.core.util.RandomUtil;
 import com.haoyou.spring.cloud.alibaba.commons.domain.RedisKey;
 import com.haoyou.spring.cloud.alibaba.commons.domain.ResponseMsg;
 import com.haoyou.spring.cloud.alibaba.commons.entity.*;
+import com.haoyou.spring.cloud.alibaba.commons.message.MapBody;
 import com.haoyou.spring.cloud.alibaba.commons.util.RedisKeyUtil;
 import com.haoyou.spring.cloud.alibaba.pojo.cultivate.PropUseMsg;
 import com.haoyou.spring.cloud.alibaba.fighting.info.FightingPet;
@@ -33,7 +34,9 @@ public class PetEggHandle extends PeopUseHandle {
     }
 
     @Override
-    public int handle(PropUseMsg propUseMsg) {
+    public MapBody handle(PropUseMsg propUseMsg) {
+
+        MapBody rt = new MapBody();
 
         User user = propUseMsg.getUser();
         Prop prop = propUseMsg.getProp();
@@ -53,7 +56,8 @@ public class PetEggHandle extends PeopUseHandle {
         }
 
         if (petType == null) {
-            return NO_PETTYPE;
+            rt.setState(NO_PETTYPE);
+            return rt;
         }
 
         //孵化获得宠物碎片
@@ -75,7 +79,14 @@ public class PetEggHandle extends PeopUseHandle {
 
         //数值系统
         cultivateService.numericalAdd(user,"pet_egg",1L);
-        return ResponseMsg.MSG_SUCCESS;
+
+        List<Prop> propList = new ArrayList<>();
+        propList.add(prop);
+        Award award = new Award();
+        award.setPropsList(propList);
+        rt.put("award",award);
+        rt.setState(ResponseMsg.MSG_SUCCESS);
+        return rt;
 
 
     }

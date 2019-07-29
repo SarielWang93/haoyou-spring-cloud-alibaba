@@ -3,11 +3,13 @@ package com.haoyou.spring.cloud.alibaba.cultivate.prop.use.handle;
 import com.haoyou.spring.cloud.alibaba.commons.domain.RedisKey;
 import com.haoyou.spring.cloud.alibaba.commons.domain.ResponseMsg;
 import com.haoyou.spring.cloud.alibaba.commons.entity.*;
+import com.haoyou.spring.cloud.alibaba.commons.message.MapBody;
 import com.haoyou.spring.cloud.alibaba.commons.util.RedisKeyUtil;
 import com.haoyou.spring.cloud.alibaba.fighting.info.FightingPet;
 import com.haoyou.spring.cloud.alibaba.pojo.cultivate.PropUseMsg;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -28,7 +30,9 @@ public class PetSpiritualHandle extends PeopUseHandle {
     }
 
     @Override
-    public int handle(PropUseMsg propUseMsg) {
+    public MapBody handle(PropUseMsg propUseMsg) {
+
+        MapBody rt = new MapBody();
 
         User user = propUseMsg.getUser();
         Prop prop = propUseMsg.getProp();
@@ -37,14 +41,17 @@ public class PetSpiritualHandle extends PeopUseHandle {
         //宠物容纳上限
         List<FightingPet> pets = FightingPet.getByUser(user, redisObjectUtil);
         if(pets.size()>=user.getCurrency().getPetMax()){
-            return NO_SPACE;
+            rt.setState(NO_SPACE);
+            return rt;
         }
 
         String petTypeUid = prop.getProperty2();
 
         for(FightingPet fightingPet : pets){
             if(fightingPet.getPet().getTypeUid().equals(petTypeUid)){
-                return ALREADY_HAVE;
+                rt.setState(ALREADY_HAVE);
+                return rt;
+
             }
         }
 
@@ -62,7 +69,8 @@ public class PetSpiritualHandle extends PeopUseHandle {
         }
 
         if(needCount > propCount ){
-            return WRONG_COUNT;
+            rt.setState(WRONG_COUNT);
+            return rt;
         }
 
 
@@ -74,6 +82,9 @@ public class PetSpiritualHandle extends PeopUseHandle {
         //数值系统
         cultivateService.numericalAdd(user,"have_pets",1L);
 
-        return ResponseMsg.MSG_SUCCESS;
+        pet.setSkillBoard(null);
+        rt.put("pet",pet);
+        rt.setState(ResponseMsg.MSG_SUCCESS);
+        return rt;
     }
 }

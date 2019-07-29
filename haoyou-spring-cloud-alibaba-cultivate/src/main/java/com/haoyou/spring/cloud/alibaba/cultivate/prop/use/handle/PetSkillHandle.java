@@ -5,9 +5,11 @@ import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.StrUtil;
 import com.haoyou.spring.cloud.alibaba.commons.domain.RedisKey;
 import com.haoyou.spring.cloud.alibaba.commons.domain.ResponseMsg;
+import com.haoyou.spring.cloud.alibaba.commons.entity.Award;
 import com.haoyou.spring.cloud.alibaba.commons.entity.Prop;
 import com.haoyou.spring.cloud.alibaba.commons.entity.Skill;
 import com.haoyou.spring.cloud.alibaba.commons.entity.User;
+import com.haoyou.spring.cloud.alibaba.commons.message.MapBody;
 import com.haoyou.spring.cloud.alibaba.commons.util.RedisKeyUtil;
 import com.haoyou.spring.cloud.alibaba.fighting.info.skill.shape.Tetromino;
 import com.haoyou.spring.cloud.alibaba.pojo.cultivate.PropUseMsg;
@@ -35,7 +37,9 @@ public class PetSkillHandle extends PeopUseHandle {
     }
 
     @Override
-    public int handle(PropUseMsg propUseMsg) {
+    public MapBody handle(PropUseMsg propUseMsg) {
+
+        MapBody rt = new MapBody();
 
         User user = propUseMsg.getUser();
         Prop prop = propUseMsg.getProp();
@@ -63,7 +67,8 @@ public class PetSkillHandle extends PeopUseHandle {
         }
 
         if (count == 0) {
-            return WRONG_PRO;
+            rt.setState(WRONG_PRO);
+            return rt;
         }
 
 
@@ -72,6 +77,12 @@ public class PetSkillHandle extends PeopUseHandle {
         prop1.setCount(count);
         UserUtil.addProp(user,prop1);
 
-        return ResponseMsg.MSG_SUCCESS;
+        List<Prop> propList = new ArrayList<>();
+        propList.add(prop1);
+        Award award = new Award();
+        award.setPropsList(propList);
+        rt.put("award",award);
+        rt.setState(ResponseMsg.MSG_SUCCESS);
+        return rt;
     }
 }

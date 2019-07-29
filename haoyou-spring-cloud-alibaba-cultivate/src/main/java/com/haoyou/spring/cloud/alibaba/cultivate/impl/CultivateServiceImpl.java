@@ -1,6 +1,7 @@
 package com.haoyou.spring.cloud.alibaba.cultivate.impl;
 
 import com.haoyou.spring.cloud.alibaba.commons.domain.ResponseMsg;
+import com.haoyou.spring.cloud.alibaba.commons.message.BaseMessage;
 import com.haoyou.spring.cloud.alibaba.commons.message.MapBody;
 import com.haoyou.spring.cloud.alibaba.commons.entity.*;
 import com.haoyou.spring.cloud.alibaba.commons.util.MapperUtils;
@@ -94,7 +95,7 @@ public class CultivateServiceImpl implements CultivateService {
      * @param req
      * @return
      */
-    public MapBody propUse(MyRequest req) {
+    public BaseMessage propUse(MyRequest req) {
         MapBody rt = new MapBody();
 
         User user = req.getUser();
@@ -106,14 +107,12 @@ public class CultivateServiceImpl implements CultivateService {
             if (propUseMsg.getPropCount() <= prop.getCount()) {
                 propUseMsg.setProp(prop);
                 propUseMsg.setUser(user);
-                int rsm = propUseService.propUse(propUseMsg);
-                if (rsm == ResponseMsg.MSG_SUCCESS) {
+                rt = propUseService.propUse(propUseMsg);
+                if (rt.getState() == ResponseMsg.MSG_SUCCESS) {
                     if (this.saveUser(user)) {
-                        rt.setState(ResponseMsg.MSG_SUCCESS);
                         return rt;
                     }
                 }else {
-                    rt.setState(rsm);
                     rt.put("errMsg", "道具无法使用！");
                 }
             } else {
