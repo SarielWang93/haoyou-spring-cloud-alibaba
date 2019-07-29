@@ -178,7 +178,7 @@ public class CultivateServiceImpl implements CultivateService {
      * 宠物升级
      */
     @Override
-    public MapBody petUpLev(MyRequest req) {
+    public BaseMessage petUpLev(MyRequest req) {
         MapBody rt = new MapBody();
         User user = req.getUser();
         if (user == null) {
@@ -269,7 +269,7 @@ public class CultivateServiceImpl implements CultivateService {
      * @return
      */
     @Override
-    public MapBody receiveAward (MyRequest req) {
+    public BaseMessage receiveAward (MyRequest req) {
         User user = req.getUser();
         String type = "null";
         try {
@@ -362,7 +362,7 @@ public class CultivateServiceImpl implements CultivateService {
      * @return
      */
     @Override
-    public MapBody currencyUse (MyRequest req){
+    public BaseMessage currencyUse (MyRequest req){
 
         MapBody mapBody = new MapBody();
         User user = req.getUser();

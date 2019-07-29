@@ -34,6 +34,8 @@ public class GetPetHandle extends ManagerHandle {
     private static final long serialVersionUID = -7233847046616375275L;
     private static final Logger logger = LoggerFactory.getLogger(GetPetHandle.class);
 
+
+
     @Override
     protected void setHandleType() {
         this.handleType = SendType.GET_PET;
@@ -48,19 +50,46 @@ public class GetPetHandle extends ManagerHandle {
 
         Map<String, Object> msg = getMsgMap(req);
 
+        String type = (String)msg.get("type");
+
 
         FightingPet fightingPet = FightingPet.getByUserAndPetUid(user, (String) msg.get("petUid"), redisObjectUtil);
         Pet pet = fightingPet.getPet();
-        //宠物信息
-        mapBody.put("fightingPet", fightingPet);
 
 
-        //技能盘信息
-        mapBody.put("petSkillBoard", this.getSkillBoard(fightingPet));
+
+        if(StrUtil.isNotEmpty(type)){
+            String[] split = type.split("/*");
+
+            for(String t : split){
+                if("fightingPet".equals(t)){
+                    //宠物信息
+                    mapBody.put("fightingPet", fightingPet);
+                }else if("petSkillBoard".equals(t)){
+                    //技能盘信息
+                    mapBody.put("petSkillBoard", this.getSkillBoard(fightingPet));
+                }else if("ingredientsMsg".equals(t)){
+                    //食材限定
+                    mapBody.put("ingredientsMsg", this.getIngredientsMsg(user, fightingPet));
+                }
+
+            }
 
 
-        //食材限定
-        mapBody.put("ingredientsMsg", this.getIngredientsMsg(user, fightingPet));
+        }else{
+            //宠物信息
+            mapBody.put("fightingPet", fightingPet);
+
+
+            //技能盘信息
+            mapBody.put("petSkillBoard", this.getSkillBoard(fightingPet));
+
+
+            //食材限定
+            mapBody.put("ingredientsMsg", this.getIngredientsMsg(user, fightingPet));
+        }
+
+
 
 
         pet.setSkillBoard(null);
@@ -93,6 +122,13 @@ public class GetPetHandle extends ManagerHandle {
         //忠诚升级
         ingredientsMsg.put("nextLevIngredients", nextLevLoyalty.getIngredients());
         ingredientsMsg.put("nowAllIngredients", nextLevLoyalty.getIngredients() - (nextLevLoyalty.getIngredientsSum() - allIngredientsCount));
+
+        for (Prop prop : props) {
+            if(prop.getName().equals("LoyaltyCard")){
+                ingredientsMsg.put("loyaltyCardCount",prop.getCount());
+            }
+        }
+
 
         List<Map> list = new ArrayList<>();
         for (int i = 1; i < 5; i++) {
