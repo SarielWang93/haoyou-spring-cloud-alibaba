@@ -14,6 +14,7 @@ import java.util.List;
  * @author wanghui
  * @version 1.0
  * @date 2019/7/29 11:50
+ * user封装工具类
  */
 @Service
 public class UserUtil {
