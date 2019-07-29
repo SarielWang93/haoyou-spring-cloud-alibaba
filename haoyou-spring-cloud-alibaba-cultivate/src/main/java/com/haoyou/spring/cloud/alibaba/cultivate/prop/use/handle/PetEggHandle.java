@@ -8,6 +8,7 @@ import com.haoyou.spring.cloud.alibaba.commons.entity.*;
 import com.haoyou.spring.cloud.alibaba.commons.util.RedisKeyUtil;
 import com.haoyou.spring.cloud.alibaba.pojo.cultivate.PropUseMsg;
 import com.haoyou.spring.cloud.alibaba.fighting.info.FightingPet;
+import com.haoyou.spring.cloud.alibaba.util.UserUtil;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -70,11 +71,13 @@ public class PetEggHandle extends PeopUseHandle {
         }
         spiritual.setCount(count);
 
-        if (user.addProp(spiritual)) {
-            return ResponseMsg.MSG_SUCCESS;
-        }
+        UserUtil.addProp(user,prop);
 
-        return ResponseMsg.MSG_ERR;
+        //数值系统
+        cultivateService.numericalAdd(user,"pet_egg",1L);
+        return ResponseMsg.MSG_SUCCESS;
+
+
     }
 
     /**

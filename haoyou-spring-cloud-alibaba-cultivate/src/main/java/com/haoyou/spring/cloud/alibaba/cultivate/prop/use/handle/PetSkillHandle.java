@@ -11,6 +11,7 @@ import com.haoyou.spring.cloud.alibaba.commons.entity.User;
 import com.haoyou.spring.cloud.alibaba.commons.util.RedisKeyUtil;
 import com.haoyou.spring.cloud.alibaba.fighting.info.skill.shape.Tetromino;
 import com.haoyou.spring.cloud.alibaba.pojo.cultivate.PropUseMsg;
+import com.haoyou.spring.cloud.alibaba.util.UserUtil;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -69,7 +70,7 @@ public class PetSkillHandle extends PeopUseHandle {
         Prop prop1 = redisObjectUtil.get(RedisKeyUtil.getKey(RedisKey.PROP, "PetSkillScrap"), Prop.class);
         prop1.setProperty1("4");
         prop1.setCount(count);
-        user.addProp(prop1);
+        UserUtil.addProp(user,prop1);
 
         return ResponseMsg.MSG_SUCCESS;
     }

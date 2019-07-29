@@ -5,19 +5,20 @@ import cn.hutool.core.lang.Console;
 import cn.hutool.core.lang.WeightRandom;
 import cn.hutool.core.util.RandomUtil;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.haoyou.spring.cloud.alibaba.commons.domain.RedisKey;
 import com.haoyou.spring.cloud.alibaba.commons.domain.SkillType;
 import com.haoyou.spring.cloud.alibaba.commons.domain.StateType;
 import com.haoyou.spring.cloud.alibaba.commons.entity.PetTypeAi;
+import com.haoyou.spring.cloud.alibaba.commons.entity.User;
+import com.haoyou.spring.cloud.alibaba.commons.util.RedisKeyUtil;
 import com.haoyou.spring.cloud.alibaba.fighting.info.fightingstate.FightingState;
+import com.haoyou.spring.cloud.alibaba.service.cultivate.CultivateService;
 import lombok.Data;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * 棋盘对象
@@ -141,14 +142,56 @@ public class FightingBoard implements Serializable {
 
     /**
      * 根据操作刷新棋盘
-     *
+     * @param fightingPet
      * @param fightingReq
+     * @param cultivateService
+     * @return
      */
-    public boolean refrashBoard(FightingPet fightingPet, FightingReq fightingReq) {
+    public boolean refrashBoard(FightingPet fightingPet, FightingReq fightingReq, CultivateService cultivateService) {
         // 执行操作，刷新棋盘
 
         List<BlockInfo> blockInfos = fightingReq.getDestroyInfos();
-//        Console.log(blockInfos);
+        /**
+         * 消除块数值系统计数
+         */
+        User user = fightingReq.getUser();
+        if(user!=null){
+            Map<Integer,Integer> c = new HashMap<>();
+            for (BlockInfo blockInfo : fightingReq.getDestroyInfos()) {
+                Integer integer = c.get(blockInfo.getRandomID());
+                if(integer == null){
+                    c.put(blockInfo.getRandomID(),1);
+                }else{
+                    c.put(blockInfo.getRandomID(),integer+1);
+                }
+            }
+
+            for(Map.Entry<Integer,Integer> entry:c.entrySet()){
+
+                switch (entry.getKey()){
+                    case FightingBoard.ATTACK_NORMAL:
+                        cultivateService.numericalAdd(user,"block_attack_normal",entry.getValue());
+                        break;
+                    case FightingBoard.ATTACK_SPECIAL:
+                        cultivateService.numericalAdd(user,"block_attack_special",entry.getValue());
+                        break;
+                    case FightingBoard.SHIELD:
+                        cultivateService.numericalAdd(user,"block_shield",entry.getValue());
+                        break;
+                    case FightingBoard.SKILL:
+                        cultivateService.numericalAdd(user,"block_skill",entry.getValue());
+                        break;
+                    case FightingBoard.ALL_IN:
+                        cultivateService.numericalAdd(user,"block_all_in",entry.getValue());
+                        break;
+                }
+
+            }
+        }
+
+
+
+
         /**
          * 三步操作，必须独立运行才能不互相影响
          */
@@ -217,8 +260,8 @@ public class FightingBoard implements Serializable {
 //                    fightingPet.addStep(FightingStep.BLOCK_CHANGE, blockInfo.toString());
 //                }
             }
-
-
+            //解冻数值记录
+            cultivateService.numericalAdd(user ,"frozen_state_elimination",iceBlockInfos.size());
             for (BlockInfo blockInfo : iceBlockInfos) {
                 //记录块解冻的步骤
                 fightingPet.addStep(FightingStep.BLOCK_CHANGE, blockInfo.toString());

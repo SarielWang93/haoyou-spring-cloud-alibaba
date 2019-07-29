@@ -10,6 +10,7 @@ import com.haoyou.spring.cloud.alibaba.commons.util.RedisKeyUtil;
 import com.haoyou.spring.cloud.alibaba.fighting.info.FightingPet;
 import com.haoyou.spring.cloud.alibaba.fighting.info.skill.shape.Tetromino;
 import com.haoyou.spring.cloud.alibaba.pojo.cultivate.PropUseMsg;
+import com.haoyou.spring.cloud.alibaba.util.UserUtil;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -84,7 +85,7 @@ public class PetSkillScrapHandle extends PeopUseHandle {
         prop1.setProperty3(quality.toString());
         prop1.setProperty4(skill.getUid());
         prop1.setProperty5(skill.getDescribe());
-        user.addProp(prop1);
+        UserUtil.addProp(user,prop1);
 
         return ResponseMsg.MSG_SUCCESS;
     }

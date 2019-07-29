@@ -71,6 +71,8 @@ public class PetSpiritualHandle extends PeopUseHandle {
         Pet pet = new Pet(user, petType, 0);
 
         new FightingPet(pet,redisObjectUtil).save();
+        //数值系统
+        cultivateService.numericalAdd(user,"have_pets",1L);
 
         return ResponseMsg.MSG_SUCCESS;
     }

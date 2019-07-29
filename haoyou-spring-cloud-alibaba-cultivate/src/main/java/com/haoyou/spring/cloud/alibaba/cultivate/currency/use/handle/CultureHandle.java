@@ -15,9 +15,8 @@ import java.util.List;
  * @author wanghui
  * @version 1.0
  * @date 2019/7/22 10:11
- *
+ * <p>
  * 宠物培养一次
- *
  */
 @Service
 public class CultureHandle extends CurrencyUseHandle {
@@ -51,8 +50,6 @@ public class CultureHandle extends CurrencyUseHandle {
 
         //当前培养等级
         Integer culture = pet.getCulture();
-        //当前培养结果
-        Double cultureResoult = pet.getCultureResoult();
 
         //培养液道具
         List<Prop> props = user.propList();
@@ -66,52 +63,63 @@ public class CultureHandle extends CurrencyUseHandle {
         }
 
         //所需金币
-        int coinCount = culture / 10 * 400 * culture + 200*(culture % 10);
-        int nCoin = user.getCurrency().getCoin()- coinCount;
-        if(nCoin <0){
+        int coinCount = culture / 10 * 400 * culture + 200 * (culture % 10)+100;
+        int nCoin = user.getCurrency().getCoin() - coinCount;
+        if (nCoin < 0) {
             return COIN_LESS;
-        }else {
+        } else {
             user.getCurrency().setCoin(nCoin);
         }
 
         //所需钻石
-        if(diamond){
-            int nDiamond= user.getCurrency().getDiamond() - 10;
-            if(nDiamond < 0){
+        if (diamond) {
+            int nDiamond = user.getCurrency().getDiamond() - 10;
+            if (nDiamond < 0) {
                 return DIAMOND_LESS;
-            }else {
+            } else {
                 user.getCurrency().setDiamond(nDiamond);
             }
         }
 
+        int propCountNow = 0;
+        if (cultureMedium != null) {
+            propCountNow = cultureMedium.getCount();
+
+        }
+
         //所需道具
-        int propCount = culture / 10 * 4 * culture + (culture % 10);
-        int nprop = cultureMedium.getCount() - propCount;
-        if(nprop <0){
+        int propCount = culture / 10 * 4 * culture + (culture % 10)+1;
+        int nprop = propCountNow - propCount;
+        if (nprop < 0) {
             return PROP_LESS;
-        }else{
-            user.deleteProp(cultureMedium,propCount);
+        } else {
+            user.deleteProp(cultureMedium, propCount);
         }
 
         //上限校验
-        if(culture >= cultureLimit){
+        if (culture >= cultureLimit) {
             return LIMIT;
         }
 
 
         //培养结果，1~2
         double r = 0;
-        if(diamond){
+        if (diamond) {
             r = 2;
-        }else{
-            r = RandomUtil.randomInt(10, 21)/10d;
+        } else {
+            r = RandomUtil.randomInt(10, 21) / 10d;
         }
-               fightingPet.upCulture(r);
+        fightingPet.upCulture(r);
 
         //保存
-        if(!save(user,fightingPet)){
+        if (!save(user, fightingPet)) {
             return ResponseMsg.MSG_ERR;
         }
+
+
+        //数值系统
+        cultivateService.numericalAdd(user,"culture",1L);
+
         return ResponseMsg.MSG_SUCCESS;
     }
 }

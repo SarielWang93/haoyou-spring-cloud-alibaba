@@ -1,6 +1,7 @@
 package com.haoyou.spring.cloud.alibaba.fighting.info;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.haoyou.spring.cloud.alibaba.commons.entity.User;
 import com.haoyou.spring.cloud.alibaba.commons.message.BaseMessage;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -31,6 +32,10 @@ public class FightingReq extends BaseMessage implements Serializable {
 
     //新生成的块
     private List<BlockInfo> newInfos;
+
+
+
+    private User user;
 
     public FightingReq() {
         this.currentPetId=0;

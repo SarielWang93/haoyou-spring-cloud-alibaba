@@ -123,8 +123,10 @@ public class User extends BaseMessage implements Serializable {
     @Transient
     private Map<String, UserNumerical> userNumericalMap;
 
+
     /**
      * 简洁返回用户信息
+     *
      * @return
      */
     public User notTooLong() {
@@ -149,39 +151,6 @@ public class User extends BaseMessage implements Serializable {
             props = new ArrayList<>();
         }
         return props;
-    }
-
-    public boolean addProp(Prop prop) {
-        List<Prop> list = new ArrayList<>();
-        list.add(prop);
-        return addProps(list);
-    }
-
-    public boolean addProps(List<Prop> propList) {
-        try {
-            List<Prop> propsThis = this.propList();
-            if (propsThis.size() < this.currency.getPropMax()) {
-                for (Prop prop : propList) {
-                    int count = 1;
-                    if (prop.getCount() != 0) {
-                        count = prop.getCount();
-                    }
-                    int i = 0;
-                    if ((i = propsThis.indexOf(prop)) != -1) {
-                        propsThis.get(i).setCount(propsThis.get(i).getCount() + count);
-                    } else {
-                        prop.setPropInstenceUid(IdUtil.simpleUUID());
-                        prop.setCount(count);
-                        propsThis.add(prop);
-                    }
-                }
-                this.currency.setProps(ZIP.gZip(MapperUtils.obj2jsonIgnoreNull(propsThis).getBytes("UTF-8")));
-                return true;
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return false;
     }
 
     public boolean deleteProp(Prop prop) {

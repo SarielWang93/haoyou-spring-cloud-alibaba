@@ -10,8 +10,10 @@ import com.haoyou.spring.cloud.alibaba.commons.util.RedisKeyUtil;
 import com.haoyou.spring.cloud.alibaba.cultivate.service.RewardService;
 import com.haoyou.spring.cloud.alibaba.pojo.cultivate.PropUseMsg;
 import com.haoyou.spring.cloud.alibaba.cultivate.service.PropUseService;
+import com.haoyou.spring.cloud.alibaba.service.cultivate.CultivateService;
 import com.haoyou.spring.cloud.alibaba.util.RedisObjectUtil;
 import com.haoyou.spring.cloud.alibaba.util.SendMsgUtil;
+import com.haoyou.spring.cloud.alibaba.util.UserUtil;
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -40,8 +42,6 @@ public abstract class PeopUseHandle {
     final static public int WRONG_PRO = 1006;
 
 
-
-
     @Autowired
     protected RedisObjectUtil redisObjectUtil;
     @Autowired
@@ -54,8 +54,8 @@ public abstract class PeopUseHandle {
 
     @Autowired
     protected RewardService rewardService;
-
-
+    @Autowired
+    protected CultivateService cultivateService;
     /**
      * 处理标识
      */
@@ -65,7 +65,7 @@ public abstract class PeopUseHandle {
      * 设置类型并注册到处理中心
      */
     @PostConstruct
-    protected void init(){
+    protected void init() {
         setHandleType();
         PropUseService.register(this);
     }
@@ -77,8 +77,8 @@ public abstract class PeopUseHandle {
 
 
     /**
-     *
      * 道具效果
+     *
      * @param propUseMsg
      * @return
      */
@@ -86,27 +86,36 @@ public abstract class PeopUseHandle {
 
     /**
      * 道具使用
+     *
      * @param propUseMsg
      * @return
      */
-    public int useProp(PropUseMsg propUseMsg){
+    public int useProp(PropUseMsg propUseMsg) {
 
-        if(deleteProp(propUseMsg)){
-            return handle(propUseMsg);
+        if (deleteProp(propUseMsg)) {
+            int handle = handle(propUseMsg);
+            if (handle != ResponseMsg.MSG_SUCCESS) {
+                User user = propUseMsg.getUser();
+                Prop prop = propUseMsg.getProp();
+                prop.setCount(propUseMsg.getPropCount());
+                UserUtil.addProp(user,prop);
+            }
+            return handle;
         }
         return ResponseMsg.MSG_ERR;
     }
 
     /**
      * 删除使用掉的道具
+     *
      * @param propUseMsg
      * @return
      */
-    protected boolean deleteProp(PropUseMsg propUseMsg){
-        User user=propUseMsg.getUser();
-        Prop prop=propUseMsg.getProp();
+    protected boolean deleteProp(PropUseMsg propUseMsg) {
+        User user = propUseMsg.getUser();
+        Prop prop = propUseMsg.getProp();
         //删除道具并修改玩家信息
-        if(user.deleteProp(prop,propUseMsg.getPropCount())){
+        if (user.deleteProp(prop, propUseMsg.getPropCount())) {
             user.setLastUpdateDate(new Date());
 //            return redisObjectUtil.save(RedisKeyUtil.getKey(RedisKey.USER, user.getUid()), user);
             return true;

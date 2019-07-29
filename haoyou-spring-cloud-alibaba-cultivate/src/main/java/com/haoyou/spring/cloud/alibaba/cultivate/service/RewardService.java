@@ -14,6 +14,7 @@ import com.haoyou.spring.cloud.alibaba.cultivate.reward.handle.RewardHandle;
 import com.haoyou.spring.cloud.alibaba.sofabolt.protocol.MyRequest;
 import com.haoyou.spring.cloud.alibaba.util.RedisObjectUtil;
 import com.haoyou.spring.cloud.alibaba.util.SendMsgUtil;
+import com.haoyou.spring.cloud.alibaba.util.UserUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -100,17 +101,7 @@ public class RewardService {
 
 
         //增加道具
-        if(!user.addProps(award.propList())){
-            award.setCoin(0);
-            award.setDiamond(0);
-            award.setPetExp(0);
-            award.setExp(0);
-            //TODO 发送邮件给玩家
-
-            String key = RedisKeyUtil.getKey(RedisKey.USER_AWARD, user.getUid(), RedisKey.EMIL);
-            redisObjectUtil.save(key,award);
-
-        }
+        UserUtil.addProps(user,award.propList());
 
         this.send(user,award);
 

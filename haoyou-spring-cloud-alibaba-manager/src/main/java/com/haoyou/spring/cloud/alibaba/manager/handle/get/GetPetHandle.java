@@ -55,8 +55,6 @@ public class GetPetHandle extends ManagerHandle {
         mapBody.put("fightingPet", fightingPet);
 
 
-        if (StrUtil.isNotEmpty(pet.getFullSkillBoard()))
-            fightingPet.getSkills().add(this.redisObjectUtil.get(RedisKeyUtil.getKey(RedisKey.SKILL, pet.getFullSkillBoard()), Skill.class));
         //技能盘信息
         mapBody.put("petSkillBoard", this.getSkillBoard(fightingPet));
 
@@ -158,7 +156,7 @@ public class GetPetHandle extends ManagerHandle {
 
             for (Prop prop : props) {
                 if(prop.getProperty1().equals(ingredientsName) && Integer.valueOf(prop.getProperty2()).equals(ingredient.get("starIngredients")) ){
-                    ingredient.put("ingredientPropsCount",prop.getCount());
+                    ingredient.put("ingredientProp",prop);
                 }
             }
 
@@ -178,9 +176,13 @@ public class GetPetHandle extends ManagerHandle {
      * @return
      */
     private SkillBoard getSkillBoard(FightingPet fightingPet) {
+        Pet pet = fightingPet.getPet();
+        //满格技能添加
+        if (StrUtil.isNotEmpty(pet.getFullSkillBoard()))
+            fightingPet.getSkills().add(this.redisObjectUtil.get(RedisKeyUtil.getKey(RedisKey.SKILL, pet.getFullSkillBoard()), Skill.class));
 
-        if (fightingPet.getPet().getSkillBoard() != null) {
-            return redisObjectUtil.deserialize(fightingPet.getPet().getSkillBoard(), SkillBoard.class);
+        if (pet.getSkillBoard() != null) {
+            return redisObjectUtil.deserialize(pet.getSkillBoard(), SkillBoard.class);
         } else {
             return new SkillBoard(6, 6);
         }

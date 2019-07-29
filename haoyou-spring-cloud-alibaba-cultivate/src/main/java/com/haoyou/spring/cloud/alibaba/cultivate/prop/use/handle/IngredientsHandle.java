@@ -11,6 +11,7 @@ import com.haoyou.spring.cloud.alibaba.commons.entity.User;
 import com.haoyou.spring.cloud.alibaba.commons.util.RedisKeyUtil;
 import com.haoyou.spring.cloud.alibaba.pojo.cultivate.PropUseMsg;
 import com.haoyou.spring.cloud.alibaba.fighting.info.FightingPet;
+import com.haoyou.spring.cloud.alibaba.util.UserUtil;
 import org.springframework.stereotype.Service;
 
 import java.lang.reflect.Field;
@@ -156,6 +157,11 @@ public class IngredientsHandle extends PeopUseHandle {
 
             //保存结果
             fightingPet.save();
+
+            //数值系统
+            cultivateService.numericalAdd(user,"feeding_pets",propCount);
+
+
             return ResponseMsg.MSG_SUCCESS;
         }
         //合成道具
@@ -167,7 +173,7 @@ public class IngredientsHandle extends PeopUseHandle {
             prop.setCount(propCount / 5);
 
             propList.add(prop);
-            user.addProps(propList);
+            UserUtil.addProps(user,propList);
             return ResponseMsg.MSG_SUCCESS;
         }
         //拆分道具
@@ -179,7 +185,7 @@ public class IngredientsHandle extends PeopUseHandle {
             prop.setCount(propCount * 5);
 
             propList.add(prop);
-            user.addProps(propList);
+            UserUtil.addProps(user,propList);
             return ResponseMsg.MSG_SUCCESS;
         }
         return ResponseMsg.MSG_ERR;

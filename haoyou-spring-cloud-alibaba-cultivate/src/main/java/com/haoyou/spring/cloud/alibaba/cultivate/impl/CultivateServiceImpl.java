@@ -220,11 +220,20 @@ public class CultivateServiceImpl implements CultivateService {
             return rt;
         }
 
+
+        //数值系统宠物最高级记录
+        UserNumerical userNumerical = user.getUserNumericalMap().get("max_pet_lev");
+
+        if(level+1>userNumerical.getValue()){
+            this.numericalAdd(user,"max_pet_lev",level+1-userNumerical.getValue());
+        }
+
         //升级
         fightingPet.upLevel();
         //减掉经验,保存
         user.getCurrency().setPetExp(petExp - levelUpExp.getUpLevExp());
-        redisObjectUtil.save(RedisKeyUtil.getKey(RedisKey.USER, user.getUid()), user);
+
+        this.saveUser(user);
 
         //修改升级所需经验
         LevelUpExp nextLevelUpExp = redisObjectUtil.get(RedisKeyUtil.getKey(RedisKey.LEVEL_UP_EXP, Integer.toString(level + 1)), LevelUpExp.class);
@@ -232,6 +241,10 @@ public class CultivateServiceImpl implements CultivateService {
         fightingPet.save();
         this.saveUser(user);
         rt.setState(ResponseMsg.MSG_SUCCESS);
+
+
+
+
         return rt;
     }
 
@@ -291,11 +304,12 @@ public class CultivateServiceImpl implements CultivateService {
     @Override
     public boolean numericalAdd (User user,String numericalName,long value){
 
-        if(numericalService.numericalAdd(user,numericalName,value)){
-            if(this.saveUser(user)){
-                return true;
+
+            if(numericalService.numericalAdd(user,numericalName,value)){
+                if(this.saveUser(user)){
+                    return true;
+                }
             }
-        }
 
         return false;
     }

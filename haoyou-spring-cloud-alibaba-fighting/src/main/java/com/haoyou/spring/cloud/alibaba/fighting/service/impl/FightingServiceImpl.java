@@ -301,6 +301,7 @@ public class FightingServiceImpl implements FightingService {
             return baseMessage;
         }
 
+        fightingReq.setUser(user);
 
         this.doOperation(fightingRoom, fightingReq);
 
@@ -382,7 +383,7 @@ public class FightingServiceImpl implements FightingService {
         /**
          * 棋盘刷新
          */
-        if (fightingRoom.getFightingBoard().refrashBoard(fightingPet, fightingReq)) {
+        if (fightingRoom.getFightingBoard().refrashBoard(fightingPet, fightingReq, cultivateService)) {
             logger.debug(String.format("刷新棋盘：%s", fightingReq));
             /**
              * 发送刷新后的棋盘信息
@@ -532,6 +533,7 @@ public class FightingServiceImpl implements FightingService {
                         else {
                             FightingReq fightingReq = new FightingReq();
                             fightingReq.setDestroyInfos(new ArrayList<>());
+                            fightingReq.setUser(thisCamp.getUser());
                             doOperation(fightingRoom, fightingReq);
                         }
                         return;
@@ -561,7 +563,7 @@ public class FightingServiceImpl implements FightingService {
 
         //执行AI操作
         FightingReq fightingReq = new FightingReq();
-
+        fightingReq.setUser(own.getUser());
         //获取ai连的块
         fightingReq.setDestroyInfos(fightingRoom.getFightingBoard().doAI(fightingPet, own, petTypeAi));
         //fightingReq.setFightingRoomUid(fightingRoom.getUid());
@@ -795,43 +797,6 @@ public class FightingServiceImpl implements FightingService {
 
     public void operation(FightingReq fightingReq, FightingPet fightingPet) {
 
-        //数值系统计数
-        User user = redisObjectUtil.get(RedisKeyUtil.getKey(RedisKey.USER, fightingPet.getPet().getUserUid()), User.class);
-        if(user!=null){
-            Map<Integer,Integer> c = new HashMap<>();
-            for (BlockInfo blockInfo : fightingReq.getDestroyInfos()) {
-                Integer integer = c.get(blockInfo.getRandomID());
-                if(integer == null){
-                    c.put(blockInfo.getRandomID(),1);
-                }else{
-                    c.put(blockInfo.getRandomID(),integer+1);
-                }
-            }
-
-            for(Map.Entry<Integer,Integer> entry:c.entrySet()){
-
-                switch (entry.getKey()){
-                    case FightingBoard.ATTACK_NORMAL:
-                        cultivateService.numericalAdd(user,"block_attack_normal",entry.getValue());
-                        break;
-                    case FightingBoard.ATTACK_SPECIAL:
-                        cultivateService.numericalAdd(user,"block_attack_special",entry.getValue());
-                        break;
-                    case FightingBoard.SHIELD:
-                        cultivateService.numericalAdd(user,"block_shield",entry.getValue());
-                        break;
-                    case FightingBoard.SKILL:
-                        cultivateService.numericalAdd(user,"block_skill",entry.getValue());
-                        break;
-                    case FightingBoard.ALL_IN:
-                        cultivateService.numericalAdd(user,"block_all_in",entry.getValue());
-                        break;
-                }
-
-            }
-        }
-
-
 
         FightingCamp own = fightingPet.getDistinguish().get("own");
         //能量值（必杀技逻辑）
@@ -867,6 +832,8 @@ public class FightingServiceImpl implements FightingService {
                     fightingPet.skillsDo(SkillType.UNIQUE, blockCount);
                     energy = -1;
                     punishValue += PunishValue.UNIQUE;
+                    //数值系统记录次数
+                    cultivateService.numericalAdd(fightingReq.getUser(),"release_nirvana",1L);
                 } else {
                     /**
                      * 记录步骤

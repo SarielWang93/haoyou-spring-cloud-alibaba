@@ -36,18 +36,19 @@ public class NumericalService {
      */
     public boolean numericalAdd(User user, String numericalName, long value) {
 
-        UserNumerical userNumerical = user.getUserNumericalMap().get(numericalName);
+        if(user!=null && user.getUserNumericalMap()!=null){
+            UserNumerical userNumerical = user.getUserNumericalMap().get(numericalName);
+            if (userNumerical != null) {
 
-        if (userNumerical != null) {
+                for (NumericalCheck numericalCheck : handleList) {
+                    numericalCheck.check(user, numericalName, value);
+                }
 
-
-            for (NumericalCheck numericalCheck : handleList) {
-                numericalCheck.check(user, numericalName, value);
+                userNumerical.setValue(userNumerical.getValue() + value);
+                return true;
             }
-
-            userNumerical.setValue(userNumerical.getValue() + value);
-            return true;
         }
+
 
         return false;
     }

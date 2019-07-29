@@ -11,6 +11,7 @@ import com.haoyou.spring.cloud.alibaba.cultivate.service.CurrencyUseService;
 import com.haoyou.spring.cloud.alibaba.cultivate.service.RewardService;
 import com.haoyou.spring.cloud.alibaba.fighting.info.FightingPet;
 import com.haoyou.spring.cloud.alibaba.pojo.cultivate.CyrrencyUseMsg;
+import com.haoyou.spring.cloud.alibaba.service.cultivate.CultivateService;
 import com.haoyou.spring.cloud.alibaba.util.RedisObjectUtil;
 import com.haoyou.spring.cloud.alibaba.util.SendMsgUtil;
 import lombok.Data;
@@ -37,6 +38,8 @@ public abstract class CurrencyUseHandle {
     @Autowired
     protected RewardService rewardService;
 
+    @Autowired
+    protected CultivateService cultivateService;
 
     /**
      * 处理标识
