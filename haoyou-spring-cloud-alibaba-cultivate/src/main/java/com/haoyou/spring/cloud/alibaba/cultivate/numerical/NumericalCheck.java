@@ -33,6 +33,8 @@ public abstract class NumericalCheck {
 
     @Autowired
     protected RewardService rewardService;
+    @Autowired
+    protected NumericalService numericalService;
 
     /**
      * 设置类型并注册到处理中心

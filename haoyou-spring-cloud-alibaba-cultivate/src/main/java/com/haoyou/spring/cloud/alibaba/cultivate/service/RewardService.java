@@ -1,17 +1,14 @@
 package com.haoyou.spring.cloud.alibaba.cultivate.service;
 
 
-import cn.hutool.core.util.IdUtil;
 import com.haoyou.spring.cloud.alibaba.commons.domain.RedisKey;
 import com.haoyou.spring.cloud.alibaba.commons.domain.ResponseMsg;
 import com.haoyou.spring.cloud.alibaba.commons.domain.SendType;
 import com.haoyou.spring.cloud.alibaba.commons.entity.Award;
-import com.haoyou.spring.cloud.alibaba.commons.entity.Prop;
 import com.haoyou.spring.cloud.alibaba.commons.entity.User;
 import com.haoyou.spring.cloud.alibaba.commons.message.MapBody;
 import com.haoyou.spring.cloud.alibaba.commons.util.RedisKeyUtil;
 import com.haoyou.spring.cloud.alibaba.cultivate.reward.handle.RewardHandle;
-import com.haoyou.spring.cloud.alibaba.sofabolt.protocol.MyRequest;
 import com.haoyou.spring.cloud.alibaba.util.RedisObjectUtil;
 import com.haoyou.spring.cloud.alibaba.util.SendMsgUtil;
 import com.haoyou.spring.cloud.alibaba.util.UserUtil;
@@ -110,7 +107,7 @@ public class RewardService {
 
 
     /**
-     * 把奖励存入内存，等待领取
+     * 把奖励存入内存，等待领取.已经存在则加入失败
      * @param userUid
      * @param award
      * @return
@@ -118,9 +115,40 @@ public class RewardService {
     public boolean upAward(String userUid, Award award ,String type){
         if (award != null) {
             String key = RedisKeyUtil.getKey(RedisKey.USER_AWARD, userUid, type);
-            return redisObjectUtil.save(key, award);
+            Award award1 = redisObjectUtil.get(key, Award.class);
+            if(award1 == null){
+                return redisObjectUtil.save(key, award,-1);
+            }else {
+                return false;
+            }
         }
         return false;
+    }
+
+    /**
+     * 把奖励存入内存，等待领取.已经存在则刷新
+     * @param userUid
+     * @param award
+     * @param type
+     * @return
+     */
+    public boolean refreshUpAward(String userUid, Award award ,String type){
+        if (award != null) {
+            String key = RedisKeyUtil.getKey(RedisKey.USER_AWARD, userUid, type);
+            return redisObjectUtil.save(key, award,-1);
+        }
+        return false;
+    }
+
+    /**
+     * 获取已发放的奖励
+     * @param userUid
+     * @param type
+     * @return
+     */
+    public Award getUpAward(String userUid,String type){
+        String key = RedisKeyUtil.getKey(RedisKey.USER_AWARD, userUid, type);
+        return redisObjectUtil.get(key, Award.class);
     }
 
     /**

@@ -71,6 +71,11 @@ public class GetPropsHandle extends ManagerHandle {
         mapBody.remove("prop");
         mapBody.remove("count");
         mapBody.remove("reqUid");
+
+        Integer propMax = user.getCurrency().getPropMax();
+
+        mapBody.put("propMaxUpDiamond",propMax / 10 * 10 * propMax + (propMax % 10)*10);
+
         return mapBody;
     }
 }

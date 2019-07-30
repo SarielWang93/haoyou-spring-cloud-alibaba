@@ -42,7 +42,7 @@ public class RankSettleHandle extends SettleHandle {
                 }
                 String useruid = (String) player.get("useruid");
                 Award award = this.getAward(r);
-                rewardService.upAward(useruid,award,RedisKey.RANKING);
+                rewardService.refreshUpAward(useruid,award,RedisKey.RANKING);
 
             }
 
@@ -51,9 +51,9 @@ public class RankSettleHandle extends SettleHandle {
     }
 
     @Override
-    public boolean chackDate(DateTime date) {
-        int hour = date.hour(true);
-        return hour == 3;
+    public boolean chackDate() {
+        int hour = this.date.hour(true);
+        return hour == 0;
     }
 
     /**

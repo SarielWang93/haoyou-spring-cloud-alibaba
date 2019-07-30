@@ -23,6 +23,8 @@ public class PetType implements Serializable {
      */
     private String l10n;
 
+    private String description;
+
     private String uid;
 
     /**

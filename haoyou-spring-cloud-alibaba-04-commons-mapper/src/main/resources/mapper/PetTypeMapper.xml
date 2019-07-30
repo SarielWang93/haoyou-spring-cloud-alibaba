@@ -9,6 +9,7 @@
     <result column="l10n" jdbcType="VARCHAR" property="l10n" />
     <result column="name" jdbcType="VARCHAR" property="name" />
     <result column="uid" jdbcType="VARCHAR" property="uid" />
+    <result column="description" jdbcType="VARCHAR" property="description" />
     <result column="type" jdbcType="INTEGER" property="type" />
     <result column="atn" jdbcType="INTEGER" property="atn" />
     <result column="def" jdbcType="INTEGER" property="def" />

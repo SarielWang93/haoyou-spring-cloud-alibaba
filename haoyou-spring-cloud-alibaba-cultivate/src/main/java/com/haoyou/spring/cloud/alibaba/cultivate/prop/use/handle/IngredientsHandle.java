@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -62,8 +63,7 @@ public class IngredientsHandle extends PeopUseHandle {
             Integer level = pet.getLevel();
             //食材名称
             String ingredientName = prop.getProperty1();
-            //食材总量
-            int allIngredientsCount = pet.allIngredientsCount();
+
 
 
 
@@ -123,26 +123,25 @@ public class IngredientsHandle extends PeopUseHandle {
 
 
 
-            /**
-             * 下一等级忠诚度信息
-             */
-            String levLoyaltyKey = RedisKeyUtil.getKey(RedisKey.LEV_LOYALTY, Integer.toString(loyaltyLev + 1));
-            LevLoyalty levLoyalty = redisObjectUtil.get(levLoyaltyKey, LevLoyalty.class);
-
-            //获取升级所需食材量
-            int upLevIngredientsCount = levLoyalty.getIngredientsSum();
-            //升级所需数量
-            int upNeedCount = upLevIngredientsCount - allIngredientsCount;
-            //下一等级食材星级
-            ingredientsStar = (loyaltyLev + 1) / 10 + 1;
-
-            if (upNeedCount <= 0) {
-                rt.setState(ResponseMsg.MSG_ERR);
-                return rt;
-            } else if (upNeedCount < propCount && propIngredientsStar != ingredientsStar) {
-                rt.setState(ResponseMsg.MSG_ERR);
-                return rt;
-            }
+//            /**
+//             * 下一等级忠诚度信息
+//             */
+//            String levLoyaltyKey = RedisKeyUtil.getKey(RedisKey.LEV_LOYALTY, Integer.toString(loyaltyLev + 1));
+//            LevLoyalty levLoyalty = redisObjectUtil.get(levLoyaltyKey, LevLoyalty.class);
+//
+//            //获取升级所需食材量
+//            int upLevIngredientsCount = levLoyalty.getIngredientsSum();
+//            //升级所需数量
+//            int upNeedCount = upLevIngredientsCount - allIngredientsCount;
+//
+//
+//            if (upNeedCount <= 0) {
+//                rt.setState(ResponseMsg.MSG_ERR);
+//                return rt;
+//            } else if (upNeedCount < propCount && propIngredientsStar != ingredientsStar) {
+//                rt.setState(ResponseMsg.MSG_ERR);
+//                return rt;
+//            }
 
 
             if (propCount > 0) {
@@ -156,9 +155,17 @@ public class IngredientsHandle extends PeopUseHandle {
             /**
              * 是否提升忠诚等级
              */
-            if (propCount >= upNeedCount) {
-                pet.setLoyaltyLev(loyaltyLev + 1);
+
+            for(int i = loyaltyLev + 1;i < 103;i++){
+
+                LevLoyalty levLoyalty1 = redisObjectUtil.get(RedisKeyUtil.getKey(RedisKey.LEV_LOYALTY, Integer.toString(i)), LevLoyalty.class);
+                if(levLoyalty1.getIngredientsSum()> pet.allIngredientsCount()){
+                    pet.setLoyaltyLev(levLoyalty1.getLoyaltyLev()-1);
+                    break;
+                }
+
             }
+
 
             //刷新面板数据
             fightingPet.refreshMbByLevel();

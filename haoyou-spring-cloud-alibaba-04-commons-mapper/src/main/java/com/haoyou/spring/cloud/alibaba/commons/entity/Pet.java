@@ -34,6 +34,8 @@ public class Pet implements Serializable {
     @Transient
     private String typeName;
     @Transient
+    private String typeDescription;
+    @Transient
     private Integer typeId;
 
     private String uid;

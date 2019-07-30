@@ -35,7 +35,6 @@ public class GetPetHandle extends ManagerHandle {
     private static final Logger logger = LoggerFactory.getLogger(GetPetHandle.class);
 
 
-
     @Override
     protected void setHandleType() {
         this.handleType = SendType.GET_PET;
@@ -50,33 +49,43 @@ public class GetPetHandle extends ManagerHandle {
 
         Map<String, Object> msg = getMsgMap(req);
 
-        String type = (String)msg.get("type");
+        String type = (String) msg.get("type");
 
 
         FightingPet fightingPet = FightingPet.getByUserAndPetUid(user, (String) msg.get("petUid"), redisObjectUtil);
         Pet pet = fightingPet.getPet();
 
 
+        //忠诚等级
+        Integer loyaltyLev = pet.getLoyaltyLev();
+        //获取忠诚等级关系
+        String levLoyaltyKey = RedisKeyUtil.getKey(RedisKey.LEV_LOYALTY, loyaltyLev.toString());
+        LevLoyalty levLoyalty = redisObjectUtil.get(levLoyaltyKey, LevLoyalty.class);
+        //等级上限
+        mapBody.put("levelMax", levLoyalty.getLevelMax());
 
-        if(StrUtil.isNotEmpty(type)){
+        if (StrUtil.isNotEmpty(type)) {
             String[] split = type.split("/*");
 
-            for(String t : split){
-                if("fightingPet".equals(t)){
+            for (String t : split) {
+                if ("fightingPet".equals(t)) {
                     //宠物信息
                     mapBody.put("fightingPet", fightingPet);
-                }else if("petSkillBoard".equals(t)){
+                } else if ("petSkillBoard".equals(t)) {
                     //技能盘信息
                     mapBody.put("petSkillBoard", this.getSkillBoard(fightingPet));
-                }else if("ingredientsMsg".equals(t)){
-                    //食材限定
-                    mapBody.put("ingredientsMsg", this.getIngredientsMsg(user, fightingPet));
+                } else if ("ingredientsMsg".equals(t)) {
+                    //食材信息
+                    mapBody.put("ingredientsMsg", this.getIngredientsMsg(user, fightingPet,levLoyalty));
+                } else if ("cultureMsg".equals(t)) {
+                    //培养信息
+                    mapBody.put("cultureMsg", this.getCultureMsg(user, fightingPet));
                 }
 
             }
 
 
-        }else{
+        } else {
             //宠物信息
             mapBody.put("fightingPet", fightingPet);
 
@@ -86,10 +95,11 @@ public class GetPetHandle extends ManagerHandle {
 
 
             //食材限定
-            mapBody.put("ingredientsMsg", this.getIngredientsMsg(user, fightingPet));
+            mapBody.put("ingredientsMsg", this.getIngredientsMsg(user, fightingPet,levLoyalty));
+
+            //食材限定
+            mapBody.put("cultureMsg", this.getCultureMsg(user, fightingPet));
         }
-
-
 
 
         pet.setSkillBoard(null);
@@ -98,7 +108,7 @@ public class GetPetHandle extends ManagerHandle {
     }
 
 
-    private Map<String, Object> getIngredientsMsg(User user, FightingPet fightingPet) {
+    private Map<String, Object> getIngredientsMsg(User user, FightingPet fightingPet, LevLoyalty levLoyalty) {
         Map<String, Object> ingredientsMsg = new HashMap<>();
         Pet pet = fightingPet.getPet();
 
@@ -107,16 +117,11 @@ public class GetPetHandle extends ManagerHandle {
         Integer level = pet.getLevel();
         Integer starClass = pet.getStarClass();
         int allIngredientsCount = pet.allIngredientsCount();
-        //忠诚等级
-        Integer loyaltyLev = pet.getLoyaltyLev();
-        //获取忠诚等级关系
-        String levLoyaltyKey = RedisKeyUtil.getKey(RedisKey.LEV_LOYALTY, loyaltyLev.toString());
-        LevLoyalty levLoyalty = redisObjectUtil.get(levLoyaltyKey, LevLoyalty.class);
-        String nextLevLoyaltyKey = RedisKeyUtil.getKey(RedisKey.LEV_LOYALTY, Integer.toString(loyaltyLev + 1));
+
+        String nextLevLoyaltyKey = RedisKeyUtil.getKey(RedisKey.LEV_LOYALTY, Integer.toString(pet.getLoyaltyLev() + 1));
         LevLoyalty nextLevLoyalty = redisObjectUtil.get(nextLevLoyaltyKey, LevLoyalty.class);
 
-        //等级上限
-        ingredientsMsg.put("levelMax", levLoyalty.getLevelMax());
+
         //忠诚等级
         ingredientsMsg.put("loyaltyLev", levLoyalty.getLoyaltyLev());
         //忠诚升级
@@ -124,8 +129,8 @@ public class GetPetHandle extends ManagerHandle {
         ingredientsMsg.put("nowAllIngredients", nextLevLoyalty.getIngredients() - (nextLevLoyalty.getIngredientsSum() - allIngredientsCount));
 
         for (Prop prop : props) {
-            if(prop.getName().equals("LoyaltyCard")){
-                ingredientsMsg.put("loyaltyCardCount",prop.getCount());
+            if (prop.getName().equals("LoyaltyCard")) {
+                ingredientsMsg.put("loyaltyCardCount", prop.getCount());
             }
         }
 
@@ -191,8 +196,8 @@ public class GetPetHandle extends ManagerHandle {
             //可用食材道具数量
 
             for (Prop prop : props) {
-                if(prop.getProperty1().equals(ingredientsName) && Integer.valueOf(prop.getProperty2()).equals(ingredient.get("starIngredients")) ){
-                    ingredient.put("ingredientProp",prop);
+                if (prop.getProperty1().equals(ingredientsName) && Integer.valueOf(prop.getProperty2()).equals(ingredient.get("starIngredients"))) {
+                    ingredient.put("ingredientProp", prop);
                 }
             }
 
@@ -222,5 +227,31 @@ public class GetPetHandle extends ManagerHandle {
         } else {
             return new SkillBoard(6, 6);
         }
+    }
+
+
+    private Map<String, Object> getCultureMsg(User user, FightingPet fightingPet) {
+        Map<String, Object> cultureMsg = new HashMap<>();
+        Pet pet = fightingPet.getPet();
+        //当前培养等级
+        Integer culture = pet.getCulture();
+        cultureMsg.put("cultureCoin", culture / 10 * 400 * culture + 200 * (culture % 10) + 100);
+        cultureMsg.put("cultureDiamond", 10);
+        cultureMsg.put("culturePropCount", culture / 10 * 4 * culture + (culture % 10) + 1);
+
+        //培养上限
+        Integer cultureLimit = pet.getCultureLimit();
+        cultureMsg.put("cultureLimitPropCount", cultureLimit / 10 * 10 * cultureLimit + (cultureLimit % 10));
+        cultureMsg.put("cultureLimitDiamond", cultureLimit / 10 * 10 * cultureLimit + (cultureLimit % 10) * 10);
+
+        //道具数量
+        for (Prop prop : user.propList()) {
+            if("CultureMedium".equals(prop.getName())){
+                cultureMsg.put("propCount",prop.getCount());
+            }
+        }
+
+
+        return cultureMsg;
     }
 }

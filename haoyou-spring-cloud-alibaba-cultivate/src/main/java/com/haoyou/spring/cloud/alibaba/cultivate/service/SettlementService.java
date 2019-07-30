@@ -36,10 +36,7 @@ public class SettlementService {
         DateTime date = DateUtil.date();
 
         for (SettleHandle settleHandle : handleList) {
-            //定时结算
-            if (settleHandle.chackDate(date)) {
-                settleHandle.handle();
-            }
+            settleHandle.doHandle(date);
         }
 
     }

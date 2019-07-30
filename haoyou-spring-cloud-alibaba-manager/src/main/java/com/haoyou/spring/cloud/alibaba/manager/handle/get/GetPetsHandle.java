@@ -63,6 +63,7 @@ public class GetPetsHandle extends ManagerHandle {
             petMap.put("type",pet.getType());
             petMap.put("typeId",pet.getTypeId());
 
+
             petMap.put("mb_max_hp",fightingPet.getMb_max_hp());
             petMap.put("mb_atn",fightingPet.getMb_atn());
             petMap.put("mb_def",fightingPet.getMb_def());

@@ -64,6 +64,7 @@ public class GetAchievementHandle extends ManagerHandle {
             //成就介绍
             achievementMsg.put("description", achievement.getDescription());
 
+
             String lkKey = RedisKeyUtil.getlkKey(RedisKey.USER_AWARD, user.getUid(), RedisKey.ACHIEVEMENT, achievement.getName());
             //是否有待领取的成就奖励
             HashMap<String, Award> stringAwardHashMap = redisObjectUtil.getlkMap(lkKey, Award.class);
@@ -80,7 +81,7 @@ public class GetAchievementHandle extends ManagerHandle {
                 //获取最靠前的奖励
                 Map.Entry<Integer, Award> firstEntry = awardsTreeMap.firstEntry();
                 achievementMsg.put("award", firstEntry.getValue());
-
+                achievementMsg.put("type",RedisKeyUtil.getKey(RedisKey.ACHIEVEMENT, achievement.getName(),firstEntry.getKey().toString()));
             }
             //无带领取的奖励
             else {
@@ -95,11 +96,13 @@ public class GetAchievementHandle extends ManagerHandle {
                         if (achievementAim.getAim() > userNumerical.getValue()) {
                             //当前目标
                             achievementMsg.put("achievementAim", achievementAim.getAim());
+                            achievementMsg.put("award", redisObjectUtil.get(RedisKeyUtil.getKey(RedisKey.AWARD,achievementAim.getAwardType()),Award.class));
                             break;
                         }
                     }
                     if (achievementMsg.get("achievementAim") == null) {
                         achievementMsg.put("achievementAim",achievementAims.get(achievementAims.size()-1).getAim());
+                        achievementMsg.put("award", redisObjectUtil.get(RedisKeyUtil.getKey(RedisKey.AWARD,achievementAims.get(achievementAims.size()-1).getAwardType()),Award.class));
                     }
                 }
 

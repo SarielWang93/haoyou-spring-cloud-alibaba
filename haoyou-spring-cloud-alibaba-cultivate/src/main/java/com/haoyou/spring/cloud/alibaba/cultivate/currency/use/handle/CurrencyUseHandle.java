@@ -1,8 +1,6 @@
 package com.haoyou.spring.cloud.alibaba.cultivate.currency.use.handle;
 
 import com.haoyou.spring.cloud.alibaba.commons.domain.RedisKey;
-import com.haoyou.spring.cloud.alibaba.commons.domain.ResponseMsg;
-import com.haoyou.spring.cloud.alibaba.commons.entity.Award;
 import com.haoyou.spring.cloud.alibaba.commons.entity.User;
 import com.haoyou.spring.cloud.alibaba.commons.mapper.PetMapper;
 import com.haoyou.spring.cloud.alibaba.commons.mapper.UserMapper;
@@ -104,6 +102,8 @@ public abstract class CurrencyUseHandle {
     final static public int PET_CULTURE = 1;
     //提升培养上限
     final static public int CULTURE_LIMIT = 2;
+    //提升技能道具上限
+    final static public int PROP_LIMIT = 3;
 
     // ********************************     以上为使用类型，以下为返回类型      ************************************
 

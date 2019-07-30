@@ -20,6 +20,8 @@ public class Numerical implements Serializable {
 
     private String l10n;
 
+    private Integer refresh;
+
     /**
      * 描述
      */

@@ -4,6 +4,7 @@ import cn.hutool.core.date.DateTime;
 import com.haoyou.spring.cloud.alibaba.commons.mapper.PetMapper;
 import com.haoyou.spring.cloud.alibaba.commons.mapper.ServerMapper;
 import com.haoyou.spring.cloud.alibaba.commons.mapper.UserMapper;
+import com.haoyou.spring.cloud.alibaba.commons.mapper.UserNumericalMapper;
 import com.haoyou.spring.cloud.alibaba.cultivate.service.PropUseService;
 import com.haoyou.spring.cloud.alibaba.cultivate.service.RewardService;
 import com.haoyou.spring.cloud.alibaba.cultivate.service.SkillConfigService;
@@ -35,6 +36,8 @@ public abstract class SettleHandle {
     @Autowired
     protected ServerMapper serverMapper;
     @Autowired
+    protected UserNumericalMapper userNumericalMapper;
+    @Autowired
     protected ScoreRankService scoreRankService;
     @Autowired
     protected SkillConfigService skillConfigService;
@@ -43,9 +46,8 @@ public abstract class SettleHandle {
     @Autowired
     protected PropUseService propUseService;
 
+    protected DateTime date;
 
-
-    protected int hour;
 
     /**
      * 设置类型并注册到处理中心
@@ -56,6 +58,11 @@ public abstract class SettleHandle {
     }
 
 
+    /**
+     * 时间校验
+     * @return
+     */
+    public abstract boolean chackDate();
 
     /**
      *
@@ -64,7 +71,13 @@ public abstract class SettleHandle {
      */
     public abstract void handle();
 
-    public abstract boolean chackDate(DateTime date);
+    public void doHandle(DateTime date){
+        this.date = date;
+        //定时结算
+        if (this.chackDate()) {
+            this.handle();
+        }
+    }
 
 
 

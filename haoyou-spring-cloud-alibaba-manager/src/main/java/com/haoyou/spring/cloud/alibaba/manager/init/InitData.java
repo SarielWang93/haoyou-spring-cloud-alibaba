@@ -75,7 +75,8 @@ public class InitData implements ApplicationRunner {
     private AchievementMapper achievementMapper;
     @Autowired
     private AchievementAimsMapper achievementAimsMapper;
-
+    @Autowired
+    private DailyTaskMapper dailyTaskMapper;
     private Date lastDo;
 
     @Override
@@ -90,6 +91,8 @@ public class InitData implements ApplicationRunner {
          * 每次加载必须间隔一分钟以上，防止攻击
          */
         if (lastDo == null || now.getTime() - lastDo.getTime() > 60 * 1000) {
+            //每日任务系统
+            initDailyTask();
             //成就系统静态信息
             initAchievement();
             //数值系统静态信息
@@ -121,21 +124,39 @@ public class InitData implements ApplicationRunner {
     }
 
     /**
+     * 每日任务系统
+     */
+    private void initDailyTask() {
+
+        redisObjectUtil.deleteAll(RedisKeyUtil.getlkKey(RedisKey.DAILY_TASK));
+
+        List<DailyTask> dailyTasks = dailyTaskMapper.selectAll();
+        for (DailyTask dailyTask : dailyTasks) {
+
+            String dailyTaskKey = RedisKeyUtil.getKey(RedisKey.DAILY_TASK, dailyTask.getName());
+            redisObjectUtil.save(dailyTaskKey, dailyTask, -1);
+
+        }
+
+
+    }
+
+    /**
      * 成就系统静态信息
      */
     private void initAchievement() {
         redisObjectUtil.deleteAll(RedisKeyUtil.getlkKey(RedisKey.ACHIEVEMENT));
 
         List<Achievement> achievements = achievementMapper.selectAll();
-        for(Achievement achievement : achievements){
+        for (Achievement achievement : achievements) {
 
             Example example = new Example(AchievementAims.class);
-            example.createCriteria().andEqualTo("achievementId",achievement.getId());
+            example.createCriteria().andEqualTo("achievementId", achievement.getId());
             example.orderBy("priorityOrder");
             achievement.setAchievementAims(achievementAimsMapper.selectByExample(example));
 
-            String achievementKey = RedisKeyUtil.getKey(RedisKey.NUMERICAL, achievement.getName());
-            redisObjectUtil.save(achievementKey,achievement,-1);
+            String achievementKey = RedisKeyUtil.getKey(RedisKey.ACHIEVEMENT, achievement.getName());
+            redisObjectUtil.save(achievementKey, achievement, -1);
         }
 
 
@@ -149,9 +170,9 @@ public class InitData implements ApplicationRunner {
 
         List<Numerical> numericals = numericalMapper.selectAll();
 
-        for(Numerical numerical : numericals){
+        for (Numerical numerical : numericals) {
             String numericalKey = RedisKeyUtil.getKey(RedisKey.NUMERICAL, numerical.getName());
-            redisObjectUtil.save(numericalKey,numerical,-1);
+            redisObjectUtil.save(numericalKey, numerical, -1);
         }
 
 
@@ -164,15 +185,15 @@ public class InitData implements ApplicationRunner {
         redisObjectUtil.deleteAll(RedisKeyUtil.getlkKey(RedisKey.PET_EGG_POOL));
 
         List<PetEgg> petEggs = petEggMapper.selectAll();
-        for(PetEgg petEgg : petEggs){
+        for (PetEgg petEgg : petEggs) {
             String petEggKey = RedisKeyUtil.getKey(RedisKey.PET_EGG, petEgg.getId().toString());
-            redisObjectUtil.save(petEggKey,petEgg,-1);
+            redisObjectUtil.save(petEggKey, petEgg, -1);
         }
 
         List<PetEggPool> petEggPools = petEggPoolMapper.selectAll();
-        for(PetEggPool petEggPool : petEggPools){
-            String petEggPoolKey = RedisKeyUtil.getKey(RedisKey.PET_EGG_POOL, petEggPool.getEggId().toString(),petEggPool.getId().toString());
-            redisObjectUtil.save(petEggPoolKey,petEggPool,-1);
+        for (PetEggPool petEggPool : petEggPools) {
+            String petEggPoolKey = RedisKeyUtil.getKey(RedisKey.PET_EGG_POOL, petEggPool.getEggId().toString(), petEggPool.getId().toString());
+            redisObjectUtil.save(petEggPoolKey, petEggPool, -1);
         }
 
     }
@@ -184,7 +205,7 @@ public class InitData implements ApplicationRunner {
         List<Award> awards = awardMapper.selectAll();
         for (Award award : awards) {
             String awardKey = RedisKeyUtil.getKey(RedisKey.AWARD, award.getType());
-            redisObjectUtil.save(awardKey,award,-1);
+            redisObjectUtil.save(awardKey, award, -1);
         }
     }
 
@@ -194,7 +215,7 @@ public class InitData implements ApplicationRunner {
         List<Server> servers = serverMapper.selectAll();
         for (Server server : servers) {
             String levelUpExpKey = RedisKeyUtil.getKey(RedisKey.SERVER, server.getId().toString());
-            redisObjectUtil.save(levelUpExpKey,server,-1);
+            redisObjectUtil.save(levelUpExpKey, server, -1);
         }
 
     }
@@ -208,7 +229,7 @@ public class InitData implements ApplicationRunner {
         List<LevelUpExp> levelUpExps = levelUpExpMapper.selectAll();
         for (LevelUpExp levelUpExp : levelUpExps) {
             String levelUpExpKey = RedisKeyUtil.getKey(RedisKey.LEVEL_UP_EXP, levelUpExp.getLevel().toString());
-            redisObjectUtil.save(levelUpExpKey,levelUpExp,-1);
+            redisObjectUtil.save(levelUpExpKey, levelUpExp, -1);
         }
 
     }
@@ -221,7 +242,7 @@ public class InitData implements ApplicationRunner {
         List<LevLoyalty> levLoyalties = levLoyaltyMapper.selectAll();
         for (LevLoyalty levLoyalty : levLoyalties) {
             String levLoyaltyKey = RedisKeyUtil.getKey(RedisKey.LEV_LOYALTY, levLoyalty.getLoyaltyLev().toString());
-            redisObjectUtil.save(levLoyaltyKey,levLoyalty,-1);
+            redisObjectUtil.save(levLoyaltyKey, levLoyalty, -1);
         }
 
     }
@@ -229,7 +250,6 @@ public class InitData implements ApplicationRunner {
 
     /**
      * 初始化排行榜
-     *
      */
     public void initRanking() {
 
@@ -238,16 +258,16 @@ public class InitData implements ApplicationRunner {
         //总榜
         String rankKey = RedisKey.RANKING;
         List<User> users = userMapper.selectAll();
-        this.ranking(users,rankKey);
+        this.ranking(users, rankKey);
 
         //分服
         List<Server> servers = serverMapper.selectAll();
-        for(Server server : servers){
+        for (Server server : servers) {
             User user = new User();
             user.setServerId(server.getId());
             List<User> serverUsers = userMapper.select(user);
-            String serverRankKey = RedisKeyUtil.getKey(RedisKey.RANKING,server.getServerNum().toString());
-            this.ranking(serverUsers,serverRankKey);
+            String serverRankKey = RedisKeyUtil.getKey(RedisKey.RANKING, server.getServerNum().toString());
+            this.ranking(serverUsers, serverRankKey);
 
         }
 
@@ -255,7 +275,7 @@ public class InitData implements ApplicationRunner {
     }
 
 
-    private void ranking(List<User> users,String rankKey) {
+    private void ranking(List<User> users, String rankKey) {
         redisObjectUtil.delete(rankKey);
         Map<String, Long> msgs = new HashMap<>();
         for (User user : users) {
@@ -274,7 +294,7 @@ public class InitData implements ApplicationRunner {
             player.put("avatar", userData.getAvatar());
             player.put("integral", currency.getRank());
 
-            String plj="";
+            String plj = "";
             try {
                 plj = MapperUtils.obj2json(player);
             } catch (Exception e) {
@@ -285,10 +305,6 @@ public class InitData implements ApplicationRunner {
         }
         scoreRankService.batchAdd(rankKey, msgs);
     }
-
-
-
-
 
 
     /**

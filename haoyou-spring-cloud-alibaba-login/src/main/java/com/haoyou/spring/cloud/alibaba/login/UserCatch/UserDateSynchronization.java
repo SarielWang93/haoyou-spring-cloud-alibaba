@@ -147,6 +147,7 @@ public class UserDateSynchronization {
             String petTypeKey = RedisKeyUtil.getKey(RedisKey.PET_TYPE, pet.getTypeUid());
             PetType petType = redisObjectUtil.get(petTypeKey, PetType.class);
             pet.setTypeName(petType.getName());
+            pet.setTypeDescription(petType.getDescription());
             pet.setTypeId(petType.getId());
 
             String key = RedisKeyUtil.getKey(userUidKey, pet.getUid());

@@ -53,21 +53,5 @@ public class NumericalService {
         return false;
     }
 
-    /**
-     * 归零
-     * @param user
-     * @param numericalName
-     * @return
-     */
-    public boolean numericalTo0(User user, String numericalName) {
 
-        UserNumerical userNumerical = user.getUserNumericalMap().get(numericalName);
-        if (userNumerical != null) {
-            userNumerical.setValue(0l);
-            return true;
-        }
-
-        return false;
-
-    }
 }

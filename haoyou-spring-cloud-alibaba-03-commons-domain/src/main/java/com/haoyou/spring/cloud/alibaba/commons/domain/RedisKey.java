@@ -18,6 +18,9 @@ public class RedisKey {
     public static final String NUMERICAL = "numerical";
     public static final String ACHIEVEMENT = "achievement";
 
+    public static final String DAILY_TASK = "daily_task";
+
+
     public static final String PROP = "prop";
     public static final String AWARD = "award";
     public static final String USER_AWARD = "user_award";
