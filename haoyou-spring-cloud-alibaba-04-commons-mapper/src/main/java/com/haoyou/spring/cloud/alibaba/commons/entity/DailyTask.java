@@ -4,11 +4,13 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 
 import javax.persistence.*;
+import java.io.Serializable;
 
 @Data
 @JsonIgnoreProperties(value = {}, ignoreUnknown = true)
 @Table(name = "daily_task")
-public class DailyTask {
+public class DailyTask implements Serializable {
+    private static final long serialVersionUID = 8589855292815772034L;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;

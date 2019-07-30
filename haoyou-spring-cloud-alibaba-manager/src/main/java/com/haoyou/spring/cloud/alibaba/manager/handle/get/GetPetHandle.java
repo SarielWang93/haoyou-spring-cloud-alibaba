@@ -131,6 +131,7 @@ public class GetPetHandle extends ManagerHandle {
         for (Prop prop : props) {
             if (prop.getName().equals("LoyaltyCard")) {
                 ingredientsMsg.put("loyaltyCardCount", prop.getCount());
+                ingredientsMsg.put("loyaltyCardInstenceUid",prop.getPropInstenceUid());
             }
         }
 
