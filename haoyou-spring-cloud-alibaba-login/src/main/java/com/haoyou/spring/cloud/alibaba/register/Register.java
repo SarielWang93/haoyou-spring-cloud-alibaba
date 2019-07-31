@@ -12,7 +12,11 @@ import com.haoyou.spring.cloud.alibaba.commons.mapper.CurrencyMapper;
 import com.haoyou.spring.cloud.alibaba.commons.mapper.ServerMapper;
 import com.haoyou.spring.cloud.alibaba.commons.mapper.UserDataMapper;
 import com.haoyou.spring.cloud.alibaba.commons.mapper.UserMapper;
+import com.haoyou.spring.cloud.alibaba.commons.util.MapperUtils;
+import com.haoyou.spring.cloud.alibaba.commons.util.RedisKeyUtil;
+import com.haoyou.spring.cloud.alibaba.redis.service.ScoreRankService;
 import com.haoyou.spring.cloud.alibaba.util.RedisObjectUtil;
+import com.haoyou.spring.cloud.alibaba.util.ScoreRankUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +24,9 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author wanghui
@@ -42,6 +48,9 @@ public class Register {
 
     @Autowired
     private ServerMapper serverMapper;
+
+    @Autowired
+    protected ScoreRankUtil scoreRankUtil;
 
     /**
      * 初始化编号
@@ -103,7 +112,7 @@ public class Register {
         userData.setUserUid(user.getUid());
         userData.setExp(0);
         userData.setAvatar("defult");
-        userData.setLevel(1);
+        userData.setLevel(999);
         userData.setName(user.getUsername());
         userData.setUpLevExp(260l);
 
@@ -112,7 +121,12 @@ public class Register {
         currencyMapper.insertSelective(currency);
         logger.info(String.format("registerUser: %s", user.getUsername()));
         user.setState(ResponseMsg.MSG_SUCCESS);
-        return user.notTooLong();
+
+        //当前服排名
+        scoreRankUtil.add(RedisKeyUtil.getKey(RedisKey.RANKING, user.getServerId().toString()),user);
+
+
+        return user;
     }
 
 

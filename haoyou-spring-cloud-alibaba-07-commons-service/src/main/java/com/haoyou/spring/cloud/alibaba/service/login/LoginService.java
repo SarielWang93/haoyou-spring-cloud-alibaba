@@ -15,4 +15,6 @@ public interface LoginService {
     User logout(MyRequest req);
 
     User register(MyRequest req);
+
+    void synchronization();
 }

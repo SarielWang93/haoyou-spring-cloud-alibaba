@@ -30,7 +30,7 @@ public class SettlementService {
     /**
      * 每隔一小时，检查结算
      */
-    @Scheduled(cron = "0 0 */1 * * ?")
+//    @scheduled(cron = "0 0 */1 * * ?")
     public void inspect() {
 
         DateTime date = DateUtil.date();

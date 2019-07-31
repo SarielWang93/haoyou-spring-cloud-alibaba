@@ -1,5 +1,6 @@
 package com.haoyou.spring.cloud.alibaba.fighting.info;
 
+import cn.hutool.core.lang.Console;
 import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.ReflectUtil;
 import cn.hutool.core.util.StrUtil;
@@ -147,7 +148,9 @@ public class FightingPet implements Serializable {
 
         FightingPet fightingPet = redisObjectUtil.get(key, FightingPet.class);
 
-        fightingPet.setRedisObjectUtil(redisObjectUtil);
+        if (fightingPet != null) {
+            fightingPet.setRedisObjectUtil(redisObjectUtil);
+        }
 
         return fightingPet;
     }
@@ -446,6 +449,7 @@ public class FightingPet implements Serializable {
         this.mb_atn += atn;
         this.mb_def += def;
         this.mb_max_hp += max_hp;
+
         //this.mb_spd += this.pet.getLevel();
 
     }

@@ -74,4 +74,10 @@ public interface CultivateService {
      */
     boolean numericalAdd (User user,String numericalName,long value);
 
+
+    /**
+     * 计时执行
+     */
+    void doSettlement();
+
 }

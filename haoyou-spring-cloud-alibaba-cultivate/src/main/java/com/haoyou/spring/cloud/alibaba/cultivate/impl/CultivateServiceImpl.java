@@ -1,5 +1,6 @@
 package com.haoyou.spring.cloud.alibaba.cultivate.impl;
 
+import cn.hutool.core.util.RandomUtil;
 import com.haoyou.spring.cloud.alibaba.commons.domain.ResponseMsg;
 import com.haoyou.spring.cloud.alibaba.commons.message.BaseMessage;
 import com.haoyou.spring.cloud.alibaba.commons.message.MapBody;
@@ -52,6 +53,8 @@ public class CultivateServiceImpl implements CultivateService {
     private CurrencyUseService currencyUseService;
     @Autowired
     private NumericalService numericalService;
+    @Autowired
+    private SettlementService settlementService;
 
     /**
      * 技能配置处理
@@ -112,7 +115,7 @@ public class CultivateServiceImpl implements CultivateService {
                     if (this.saveUser(user)) {
                         return rt;
                     }
-                }else {
+                } else {
                     rt.put("errMsg", "道具无法使用！");
                 }
             } else {
@@ -138,37 +141,18 @@ public class CultivateServiceImpl implements CultivateService {
     public boolean petGeneration(MyRequest req) {
         logger.debug("注册赠送宠物！！！");
         User user = req.getUser();
-        List<Integer> l = new ArrayList<>();
-//        if (la.longValue() % 2 == 0) {
-//            l.add(1);
-//            l.add(2);
-//            l.add(3);
-//        } else {
-//            l.add(4);
-//            l.add(5);
-//            l.add(6);
-//        }
+
         HashMap<String, PetType> stringPetTypeHashMap = redisObjectUtil.getlkMap(RedisKeyUtil.getlkKey(RedisKey.PET_TYPE), PetType.class);
 
-        int i = 1;
-        for (PetType petType : stringPetTypeHashMap.values()) {
-//            if (l.contains(petType.getId())) {
-            int iswork = 0;
-//                if (petType.getId() > 3) {
-//                    iswork = petType.getId() - 3;
-//                } else {
-//                    iswork = petType.getId();
-//                }
-            if (i < 4) {
-                iswork = i++;
-            }
-            petMapper.insertSelective(new Pet(user, petType, iswork));
-            petMapper.insertSelective(new Pet(user, petType, 0));
-            petMapper.insertSelective(new Pet(user, petType, 0));
+        for (int i = 0; i < 3; i++) {
 
-//            }
+            int ind = RandomUtil.randomInt(6);
+
+
+            petMapper.insertSelective(new Pet(user,stringPetTypeHashMap.values().toArray(new PetType[0])[ind], 0));
         }
-//        la.add(1);
+
+
 
         return true;
     }
@@ -223,8 +207,8 @@ public class CultivateServiceImpl implements CultivateService {
         //数值系统宠物最高级记录
         UserNumerical userNumerical = user.getUserNumericalMap().get("max_pet_lev");
 
-        if(level+1>userNumerical.getValue()){
-            this.numericalAdd(user,"max_pet_lev",level+1-userNumerical.getValue());
+        if (level + 1 > userNumerical.getValue()) {
+            this.numericalAdd(user, "max_pet_lev", level + 1 - userNumerical.getValue());
         }
 
         //升级
@@ -240,9 +224,8 @@ public class CultivateServiceImpl implements CultivateService {
         fightingPet.save();
         this.saveUser(user);
         rt.setState(ResponseMsg.MSG_SUCCESS);
-
-
-
+        //数值系统每日升级次数
+        this.numericalAdd(user, "daily_pet_up_lev", 1L);
 
         return rt;
     }
@@ -265,26 +248,27 @@ public class CultivateServiceImpl implements CultivateService {
 
     /**
      * 领取奖励
+     *
      * @param req
      * @return
      */
     @Override
-    public BaseMessage receiveAward (MyRequest req) {
+    public BaseMessage receiveAward(MyRequest req) {
         User user = req.getUser();
         String type = "null";
         try {
             Map<String, Object> pro = MapperUtils.json2map(new String(req.getMsg()));
-            type = (String)pro.get("type");
+            type = (String) pro.get("type");
         } catch (Exception e) {
             e.printStackTrace();
         }
 
         MapBody mapBody = rewardService.receiveAward(user, type);
 
-        if(mapBody.getState().equals(ResponseMsg.MSG_SUCCESS)){
-            if(this.saveUser(user)){
+        if (mapBody.getState().equals(ResponseMsg.MSG_SUCCESS)) {
+            if (this.saveUser(user)) {
 
-            }else{
+            } else {
                 mapBody.setState(ResponseMsg.MSG_ERR);
                 mapBody.put("errMsg", "奖励保存未成功！");
             }
@@ -295,25 +279,32 @@ public class CultivateServiceImpl implements CultivateService {
 
     /**
      * 数值系统
+     *
      * @param user
      * @param numericalName
      * @param value
      * @return
      */
     @Override
-    public boolean numericalAdd (User user,String numericalName,long value){
+    public boolean numericalAdd(User user, String numericalName, long value) {
 
 
-            if(numericalService.numericalAdd(user,numericalName,value)){
-                if(this.saveUser(user)){
-                    return true;
-                }
+        if (numericalService.numericalAdd(user, numericalName, value)) {
+            if (this.saveUser(user)) {
+                return true;
             }
+        }
 
         return false;
     }
 
-
+    /**
+     * 计时执行
+     */
+    @Override
+    public void doSettlement() {
+        settlementService.inspect();
+    }
 
 
     /**
@@ -353,16 +344,14 @@ public class CultivateServiceImpl implements CultivateService {
     }
 
 
-
-
-
     /**
      * 使用货币
+     *
      * @param req
      * @return
      */
     @Override
-    public BaseMessage currencyUse (MyRequest req){
+    public BaseMessage currencyUse(MyRequest req) {
 
         MapBody mapBody = new MapBody();
         User user = req.getUser();
@@ -374,23 +363,19 @@ public class CultivateServiceImpl implements CultivateService {
         int bkMsg = currencyUseService.currencyUse(deserialize);
 
 
-        if(bkMsg == ResponseMsg.MSG_SUCCESS){
-            if(this.saveUser(user)){
+        if (bkMsg == ResponseMsg.MSG_SUCCESS) {
+            if (this.saveUser(user)) {
                 mapBody.setState(bkMsg);
-            }else{
+            } else {
                 mapBody.setState(ResponseMsg.MSG_ERR);
             }
-        }else{
+        } else {
             mapBody.setState(bkMsg);
         }
 
 
         return mapBody;
     }
-
-
-
-
 
 
     /**

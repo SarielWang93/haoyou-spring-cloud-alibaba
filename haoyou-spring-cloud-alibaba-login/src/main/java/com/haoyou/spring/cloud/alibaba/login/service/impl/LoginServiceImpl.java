@@ -159,6 +159,11 @@ public class LoginServiceImpl implements LoginService {
         return register.register(user);
     }
 
+    @Override
+    public void synchronization() {
+        userDateSynchronization.synchronization();
+    }
+
     /**
      * 用户登录名数据库查询
      *

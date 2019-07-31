@@ -1,13 +1,11 @@
 package com.haoyou.spring.cloud.alibaba.cultivate.prop.use.handle;
 
+import cn.hutool.core.lang.Console;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.ReflectUtil;
 import com.haoyou.spring.cloud.alibaba.commons.domain.RedisKey;
 import com.haoyou.spring.cloud.alibaba.commons.domain.ResponseMsg;
-import com.haoyou.spring.cloud.alibaba.commons.entity.LevLoyalty;
-import com.haoyou.spring.cloud.alibaba.commons.entity.Pet;
-import com.haoyou.spring.cloud.alibaba.commons.entity.Prop;
-import com.haoyou.spring.cloud.alibaba.commons.entity.User;
+import com.haoyou.spring.cloud.alibaba.commons.entity.*;
 import com.haoyou.spring.cloud.alibaba.commons.message.MapBody;
 import com.haoyou.spring.cloud.alibaba.commons.util.RedisKeyUtil;
 import com.haoyou.spring.cloud.alibaba.pojo.cultivate.PropUseMsg;
@@ -167,16 +165,17 @@ public class IngredientsHandle extends PeopUseHandle {
             }
 
 
-            //刷新面板数据
-            fightingPet.refreshMbByLevel();
             //刷新条数
             fightingPet.getPet().initIngredientsPieces();
+            //刷新面板数据
+            fightingPet.refreshMbByLevel();
 
             //保存结果
             fightingPet.save();
 
             //数值系统
             cultivateService.numericalAdd(user,"feeding_pets",propCount);
+            cultivateService.numericalAdd(user,"daily_pet_feed",1L);
 
             rt.setState(ResponseMsg.MSG_SUCCESS);
             return rt;
@@ -191,6 +190,11 @@ public class IngredientsHandle extends PeopUseHandle {
 
             propList.add(prop);
             UserUtil.addProps(user,propList);
+
+            Award award = new Award();
+            award.setPropsList(propList);
+            rt.put("award", award);
+
             rt.setState(ResponseMsg.MSG_SUCCESS);
             return rt;
         }
@@ -204,6 +208,11 @@ public class IngredientsHandle extends PeopUseHandle {
 
             propList.add(prop);
             UserUtil.addProps(user,propList);
+
+            Award award = new Award();
+            award.setPropsList(propList);
+            rt.put("award", award);
+
             rt.setState(ResponseMsg.MSG_SUCCESS);
             return rt;
         }

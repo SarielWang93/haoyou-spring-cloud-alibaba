@@ -1,4 +1,4 @@
-package com.haoyou.spring.cloud.alibaba.manager.init;
+package com.haoyou.spring.cloud.alibaba.sofabolt.init;
 
 import com.haoyou.spring.cloud.alibaba.commons.domain.RedisKey;
 import com.haoyou.spring.cloud.alibaba.commons.entity.*;
@@ -8,6 +8,7 @@ import com.haoyou.spring.cloud.alibaba.commons.util.MapperUtils;
 import com.haoyou.spring.cloud.alibaba.commons.util.RedisKeyUtil;
 import com.haoyou.spring.cloud.alibaba.redis.service.ScoreRankService;
 import com.haoyou.spring.cloud.alibaba.util.RedisObjectUtil;
+import com.haoyou.spring.cloud.alibaba.util.ScoreRankUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
@@ -29,7 +30,7 @@ public class InitData implements ApplicationRunner {
     private RedisObjectUtil redisObjectUtil;
 
     @Autowired
-    private ScoreRankService scoreRankService;
+    private ScoreRankUtil scoreRankUtil;
     @Autowired
     private UserMapper userMapper;
     @Autowired
@@ -277,7 +278,7 @@ public class InitData implements ApplicationRunner {
 
     private void ranking(List<User> users, String rankKey) {
         redisObjectUtil.delete(rankKey);
-        Map<String, Long> msgs = new HashMap<>();
+
         for (User user : users) {
             Currency currency = new Currency();
             currency.setUserUid(user.getUid());
@@ -287,23 +288,11 @@ public class InitData implements ApplicationRunner {
             userData.setUserUid(user.getUid());
             userData = userDataMapper.selectOne(userData);
 
-            Map<String, Object> player = new HashMap<>();
+            user.setCurrency(currency);
+            user.setUserData(userData);
 
-            player.put("useruid", user.getUid());
-            player.put("name", userData.getName());
-            player.put("avatar", userData.getAvatar());
-            player.put("integral", currency.getRank());
-
-            String plj = "";
-            try {
-                plj = MapperUtils.obj2json(player);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-
-            msgs.put(plj, currency.getRank().longValue());
         }
-        scoreRankService.batchAdd(rankKey, msgs);
+        scoreRankUtil.batchAdd(rankKey, users);
     }
 
 

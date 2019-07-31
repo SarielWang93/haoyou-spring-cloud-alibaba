@@ -42,7 +42,7 @@ public class UserDateSynchronization {
     /**
      * 每隔30分钟,将缓存同步到数据库
      */
-    @Scheduled(cron = "0 */30 * * * ?")
+//    @scheduled(cron = "0 */30 * * * ?")
     public void synchronization() {
         logger.info(String.format("synchronization begin ......"));
         HashMap<String, User> users = redisObjectUtil.getlkMap(RedisKeyUtil.getlkKey(RedisKey.USER), User.class);

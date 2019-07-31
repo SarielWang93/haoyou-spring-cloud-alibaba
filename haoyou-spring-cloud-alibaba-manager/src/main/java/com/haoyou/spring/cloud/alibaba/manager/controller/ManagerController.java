@@ -8,7 +8,6 @@ import com.haoyou.spring.cloud.alibaba.commons.mapper.UserMapper;
 import com.haoyou.spring.cloud.alibaba.commons.util.MapperUtils;
 import com.haoyou.spring.cloud.alibaba.commons.util.RedisKeyUtil;
 import com.haoyou.spring.cloud.alibaba.fighting.info.FightingPet;
-import com.haoyou.spring.cloud.alibaba.manager.init.InitData;
 import com.haoyou.spring.cloud.alibaba.util.RedisObjectUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,30 +23,13 @@ import java.util.List;
 public class ManagerController {
     private final static Logger logger = LoggerFactory.getLogger(ManagerController.class);
 
-    @Autowired
-    private InitData initData;
+
     @Autowired
     protected RedisObjectUtil redisObjectUtil;
     @Autowired
     private UserMapper userMapper;
 
-    /**
-     * 对外接口，用于刷新缓存
-     *
-     * @param response
-     * @return
-     */
-    @CrossOrigin
-    @GetMapping(value = "refreshCatch")
-    public String refreshCatch(HttpServletResponse response) {
 
-        if (initData.doInit()) {
-            logger.info("刷新静态缓存信息，成功！！");
-            return "success";
-        }
-        return "err";
-
-    }
 
     /**
      * 获取用户信息

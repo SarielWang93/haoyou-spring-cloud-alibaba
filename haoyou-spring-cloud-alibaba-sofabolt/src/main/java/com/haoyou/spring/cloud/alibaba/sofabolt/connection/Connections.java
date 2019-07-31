@@ -108,7 +108,6 @@ public class Connections {
     /**
      * 每隔5分钟清除已断开的链接
      */
-    @Scheduled(cron = "${sofabolt.connections.cleardelay: 0 */5 * * * ?}")
     public void inspect() {
 //        logger.info("清理断链链接！！！");
         for (String uid : this.disconnects) {

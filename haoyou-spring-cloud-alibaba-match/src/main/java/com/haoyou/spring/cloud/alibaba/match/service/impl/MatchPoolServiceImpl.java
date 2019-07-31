@@ -1,6 +1,7 @@
 package com.haoyou.spring.cloud.alibaba.match.service.impl;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.lang.Console;
 import cn.hutool.core.thread.ThreadUtil;
 import cn.hutool.core.util.StrUtil;
 import com.haoyou.spring.cloud.alibaba.commons.domain.FightingType;
@@ -65,7 +66,7 @@ public class MatchPoolServiceImpl implements MatchPoolService {
      * @throws Exception
      */
     @Override
-    @Scheduled(cron = "${matchpool.delay: 0/2 * * * * ?}")
+//    @Scheduled(cron = "${matchpool.delay: 0/2 * * * * ?}")
     public void doMatch(){
         try {
             //从redis中获取匹配池

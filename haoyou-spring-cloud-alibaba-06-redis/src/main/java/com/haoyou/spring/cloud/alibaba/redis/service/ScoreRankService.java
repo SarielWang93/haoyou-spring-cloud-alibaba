@@ -13,7 +13,7 @@ public interface ScoreRankService {
      * 批量新增
      */
 
-    boolean batchAdd(String scoreRank, Map<String, Long> msgs);
+    boolean batchAdd(String scoreRank, Map<String , Long> msgs);
 
     /**
      * 单个新增
@@ -24,14 +24,12 @@ public interface ScoreRankService {
     /**
      * 获取排行列表
      */
-
     List<String> list(String scoreRank, Long start, Long end);
 
 
     /**
      * 获取单个的排行
      */
-
     Long find(String scoreRank, String userUid);
 
 

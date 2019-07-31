@@ -1,9 +1,13 @@
 package com.haoyou.spring.cloud.alibaba.manager.handle.login;
 
 
+import com.haoyou.spring.cloud.alibaba.commons.domain.RedisKey;
 import com.haoyou.spring.cloud.alibaba.commons.domain.SendType;
+import com.haoyou.spring.cloud.alibaba.commons.entity.Server;
 import com.haoyou.spring.cloud.alibaba.commons.entity.User;
 import com.haoyou.spring.cloud.alibaba.commons.message.BaseMessage;
+import com.haoyou.spring.cloud.alibaba.commons.util.MapperUtils;
+import com.haoyou.spring.cloud.alibaba.commons.util.RedisKeyUtil;
 import com.haoyou.spring.cloud.alibaba.fighting.info.FightingPet;
 import com.haoyou.spring.cloud.alibaba.manager.handle.ManagerHandle;
 import com.haoyou.spring.cloud.alibaba.sofabolt.protocol.MyRequest;
@@ -36,10 +40,22 @@ public class LoginHandle extends ManagerHandle {
 
         Map<String,Object> otherMsg = new HashMap<>();
 
+        //宠物个数
         otherMsg.put("petsCount",byUser.size());
+
+        //服务器名字
+        Server server = redisObjectUtil.get(RedisKeyUtil.getKey(RedisKey.SERVER, login.getServerId().toString()), Server.class);
+        otherMsg.put("serverName",server.getServerName());
+
+
+
+        //当前服排名
+
+        Long aLong = scoreRankUtil.find(RedisKeyUtil.getKey(RedisKey.RANKING, server.getId().toString()), login);
+        otherMsg.put("serverRankNum",aLong);
 
         login.setOtherMsg(otherMsg);
 
-        return login;
+        return login.notTooLong();
     }
 }

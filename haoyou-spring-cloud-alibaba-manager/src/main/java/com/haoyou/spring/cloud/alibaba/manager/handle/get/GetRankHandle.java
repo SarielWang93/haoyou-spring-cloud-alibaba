@@ -14,6 +14,7 @@ import com.haoyou.spring.cloud.alibaba.commons.util.RedisKeyUtil;
 import com.haoyou.spring.cloud.alibaba.fighting.info.FightingPet;
 import com.haoyou.spring.cloud.alibaba.manager.handle.ManagerHandle;
 import com.haoyou.spring.cloud.alibaba.sofabolt.protocol.MyRequest;
+import com.haoyou.spring.cloud.alibaba.sofabolt.protocol.RankUser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -47,30 +48,22 @@ public class GetRankHandle extends ManagerHandle {
         mapBody.setState(ResponseMsg.MSG_SUCCESS);
 
 
-        Long aLong = scoreRankService.zCard(RedisKeyUtil.getKey(RedisKey.RANKING, server.getServerNum().toString()));
+        Long aLong = scoreRankUtil.zCard(RedisKeyUtil.getKey(RedisKey.RANKING, server.getServerNum().toString()));
         Long start = 0l;
         if (aLong > 100) {
             start = aLong - 100;
         }
-        List<String> list = scoreRankService.list(RedisKeyUtil.getKey(RedisKey.RANKING, server.getServerNum().toString()), start, aLong);
-        Map[] players = new Map[list.size()];
+        List<RankUser> list = scoreRankUtil.list(RedisKeyUtil.getKey(RedisKey.RANKING, server.getServerNum().toString()), start, aLong);
+        RankUser[] players = new RankUser[list.size()];
 
         int myRanking = -1;
 
         for (int i = 0; i < list.size(); i++) {
-            Map<String, Object> player = null;
 
-            try {
-                player = MapperUtils.json2map(list.get(i));
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            RankUser rankUser = list.get(i);
 
-            if (player.get("useruid").equals(user.getUid())) {
-                myRanking = i + 1;
-            }
 
-            players[i] = player;
+            players[i] = rankUser;
         }
 
         String key1 = RedisKeyUtil.getKey(RedisKey.USER_AWARD, user.getUid());

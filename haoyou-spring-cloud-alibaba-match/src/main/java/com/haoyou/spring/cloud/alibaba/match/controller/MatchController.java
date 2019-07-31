@@ -21,6 +21,13 @@ public class MatchController implements com.haoyou.spring.cloud.alibaba.service.
     @Autowired
     private RedisObjectUtil redisObjectUtil;
 
+
+    public void doMatch(){
+        matchPoolService.doMatch();
+    }
+
+
+
     /**
      * 添加到匹配池
      * @param user

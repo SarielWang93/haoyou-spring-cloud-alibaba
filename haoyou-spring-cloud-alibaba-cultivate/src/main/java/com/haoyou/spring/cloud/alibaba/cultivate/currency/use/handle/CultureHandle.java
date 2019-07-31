@@ -119,6 +119,8 @@ public class CultureHandle extends CurrencyUseHandle {
 
         //数值系统
         cultivateService.numericalAdd(user,"culture",1L);
+        //数值系统
+        cultivateService.numericalAdd(user,"daily_pet_culture",1L);
 
         return ResponseMsg.MSG_SUCCESS;
     }

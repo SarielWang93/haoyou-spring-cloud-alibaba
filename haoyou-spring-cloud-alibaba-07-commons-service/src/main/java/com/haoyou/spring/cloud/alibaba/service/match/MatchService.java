@@ -10,6 +10,7 @@ import com.haoyou.spring.cloud.alibaba.sofabolt.protocol.MyRequest;
 
 public interface MatchService {
 
+    void doMatch();
 
     boolean putPlayerIntoMatchPool( User user);
 

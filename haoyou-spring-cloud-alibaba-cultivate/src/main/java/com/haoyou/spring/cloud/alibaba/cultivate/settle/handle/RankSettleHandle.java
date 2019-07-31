@@ -6,6 +6,7 @@ import com.haoyou.spring.cloud.alibaba.commons.entity.Award;
 import com.haoyou.spring.cloud.alibaba.commons.entity.Server;
 import com.haoyou.spring.cloud.alibaba.commons.util.MapperUtils;
 import com.haoyou.spring.cloud.alibaba.commons.util.RedisKeyUtil;
+import com.haoyou.spring.cloud.alibaba.sofabolt.protocol.RankUser;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -26,23 +27,17 @@ public class RankSettleHandle extends SettleHandle {
 
         HashMap<String, Server> servers = redisObjectUtil.getlkMap(RedisKeyUtil.getlkKey(RedisKey.SERVER), Server.class);
         for (Server server : servers.values()) {
-            Long aLong = scoreRankService.zCard(RedisKeyUtil.getKey(RedisKey.RANKING, server.getServerNum().toString()));
+            Long aLong = scoreRankUtil.zCard(RedisKeyUtil.getKey(RedisKey.RANKING, server.getServerNum().toString()));
 
-            List<String> list = scoreRankService.list(RedisKeyUtil.getKey(RedisKey.RANKING, server.getServerNum().toString()), 0l, aLong);
+            List<RankUser> list = scoreRankUtil.list(RedisKeyUtil.getKey(RedisKey.RANKING, server.getServerNum().toString()), 0l, aLong);
 
 
             for (int i = 0; i < list.size(); i++) {
                 //名次
                 int r = i + 1;
-                Map<String, Object> player = null;
-                try {
-                    player = MapperUtils.json2map(list.get(i));
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-                String useruid = (String) player.get("useruid");
+                RankUser rankUser = list.get(i);
                 Award award = this.getAward(r);
-                rewardService.refreshUpAward(useruid,award,RedisKey.RANKING);
+                rewardService.refreshUpAward(rankUser.getUserUid(),award,RedisKey.RANKING);
 
             }
 

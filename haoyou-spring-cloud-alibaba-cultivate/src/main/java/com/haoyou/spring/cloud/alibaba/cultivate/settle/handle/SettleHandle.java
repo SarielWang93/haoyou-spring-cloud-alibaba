@@ -11,6 +11,7 @@ import com.haoyou.spring.cloud.alibaba.cultivate.service.SkillConfigService;
 import com.haoyou.spring.cloud.alibaba.cultivate.service.SettlementService;
 import com.haoyou.spring.cloud.alibaba.redis.service.ScoreRankService;
 import com.haoyou.spring.cloud.alibaba.util.RedisObjectUtil;
+import com.haoyou.spring.cloud.alibaba.util.ScoreRankUtil;
 import com.haoyou.spring.cloud.alibaba.util.SendMsgUtil;
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,7 +39,7 @@ public abstract class SettleHandle {
     @Autowired
     protected UserNumericalMapper userNumericalMapper;
     @Autowired
-    protected ScoreRankService scoreRankService;
+    protected ScoreRankUtil scoreRankUtil;
     @Autowired
     protected SkillConfigService skillConfigService;
     @Autowired

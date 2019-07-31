@@ -5,6 +5,7 @@ import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.StrUtil;
 import com.haoyou.spring.cloud.alibaba.commons.domain.RedisKey;
 import com.haoyou.spring.cloud.alibaba.commons.domain.ResponseMsg;
+import com.haoyou.spring.cloud.alibaba.commons.domain.SkillType;
 import com.haoyou.spring.cloud.alibaba.commons.entity.*;
 import com.haoyou.spring.cloud.alibaba.commons.message.MapBody;
 import com.haoyou.spring.cloud.alibaba.commons.util.RedisKeyUtil;
@@ -85,7 +86,10 @@ public class PetSkillScrapHandle extends PeopUseHandle {
         HashMap<String, Skill> skills = redisObjectUtil.getlkMap(RedisKeyUtil.getlkKey(RedisKey.SKILL), Skill.class);
         List<Skill> skillPool = new ArrayList<>();
         for (Skill skill : skills.values()) {
-            if (skill.getQuality().equals(quality)) {
+            if (skill.getQuality().equals(quality)
+                    && (SkillType.OVERALL == skill.getType()
+                        || SkillType.OPENING == skill.getType()
+                        || SkillType.ATTACK_PASSIVE == skill.getType())) {
                 skillPool.add(skill);
             }
         }
