@@ -42,22 +42,22 @@ public class RewardService {
         Award award = this.getAward(type);
 
         if(award == null){
-            award = rewardHandleMap.get(type).handle();
-        }
-
-        if(award == null){
             return false;
         }
 
         if(!award.isUsed()){
-            this.doAward(user,award);
+            return this.doAward(user,award);
         }
 
         return true;
     }
 
     public Award getAward(String type){
-         return redisObjectUtil.get(RedisKeyUtil.getKey(RedisKey.AWARD, type),Award.class);
+        Award award =  redisObjectUtil.get(RedisKeyUtil.getKey(RedisKey.AWARD, type),Award.class);
+        if(award == null){
+            award = rewardHandleMap.get(type).handle();
+        }
+        return award;
     }
 
 

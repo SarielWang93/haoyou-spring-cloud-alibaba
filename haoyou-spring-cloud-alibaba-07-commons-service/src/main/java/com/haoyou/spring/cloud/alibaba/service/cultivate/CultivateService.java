@@ -80,4 +80,14 @@ public interface CultivateService {
      */
     void doSettlement();
 
+
+
+    /**
+     * 邮件操作
+     *
+     * @param req
+     * @return
+     */
+    BaseMessage emailDo(MyRequest req);
+
 }

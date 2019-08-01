@@ -244,8 +244,8 @@ public class GetPetHandle extends ManagerHandle {
 
         //培养上限
         Integer cultureLimit = pet.getCultureLimit();
-        cultureMsg.put("cultureLimitPropCount", cultureLimit / 10 * 10 * cultureLimit + (cultureLimit % 10));
-        cultureMsg.put("cultureLimitDiamond", cultureLimit / 10 * 10 * cultureLimit + (cultureLimit % 10) * 10);
+        cultureMsg.put("cultureLimitPropCount", cultureLimit / 10 * 1 * cultureLimit + (cultureLimit % 10)+10);
+        cultureMsg.put("cultureLimitDiamond", cultureLimit / 10 * 10 * cultureLimit + (cultureLimit % 10) * 10+100);
 
         //道具数量
         for (Prop prop : user.propList()) {

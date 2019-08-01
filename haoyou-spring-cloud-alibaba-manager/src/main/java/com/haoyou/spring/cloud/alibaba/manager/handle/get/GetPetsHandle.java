@@ -74,6 +74,11 @@ public class GetPetsHandle extends ManagerHandle {
 //            sendMsgUtil.sendMsgOneNoReturn(user.getUid(),req.getId(),mapBody);
         }
         mapBody.put("pets",pets);
+
+        Integer petMax = user.getCurrency().getPetMax();
+        mapBody.put("petMaxUpDiamond",petMax / 10 * 10 * petMax + (petMax % 10)*10);
+
+
         return mapBody;
     }
 }

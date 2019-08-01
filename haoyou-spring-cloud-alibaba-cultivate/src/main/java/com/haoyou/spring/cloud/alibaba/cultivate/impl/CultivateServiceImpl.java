@@ -1,6 +1,7 @@
 package com.haoyou.spring.cloud.alibaba.cultivate.impl;
 
 import cn.hutool.core.util.RandomUtil;
+import cn.hutool.core.util.StrUtil;
 import com.haoyou.spring.cloud.alibaba.commons.domain.ResponseMsg;
 import com.haoyou.spring.cloud.alibaba.commons.message.BaseMessage;
 import com.haoyou.spring.cloud.alibaba.commons.message.MapBody;
@@ -55,6 +56,8 @@ public class CultivateServiceImpl implements CultivateService {
     private NumericalService numericalService;
     @Autowired
     private SettlementService settlementService;
+    @Autowired
+    private EmailService emailService;
 
     /**
      * 技能配置处理
@@ -107,7 +110,7 @@ public class CultivateServiceImpl implements CultivateService {
         Prop prop = getProp(user, propInstenceUid);
 
         if (prop != null) {
-            if (propUseMsg.getPropCount() <= prop.getCount()) {
+            if (propUseMsg.getPropCount() <= prop.getCount() && propUseMsg.getPropCount()>0) {
                 propUseMsg.setProp(prop);
                 propUseMsg.setUser(user);
                 rt = propUseService.propUse(propUseMsg);
@@ -120,7 +123,7 @@ public class CultivateServiceImpl implements CultivateService {
                 }
             } else {
                 rt.setState(ResponseMsg.MSG_ERR);
-                rt.put("errMsg", "道具数量不足！");
+                rt.put("errMsg", "道具数量不足，或为0！");
             }
         } else {
             rt.setState(ResponseMsg.MSG_ERR);
@@ -151,7 +154,6 @@ public class CultivateServiceImpl implements CultivateService {
 
             petMapper.insertSelective(new Pet(user,stringPetTypeHashMap.values().toArray(new PetType[0])[ind], 0));
         }
-
 
 
         return true;
@@ -376,6 +378,37 @@ public class CultivateServiceImpl implements CultivateService {
 
         return mapBody;
     }
+
+
+    /**
+     * 邮件操作
+     *
+     * @param req
+     * @return
+     */
+    @Override
+    public BaseMessage emailDo(MyRequest req) {
+        MapBody mapBody = new MapBody();
+        User user = req.getUser();
+
+        EmailDoMsg emailDoMsg = sendMsgUtil.deserialize(req.getMsg(), EmailDoMsg.class);
+
+        String emailUid = emailDoMsg.getEmailUid();
+
+        if(StrUtil.isEmpty(emailUid)){
+            emailService.emailAll(user,emailDoMsg.getType());
+
+        }else{
+            return emailService.emailOne(user,emailDoMsg.getType(),emailUid);
+        }
+        mapBody.setState(ResponseMsg.MSG_SUCCESS);
+        return mapBody;
+
+    }
+
+
+
+
 
 
     /**

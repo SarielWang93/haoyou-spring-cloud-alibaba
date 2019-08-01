@@ -62,7 +62,7 @@ public class CultureLimitHandle extends CurrencyUseHandle {
         }
 
         //所需道具
-        int propCount = cultureLimit / 10 * 10 * cultureLimit + (cultureLimit % 10);
+        int propCount = cultureLimit / 10 * 1 * cultureLimit + (cultureLimit % 10)+10;
         int nprop = cultureMedium.getCount() - propCount;
         if(nprop <0){
             return PROP_LESS;
@@ -71,7 +71,7 @@ public class CultureLimitHandle extends CurrencyUseHandle {
         }
 
         //所需钻石
-        int diamondCount = cultureLimit / 10 * 10 * cultureLimit + (cultureLimit % 10)*10;
+        int diamondCount = cultureLimit / 10 * 10 * cultureLimit + (cultureLimit % 10)*10+100;
         int nDiamond = user.getCurrency().getDiamond() - diamondCount;
         if (nDiamond < 0) {
             return DIAMOND_LESS;

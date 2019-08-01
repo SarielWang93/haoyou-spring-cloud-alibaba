@@ -14,6 +14,7 @@ import com.haoyou.spring.cloud.alibaba.commons.mapper.UserDataMapper;
 import com.haoyou.spring.cloud.alibaba.commons.mapper.UserMapper;
 import com.haoyou.spring.cloud.alibaba.commons.util.MapperUtils;
 import com.haoyou.spring.cloud.alibaba.commons.util.RedisKeyUtil;
+import com.haoyou.spring.cloud.alibaba.login.UserCatch.UserDateSynchronization;
 import com.haoyou.spring.cloud.alibaba.redis.service.ScoreRankService;
 import com.haoyou.spring.cloud.alibaba.util.RedisObjectUtil;
 import com.haoyou.spring.cloud.alibaba.util.ScoreRankUtil;
@@ -51,6 +52,9 @@ public class Register {
 
     @Autowired
     protected ScoreRankUtil scoreRankUtil;
+
+    @Autowired
+    private UserDateSynchronization userDateSynchronization;
 
     /**
      * 初始化编号
@@ -107,6 +111,8 @@ public class Register {
         currency.setPropMax(20);
         currency.setPetMax(5);
         currency.setRank(1);
+        currency.setPetExp(0L);
+        user.setCurrency(currency);
 
         UserData userData = new UserData();
         userData.setUserUid(user.getUid());
@@ -115,12 +121,14 @@ public class Register {
         userData.setLevel(999);
         userData.setName(user.getUsername());
         userData.setUpLevExp(260l);
+        user.setUserData(userData);
 
         userMapper.insertSelective(user);
         userDataMapper.insertSelective(userData);
         currencyMapper.insertSelective(currency);
         logger.info(String.format("registerUser: %s", user.getUsername()));
         user.setState(ResponseMsg.MSG_SUCCESS);
+
 
         //当前服排名
         scoreRankUtil.add(RedisKeyUtil.getKey(RedisKey.RANKING, user.getServerId().toString()),user);

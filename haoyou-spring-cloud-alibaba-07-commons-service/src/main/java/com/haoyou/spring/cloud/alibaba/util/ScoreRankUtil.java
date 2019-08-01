@@ -54,7 +54,7 @@ public class ScoreRankUtil {
      * 单个新增
      */
     public boolean add(String scoreRank, User user) {
-        return scoreRankService.add(scoreRank, user.getUid(), user.getCurrency().getRank().longValue());
+        return scoreRankService.add(scoreRank, this.getRankMsg(user) , user.getCurrency().getRank().longValue());
     }
 
     /**

@@ -63,7 +63,9 @@ public class ScheduledService {
         loginService.synchronization();
     }
 
-
+    /**
+     * 每隔两秒匹配
+     */
     @Scheduled(cron = "${matchpool.delay: 0/2 * * * * ?}")
     public void doMatch(){
         matchService.doMatch();

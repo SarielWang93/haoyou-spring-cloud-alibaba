@@ -317,7 +317,7 @@ public class Pet implements Serializable {
         this.ingredientsName4 = petType.getIngredientsName4();
         this.ingredientsAttr4 = petType.getIngredientsAttr4();
         this.ingredientsCount4 = 0;
-
+        this.ingredientsLimit = 0;
 
         this.nickname = petType.getL10n();
         this.creatDate = new Date();

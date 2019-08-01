@@ -55,6 +55,7 @@ public class SkillPropLimitHandle extends CurrencyUseHandle {
 
         MapBody mapBody = new MapBody<>();
         mapBody.put("propMaxUpDiamond",propMax / 10 * 10 * propMax + (propMax % 10)*10);
+        mapBody.put("diamond",user.getCurrency().getDiamond());
         mapBody.setState(ResponseMsg.MSG_SUCCESS);
         sendMsgUtil.sendMsgOneNoReturn(user.getUid(), SendType.GET_PROPS,mapBody);
 

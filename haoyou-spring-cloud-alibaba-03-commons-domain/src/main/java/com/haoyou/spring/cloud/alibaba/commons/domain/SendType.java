@@ -40,6 +40,7 @@ public class SendType {
     public final static int GET_PETS = 53;//获取宠物列表信息
     public final static int GET_PET = 54;//获取宠物信息
     public final static int GET_RANK = 55;//获取排行榜
+    public final static int GET_EMAILS = 56;//获取邮件列表
 
     /**
      * 养成 60 - 90
@@ -50,11 +51,13 @@ public class SendType {
     public final static int PET_UPDATE_ISWORK = 64;//宠物修改出战状态
     public final static int REC_AWARD = 65;//领取奖励
     public final static int CURRENCY_USE = 66;//货币使用
+    public final static int EMAIL_DO = 67;//邮件操作
 
 //    *****************************************以上为接受信息类型，以下为主动发送*********************************************************
 
     public final static int AWARD=4;//发放奖励
     public final static int MANDATORY_OFFLINE=5;//强制下线
+    public final static int EMIL=7;//发放邮件
 
     public final static int MATCH_READY=35;//匹配就绪
     public final static int MATCH_SUCCESE=36;//匹配成功

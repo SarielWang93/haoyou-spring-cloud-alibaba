@@ -13,7 +13,7 @@ import org.springframework.stereotype.Service;
  * @version 1.0
  * @date 2019/7/22 10:11
  *
- * 宠物培养上限增加
+ * 宠物容量提升
  *
  */
 @Service
@@ -41,7 +41,7 @@ public class PetLimitHandle extends CurrencyUseHandle {
             currency.setDiamond(nDiamond);
         }
 
-        currency.setPetMax(petMax+1);
+        currency.setPetMax(++petMax);
 
 
         //保存修改
@@ -49,10 +49,11 @@ public class PetLimitHandle extends CurrencyUseHandle {
             return ResponseMsg.MSG_ERR;
         }
 
-//        MapBody mapBody = new MapBody<>();
-//        mapBody.put("petMaxUpDiamond",petMax / 10 * 10 * petMax + (petMax % 10)*10);
-//        mapBody.setState(ResponseMsg.MSG_SUCCESS);
-//        sendMsgUtil.sendMsgOneNoReturn(user.getUid(), SendType.GET_PROPS,mapBody);
+        MapBody mapBody = new MapBody<>();
+        mapBody.put("petMaxUpDiamond",petMax / 10 * 10 * petMax + (petMax % 10)*10);
+        mapBody.put("diamond",user.getCurrency().getDiamond());
+        mapBody.setState(ResponseMsg.MSG_SUCCESS);
+        sendMsgUtil.sendMsgOneNoReturn(user.getUid(), SendType.GET_PETS,mapBody);
 
         return ResponseMsg.MSG_SUCCESS;
     }
