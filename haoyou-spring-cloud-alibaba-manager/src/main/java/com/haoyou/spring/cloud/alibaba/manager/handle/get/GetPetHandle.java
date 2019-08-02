@@ -72,7 +72,6 @@ public class GetPetHandle extends ManagerHandle {
                 if ("fightingPet".equals(t)) {
                     //宠物信息
                     mapBody.put("fightingPet", fightingPet);
-
                 } else if ("petSkillBoard".equals(t)) {
                     //技能盘信息
                     mapBody.put("petSkillBoard", this.getSkillBoard(fightingPet));

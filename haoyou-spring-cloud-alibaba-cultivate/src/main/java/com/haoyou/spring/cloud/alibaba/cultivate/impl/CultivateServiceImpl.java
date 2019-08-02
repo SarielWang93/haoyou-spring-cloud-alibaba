@@ -361,6 +361,7 @@ public class CultivateServiceImpl implements CultivateService {
         CyrrencyUseMsg deserialize = sendMsgUtil.deserialize(req.getMsg(), CyrrencyUseMsg.class);
         deserialize.setUser(user);
 
+        mapBody.put("type",deserialize.getType());
 
         int bkMsg = currencyUseService.currencyUse(deserialize);
 

@@ -26,6 +26,7 @@ public class LoginRegisterHandle extends ManagerHandle {
 
     @Override
     public BaseMessage handle(MyRequest req) {
+
         User user = loginService.register(req);
         if(user.getState().equals(ResponseMsg.MSG_SUCCESS)){
             req.setUser(user);
@@ -33,7 +34,8 @@ public class LoginRegisterHandle extends ManagerHandle {
 
             }
         }
-
-        return user.notTooLong();
+        BaseMessage baseMessage = new BaseMessage();
+        baseMessage.setState(user.getState());
+        return baseMessage;
     }
 }

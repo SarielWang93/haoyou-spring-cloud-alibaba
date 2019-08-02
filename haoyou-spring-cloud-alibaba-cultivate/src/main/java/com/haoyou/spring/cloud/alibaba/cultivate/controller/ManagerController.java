@@ -12,6 +12,8 @@ import com.haoyou.spring.cloud.alibaba.commons.entity.PetType;
 import com.haoyou.spring.cloud.alibaba.commons.entity.User;
 import com.haoyou.spring.cloud.alibaba.commons.util.MapperUtils;
 import com.haoyou.spring.cloud.alibaba.commons.util.RedisKeyUtil;
+import com.haoyou.spring.cloud.alibaba.cultivate.service.EmailService;
+import com.haoyou.spring.cloud.alibaba.cultivate.service.RewardService;
 import com.haoyou.spring.cloud.alibaba.cultivate.settle.handle.RankSettleHandle;
 import com.haoyou.spring.cloud.alibaba.pojo.cultivate.PetUpLevMsg;
 import com.haoyou.spring.cloud.alibaba.pojo.cultivate.PropUseMsg;
@@ -42,6 +44,10 @@ public class ManagerController {
     private SendMsgUtil sendMsgUtil;
     @Autowired
     private AwardMapper awardMapper;
+    @Autowired
+    private RewardService rewardService;
+    @Autowired
+    private EmailService emailService;
 
     /**
      * 设置PVE胜利奖励
@@ -268,7 +274,16 @@ public class ManagerController {
         return null;
     }
 
-
+    /**
+     * 分服排名结算
+     * @return
+     */
+    @CrossOrigin
+    @GetMapping(value = "emailTest")
+    public String sendEmail(String userUid) {
+        emailService.sendEmail(userUid,"emailTest","啊合适的功夫还是规范化飞过速度发货速度发货",rewardService.getAward("emailTest"));
+        return "success";
+    }
 
 
     @Autowired

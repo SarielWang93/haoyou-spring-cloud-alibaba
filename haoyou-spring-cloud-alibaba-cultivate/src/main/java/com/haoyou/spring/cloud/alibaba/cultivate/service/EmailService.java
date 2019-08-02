@@ -1,5 +1,6 @@
 package com.haoyou.spring.cloud.alibaba.cultivate.service;
 
+import cn.hutool.core.util.StrUtil;
 import com.haoyou.spring.cloud.alibaba.commons.domain.RedisKey;
 import com.haoyou.spring.cloud.alibaba.commons.domain.ResponseMsg;
 import com.haoyou.spring.cloud.alibaba.commons.domain.SendType;
@@ -43,6 +44,10 @@ public class EmailService {
      * @return
      */
     public boolean sendEmail(String userUid, String title, String text, Award award) {
+
+        if(StrUtil.isEmpty(userUid)){
+            return false;
+        }
 
         Email email = new Email(title, text, award);
         String key = RedisKeyUtil.getKey(RedisKey.USER_AWARD, userUid, RedisKey.EMIL, email.getUid());
