@@ -2,6 +2,7 @@ package com.haoyou.spring.cloud.alibaba.manager.handle.login;
 
 
 import com.haoyou.spring.cloud.alibaba.commons.domain.RedisKey;
+import com.haoyou.spring.cloud.alibaba.commons.domain.ResponseMsg;
 import com.haoyou.spring.cloud.alibaba.commons.domain.SendType;
 import com.haoyou.spring.cloud.alibaba.commons.entity.Server;
 import com.haoyou.spring.cloud.alibaba.commons.entity.User;
@@ -38,23 +39,26 @@ public class LoginHandle extends ManagerHandle {
 
         List<FightingPet> byUser = FightingPet.getByUser(login, redisObjectUtil);
 
-        Map<String,Object> otherMsg = new HashMap<>();
 
-        //宠物个数
-        otherMsg.put("petsCount",byUser.size());
+        if(ResponseMsg.MSG_SUCCESS == login.getState() || ResponseMsg.MSG_LOGINOUT_FIGHTING == login.getState()){
+            Map<String,Object> otherMsg = new HashMap<>();
 
-        //服务器名字
-        Server server = redisObjectUtil.get(RedisKeyUtil.getKey(RedisKey.SERVER, login.getServerId().toString()), Server.class);
-        otherMsg.put("serverName",server.getServerName());
+            //宠物个数
+            otherMsg.put("petsCount",byUser.size());
+
+            //服务器名字
+            Server server = redisObjectUtil.get(RedisKeyUtil.getKey(RedisKey.SERVER, login.getServerId().toString()), Server.class);
+            otherMsg.put("serverName",server.getServerName());
 
 
 
-        //当前服排名
+            //当前服排名
 
-        Long aLong = scoreRankUtil.find(RedisKeyUtil.getKey(RedisKey.RANKING, server.getId().toString()), login);
-        otherMsg.put("serverRankNum",aLong);
+            Long aLong = scoreRankUtil.find(RedisKeyUtil.getKey(RedisKey.RANKING, server.getId().toString()), login);
+            otherMsg.put("serverRankNum",aLong);
 
-        login.setOtherMsg(otherMsg);
+            login.setOtherMsg(otherMsg);
+        }
 
         return login.notTooLong();
     }

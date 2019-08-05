@@ -120,11 +120,11 @@ public class ManagerController {
      */
     @CrossOrigin
     @GetMapping(value = "getPVEReward")
-    public String getPVEReward(String userUid) {
+    public String getPVEReward(String userUid,String type) {
 
         User user = redisObjectUtil.get(RedisKeyUtil.getKey(RedisKey.USER, userUid), User.class);
 
-        if (cultivateService.rewards(user, RewardType.PVE)) {
+        if (cultivateService.rewards(user, type)) {
             return "success";
         }
         return "err";

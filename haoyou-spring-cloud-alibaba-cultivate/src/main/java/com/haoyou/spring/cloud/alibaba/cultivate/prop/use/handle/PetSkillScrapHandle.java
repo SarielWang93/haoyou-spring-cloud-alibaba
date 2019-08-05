@@ -100,6 +100,10 @@ public class PetSkillScrapHandle extends PeopUseHandle {
         }
         WeightRandom<Skill> petTypeWeightRandom = RandomUtil.weightRandom(weightObjs);
         Skill skill = petTypeWeightRandom.next();
+        if(skill == null){
+            rt.setState(ResponseMsg.MSG_ERR);
+            return rt;
+        }
 
         Prop prop1 = redisObjectUtil.get(RedisKeyUtil.getKey(RedisKey.PROP, "PetSkill"), Prop.class);
         prop1.setProperty1(skill.getL10n());

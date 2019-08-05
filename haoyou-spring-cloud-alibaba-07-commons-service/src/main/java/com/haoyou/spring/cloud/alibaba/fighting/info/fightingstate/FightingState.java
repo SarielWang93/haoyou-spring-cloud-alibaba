@@ -139,7 +139,6 @@ public class FightingState implements Serializable {
     private List<Resout> resouts;
 
 
-
     /**
      * 并执行操作类
      *
@@ -160,20 +159,20 @@ public class FightingState implements Serializable {
                 //从注册机中获取class
                 this.fightingStateAction = FightingState.fightingStateActionHashMap.get(this.actionType);
             }
-            if(this.fightingStateAction == null){
+            if (this.fightingStateAction == null) {
                 return;
             }
 //            this.fightingStateAction.setFightingPet(fightingPet);
 //            this.fightingStateAction.setFightingState(this);
             //执行操作
-            this.fightingStateAction.excut(this,fightingPet);
+            this.fightingStateAction.excut(this, fightingPet);
 
             /**
              * 状态可以产生结果
              */
-            if(this.resouts.size()>0){
+            if (this.resouts.size() > 0) {
                 for (Resout resout : this.resouts) {
-                    fightingPet.resoutDo(resout,this.quality,this.blockCount);
+                    fightingPet.resoutDo(resout, this.quality, this.blockCount);
                 }
             }
 
@@ -209,12 +208,12 @@ public class FightingState implements Serializable {
         fightingState.setType(state.getType());
         fightingState.setActionType(state.getActionType());
 
-        if(StrUtil.isNotEmpty(state.getDeleteType())){
+        if (StrUtil.isNotEmpty(state.getDeleteType())) {
 
             ArrayList<String> strings = CollUtil.newArrayList(state.getDeleteType().split(" "));
 
-            ArrayList<Integer> dts=new ArrayList<>();
-            for(String dt:strings){
+            ArrayList<Integer> dts = new ArrayList<>();
+            for (String dt : strings) {
                 dts.add(Integer.parseInt(dt));
             }
 
@@ -239,8 +238,8 @@ public class FightingState implements Serializable {
         /**
          * 与消除的块无关时质量利用块的字段可多操作一个参数
          */
-        if(blockCount==0&&quality>0){
-            blockCount=quality+1;
+        if (blockCount == 0 && quality > 0) {
+            blockCount = quality + 1;
         }
         /**
          * 处理消除影响
@@ -257,7 +256,7 @@ public class FightingState implements Serializable {
 
                 //影响属性（百分比，数值，回合数）
                 String eliminateAffectAttrStr = state.getEliminateAttr();
-                if(StrUtil.isNotEmpty(eliminateAffectAttrStr)) {
+                if (StrUtil.isNotEmpty(eliminateAffectAttrStr)) {
                     //操作处理属性，设置值为块数对应值
                     Field eliminateAffectField = FightingStateClass.getDeclaredField(eliminateAffectAttrStr);
                     eliminateAffectField.setAccessible(true);
@@ -274,21 +273,23 @@ public class FightingState implements Serializable {
         /**
          * 处理品质影响
          */
-        if (quality > 0) {
+        if (quality > 0 && quality < 5) {
             try {
                 Field qualityField = stateClass.getDeclaredField(String.format("quality%s", quality));
 
                 qualityField.setAccessible(true);
                 //影响数值
                 Integer qualityAffect = (Integer) qualityField.get(state);
-                //影响属性（百分比，数值，回合数）
-                String qualityAffectAttrStr = state.getQualityAttr();
+                if (qualityAffect != null) {
+                    //影响属性（百分比，数值，回合数）
+                    String qualityAffectAttrStr = state.getQualityAttr();
 
-                if(StrUtil.isNotEmpty(qualityAffectAttrStr)){
-                    //操作处理属性，设置值为块数对应值
-                    Field qualityAffectField = FightingStateClass.getDeclaredField(qualityAffectAttrStr);
-                    qualityAffectField.setAccessible(true);
-                    qualityAffectField.set(fightingState, qualityAffect);
+                    if (StrUtil.isNotEmpty(qualityAffectAttrStr)) {
+                        //操作处理属性，设置值为块数对应值
+                        Field qualityAffectField = FightingStateClass.getDeclaredField(qualityAffectAttrStr);
+                        qualityAffectField.setAccessible(true);
+                        qualityAffectField.set(fightingState, qualityAffect);
+                    }
                 }
 
             } catch (Exception e) {
