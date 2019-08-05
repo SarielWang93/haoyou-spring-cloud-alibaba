@@ -1,0 +1,112 @@
+serverip: 192.168.1.106
+spring:
+  application:
+    name: match
+  redis:
+    database: 0
+    lettuce:
+      pool:
+        max-active: 100
+        max-idle: 100
+        max-wait: -1ms
+        min-idle: 0
+    sentinel:
+      master: mymaster
+      nodes: ${serverip}:26379,${serverip}:26380,${serverip}:26381
+  datasource:
+    type: com.zaxxer.hikari.HikariDataSource
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://${serverip}:3307/xxl?useUnicode=true&characterEncoding=utf-8&useSSL=false
+    username: root
+    password: 930228
+    validation-query: SELECT 1
+    initial-size: 5
+    max-idle: 10
+    max-wait: 10000
+    maximum-pool-size: 100
+    min-idle: 5
+    minEvictableIdleTimeMillis: 300000
+    test-on-borrow: false
+    test-while-idle: true
+    time-between-eviction-runs-millis: 18800
+
+mybatis:
+    type-aliases-package: com.haoyou.spring.cloud.alibaba.commons.entity
+    mapper-locations: classpath:mapper/*.xml
+server:
+  port: 9103
+logging:
+  file: ${user.home}/logs/XXL/${spring.application.name}.log
+  level:
+      root: INFO
+      com.haoyou.spring.cloud.alibaba: DEBUG
+      com.alibaba.nacos.client.naming: ERROR
+      com.alibaba.dubbo: ERROR
+
+dubbo:
+  application:
+    name: ${spring.application.name}
+    logger: slf4j
+  protocol:
+    id: dubbo
+    name: dubbo
+    port: 9203
+    status: server
+    serialization: kryo
+    optimizer: com.haoyou.spring.cloud.alibaba.config.SerializationOptimizerImpl
+    threads: 1000
+    queues: 500
+  registry:
+    address: nacos://${serverip}:8848
+    file: ${user.home}/output/dubbo-match.cache
+  metadata-report:
+    address: redis://${serverip}:6379
+  scan:
+    basePackages: com.haoyou.spring.cloud.alibaba
+  provider:
+    threads: 1000
+  consumer:
+    check: false
+    timeout: 20000
+
+management:
+  endpoint:
+    dubbo:
+      enabled: true
+    dubbo-shutdown:
+      enabled: true
+    dubbo-configs:
+      enabled: true
+    dubbo-services:
+      enabled: true
+    dubbo-references:
+      enabled: true
+    dubbo-properties:
+      enabled: true
+  # Dubbo Health
+  health:
+    dubbo:
+      status:
+        ## StatusChecker Name defaults (default : "memory", "load" )
+        defaults: memory
+        ## StatusChecker Name extras (default : empty )
+        extras: load,threadpool
+
+#匹配池设置
+matchpool:
+  #匹配最大时长（秒）
+  save-max-time: 3600
+  #匹配间隔时长（秒）
+  delay: 0/2 * * * * ?
+  #等待接受匹配时长(秒，不精确)
+  accept-max-time: 20
+
+match:
+  service:
+    version: 1.0.0
+fighting:
+  service:
+    version: 1.0.0
+send-msg:
+  service:
+    version: 1.0.0
