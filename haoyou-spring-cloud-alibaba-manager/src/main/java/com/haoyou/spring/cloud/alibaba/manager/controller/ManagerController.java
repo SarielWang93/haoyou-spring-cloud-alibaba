@@ -9,6 +9,7 @@ import com.haoyou.spring.cloud.alibaba.commons.util.MapperUtils;
 import com.haoyou.spring.cloud.alibaba.commons.util.RedisKeyUtil;
 import com.haoyou.spring.cloud.alibaba.fighting.info.FightingPet;
 import com.haoyou.spring.cloud.alibaba.util.RedisObjectUtil;
+import com.haoyou.spring.cloud.alibaba.util.UserUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +29,8 @@ public class ManagerController {
     protected RedisObjectUtil redisObjectUtil;
     @Autowired
     private UserMapper userMapper;
-
+    @Autowired
+    protected UserUtil userUtil;
 
 
     /**
@@ -61,10 +63,7 @@ public class ManagerController {
     @CrossOrigin
     @GetMapping(value = "getUser")
     public String getUser(String userUid) {
-        User user = redisObjectUtil.get(RedisKeyUtil.getKey(RedisKey.USER, userUid), User.class);
-        if (user == null) {
-            user = redisObjectUtil.get(RedisKeyUtil.getKey(RedisKey.OUTLINE_USER, userUid), User.class);
-        }
+        User user = userUtil.getUserByUid(userUid);
         if (user == null) {
             return null;
         }

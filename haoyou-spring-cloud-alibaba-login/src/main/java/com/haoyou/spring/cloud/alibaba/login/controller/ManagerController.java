@@ -9,6 +9,7 @@ import com.haoyou.spring.cloud.alibaba.service.cultivate.CultivateService;
 import com.haoyou.spring.cloud.alibaba.service.login.LoginService;
 import com.haoyou.spring.cloud.alibaba.sofabolt.protocol.MyRequest;
 import com.haoyou.spring.cloud.alibaba.util.RedisObjectUtil;
+import com.haoyou.spring.cloud.alibaba.util.UserUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,16 +26,15 @@ public class ManagerController {
     protected LoginService loginService;
     @Autowired
     protected UserDateSynchronization userDateSynchronization;
+    @Autowired
+    protected UserUtil userUtil;
 
 
     @CrossOrigin
     @GetMapping(value = "saveUserToSql")
     public String saveUserToSql(String userUid){
 
-        User user = redisObjectUtil.get(RedisKeyUtil.getKey(RedisKey.USER, userUid), User.class);
-        if(user == null){
-            user = redisObjectUtil.get(RedisKeyUtil.getKey(RedisKey.OUTLINE_USER, userUid), User.class);
-        }
+        User user = userUtil.getUserByUid(userUid);
         userDateSynchronization.saveSqlUserAndPets(user);
         return "success";
 
