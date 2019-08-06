@@ -34,7 +34,7 @@ public class DailyTaskCheck extends NumericalCheck {
                     String awardType = dailyTask.getAwardType();
                     String type = RedisKeyUtil.getKey(RedisKey.DAILY_TASK, dailyTask.getName());
 
-                    rewardService.upAward(user.getUid(),rewardService.getAward(awardType),type);
+                    rewardService.refreshUpAward(user.getUid(),rewardService.getAward(awardType),type);
 
                     if(dailyTask.getIntegral() > 0){
                         numericalService.numericalAdd(user,"daily_task_integral",dailyTask.getIntegral());

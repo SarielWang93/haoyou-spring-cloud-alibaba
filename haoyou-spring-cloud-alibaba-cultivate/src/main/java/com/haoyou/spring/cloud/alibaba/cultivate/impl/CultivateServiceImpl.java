@@ -259,7 +259,7 @@ public class CultivateServiceImpl implements CultivateService {
     @Override
     public BaseMessage receiveAward(MyRequest req) {
         User user = req.getUser();
-        String type = "null";
+        String type = null;
         try {
             Map<String, Object> pro = MapperUtils.json2map(new String(req.getMsg()));
             type = (String) pro.get("type");
@@ -267,12 +267,16 @@ public class CultivateServiceImpl implements CultivateService {
             e.printStackTrace();
         }
 
+        if (StrUtil.isEmpty(type)){
+            MapBody mapBody = new MapBody();
+            mapBody.setState(ResponseMsg.MSG_ERR);
+            mapBody.put("errMsg", "没有奖励类型！");
+        }
+
         MapBody mapBody = rewardService.receiveAward(user, type);
 
         if (mapBody.getState().equals(ResponseMsg.MSG_SUCCESS)) {
-            if (this.saveUser(user)) {
-
-            } else {
+            if (!this.saveUser(user)){
                 mapBody.setState(ResponseMsg.MSG_ERR);
                 mapBody.put("errMsg", "奖励保存未成功！");
             }
@@ -400,7 +404,6 @@ public class CultivateServiceImpl implements CultivateService {
 
         if(StrUtil.isEmpty(emailUid)){
             emailService.emailAll(user,emailDoMsg.getType());
-
         }else{
             return emailService.emailOne(user,emailDoMsg.getType(),emailUid);
         }

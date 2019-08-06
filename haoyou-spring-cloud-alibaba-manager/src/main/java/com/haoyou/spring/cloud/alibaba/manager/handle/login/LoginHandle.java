@@ -4,6 +4,7 @@ package com.haoyou.spring.cloud.alibaba.manager.handle.login;
 import com.haoyou.spring.cloud.alibaba.commons.domain.RedisKey;
 import com.haoyou.spring.cloud.alibaba.commons.domain.ResponseMsg;
 import com.haoyou.spring.cloud.alibaba.commons.domain.SendType;
+import com.haoyou.spring.cloud.alibaba.commons.entity.Email;
 import com.haoyou.spring.cloud.alibaba.commons.entity.Server;
 import com.haoyou.spring.cloud.alibaba.commons.entity.User;
 import com.haoyou.spring.cloud.alibaba.commons.message.BaseMessage;
@@ -16,9 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * 登录处理
@@ -50,13 +49,19 @@ public class LoginHandle extends ManagerHandle {
             Server server = redisObjectUtil.get(RedisKeyUtil.getKey(RedisKey.SERVER, login.getServerId().toString()), Server.class);
             otherMsg.put("serverName",server.getServerName());
 
-
-
             //当前服排名
-
             Long aLong = scoreRankUtil.find(RedisKeyUtil.getKey(RedisKey.RANKING, server.getId().toString()), login);
             otherMsg.put("serverRankNum",aLong);
 
+            //未读邮件数量
+            TreeMap<Date, Email> emails = userUtil.getEmails(login);
+            int i = 0;
+            for(Email email1:emails.values()){
+                if(!email1.isHaveRead()){
+                    i++;
+                }
+            }
+            otherMsg.put("emailsCount",i);
             login.setOtherMsg(otherMsg);
         }
 

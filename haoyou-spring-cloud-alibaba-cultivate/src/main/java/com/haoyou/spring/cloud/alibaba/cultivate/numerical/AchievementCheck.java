@@ -51,7 +51,7 @@ public class AchievementCheck extends NumericalCheck {
 
                 String type = RedisKeyUtil.getKey(RedisKey.ACHIEVEMENT, achievement.getName(), achievementAim.getPriorityOrder().toString());
 
-                rewardService.upAward(userNumerical.getUserUid(), award, type);
+                rewardService.refreshUpAward(userNumerical.getUserUid(), award, type);
             }
         }
 

@@ -6,10 +6,7 @@ import com.haoyou.spring.cloud.alibaba.commons.mapper.PetMapper;
 import com.haoyou.spring.cloud.alibaba.commons.mapper.ServerMapper;
 import com.haoyou.spring.cloud.alibaba.commons.mapper.UserMapper;
 import com.haoyou.spring.cloud.alibaba.commons.mapper.UserNumericalMapper;
-import com.haoyou.spring.cloud.alibaba.cultivate.service.PropUseService;
-import com.haoyou.spring.cloud.alibaba.cultivate.service.RewardService;
-import com.haoyou.spring.cloud.alibaba.cultivate.service.SkillConfigService;
-import com.haoyou.spring.cloud.alibaba.cultivate.service.SettlementService;
+import com.haoyou.spring.cloud.alibaba.cultivate.service.*;
 import com.haoyou.spring.cloud.alibaba.redis.service.ScoreRankService;
 import com.haoyou.spring.cloud.alibaba.util.RedisObjectUtil;
 import com.haoyou.spring.cloud.alibaba.util.ScoreRankUtil;
@@ -51,6 +48,10 @@ public abstract class SettleHandle {
     protected PropUseService propUseService;
     @Autowired
     protected UserUtil userUtil;
+    @Autowired
+    protected EmailService emailService;
+
+
 
     protected DateTime date;
     protected List<User> users =null;
@@ -77,12 +78,14 @@ public abstract class SettleHandle {
      */
     public abstract void handle();
 
-    public void doHandle(DateTime date){
-        this.users = userUtil.allUser();
-        this.date = date;
+    public void doHandle(){
         //定时结算
         if (this.chackDate()) {
-            this.handle();
+            try {
+                this.handle();
+            }catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 

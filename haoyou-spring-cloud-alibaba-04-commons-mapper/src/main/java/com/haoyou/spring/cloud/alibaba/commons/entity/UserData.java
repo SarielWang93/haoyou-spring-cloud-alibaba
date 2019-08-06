@@ -72,4 +72,16 @@ public class UserData implements Serializable {
     @Column(name = "monthly_card_extreme_award")
     private String monthlyCardExtremeAward;
 
+
+    /**
+     * 购买的基金
+     */
+    private byte[] funds;
+
+
+    /**
+     * 邮件
+     */
+    private byte[] emails;
+
 }

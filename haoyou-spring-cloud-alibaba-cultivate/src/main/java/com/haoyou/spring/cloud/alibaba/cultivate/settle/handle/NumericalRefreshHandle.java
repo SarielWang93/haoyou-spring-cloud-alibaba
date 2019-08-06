@@ -63,19 +63,12 @@ public class NumericalRefreshHandle extends SettleHandle {
             if(!userNumerical.getValue().equals(0)){
                 //如果有缓存则缓存清零，否则数据库清零
                 String userUid = userNumerical.getUserUid();
-                String userKey = RedisKeyUtil.getKey(RedisKey.USER, userUid);
-                User user = redisObjectUtil.get(userKey, User.class);
+                User user = userUtil.getUserByUid(userUid);
                 if(user == null){
-                    userKey = RedisKeyUtil.getKey(RedisKey.OUTLINE_USER, userUid);
-                    user = redisObjectUtil.get(userKey, User.class);
-                }
-                if(user == null){
-                    userNumerical.setValue(0L);
-                    userNumericalMapper.updateByPrimaryKeySelective(userNumerical);
+                   continue;
                 }else{
                     user.getUserNumericalMap().get("numericalName").setValue(0L);
-                    user.setLastUpdateDate(new Date());
-                    redisObjectUtil.save(userKey,user);
+                    userUtil.saveUser(user);
                 }
             }
         }

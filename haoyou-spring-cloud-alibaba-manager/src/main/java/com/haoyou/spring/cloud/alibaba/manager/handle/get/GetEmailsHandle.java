@@ -41,23 +41,18 @@ public class GetEmailsHandle extends ManagerHandle {
 
         User user = req.getUser();
 
-        String lkKey = RedisKeyUtil.getlkKey(RedisKey.USER_AWARD, user.getUid(), RedisKey.EMIL);
-
-
-        HashMap<String, Email> stringEmailHashMap = redisObjectUtil.getlkMap(lkKey, Email.class);
+        TreeMap<Date, Email> emailsTreeMap= userUtil.getEmails(user);
 
         int whileDestroy = 0;
 
-        TreeMap<Long, Email> emailTreeMap = new TreeMap<>();
-        for (Email email : stringEmailHashMap.values()) {
-            emailTreeMap.put(email.getCreatDate().getTime(), email);
+        for (Email email : emailsTreeMap.values()) {
             if ((new Date().getTime() - email.getCreatDate().getTime()) > (Email.EMAIL_ALIVE_TIME - Email.EMAIL_ALIVE_LIMIT)
                     && !this.emailOver(email)) {
                 whileDestroy++;
             }
         }
 
-        ArrayList<Email> emails = CollUtil.newArrayList(emailTreeMap.values());
+        ArrayList<Email> emails = CollUtil.newArrayList(emailsTreeMap.values());
         mapBody.put("emails", emails);
         mapBody.put("whileDestroy", whileDestroy);
         mapBody.setState(ResponseMsg.MSG_SUCCESS);

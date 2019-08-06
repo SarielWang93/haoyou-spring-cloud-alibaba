@@ -4,11 +4,16 @@ import cn.hutool.core.lang.Console;
 import cn.hutool.core.text.StrBuilder;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.RandomUtil;
+import com.alipay.remoting.exception.CodecException;
+import com.alipay.remoting.serialization.Serializer;
+import com.alipay.remoting.serialization.SerializerManager;
+import com.haoyou.spring.cloud.alibaba.commons.entity.Fund;
 import com.haoyou.spring.cloud.alibaba.commons.entity.User;
 import com.haoyou.spring.cloud.alibaba.commons.mapper.HiFightingRoomMapper;
 import com.haoyou.spring.cloud.alibaba.commons.mapper.UserMapper;
 import com.haoyou.spring.cloud.alibaba.commons.util.HttpUtils;
 import com.haoyou.spring.cloud.alibaba.commons.util.MapperUtils;
+import com.haoyou.spring.cloud.alibaba.commons.util.ZIP;
 import com.haoyou.spring.cloud.alibaba.redis.service.RedisService;
 import com.haoyou.spring.cloud.alibaba.redis.service.ScoreRankService;
 import com.haoyou.spring.cloud.alibaba.serialization.JsonSerializer;
@@ -62,7 +67,22 @@ public class ManagerTest {
 
 
 
-    public static void main(String[] args) throws InterruptedException{
+    public static void main(String[] args) throws InterruptedException, CodecException {
+
+
+//        List<Fund> fundsTreeMap = new ArrayList<>();
+//        fundsTreeMap.add(new Fund());
+//        fundsTreeMap.add(new Fund());
+//        fundsTreeMap.add(new Fund());
+//        fundsTreeMap.add(new Fund());
+//        Serializer serializer = SerializerManager.getSerializer(SerializerManager.Hessian2);
+//        byte[] bytes = ZIP.gZip(serializer.serialize(fundsTreeMap));
+//        List<Fund> deserialize = serializer.deserialize(ZIP.unGZip(bytes), List.class.getName());
+//
+//        for(Fund  fund :deserialize){
+//            Console.log(fund);
+//        }
+
 
     }
 

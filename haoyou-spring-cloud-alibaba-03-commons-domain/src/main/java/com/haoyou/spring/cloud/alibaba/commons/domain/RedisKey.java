@@ -2,7 +2,7 @@ package com.haoyou.spring.cloud.alibaba.commons.domain;
 
 public class RedisKey {
     public static final String USER = "user_login";
-    public static final String EMIL = "emil";
+
     public static final String USER_COUNT = "userCount";
     public static final String OUTLINE_USER = "outline_user";
 
@@ -17,6 +17,8 @@ public class RedisKey {
 
     public static final String NUMERICAL = "numerical";
     public static final String ACHIEVEMENT = "achievement";
+
+    public static final String FUNDS = "funds";
 
     public static final String DAILY_TASK = "daily_task";
     public static final String DAILY_CHECK_IN = "daily_check_in";

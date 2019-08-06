@@ -6,15 +6,19 @@ import com.haoyou.spring.cloud.alibaba.commons.domain.ResponseMsg;
 import com.haoyou.spring.cloud.alibaba.commons.domain.SendType;
 import com.haoyou.spring.cloud.alibaba.commons.entity.Award;
 import com.haoyou.spring.cloud.alibaba.commons.entity.User;
+import com.haoyou.spring.cloud.alibaba.commons.message.MapBody;
 import com.haoyou.spring.cloud.alibaba.commons.util.RedisKeyUtil;
 import com.haoyou.spring.cloud.alibaba.commons.entity.Email;
 import com.haoyou.spring.cloud.alibaba.util.RedisObjectUtil;
 import com.haoyou.spring.cloud.alibaba.util.SendMsgUtil;
+import com.haoyou.spring.cloud.alibaba.util.UserUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.TreeMap;
 
 /**
  * @author wanghui
@@ -34,6 +38,10 @@ public class EmailService {
     private SendMsgUtil sendMsgUtil;
     @Autowired
     private RewardService rewardService;
+    @Autowired
+    private UserUtil userUtil;
+
+
 
     /**
      * 发送邮件
@@ -48,16 +56,29 @@ public class EmailService {
         if(StrUtil.isEmpty(userUid)){
             return false;
         }
+        User userByUid = userUtil.getUserByUid(userUid);
+
 
         Email email = new Email(title, text, award);
-        String key = RedisKeyUtil.getKey(RedisKey.USER_AWARD, userUid, RedisKey.EMIL, email.getUid());
 
-        if (redisObjectUtil.save(key, email, Email.EMAIL_ALIVE_TIME)) {
-            sendMsgUtil.sendMsgOneNoReturn(userUid, SendType.EMIL, email);
-            return true;
+        userUtil.addEmail(userByUid, email);
+
+        userUtil.saveUser(userByUid);
+
+        //发送新的未读邮件数量
+        TreeMap<Date, Email> emails = userUtil.getEmails(userByUid);
+        int i = 0;
+        for(Email email1:emails.values()){
+            if(!email1.isHaveRead()){
+                i++;
+            }
         }
+        MapBody mapBody = new MapBody();
+        mapBody.put("emailsCount",i);
+        mapBody.setState(ResponseMsg.MSG_SUCCESS);
+        sendMsgUtil.sendMsgOneNoReturn(userUid, SendType.EMIL, mapBody);
+        return true;
 
-        return false;
     }
 
     /**
@@ -69,13 +90,36 @@ public class EmailService {
      * @return
      */
     public Email emailOne(User user, int type, String emailUid) {
-        String key = RedisKeyUtil.getKey(RedisKey.USER_AWARD, user.getUid(), RedisKey.EMIL, emailUid);
-        Email email = redisObjectUtil.get(key, Email.class);
-        this.emailDo(key, user, email, type);
+        TreeMap<Date, Email> emails = userUtil.getEmails(user);
+
+        //获取邮件对象
+        Email email = null;
+
+        for(Email email1 : emails.values()){
+            if(email1.getUid().equals(emailUid)){
+                email = email1;
+            }
+        }
+        if(email == null){
+            email = new Email();
+            email.setState(ResponseMsg.MSG_ERR);
+            return email;
+        }
+
+        //操作邮件
+        boolean b = this.emailDo(user, email, type);
+
+
+        //返回信息
         if(type == 3){
             email = new Email();
         }
-        email.setState(ResponseMsg.MSG_SUCCESS);
+        if(b){
+            email.setState(ResponseMsg.MSG_SUCCESS);
+        }else{
+            email.setState(ResponseMsg.MSG_ERR);
+        }
+
         return email;
     }
 
@@ -86,13 +130,10 @@ public class EmailService {
      * @param type 1：领取奖励   2：已读 3：删除
      */
     public void emailAll(User user, int type) {
-        String lkKey = RedisKeyUtil.getlkKey(RedisKey.USER_AWARD, user.getUid(), RedisKey.EMIL);
-        HashMap<String, Email> stringEmailHashMap = redisObjectUtil.getlkMap(lkKey, Email.class);
+        TreeMap<Date, Email> emails = userUtil.getEmails(user);
 
-        for (Map.Entry<String, Email> entry : stringEmailHashMap.entrySet()) {
-            String key = entry.getKey();
-            Email email = entry.getValue();
-            this.emailDo(key, user, email, type);
+        for (Email email : emails.values()) {
+            this.emailDo(user, email, type);
         }
 
     }
@@ -100,31 +141,37 @@ public class EmailService {
     /**
      * 邮件操作
      *
-     * @param key
      * @param user
      * @param email
-     * @param type
+     * @param type 1：领取奖励   2：已读 3：删除
      */
-    private void emailDo(String key, User user, Email email, int type) {
+    private boolean emailDo(User user, Email email, int type) {
 
         switch (type) {
             case 1:
-                email.setHaveRead(true);
+                if(!email.isHaveRead()){
+                    email.setHaveRead(true);
+                    userUtil.addEmail(user,email);
+                    return true;
+                }
                 break;
             case 2:
-                email.setHaveRead(true);
-                this.emailReceive(user, email);
+                if(!email.isHaveRead()){
+                    email.setHaveRead(true);
+                    if(this.emailReceive(user, email)){
+                        userUtil.addEmail(user,email);
+                        return true;
+                    }
+                }
                 break;
             case 3:
                 if (email.isHaveRead() && (email.getAward() == null || email.getAward().isUsed())) {
-                    redisObjectUtil.delete(key);
+                    userUtil.deleteEmail(user,email);
+                    return true;
                 }
                 break;
         }
-
-        if (type != 3) {
-            redisObjectUtil.save(key, email);
-        }
+        return false;
     }
 
 
@@ -134,14 +181,16 @@ public class EmailService {
      * @param user
      * @param email
      */
-    private void emailReceive(User user, Email email) {
+    private boolean emailReceive(User user, Email email) {
 
         Award award = email.getAward();
-        if (award != null) {
+        if (award != null && !award.isUsed()) {
             if (rewardService.doAward(user, award)) {
                 award.setUsed(true);
+                return true;
             }
         }
+        return false;
 
     }
 

@@ -2,8 +2,11 @@ package com.haoyou.spring.cloud.alibaba.cultivate.service;
 
 import cn.hutool.core.date.DateTime;
 import cn.hutool.core.date.DateUtil;
+import com.haoyou.spring.cloud.alibaba.commons.entity.User;
 import com.haoyou.spring.cloud.alibaba.cultivate.settle.handle.SettleHandle;
+import com.haoyou.spring.cloud.alibaba.util.UserUtil;
 import lombok.Data;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -27,6 +30,9 @@ public class SettlementService {
         handleList.add(settleHandle);
     }
 
+
+    @Autowired
+    protected UserUtil userUtil;
     /**
      * 每隔一小时，检查结算
      */
@@ -34,9 +40,11 @@ public class SettlementService {
     public void inspect() {
 
         DateTime date = DateUtil.date();
-
+        List<User> users = userUtil.allUser();
         for (SettleHandle settleHandle : handleList) {
-            settleHandle.doHandle(date);
+            settleHandle.setUsers(users);
+            settleHandle.setDate(date);
+            settleHandle.doHandle();
         }
 
     }

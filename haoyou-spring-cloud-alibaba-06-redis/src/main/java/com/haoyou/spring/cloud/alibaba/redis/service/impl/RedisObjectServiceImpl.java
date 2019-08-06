@@ -50,14 +50,14 @@ public class RedisObjectServiceImpl implements RedisObjectService {
 
     @Override
     public boolean save(RedisObjKV redisObjKV) {
-        logger.info(String.format("save  %s", redisObjKV.getKey()));
+        logger.debug(String.format("save  %s", redisObjKV.getKey()));
         redisTemplate.opsForValue().set(redisObjKV.getKey(), redisObjKV.getVal(), DEFAULT_EXPIRE, TimeUnit.SECONDS);
         return true;
     }
 
     @Override
     public boolean save(RedisObjKV redisObjKV, long timeout) {
-        logger.info(String.format("save  %s:%s", redisObjKV.getKey(), timeout));
+        logger.debug(String.format("save  %s:%s", redisObjKV.getKey(), timeout));
         if (timeout == -1) {
             redisTemplate.opsForValue().set(redisObjKV.getKey(), redisObjKV.getVal());
             redisTemplate.persist(redisObjKV.getKey());
@@ -68,20 +68,20 @@ public class RedisObjectServiceImpl implements RedisObjectService {
     }
 
     public RedisObjKV get(String key) {
-        logger.info(String.format("get %s", key));
+        logger.debug(String.format("get %s", key));
         return new RedisObjKV(key, (byte[]) redisTemplate.opsForValue().get(key));
     }
 
     @Override
     public boolean delete(String key) {
-        logger.info(String.format("delete %s", key));
+        logger.debug(String.format("delete %s", key));
         return redisTemplate.delete(key);
     }
 
     @Override
     public List<RedisObjKV> getlkMap(String lkkey) {
         if (!lkkey.contains(RedisKey.MATCH_PLAYER_POOL)) {
-            logger.info(String.format("getlkMap %s", lkkey));
+            logger.debug(String.format("getlkMap %s", lkkey));
         }
         List<RedisObjKV> list = new ArrayList<>();
 

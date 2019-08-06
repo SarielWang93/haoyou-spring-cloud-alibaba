@@ -24,11 +24,11 @@ public class DailyCheckInHandle extends SettleHandle {
 
     @Override
     public void handle() {
-        HashMap<String, User> userAllHive = userUtil.getUserAllHive();
+        HashMap<String, User> userAllHive = userUtil.getUserAllCatch();
 
         for (Map.Entry<String, User> entry: userAllHive.entrySet()) {
             User user = entry.getValue();
-            DailyCheckIn dailyCheckIn = redisObjectUtil.deserialize(user.getUserData().getDailyCheckIn(), DailyCheckIn.class);
+            DailyCheckIn dailyCheckIn = userUtil.getDailyCheckIn(user);
             for(Award award:dailyCheckIn.getAwards()){
                 if(!award.isUsed()){
                     String key = RedisKeyUtil.getKey(RedisKey.USER_AWARD, user.getUid(),RedisKey.DAILY_CHECK_IN,award.getType());

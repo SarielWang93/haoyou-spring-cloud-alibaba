@@ -42,6 +42,7 @@ public class SendType {
     public final static int GET_RANK = 55;//获取排行榜
     public final static int GET_EMAILS = 56;//获取邮件列表
     public final static int GET_DAILY_IN = 57;//获取每日签到列表
+    public final static int GET_FUNDS= 58;//获取基金列表
 
     /**
      * 养成 60 - 90

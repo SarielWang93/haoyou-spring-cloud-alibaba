@@ -143,6 +143,20 @@ public class RewardService {
     }
 
     /**
+     * 删除内存中的奖励
+     * @param userUid
+     * @param type
+     * @return
+     */
+    public boolean deleteUpAward(String userUid ,String type){
+        String key = RedisKeyUtil.getKey(RedisKey.USER_AWARD, userUid, type);
+        return redisObjectUtil.delete(key);
+
+    }
+
+
+
+    /**
      * 获取已发放的奖励
      * @param userUid
      * @param type

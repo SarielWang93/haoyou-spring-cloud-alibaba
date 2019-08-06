@@ -50,7 +50,7 @@ public class MonthlyCardHandle extends RMBUseHandle {
             }
         }
         String monthlyCardType = RedisKeyUtil.getKey(RedisKey.MONTHLY_CARD,award.getType());
-        rewardService.upAward(user.getUid(),award,monthlyCardType);
+        rewardService.refreshUpAward(user.getUid(),award,monthlyCardType);
         user.getUserData().setMonthlyCardAward(award.getType());
 
         this.save(user);

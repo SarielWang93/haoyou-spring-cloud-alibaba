@@ -36,7 +36,7 @@ public class MonthlyCardSettleHandle extends SettleHandle {
                 String monthlyCardAward = user.getUserData().getMonthlyCardAward();
                 String monthlyCardType = RedisKeyUtil.getKey(RedisKey.MONTHLY_CARD,monthlyCardAward);
                 Award award =  rewardService.getAward(monthlyCardAward);
-                rewardService.upAward(user.getUid(),award,monthlyCardType);
+                rewardService.refreshUpAward(user.getUid(),award,monthlyCardType);
             }else{
                 redisObjectUtil.deleteAll(RedisKeyUtil.getlkKey(RedisKey.USER_AWARD,user.getUid(),RedisKey.MONTHLY_CARD));
             }
@@ -50,7 +50,7 @@ public class MonthlyCardSettleHandle extends SettleHandle {
                 String monthlyCardExtremeAward = user.getUserData().getMonthlyCardExtremeAward();
                 String monthlyCardExtremeType = RedisKeyUtil.getKey(RedisKey.MONTHLY_CARD_EXTREME,monthlyCardExtremeAward);
                 Award award =  rewardService.getAward(monthlyCardExtremeAward);
-                rewardService.upAward(user.getUid(),award,monthlyCardExtremeType);
+                rewardService.refreshUpAward(user.getUid(),award,monthlyCardExtremeType);
             }else{
                 redisObjectUtil.deleteAll(RedisKeyUtil.getlkKey(RedisKey.USER_AWARD,user.getUid(),RedisKey.MONTHLY_CARD_EXTREME));
             }

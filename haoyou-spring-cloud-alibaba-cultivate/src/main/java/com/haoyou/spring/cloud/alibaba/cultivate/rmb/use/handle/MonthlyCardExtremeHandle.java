@@ -48,7 +48,7 @@ public class MonthlyCardExtremeHandle extends RMBUseHandle {
             }
         }
         String monthlyCardExtremeType = RedisKeyUtil.getKey(RedisKey.MONTHLY_CARD_EXTREME,award.getType());
-        rewardService.upAward(user.getUid(),award,monthlyCardExtremeType);
+        rewardService.refreshUpAward(user.getUid(),award,monthlyCardExtremeType);
         user.getUserData().setMonthlyCardExtremeAward(award.getType());
 
         this.save(user);

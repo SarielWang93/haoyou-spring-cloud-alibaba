@@ -15,6 +15,7 @@ import com.haoyou.spring.cloud.alibaba.pojo.cultivate.RMBUseMsg;
 import com.haoyou.spring.cloud.alibaba.service.cultivate.CultivateService;
 import com.haoyou.spring.cloud.alibaba.util.RedisObjectUtil;
 import com.haoyou.spring.cloud.alibaba.util.SendMsgUtil;
+import com.haoyou.spring.cloud.alibaba.util.UserUtil;
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -41,6 +42,8 @@ public abstract class RMBUseHandle {
 
     @Autowired
     protected CultivateService cultivateService;
+    @Autowired
+    protected UserUtil userUtil;
 
     /**
      * 处理标识
@@ -97,8 +100,10 @@ public abstract class RMBUseHandle {
 
     //月卡
     final static public int MONTHLI_CARD = 1;
-    //月卡
-    final static public int MONTHLI_CARD_EXTREME = 1;
+    //至尊月卡
+    final static public int MONTHLI_CARD_EXTREME = 2;
+    //基金
+    final static public int FUND = 3;
 
     // ********************************     以上为使用类型，以下为返回类型，错误信息     ************************************
 

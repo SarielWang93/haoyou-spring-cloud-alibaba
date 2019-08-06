@@ -147,31 +147,11 @@ public class UserDateSynchronization {
      * @param user
      */
     public void saveSqlUserAndPets(User user) {
-        this.saveSqlUser(user);
+        userUtil.saveSqlUser(user);
         this.saveSqlPet(user);
     }
 
-    /**
-     * 向数据库同步玩家信息
-     *
-     * @param user
-     */
-    public void saveSqlUser(User user) {
-        userMapper.updateByPrimaryKeySelective(user);
 
-        currencyMapper.updateByPrimaryKeySelective(user.getCurrency());
-
-        userDataMapper.updateByPrimaryKeySelective(user.getUserData());
-
-
-
-        for(UserNumerical userNumerical : user.getUserNumericalMap().values()){
-            userNumericalMapper.updateByPrimaryKeySelective(userNumerical);
-        }
-
-
-
-    }
 
     /**
      * 向数据库同步宠物信息

@@ -78,6 +78,10 @@ public class InitData implements ApplicationRunner {
     private AchievementAimsMapper achievementAimsMapper;
     @Autowired
     private DailyTaskMapper dailyTaskMapper;
+    @Autowired
+    private FundMapper fundMapper;
+
+
     private Date lastDo;
 
     @Override
@@ -92,6 +96,10 @@ public class InitData implements ApplicationRunner {
          * 每次加载必须间隔一分钟以上，防止攻击
          */
         if (lastDo == null || now.getTime() - lastDo.getTime() > 60 * 1000) {
+
+
+            //基金列表
+            initFunds();
             //每日任务系统
             initDailyTask();
             //成就系统静态信息
@@ -122,6 +130,20 @@ public class InitData implements ApplicationRunner {
             return true;
         }
         return false;
+    }
+
+    /**
+     * 基金列表
+     */
+    private void initFunds() {
+
+        redisObjectUtil.deleteAll(RedisKeyUtil.getlkKey(RedisKey.FUNDS));
+
+        List<Fund> funds = fundMapper.selectAll();
+        for (Fund fund : funds) {
+            String fundKey = RedisKeyUtil.getKey(RedisKey.FUNDS, fund.getName());
+            redisObjectUtil.save(fundKey, fund, -1);
+        }
     }
 
     /**
