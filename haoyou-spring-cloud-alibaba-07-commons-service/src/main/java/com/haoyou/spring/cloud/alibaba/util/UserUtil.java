@@ -65,6 +65,9 @@ public class UserUtil {
 
         List<User> users = userMapper.selectAll();
 
+        List<User> remove = new ArrayList<>();
+        List<User> add = new ArrayList<>();
+
         for (User user : users) {
             User user1 = redisObjectUtil.get(RedisKeyUtil.getKey(RedisKey.USER, user.getUid()), User.class);
 
@@ -74,9 +77,13 @@ public class UserUtil {
             if (user1 == null) {
                 this.cacheUser(user);
             } else {
-                user = user1;
+                remove.add(user);
+                add.add(user1);
             }
         }
+        users.removeAll(remove);
+        users.addAll(add);
+
         return users;
     }
 
