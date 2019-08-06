@@ -189,7 +189,7 @@ public class IngredientsHandle extends PeopUseHandle {
             prop.setCount(propCount / 5);
 
             propList.add(prop);
-            UserUtil.addProps(user,propList);
+            userUtil.addProps(user,propList);
 
             Award award = new Award();
             award.setPropsList(propList);
@@ -207,7 +207,7 @@ public class IngredientsHandle extends PeopUseHandle {
             prop.setCount(propCount * 5);
 
             propList.add(prop);
-            UserUtil.addProps(user,propList);
+            userUtil.addProps(user,propList);
 
             Award award = new Award();
             award.setPropsList(propList);

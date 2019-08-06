@@ -111,7 +111,7 @@ public class PetSkillScrapHandle extends PeopUseHandle {
         prop1.setProperty3(quality.toString());
         prop1.setProperty4(skill.getUid());
         prop1.setProperty5(skill.getDescribe());
-        UserUtil.addProp(user, prop1);
+        userUtil.addProp(user, prop1);
 
         List<Prop> propList = new ArrayList<>();
         propList.add(prop1);

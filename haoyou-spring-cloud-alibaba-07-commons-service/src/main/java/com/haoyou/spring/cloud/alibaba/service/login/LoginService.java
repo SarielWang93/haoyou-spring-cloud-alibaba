@@ -3,6 +3,8 @@ package com.haoyou.spring.cloud.alibaba.service.login;
 import com.haoyou.spring.cloud.alibaba.commons.entity.User;
 import com.haoyou.spring.cloud.alibaba.sofabolt.protocol.MyRequest;
 
+import java.util.List;
+
 /**
  * 调用manager服务
  */

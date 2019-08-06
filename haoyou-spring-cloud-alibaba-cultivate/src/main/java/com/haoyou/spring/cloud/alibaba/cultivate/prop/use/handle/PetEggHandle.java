@@ -75,7 +75,7 @@ public class PetEggHandle extends PeopUseHandle {
         }
         spiritual.setCount(count);
 
-        UserUtil.addProp(user,spiritual);
+        userUtil.addProp(user,spiritual);
 
         //数值系统
         cultivateService.numericalAdd(user,"pet_egg",1L);

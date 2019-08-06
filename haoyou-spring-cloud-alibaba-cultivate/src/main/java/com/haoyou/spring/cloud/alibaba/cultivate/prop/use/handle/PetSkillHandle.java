@@ -75,7 +75,7 @@ public class PetSkillHandle extends PeopUseHandle {
         Prop prop1 = redisObjectUtil.get(RedisKeyUtil.getKey(RedisKey.PROP, "PetSkillScrap"), Prop.class);
         prop1.setProperty1("4");
         prop1.setCount(count);
-        UserUtil.addProp(user,prop1);
+        userUtil.addProp(user,prop1);
 
         List<Prop> propList = new ArrayList<>();
         propList.add(prop1);

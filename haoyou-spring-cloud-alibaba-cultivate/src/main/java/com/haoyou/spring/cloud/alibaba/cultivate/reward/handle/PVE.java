@@ -51,7 +51,7 @@ public class PVE extends RewardHandle {
          */
 
 
-        Award award = new Award().init(100,20,100,100,props);
+        Award award = new Award().init(100,20,100,100,props).notToLong();
 
         return award;
     }

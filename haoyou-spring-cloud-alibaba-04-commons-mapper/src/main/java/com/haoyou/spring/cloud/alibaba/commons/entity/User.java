@@ -133,6 +133,9 @@ public class User extends BaseMessage implements Serializable {
         if (this.currency != null) {
             this.currency.setProps(null);
         }
+        if (this.userData!= null) {
+            this.userData.setDailyCheckIn(null);
+        }
         this.platformParam = null;
         this.userNumericalMap = null;
         this.password = null;

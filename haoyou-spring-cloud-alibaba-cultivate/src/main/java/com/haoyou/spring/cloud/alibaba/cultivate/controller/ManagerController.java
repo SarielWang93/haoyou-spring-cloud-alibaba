@@ -63,16 +63,14 @@ public class ManagerController {
 
         if (awardOld != null) {
             awardOld.init(award.getCoin(), award.getDiamond(), award.getExp(), award.getPetExp(), award.getPropsList());
-
-            redisObjectUtil.save(RedisKeyUtil.getKey(RedisKey.AWARD, award.getType()), awardOld);
-
             awardMapper.updateByPrimaryKeySelective(awardOld);
         }else{
             awardOld = new Award().init(award.getCoin(), award.getDiamond(), award.getExp(), award.getPetExp(), award.getPropsList());
             awardOld.setType(award.getType());
             awardMapper.insertSelective(awardOld);
-            redisObjectUtil.save(RedisKeyUtil.getKey(RedisKey.AWARD, awardOld.getType()), awardOld);
         }
+        awardOld.notToLong();
+        redisObjectUtil.save(RedisKeyUtil.getKey(RedisKey.AWARD, awardOld.getType()), awardOld);
 
 
         return "success";
@@ -89,10 +87,6 @@ public class ManagerController {
     public String getPVEAward(String type) {
         if (StrUtil.isEmpty(type)) {
             HashMap<String, Award> awards = redisObjectUtil.getlkMap(RedisKeyUtil.getlkKey(RedisKey.AWARD), Award.class);
-            for (Award award : awards.values()) {
-                award.setPropsList(award.propList());
-                award.setProps(null);
-            }
             try {
                 return MapperUtils.obj2jsonIgnoreNull(awards.values());
             } catch (Exception e) {
@@ -100,8 +94,6 @@ public class ManagerController {
             }
         } else {
             Award award = redisObjectUtil.get(RedisKeyUtil.getKey(RedisKey.AWARD, type), Award.class);
-            award.setPropsList(award.propList());
-            award.setProps(null);
             try {
                 return MapperUtils.obj2jsonIgnoreNull(award);
             } catch (Exception e) {

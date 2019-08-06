@@ -1,17 +1,14 @@
 package com.haoyou.spring.cloud.alibaba.cultivate.settle.handle;
 
-import cn.hutool.core.date.DateTime;
 import com.haoyou.spring.cloud.alibaba.commons.domain.RedisKey;
 import com.haoyou.spring.cloud.alibaba.commons.entity.Award;
 import com.haoyou.spring.cloud.alibaba.commons.entity.Server;
-import com.haoyou.spring.cloud.alibaba.commons.util.MapperUtils;
 import com.haoyou.spring.cloud.alibaba.commons.util.RedisKeyUtil;
-import com.haoyou.spring.cloud.alibaba.sofabolt.protocol.RankUser;
+import com.haoyou.spring.cloud.alibaba.pojo.bean.RankUser;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author wanghui

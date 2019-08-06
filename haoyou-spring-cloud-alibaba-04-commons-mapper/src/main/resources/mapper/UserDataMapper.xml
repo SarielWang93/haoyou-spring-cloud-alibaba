@@ -12,5 +12,10 @@
     <result column="level" jdbcType="INTEGER" property="level" />
     <result column="exp" jdbcType="INTEGER" property="exp" />
     <result column="up_lev_exp" jdbcType="BIGINT" property="upLevExp" />
+    <result column="daily_check_in" jdbcType="LONGVARBINARY" property="dailyCheckIn" />
+    <result column="monthly_card_date" jdbcType="TIMESTAMP" property="monthlyCardDate" />
+    <result column="monthly_card_award" jdbcType="VARCHAR" property="monthlyCardAward" />
+    <result column="monthly_card_extreme_date" jdbcType="TIMESTAMP" property="monthlyCardExtremeDate" />
+    <result column="monthly_card_extreme_award" jdbcType="VARCHAR" property="monthlyCardExtremeAward" />
   </resultMap>
 </mapper>

@@ -7,6 +7,7 @@ import com.haoyou.spring.cloud.alibaba.fighting.info.FightingPet;
 import com.haoyou.spring.cloud.alibaba.commons.domain.RedisKey;
 import com.haoyou.spring.cloud.alibaba.commons.util.RedisKeyUtil;
 import com.haoyou.spring.cloud.alibaba.util.RedisObjectUtil;
+import com.haoyou.spring.cloud.alibaba.util.UserUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,6 +38,8 @@ public class UserDateSynchronization {
     private CurrencyMapper currencyMapper;
     @Autowired
     private RedisObjectUtil redisObjectUtil;
+    @Autowired
+    private UserUtil userUtil;
 
 
     /**
@@ -72,7 +75,7 @@ public class UserDateSynchronization {
 
         if (!user.isOnLine()) {
 
-            this.cacheUser(user);
+            userUtil.cacheUser(user);
 
             //从数据库获取的pets
             this.cachePet(user);
@@ -87,43 +90,6 @@ public class UserDateSynchronization {
         return false;
     }
 
-    /**
-     * 加载用户
-     * @param user
-     */
-    public void cacheUser(User user) {
-        //加载货币信息
-        com.haoyou.spring.cloud.alibaba.commons.entity.Currency currency = new Currency();
-        currency.setUserUid(user.getUid());
-        user.setCurrency(currencyMapper.selectOne(currency));
-        //加载玩家信息
-        UserData userData = new UserData();
-        userData.setUserUid(user.getUid());
-        user.setUserData(userDataMapper.selectOne(userData));
-        //加载数值系统信息
-        UserNumerical userNumericalselect = new UserNumerical();
-        userNumericalselect.setUserUid(user.getUid());
-        List<UserNumerical> userNumericals = userNumericalMapper.select(userNumericalselect);
-
-        HashMap<String, Numerical> stringNumericalHashMap = redisObjectUtil.getlkMap(RedisKeyUtil.getlkKey(RedisKey.NUMERICAL), Numerical.class);
-        Map<String,UserNumerical> userNumericalMap = new HashMap<>();
-        for(UserNumerical userNumerical: userNumericals){
-            userNumericalMap.put(userNumerical.getNumericalName(),userNumerical);
-        }
-        if (stringNumericalHashMap.size() != userNumericals.size()) {
-            for (Numerical numerical : stringNumericalHashMap.values()){
-                if(!userNumericalMap.containsKey(numerical.getName())){
-                    UserNumerical userNumerical = new UserNumerical();
-                    userNumerical.setUserUid(user.getUid());
-                    userNumerical.setNumericalName(numerical.getName());
-                    userNumerical.setValue(0l);
-                    userNumericalMapper.insertSelective(userNumerical);
-                    userNumericalMap.put(numerical.getName(),userNumerical);
-                }
-            }
-        }
-        user.setUserNumericalMap(userNumericalMap);
-    }
     /**
      * 缓存玩家宠物
      *

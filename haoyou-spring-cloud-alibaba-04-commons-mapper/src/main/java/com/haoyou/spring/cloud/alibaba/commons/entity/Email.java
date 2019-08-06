@@ -21,8 +21,8 @@ public class Email extends BaseMessage implements Serializable {
 
     private static final long serialVersionUID = 8674882322481406010L;
 
-    public static long EMAIL_ALIVE_TIME = 60L * 60L * 24L * 30L;
-
+    public static long EMAIL_ALIVE_TIME = 60L * 60L * 24L * 30L*1000L;
+    public static long EMAIL_ALIVE_LIMIT = 60L * 60L * 24L * 7L*1000L;
 
 
 
@@ -54,4 +54,6 @@ public class Email extends BaseMessage implements Serializable {
         this.haveRead = false;
         this.creatDate = new Date();
     }
+
+
 }

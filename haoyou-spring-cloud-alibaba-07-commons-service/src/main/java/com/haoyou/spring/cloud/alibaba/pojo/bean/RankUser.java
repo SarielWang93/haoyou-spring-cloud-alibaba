@@ -1,4 +1,4 @@
-package com.haoyou.spring.cloud.alibaba.sofabolt.protocol;
+package com.haoyou.spring.cloud.alibaba.pojo.bean;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;

@@ -4,6 +4,7 @@ import com.haoyou.spring.cloud.alibaba.commons.domain.ResponseMsg;
 import com.haoyou.spring.cloud.alibaba.commons.util.MapperUtils;
 import com.haoyou.spring.cloud.alibaba.redis.service.ScoreRankService;
 import com.haoyou.spring.cloud.alibaba.util.ScoreRankUtil;
+import com.haoyou.spring.cloud.alibaba.util.UserUtil;
 import org.apache.dubbo.config.annotation.Reference;
 import com.haoyou.spring.cloud.alibaba.commons.message.BaseMessage;
 import com.haoyou.spring.cloud.alibaba.manager.service.impl.ManagerServiceImpl;
@@ -54,6 +55,10 @@ public abstract class ManagerHandle implements Serializable {
 
     @Autowired
     protected ScoreRankUtil scoreRankUtil;
+
+    @Autowired
+    protected UserUtil userUtil;
+
 
     /**
      * 处理标识

@@ -66,7 +66,7 @@ public class Award extends BaseMessage implements Serializable {
         return this;
     }
 
-    public List<Prop> propList(){
+    public void propList(){
         List<Prop> props = null;
         if (this.props!=null) {
             try {
@@ -77,7 +77,7 @@ public class Award extends BaseMessage implements Serializable {
         } else {
             props = new ArrayList<>();
         }
-        return props;
+        this.propsList = props;
     }
     public void propList(List<Prop> props){
         try {
@@ -85,5 +85,15 @@ public class Award extends BaseMessage implements Serializable {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+
+
+    public Award notToLong(){
+        if(this.props != null && this.propsList == null){
+            this.propList();
+        }
+        this.props = null;
+        return this;
     }
 }

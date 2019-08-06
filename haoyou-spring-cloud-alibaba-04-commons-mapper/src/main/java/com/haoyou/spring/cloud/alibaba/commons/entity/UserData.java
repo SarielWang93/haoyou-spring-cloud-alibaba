@@ -5,6 +5,7 @@ import lombok.Data;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.Date;
 
 @Data
 @JsonIgnoreProperties(value = {"userUid"}, ignoreUnknown = true)
@@ -44,5 +45,31 @@ public class UserData implements Serializable {
     @Column(name = "up_lev_exp")
     private Long upLevExp;
 
+    /**
+     * 每日签到
+     */
+    @Column(name = "daily_check_in")
+    private byte[] dailyCheckIn;
+
+
+    /**
+     * 购买月卡时间
+     */
+    @Column(name = "monthly_card_date")
+    private Date monthlyCardDate;
+
+
+    @Column(name = "monthly_card_award")
+    private String monthlyCardAward;
+
+    /**
+     * 购买至尊月卡时间
+     */
+    @Column(name = "monthly_card_extreme_date")
+    private Date monthlyCardExtremeDate;
+
+
+    @Column(name = "monthly_card_extreme_award")
+    private String monthlyCardExtremeAward;
 
 }

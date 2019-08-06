@@ -36,6 +36,9 @@ public class RewardService {
     @Autowired
     protected SendMsgUtil sendMsgUtil;
 
+    @Autowired
+    protected UserUtil userUtil;
+
 
 
     public boolean rewards(User user, String type) {
@@ -54,6 +57,8 @@ public class RewardService {
 
     public Award getAward(String type){
         Award award =  redisObjectUtil.get(RedisKeyUtil.getKey(RedisKey.AWARD, type),Award.class);
+
+
         if(award == null){
             award = rewardHandleMap.get(type).handle();
         }
@@ -69,9 +74,6 @@ public class RewardService {
      */
     public boolean send(User user, Award award){
         if(sendMsgUtil.connectionIsAlive(user.getUid())){
-
-            award.setPropsList(award.propList());
-            award.setProps(null);
             return sendMsgUtil.sendMsgOneNoReturn(user.getUid(), SendType.AWARD, award);
         }else{
             return false;
@@ -98,7 +100,7 @@ public class RewardService {
 
 
         //增加道具
-        UserUtil.addProps(user,award.propList());
+        userUtil.addProps(user,award.getPropsList());
 
         this.send(user,award);
 

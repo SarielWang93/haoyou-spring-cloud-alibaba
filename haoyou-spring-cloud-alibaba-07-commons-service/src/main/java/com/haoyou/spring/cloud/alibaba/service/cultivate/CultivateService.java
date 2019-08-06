@@ -90,4 +90,11 @@ public interface CultivateService {
      */
     BaseMessage emailDo(MyRequest req);
 
+    /**
+     * 人民币消费
+     * @param req
+     * @return
+     */
+    BaseMessage rmbUse(MyRequest req);
+
 }

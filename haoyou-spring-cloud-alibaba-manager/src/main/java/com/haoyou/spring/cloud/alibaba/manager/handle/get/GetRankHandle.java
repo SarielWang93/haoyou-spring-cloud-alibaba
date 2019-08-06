@@ -9,20 +9,15 @@ import com.haoyou.spring.cloud.alibaba.commons.entity.Server;
 import com.haoyou.spring.cloud.alibaba.commons.entity.User;
 import com.haoyou.spring.cloud.alibaba.commons.message.BaseMessage;
 import com.haoyou.spring.cloud.alibaba.commons.message.MapBody;
-import com.haoyou.spring.cloud.alibaba.commons.util.MapperUtils;
 import com.haoyou.spring.cloud.alibaba.commons.util.RedisKeyUtil;
-import com.haoyou.spring.cloud.alibaba.fighting.info.FightingPet;
 import com.haoyou.spring.cloud.alibaba.manager.handle.ManagerHandle;
 import com.haoyou.spring.cloud.alibaba.sofabolt.protocol.MyRequest;
-import com.haoyou.spring.cloud.alibaba.sofabolt.protocol.RankUser;
+import com.haoyou.spring.cloud.alibaba.pojo.bean.RankUser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * 获取排行榜数据
@@ -70,8 +65,6 @@ public class GetRankHandle extends ManagerHandle {
         String key = RedisKeyUtil.getKey(key1, RedisKey.RANKING);
         Award award = redisObjectUtil.get(key, Award.class);
         if (award != null) {
-            award.setPropsList(award.propList());
-            award.setProps(null);
             mapBody.put("award", award);
         }
 

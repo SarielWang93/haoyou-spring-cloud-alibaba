@@ -112,6 +112,7 @@ public class EmailService {
                 email.setHaveRead(true);
                 break;
             case 2:
+                email.setHaveRead(true);
                 this.emailReceive(user, email);
                 break;
             case 3:

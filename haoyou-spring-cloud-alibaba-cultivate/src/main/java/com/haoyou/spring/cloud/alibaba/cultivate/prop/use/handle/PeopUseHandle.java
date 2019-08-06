@@ -58,6 +58,11 @@ public abstract class PeopUseHandle {
     protected RewardService rewardService;
     @Autowired
     protected CultivateService cultivateService;
+
+
+    @Autowired
+    protected UserUtil userUtil;
+
     /**
      * 处理标识
      */
@@ -100,7 +105,7 @@ public abstract class PeopUseHandle {
                 User user = propUseMsg.getUser();
                 Prop prop = propUseMsg.getProp();
                 prop.setCount(propUseMsg.getPropCount());
-                UserUtil.addProp(user,prop);
+                userUtil.addProp(user,prop);
             }
             return rt;
         }

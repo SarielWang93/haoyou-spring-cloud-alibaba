@@ -41,6 +41,7 @@ public class SendType {
     public final static int GET_PET = 54;//获取宠物信息
     public final static int GET_RANK = 55;//获取排行榜
     public final static int GET_EMAILS = 56;//获取邮件列表
+    public final static int GET_DAILY_IN = 57;//获取每日签到列表
 
     /**
      * 养成 60 - 90
@@ -52,6 +53,7 @@ public class SendType {
     public final static int REC_AWARD = 65;//领取奖励
     public final static int CURRENCY_USE = 66;//货币使用
     public final static int EMAIL_DO = 67;//邮件操作
+    public final static int RMB_USE = 68;//人民币消费
 
 //    *****************************************以上为接受信息类型，以下为主动发送*********************************************************
 

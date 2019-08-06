@@ -19,7 +19,10 @@ public class RedisKey {
     public static final String ACHIEVEMENT = "achievement";
 
     public static final String DAILY_TASK = "daily_task";
+    public static final String DAILY_CHECK_IN = "daily_check_in";
 
+    public static final String MONTHLY_CARD = "monthly_card";
+    public static final String MONTHLY_CARD_EXTREME = "monthly_card_extreme";
 
     public static final String PROP = "prop";
     public static final String AWARD = "award";

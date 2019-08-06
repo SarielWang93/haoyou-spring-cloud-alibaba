@@ -1,6 +1,7 @@
 package com.haoyou.spring.cloud.alibaba.cultivate.settle.handle;
 
 import cn.hutool.core.date.DateTime;
+import com.haoyou.spring.cloud.alibaba.commons.entity.User;
 import com.haoyou.spring.cloud.alibaba.commons.mapper.PetMapper;
 import com.haoyou.spring.cloud.alibaba.commons.mapper.ServerMapper;
 import com.haoyou.spring.cloud.alibaba.commons.mapper.UserMapper;
@@ -13,11 +14,13 @@ import com.haoyou.spring.cloud.alibaba.redis.service.ScoreRankService;
 import com.haoyou.spring.cloud.alibaba.util.RedisObjectUtil;
 import com.haoyou.spring.cloud.alibaba.util.ScoreRankUtil;
 import com.haoyou.spring.cloud.alibaba.util.SendMsgUtil;
+import com.haoyou.spring.cloud.alibaba.util.UserUtil;
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
+import java.util.List;
 
 /**
  * 道具使用类
@@ -46,9 +49,11 @@ public abstract class SettleHandle {
     protected RewardService rewardService;
     @Autowired
     protected PropUseService propUseService;
+    @Autowired
+    protected UserUtil userUtil;
 
     protected DateTime date;
-
+    protected List<User> users =null;
 
     /**
      * 设置类型并注册到处理中心
@@ -73,6 +78,7 @@ public abstract class SettleHandle {
     public abstract void handle();
 
     public void doHandle(DateTime date){
+        this.users = userUtil.allUser();
         this.date = date;
         //定时结算
         if (this.chackDate()) {

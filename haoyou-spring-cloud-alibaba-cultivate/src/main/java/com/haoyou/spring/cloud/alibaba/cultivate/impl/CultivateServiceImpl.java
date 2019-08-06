@@ -58,6 +58,8 @@ public class CultivateServiceImpl implements CultivateService {
     private SettlementService settlementService;
     @Autowired
     private EmailService emailService;
+    @Autowired
+    private RMBUseService rmbUseService;
 
     /**
      * 技能配置处理
@@ -406,6 +408,25 @@ public class CultivateServiceImpl implements CultivateService {
         return mapBody;
 
     }
+
+    /**
+     * 人民币消费
+     *
+     * @param req
+     * @return
+     */
+    @Override
+    public BaseMessage rmbUse(MyRequest req) {
+
+        User user = req.getUser();
+
+        RMBUseMsg rmbUseMsg = sendMsgUtil.deserialize(req.getMsg(), RMBUseMsg.class);
+
+        rmbUseMsg.setUser(user);
+
+        return rmbUseService.rmbUse(rmbUseMsg);
+    }
+
 
 
 

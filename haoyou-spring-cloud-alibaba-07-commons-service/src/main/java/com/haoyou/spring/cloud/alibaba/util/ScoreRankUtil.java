@@ -1,13 +1,11 @@
 package com.haoyou.spring.cloud.alibaba.util;
 
 
-import com.haoyou.spring.cloud.alibaba.commons.entity.Currency;
 import com.haoyou.spring.cloud.alibaba.commons.entity.User;
-import com.haoyou.spring.cloud.alibaba.commons.entity.UserData;
 import com.haoyou.spring.cloud.alibaba.commons.util.MapperUtils;
 import com.haoyou.spring.cloud.alibaba.redis.service.ScoreRankService;
 import com.haoyou.spring.cloud.alibaba.serialization.JsonSerializer;
-import com.haoyou.spring.cloud.alibaba.sofabolt.protocol.RankUser;
+import com.haoyou.spring.cloud.alibaba.pojo.bean.RankUser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

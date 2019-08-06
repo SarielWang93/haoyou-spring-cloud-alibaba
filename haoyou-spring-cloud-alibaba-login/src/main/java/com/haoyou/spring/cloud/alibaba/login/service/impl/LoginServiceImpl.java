@@ -4,17 +4,15 @@ package com.haoyou.spring.cloud.alibaba.login.service.impl;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fescar.spring.annotation.GlobalTransactional;
-import com.haoyou.spring.cloud.alibaba.commons.entity.Currency;
-import com.haoyou.spring.cloud.alibaba.commons.entity.UserData;
-import com.haoyou.spring.cloud.alibaba.commons.entity.UserNumerical;
+import com.haoyou.spring.cloud.alibaba.commons.entity.*;
 import com.haoyou.spring.cloud.alibaba.commons.mapper.CurrencyMapper;
 import com.haoyou.spring.cloud.alibaba.commons.mapper.UserDataMapper;
 import com.haoyou.spring.cloud.alibaba.commons.mapper.UserNumericalMapper;
+import com.haoyou.spring.cloud.alibaba.pojo.bean.DailyCheckIn;
 import com.haoyou.spring.cloud.alibaba.register.Register;
 import org.apache.dubbo.config.annotation.Service;
 import com.haoyou.spring.cloud.alibaba.commons.domain.RedisKey;
 import com.haoyou.spring.cloud.alibaba.commons.domain.ResponseMsg;
-import com.haoyou.spring.cloud.alibaba.commons.entity.User;
 import com.haoyou.spring.cloud.alibaba.commons.mapper.UserMapper;
 import com.haoyou.spring.cloud.alibaba.commons.util.RedisKeyUtil;
 import com.haoyou.spring.cloud.alibaba.login.UserCatch.UserDateSynchronization;
@@ -30,6 +28,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  * 登录有关服务实现类
@@ -87,9 +86,15 @@ public class LoginServiceImpl implements LoginService {
             userIn.setState(ResponseMsg.MSG_LOGIN_WRONG);
             return userIn;
         }
+
+
         user.setState(ResponseMsg.MSG_SUCCESS);
 
 
+        this.loginUpAward(user);
+
+
+        //检查是否在对战中
         if (findFighting(user)) {
             user.setState(ResponseMsg.MSG_LOGINOUT_FIGHTING);
         }
@@ -97,6 +102,29 @@ public class LoginServiceImpl implements LoginService {
 
         return user.notTooLong();
     }
+
+    /**
+     * 各种奖励
+     * @param user
+     */
+    private void loginUpAward(User user){
+        //发放签到奖励
+        DailyCheckIn dailyCheckIn = redisObjectUtil.deserialize(user.getUserData().getDailyCheckIn(), DailyCheckIn.class);
+
+        for(Award award:dailyCheckIn.getAwards()){
+            if(!award.isUsed()){
+                String key = RedisKeyUtil.getKey(RedisKey.USER_AWARD, user.getUid(),RedisKey.DAILY_CHECK_IN,award.getType());
+                Award award1 = redisObjectUtil.get(key, Award.class);
+                if(award1 == null){
+                    redisObjectUtil.save(key,award,-1);
+                }
+                break;
+            }
+        }
+
+    }
+
+
 
     /**
      * 获取玩家当前是否处于战斗中
@@ -158,6 +186,8 @@ public class LoginServiceImpl implements LoginService {
         User user = req.getUser();
         return register.register(user);
     }
+
+
 
     @Override
     public void synchronization() {

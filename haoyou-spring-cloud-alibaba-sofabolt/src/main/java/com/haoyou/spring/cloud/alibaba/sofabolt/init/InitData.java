@@ -205,6 +205,7 @@ public class InitData implements ApplicationRunner {
         redisObjectUtil.deleteAll(RedisKeyUtil.getlkKey(RedisKey.AWARD));
         List<Award> awards = awardMapper.selectAll();
         for (Award award : awards) {
+            award.notToLong();
             String awardKey = RedisKeyUtil.getKey(RedisKey.AWARD, award.getType());
             redisObjectUtil.save(awardKey, award, -1);
         }
