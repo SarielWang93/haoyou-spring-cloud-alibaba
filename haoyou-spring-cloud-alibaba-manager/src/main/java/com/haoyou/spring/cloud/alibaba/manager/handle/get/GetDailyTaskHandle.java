@@ -29,7 +29,7 @@ public class GetDailyTaskHandle extends ManagerHandle {
 
     @Override
     protected void setHandleType() {
-        this.handleType = SendType.GET_RANK;
+        this.handleType = SendType.GET_DAILY_TASK;
     }
 
     @Override
@@ -70,14 +70,19 @@ public class GetDailyTaskHandle extends ManagerHandle {
             }else{
                 award = redisObjectUtil.get(RedisKeyUtil.getKey(RedisKey.AWARD,dailyTask.getAwardType()),Award.class);
             }
-            //完成度
+            //完成度奖励
             if(dailyTask.getName().startsWith("daily_task_integral_")){
                 Map integral = new HashMap();
+                //名称
                 integral.put("name",dailyTask.getName());
+                //目标值
                 integral.put("aim",dailyTask.getAim());
+                //能否领取
                 integral.put("canReceive",canReceive);
+                //奖励
                 integral.put("award",award);
                 if(canReceive){
+                    //奖励领取type
                     integral.put("type",type);
                 }
                 dailyTaskIntegralMsg.add(integral);
@@ -85,13 +90,20 @@ public class GetDailyTaskHandle extends ManagerHandle {
             //每日任务
             else{
                 Map dailyTaskMap = new HashMap();
+                //名称
                 dailyTaskMap.put("name",dailyTask.getName());
+                //当前值
                 dailyTaskMap.put("nowValue",user.getUserNumericalMap().get(dailyTask.getNumericalName()));
+                //目标值
                 dailyTaskMap.put("aim",dailyTask.getAim());
+                //奖励
                 dailyTaskMap.put("award",award);
+                //能否领取
                 dailyTaskMap.put("canReceive",canReceive);
+                //完成度积分
                 dailyTaskMap.put("integral",dailyTask.getIntegral());
                 if(canReceive){
+                    //奖励领取type
                     dailyTaskMap.put("type",type);
                 }
                 dailyTaskMsg.add(dailyTaskMap);
