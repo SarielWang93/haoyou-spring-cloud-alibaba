@@ -6,6 +6,7 @@ import com.haoyou.spring.cloud.alibaba.commons.mapper.PetMapper;
 import com.haoyou.spring.cloud.alibaba.commons.mapper.UserMapper;
 import com.haoyou.spring.cloud.alibaba.commons.message.MapBody;
 import com.haoyou.spring.cloud.alibaba.commons.util.RedisKeyUtil;
+import com.haoyou.spring.cloud.alibaba.cultivate.service.CommodityBuyService;
 import com.haoyou.spring.cloud.alibaba.cultivate.service.CurrencyUseService;
 import com.haoyou.spring.cloud.alibaba.cultivate.service.RMBUseService;
 import com.haoyou.spring.cloud.alibaba.cultivate.service.RewardService;
@@ -45,6 +46,9 @@ public abstract class RMBUseHandle {
     @Autowired
     protected UserUtil userUtil;
 
+    @Autowired
+    protected CommodityBuyService commodityBuyService;
+
     /**
      * 处理标识
      */
@@ -80,6 +84,9 @@ public abstract class RMBUseHandle {
         return handle(rmbUseMsg);
     }
 
+
+
+
     /**
      * 保存user
      *
@@ -106,6 +113,8 @@ public abstract class RMBUseHandle {
     final static public int FUND = 3;
     //终身饲养员
     final static public int LIFETIME_BREEDER = 4;
+    //商品
+    final static public int COMMODITY = 5;
 
     // ********************************     以上为使用类型，以下为返回类型，错误信息     ************************************
 

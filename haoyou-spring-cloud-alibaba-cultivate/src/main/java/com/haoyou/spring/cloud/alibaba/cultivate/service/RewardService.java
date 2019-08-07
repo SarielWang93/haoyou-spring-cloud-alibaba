@@ -86,6 +86,11 @@ public class RewardService {
      * @param award
      */
     public boolean doAward(User user, Award award){
+
+        if(award == null){
+            return false;
+        }
+
         boolean mail=true;
         //增加货币
         user.getCurrency().setCoin(user.getCurrency().getCoin() + award.getCoin());

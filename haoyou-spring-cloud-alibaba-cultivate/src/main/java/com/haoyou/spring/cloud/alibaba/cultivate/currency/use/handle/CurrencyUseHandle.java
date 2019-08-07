@@ -5,6 +5,7 @@ import com.haoyou.spring.cloud.alibaba.commons.entity.User;
 import com.haoyou.spring.cloud.alibaba.commons.mapper.PetMapper;
 import com.haoyou.spring.cloud.alibaba.commons.mapper.UserMapper;
 import com.haoyou.spring.cloud.alibaba.commons.util.RedisKeyUtil;
+import com.haoyou.spring.cloud.alibaba.cultivate.service.CommodityBuyService;
 import com.haoyou.spring.cloud.alibaba.cultivate.service.CurrencyUseService;
 import com.haoyou.spring.cloud.alibaba.cultivate.service.RewardService;
 import com.haoyou.spring.cloud.alibaba.fighting.info.FightingPet;
@@ -12,6 +13,7 @@ import com.haoyou.spring.cloud.alibaba.pojo.cultivate.CyrrencyUseMsg;
 import com.haoyou.spring.cloud.alibaba.service.cultivate.CultivateService;
 import com.haoyou.spring.cloud.alibaba.util.RedisObjectUtil;
 import com.haoyou.spring.cloud.alibaba.util.SendMsgUtil;
+import com.haoyou.spring.cloud.alibaba.util.UserUtil;
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -38,6 +40,11 @@ public abstract class CurrencyUseHandle {
 
     @Autowired
     protected CultivateService cultivateService;
+    @Autowired
+    protected UserUtil userUtil;
+
+    @Autowired
+    protected CommodityBuyService commodityBuyService;
 
     /**
      * 处理标识

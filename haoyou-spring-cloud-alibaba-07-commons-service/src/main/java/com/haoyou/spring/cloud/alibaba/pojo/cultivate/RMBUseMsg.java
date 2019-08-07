@@ -22,7 +22,8 @@ public class RMBUseMsg extends BaseMessage implements Serializable {
     private Integer rmb;
     //消费名称(购买项目的名称)
     private String name;
-
+    //商店名
+    private String storeName;
 
 
 

@@ -35,7 +35,7 @@ public class ManagerController {
     public String saveUserToSql(String userUid){
 
         User user = userUtil.getUserByUid(userUid);
-        userDateSynchronization.saveSqlUserAndPets(user);
+        userUtil.saveSqlUserAndPets(user);
         return "success";
 
     }
@@ -63,9 +63,8 @@ public class ManagerController {
     @CrossOrigin
     @GetMapping(value = "deleteAllUserCatch")
     public String deleteAllUserCatch(){
-        redisObjectUtil.deleteAll(RedisKeyUtil.getlkKey(RedisKey.USER));
-        redisObjectUtil.deleteAll(RedisKeyUtil.getlkKey(RedisKey.OUTLINE_USER));
-        redisObjectUtil.deleteAll(RedisKeyUtil.getlkKey(RedisKey.FIGHT_PETS));
+        userUtil.deleteAllUserCatch();
+        userUtil.cacheAllUserToRedis();
         return "success";
     }
 }

@@ -31,7 +31,7 @@ public class GetMonthlyCardHandle extends ManagerHandle {
 
     @Override
     protected void setHandleType() {
-        this.handleType = SendType.GET_DAILY_IN;
+        this.handleType = SendType.GET_MONTHLT_CARD;
     }
 
     @Override

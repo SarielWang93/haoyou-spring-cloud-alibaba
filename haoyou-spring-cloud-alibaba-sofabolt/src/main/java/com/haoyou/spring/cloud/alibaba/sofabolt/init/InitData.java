@@ -7,8 +7,10 @@ import com.haoyou.spring.cloud.alibaba.commons.mapper.*;
 import com.haoyou.spring.cloud.alibaba.commons.util.MapperUtils;
 import com.haoyou.spring.cloud.alibaba.commons.util.RedisKeyUtil;
 import com.haoyou.spring.cloud.alibaba.redis.service.ScoreRankService;
+import com.haoyou.spring.cloud.alibaba.sofabolt.connection.Connections;
 import com.haoyou.spring.cloud.alibaba.util.RedisObjectUtil;
 import com.haoyou.spring.cloud.alibaba.util.ScoreRankUtil;
+import com.haoyou.spring.cloud.alibaba.util.UserUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
@@ -28,7 +30,6 @@ public class InitData implements ApplicationRunner {
 
     @Autowired
     private RedisObjectUtil redisObjectUtil;
-
     @Autowired
     private ScoreRankUtil scoreRankUtil;
     @Autowired
@@ -39,7 +40,6 @@ public class InitData implements ApplicationRunner {
     private ResoutMapper resoutMapper;
     @Autowired
     private SkillResoutMapper skillResoutMapper;
-
     @Autowired
     private StateMapper stareMapper;
     @Autowired
@@ -80,7 +80,12 @@ public class InitData implements ApplicationRunner {
     private DailyTaskMapper dailyTaskMapper;
     @Autowired
     private FundMapper fundMapper;
-
+    @Autowired
+    private CommodityMapper commodityMapper;
+    @Autowired
+    private UserUtil userUtil;
+    @Autowired
+    private Connections connections;
 
     private Date lastDo;
 
@@ -97,7 +102,18 @@ public class InitData implements ApplicationRunner {
          */
         if (lastDo == null || now.getTime() - lastDo.getTime() > 60 * 1000) {
 
+            //清空用户缓存
+            HashMap<String, User> userLogin = userUtil.getUserLogin();
 
+            for(User user:userLogin.values()){
+                connections.sendDown(user.getUid());
+            }
+
+            userUtil.saveSqlUserAndPetsAll();
+            userUtil.deleteAllUserCatch();
+
+            //商品信息
+            initCommodity();
             //基金列表
             initFunds();
             //每日任务系统
@@ -126,10 +142,44 @@ public class InitData implements ApplicationRunner {
             initLevLoyalty();
             //加载宠物等级提升所需经验表
             initLevelUpExp();
+
+            userUtil.cacheAllUserToRedis();
+
+
             lastDo = now;
             return true;
         }
         return false;
+    }
+
+    /**
+     * 商品信息
+     */
+    private void initCommodity() {
+
+        redisObjectUtil.deleteAll(RedisKeyUtil.getlkKey(RedisKey.COMMODITY));
+
+        List<Commodity> commodities = commodityMapper.selectAll();
+
+        for (Commodity commodity : commodities) {
+
+            if(commodity.getRefreshTimes() != -1){
+                String numericalMapperName = String.format("commodity_%s",commodity.getName());
+                Numerical numerical = new Numerical();
+                numerical.setName(numericalMapperName);
+                List<Numerical> select = numericalMapper.select(numerical);
+                if(select == null || select.isEmpty()){
+                    numerical.setDescription(commodity.getDescription());
+                    numerical.setL10n(commodity.getL10n());
+                    numerical.setRefresh(commodity.getRefresh());
+                    numericalMapper.insertSelective(numerical);
+                }
+            }
+
+            String commodityKey = RedisKeyUtil.getKey(RedisKey.COMMODITY,commodity.getStoreName(),commodity.getName());
+            redisObjectUtil.save(commodityKey, commodity, -1);
+        }
+
     }
 
     /**

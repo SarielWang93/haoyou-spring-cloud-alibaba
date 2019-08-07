@@ -27,6 +27,13 @@ public class CyrrencyUseMsg extends BaseMessage implements Serializable {
     private String petUid;
     //是否钻石操作
     private boolean diamond;
+
+    //商店名称
+    private String storeName;
+    //商品名称
+    private String commodityName;
+
+
     //用户
     private User user;
 

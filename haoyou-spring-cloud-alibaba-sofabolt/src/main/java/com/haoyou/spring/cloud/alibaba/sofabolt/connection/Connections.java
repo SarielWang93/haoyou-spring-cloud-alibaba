@@ -1,6 +1,10 @@
 package com.haoyou.spring.cloud.alibaba.sofabolt.connection;
 
 
+import com.alipay.remoting.exception.RemotingException;
+import com.haoyou.spring.cloud.alibaba.commons.domain.ResponseMsg;
+import com.haoyou.spring.cloud.alibaba.commons.message.BaseMessage;
+import com.haoyou.spring.cloud.alibaba.util.SendMsgUtil;
 import org.apache.dubbo.config.annotation.Reference;
 import com.alipay.remoting.Connection;
 
@@ -46,6 +50,8 @@ public class Connections {
     private ManagerService managerService;
     @Autowired
     private RedisObjectUtil redisObjectUtil;
+    @Autowired
+    private SendMsgUtil sendMsgUtil;
 
 
     @Value("${sofabolt.connections.heart:2000}")
@@ -188,4 +194,41 @@ public class Connections {
         return false;
 
     }
+
+
+
+
+    /**
+     * 发送强制下线
+     *
+     * @param useruid
+     *
+     */
+    public void sendDown(String useruid){
+        sendDown(useruid,connections.get(useruid));
+    }
+
+    public void sendDown(String useruid, Connection connection) {
+        if(connection == null){
+            return;
+        }
+        BaseMessage close = new BaseMessage();
+        close.setState(ResponseMsg.MSG_ERR);
+        //发送强制下线
+        MyRequest reqx = new MyRequest();
+        reqx.setUseruid(useruid);
+        reqx.setId(SendType.MANDATORY_OFFLINE);
+        reqx.setMsg(sendMsgUtil.serialize(close));
+        try {
+            MyServer.server.oneway(connection, reqx);
+        } catch (RemotingException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+
+
+
+
 }

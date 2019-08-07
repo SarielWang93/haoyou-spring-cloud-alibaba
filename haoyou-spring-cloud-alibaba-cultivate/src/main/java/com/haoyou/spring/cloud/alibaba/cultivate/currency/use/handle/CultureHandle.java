@@ -84,7 +84,6 @@ public class CultureHandle extends CurrencyUseHandle {
         int propCountNow = 0;
         if (cultureMedium != null) {
             propCountNow = cultureMedium.getCount();
-
         }
 
         //所需道具

@@ -7,13 +7,11 @@ import cn.hutool.core.util.RandomUtil;
 import com.haoyou.spring.cloud.alibaba.commons.domain.RedisKey;
 import com.haoyou.spring.cloud.alibaba.commons.entity.*;
 import com.haoyou.spring.cloud.alibaba.commons.entity.Currency;
-import com.haoyou.spring.cloud.alibaba.commons.mapper.CurrencyMapper;
-import com.haoyou.spring.cloud.alibaba.commons.mapper.UserDataMapper;
-import com.haoyou.spring.cloud.alibaba.commons.mapper.UserMapper;
-import com.haoyou.spring.cloud.alibaba.commons.mapper.UserNumericalMapper;
+import com.haoyou.spring.cloud.alibaba.commons.mapper.*;
 import com.haoyou.spring.cloud.alibaba.commons.util.MapperUtils;
 import com.haoyou.spring.cloud.alibaba.commons.util.RedisKeyUtil;
 import com.haoyou.spring.cloud.alibaba.commons.util.ZIP;
+import com.haoyou.spring.cloud.alibaba.fighting.info.FightingPet;
 import com.haoyou.spring.cloud.alibaba.pojo.bean.DailyCheckIn;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -42,6 +40,11 @@ public class UserUtil {
     @Autowired
     private CurrencyMapper currencyMapper;
 
+    @Autowired
+    private PetMapper petMapper;
+    @Autowired
+    private PetSkillMapper petSkillMapper;
+
 
     public HashMap<String, User> getUserLogin() {
         return redisObjectUtil.getlkMap(RedisKeyUtil.getlkKey(RedisKey.USER), User.class);
@@ -56,6 +59,9 @@ public class UserUtil {
         stringUserHashMap.putAll(redisObjectUtil.getlkMap(RedisKeyUtil.getlkKey(RedisKey.OUTLINE_USER), User.class));
         return stringUserHashMap;
     }
+
+
+
     /**
      * 从数据库获取全部user
      *
@@ -137,8 +143,15 @@ public class UserUtil {
     }
 
 
-
-
+    /**
+     * 加载所有用户到redis
+     */
+    public void cacheAllUserToRedis() {
+        List<User> users = this.allUser();
+        for(User user : users ){
+            redisObjectUtil.save(RedisKeyUtil.getKey(RedisKey.OUTLINE_USER,user.getUid()),user);
+        }
+    }
 
     /**
      * 加载用户
@@ -405,6 +418,114 @@ public class UserUtil {
 
 
 
+
+
+    /**
+     * 缓存玩家宠物
+     *
+     * @param user
+     */
+    public void cachePet(User user) {
+        Pet p = new Pet();
+        p.setUserUid(user.getUid());
+        List<Pet> pets = petMapper.select(p);
+        String userUidKey = RedisKeyUtil.getKey(RedisKey.FIGHT_PETS, user.getUid());
+        String allKey = RedisKeyUtil.getlkKey(userUidKey);
+        redisObjectUtil.deleteAll(allKey);
+        for (Pet pet : pets) {
+            //数据库查询出所有技能
+            PetSkill ps = new PetSkill(pet.getUid(), null);
+            List<PetSkill> otherSkills = petSkillMapper.select(ps);
+            pet.setOtherSkill(otherSkills);
+
+            //获取petType
+
+            String petTypeKey = RedisKeyUtil.getKey(RedisKey.PET_TYPE, pet.getTypeUid());
+            PetType petType = redisObjectUtil.get(petTypeKey, PetType.class);
+            pet.setTypeName(petType.getName());
+            pet.setTypeDescription(petType.getDescription());
+            pet.setTypeId(petType.getId());
+
+            String key = RedisKeyUtil.getKey(userUidKey, pet.getUid());
+
+            //初始化宠物，面板属性（战斗属性）
+            new FightingPet(pet, redisObjectUtil).save(key);
+
+        }
+
+    }
+    /**
+     * 向数据库同步宠物信息
+     *
+     * @param user
+     */
+    public void saveSqlPet(User user) {
+        String useruidkey = RedisKeyUtil.getKey(RedisKey.FIGHT_PETS, user.getUid());
+        HashMap<String, FightingPet> fightingPets = redisObjectUtil.getlkMap(RedisKeyUtil.getlkKey(useruidkey), FightingPet.class);
+        for (Map.Entry<String, FightingPet> entry : fightingPets.entrySet()) {
+            //刷新宠物战斗对象缓存时间
+            redisObjectUtil.refreshTime(entry.getKey());
+            /**
+             * 刷新数据库
+             */
+            Pet pet = entry.getValue().getPet();
+            Pet pet1 = petMapper.selectByPrimaryKey(pet.getId());
+            pet.setLastUpdateDate(null);
+
+            if (pet1 != null) {
+                petMapper.updateByPrimaryKeySelective(pet);
+            } else {
+                petMapper.insertSelective(pet);
+                entry.getValue().setRedisObjectUtil(redisObjectUtil);
+                entry.getValue().save();
+            }
+
+
+            PetSkill ps = new PetSkill(entry.getValue().getUid(), null);
+            List<PetSkill> otherSkills = petSkillMapper.select(ps);
+
+            //修改与增加
+            if (entry.getValue().getPet().getOtherSkill() != null) {
+                for (PetSkill petSkill : entry.getValue().getPet().getOtherSkill()) {
+                    PetSkill petSkill1 = petSkillMapper.selectOne(petSkill);
+                    if (petSkill1 == null) {
+                        petSkillMapper.insertSelective(petSkill);
+                    } else if (!petSkill1.equals(petSkill)) {
+                        petSkillMapper.updateByPrimaryKeySelective(petSkill);
+                    }
+                }
+                //删除
+                otherSkills.removeAll(entry.getValue().getPet().getOtherSkill());
+                for (PetSkill petSkill : otherSkills) {
+                    petSkillMapper.delete(petSkill);
+                }
+            }
+
+
+        }
+
+    }
+    /**
+     * redis向数据库同步玩家以及宠物信息
+     *
+     * @param user
+     */
+    public void saveSqlUserAndPets(User user) {
+        this.saveSqlUser(user);
+        this.saveSqlPet(user);
+    }
+    public void saveSqlUserAndPetsAll() {
+        HashMap<String, User> userAllCatch = this.getUserAllCatch();
+        for(User user :userAllCatch.values()){
+            this.saveSqlUserAndPets(user);
+        }
+    }
+
+    public void deleteAllUserCatch(){
+        redisObjectUtil.deleteAll(RedisKeyUtil.getlkKey(RedisKey.USER));
+        redisObjectUtil.deleteAll(RedisKeyUtil.getlkKey(RedisKey.OUTLINE_USER));
+        redisObjectUtil.deleteAll(RedisKeyUtil.getlkKey(RedisKey.FIGHT_PETS));
+    }
 
 
 

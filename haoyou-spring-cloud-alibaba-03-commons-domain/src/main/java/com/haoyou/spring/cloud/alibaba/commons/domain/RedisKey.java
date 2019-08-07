@@ -20,6 +20,9 @@ public class RedisKey {
 
     public static final String FUNDS = "funds";
 
+    public static final String COMMODITY = "commodity";
+
+
     public static final String LIFETIME_BREEDER = "lifetime_breeder";
 
     public static final String DAILY_TASK = "daily_task";

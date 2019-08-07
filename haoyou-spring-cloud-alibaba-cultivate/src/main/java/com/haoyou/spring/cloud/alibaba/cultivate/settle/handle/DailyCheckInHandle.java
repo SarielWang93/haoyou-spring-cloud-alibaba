@@ -41,6 +41,7 @@ public class DailyCheckInHandle extends SettleHandle {
             }
 
             if(dailyCheckIn.allUsed()){
+                redisObjectUtil.deleteAll(RedisKeyUtil.getlkKey(RedisKey.USER_AWARD, user.getUid(), RedisKey.DAILY_CHECK_IN));
                 userUtil.setDailyCheckIn(user);
             }else{
                 userUtil.setDailyCheckIn(user,dailyCheckIn);

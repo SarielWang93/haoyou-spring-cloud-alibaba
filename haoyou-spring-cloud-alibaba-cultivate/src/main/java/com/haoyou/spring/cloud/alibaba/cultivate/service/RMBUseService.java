@@ -42,5 +42,7 @@ public class RMBUseService {
         return RMBUseHandleMap.get(rmbUseMsg.getType()).rmbUse(rmbUseMsg);
     }
 
+    //TODO 创建订单
+
 
 }

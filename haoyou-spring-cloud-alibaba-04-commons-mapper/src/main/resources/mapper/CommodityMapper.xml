@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.haoyou.spring.cloud.alibaba.commons.mapper.CommodityMapper">
+  <resultMap id="BaseResultMap" type="com.haoyou.spring.cloud.alibaba.commons.entity.Commodity">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="name" jdbcType="VARCHAR" property="name" />
+    <result column="l10n" jdbcType="VARCHAR" property="l10n" />
+    <result column="description" jdbcType="VARCHAR" property="description" />
+    <result column="store_name" jdbcType="VARCHAR" property="storeName" />
+    <result column="refresh" jdbcType="INTEGER" property="refresh" />
+    <result column="refresh_times" jdbcType="INTEGER" property="refreshTimes" />
+    <result column="spend_type" jdbcType="VARCHAR" property="spendType" />
+    <result column="price" jdbcType="INTEGER" property="price" />
+    <result column="award_type" jdbcType="VARCHAR" property="awardType" />
+  </resultMap>
+</mapper>
