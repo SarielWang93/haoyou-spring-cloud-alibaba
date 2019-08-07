@@ -48,4 +48,13 @@ public class SettlementService {
         }
 
     }
+
+
+
+    //直接执行所有结算
+    public void doAll() {
+        for (SettleHandle settleHandle : handleList) {
+            settleHandle.handle();
+        }
+    }
 }

@@ -104,6 +104,8 @@ public abstract class RMBUseHandle {
     final static public int MONTHLI_CARD_EXTREME = 2;
     //基金
     final static public int FUND = 3;
+    //终身饲养员
+    final static public int LIFETIME_BREEDER = 4;
 
     // ********************************     以上为使用类型，以下为返回类型，错误信息     ************************************
 

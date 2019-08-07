@@ -47,6 +47,7 @@ public class FundsSettleHandle extends SettleHandle {
                     Award upAward = rewardService.getUpAward(user.getUid(), type);
                     Award award = rewardService.getAward(fund.getAwardType());
 
+                    //未领取则发送邮件
                     if(upAward == null || !upAward.isUsed()){
                         emailService.sendEmail(user.getUid(),fund.getL10n(),fund.getDescription(),award);
                     }
@@ -62,6 +63,9 @@ public class FundsSettleHandle extends SettleHandle {
 
 
             userUtil.deleteFunds(user);
+
+
+            userUtil.saveUser(user);
         }
     }
 

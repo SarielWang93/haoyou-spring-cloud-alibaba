@@ -19,24 +19,26 @@ import java.util.Date;
  * 购买月卡
  */
 @Service
-public class FundHandle extends RMBUseHandle {
+public class LifetimeBreederHandle extends RMBUseHandle {
     @Override
     protected void setHandleType() {
-        this.handleType = FUND;
+        this.handleType = LIFETIME_BREEDER;
     }
 
     @Override
     public MapBody handle(RMBUseMsg rmbUseMsg) {
 
         User user = rmbUseMsg.getUser();
-        String key = RedisKeyUtil.getKey(RedisKey.FUNDS,rmbUseMsg.getName());
-        Fund fund = redisObjectUtil.get(key, Fund.class);
 
-        userUtil.addFund(user,fund);
+        user.getUserData().setLifetimeBreederDate(new Date());
+
 
         //发放每日奖励
-        Award award = rewardService.getAward(fund.getAwardType());
-        rewardService.upAward(user.getUid(),award,key);
+        Award award = rewardService.getAward(RedisKey.LIFETIME_BREEDER);
+
+        rewardService.upAward(user.getUid(),award,RedisKey.LIFETIME_BREEDER);
+
+
 
         this.save(user);
 

@@ -59,7 +59,9 @@ public class ManagerServiceImpl implements ManagerService {
         String useruid = req.getUseruid();
 
 
-        logger.info(String.format("manager-receive：%s %s %s", type, useruid, msgJson));
+        if(type != 2){
+            logger.info(String.format("manager-receive：%s %s %s", type, useruid, msgJson));
+        }
 
 
         User user = null;
@@ -94,7 +96,9 @@ public class ManagerServiceImpl implements ManagerService {
         //处理并返回信息
         BaseMessage baseMessage = managerHandle.handle(req);
 
-        logger.info(String.format("manager-return：%s %s %s", type, useruid, baseMessage));
+        if(type != 2){
+            logger.info(String.format("manager-return：%s %s %s", type, useruid, baseMessage));
+        }
 
         return baseMessage;
 

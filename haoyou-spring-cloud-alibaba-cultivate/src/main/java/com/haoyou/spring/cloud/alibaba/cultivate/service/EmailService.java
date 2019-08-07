@@ -151,6 +151,8 @@ public class EmailService {
             case 1:
                 if(!email.isHaveRead()){
                     email.setHaveRead(true);
+                }
+                if(this.emailReceive(user, email)){
                     userUtil.addEmail(user,email);
                     return true;
                 }
@@ -158,12 +160,9 @@ public class EmailService {
             case 2:
                 if(!email.isHaveRead()){
                     email.setHaveRead(true);
-                    if(this.emailReceive(user, email)){
-                        userUtil.addEmail(user,email);
-                        return true;
-                    }
+                    userUtil.addEmail(user,email);
                 }
-                break;
+                return true;
             case 3:
                 if (email.isHaveRead() && (email.getAward() == null || email.getAward().isUsed())) {
                     userUtil.deleteEmail(user,email);

@@ -18,5 +18,6 @@
     <result column="monthly_card_extreme_date" jdbcType="TIMESTAMP" property="monthlyCardExtremeDate" />
     <result column="monthly_card_extreme_award" jdbcType="VARCHAR" property="monthlyCardExtremeAward" />
     <result column="funds" jdbcType="LONGVARBINARY" property="funds" />
+    <result column="lifetime_breeder_date" jdbcType="TIMESTAMP" property="lifetimeBreederDate" />
   </resultMap>
 </mapper>

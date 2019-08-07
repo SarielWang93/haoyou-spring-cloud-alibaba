@@ -404,8 +404,13 @@ public class CultivateServiceImpl implements CultivateService {
 
         if(StrUtil.isEmpty(emailUid)){
             emailService.emailAll(user,emailDoMsg.getType());
+            this.saveUser(user);
         }else{
-            return emailService.emailOne(user,emailDoMsg.getType(),emailUid);
+            Email email = emailService.emailOne(user, emailDoMsg.getType(), emailUid);
+            if(ResponseMsg.MSG_SUCCESS == email.getState()){
+                this.saveUser(user);
+            }
+            return email;
         }
         mapBody.setState(ResponseMsg.MSG_SUCCESS);
         return mapBody;

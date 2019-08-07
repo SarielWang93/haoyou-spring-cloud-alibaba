@@ -84,4 +84,11 @@ public class UserData implements Serializable {
      */
     private byte[] emails;
 
+
+    /**
+     * 购买终身饲养员时间
+     */
+    @Column(name = "lifetime_breeder_date")
+    private Date lifetimeBreederDate;
+
 }

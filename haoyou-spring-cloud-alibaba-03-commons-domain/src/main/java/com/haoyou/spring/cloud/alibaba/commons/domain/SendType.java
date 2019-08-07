@@ -35,6 +35,7 @@ public class SendType {
     /**
      * 获取信息
      */
+    public final static int GET_LIFETIME_BREEDER = 50;//获取终身饲养员
     public final static int GET_PROPS = 51;//获取仓库信息
     public final static int GET_HALL = 52;//获取首页信息（临时）
     public final static int GET_PETS = 53;//获取宠物列表信息
@@ -44,6 +45,7 @@ public class SendType {
     public final static int GET_DAILY_IN = 57;//获取每日签到列表
     public final static int GET_FUNDS= 58;//获取基金列表
     public final static int GET_DAILY_TASK = 59;//获取每日任务列表
+
 
     /**
      * 养成 60 - 90
