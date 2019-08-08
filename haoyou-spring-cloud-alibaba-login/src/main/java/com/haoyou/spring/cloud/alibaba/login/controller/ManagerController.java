@@ -61,8 +61,8 @@ public class ManagerController {
         return "success";
     }
     @CrossOrigin
-    @GetMapping(value = "deleteAllUserCatch")
-    public String deleteAllUserCatch(){
+    @GetMapping(value = "refreshAllUserCatch")
+    public String refreshAllUserCatch(){
         userUtil.refreshAllUserCatch();
         return "success";
     }
