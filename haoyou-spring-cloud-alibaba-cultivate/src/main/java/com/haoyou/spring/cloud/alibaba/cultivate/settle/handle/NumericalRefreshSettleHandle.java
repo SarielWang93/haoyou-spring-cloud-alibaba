@@ -18,7 +18,7 @@ import java.util.*;
  * 数值系统刷新
  */
 @Service
-public class NumericalRefreshHandle extends SettleHandle {
+public class NumericalRefreshSettleHandle extends SettleHandle {
 
 
     @Override
@@ -34,9 +34,11 @@ public class NumericalRefreshHandle extends SettleHandle {
             Integer refresh = numerical.getRefresh();
 
             //执行日清零，周清零，月清零
-            if (refresh.equals(1) || (dayOfWeek == 2 && refresh.equals(7)) || (dayOfMonth == 1 && refresh.equals(30))) {
-                this.refresh(name);
-            }
+
+             if (refresh.equals(1) || (dayOfWeek == 2 && refresh.equals(7)) || (dayOfMonth == 1 && refresh.equals(30))) {
+                 this.refresh(name);
+             }
+
 
         }
 

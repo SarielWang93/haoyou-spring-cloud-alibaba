@@ -18,7 +18,7 @@ import java.util.TreeMap;
  * @version 1.0
  * @date 2019/7/30 10:42
  * <p>
- * 基金每日奖励刷新
+ * 终身饲养员每日奖励刷新
  */
 @Service
 public class LifetimeBreederSettleHandle extends SettleHandle {

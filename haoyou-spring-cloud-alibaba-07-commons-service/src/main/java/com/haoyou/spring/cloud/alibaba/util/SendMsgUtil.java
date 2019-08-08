@@ -35,6 +35,15 @@ public class SendMsgUtil implements Serializable {
     }
 
     /**
+     * sofabolt服务绕过调用自己
+     *
+     * @param sendMsgService
+     */
+    public void setSendMsgService(SendMsgService sendMsgService){
+        this.sendMsgService = sendMsgService;
+    }
+
+    /**
      * 发送信息T，并返回信息M
      *
      * @param userUid

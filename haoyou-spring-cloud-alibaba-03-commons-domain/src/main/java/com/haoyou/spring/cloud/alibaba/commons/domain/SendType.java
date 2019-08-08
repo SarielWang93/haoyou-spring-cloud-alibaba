@@ -43,7 +43,7 @@ public class SendType {
     public final static int GET_RANK = 55;//获取排行榜
     public final static int GET_EMAILS = 56;//获取邮件列表
     public final static int GET_DAILY_IN = 57;//获取每日签到列表
-    public final static int GET_FUNDS= 58;//获取基金列表
+    public final static int GET_FUNDS = 58;//获取基金列表
     public final static int GET_DAILY_TASK = 59;//获取每日任务列表
     public final static int GET_MONTHLT_CARD = 150;//获取月卡信息
     public final static int GET_COMMODITY = 151;//获取商品信息
@@ -63,18 +63,19 @@ public class SendType {
 
 //    *****************************************以上为接受信息类型，以下为主动发送*********************************************************
 
-    public final static int AWARD=4;//发放奖励
-    public final static int MANDATORY_OFFLINE=5;//强制下线
-    public final static int EMIL=7;//发放邮件
+    public final static int AWARD = 4;//发放奖励
+    public final static int MANDATORY_OFFLINE = 5;//强制下线
+    public final static int EMIL = 7;//发放邮件
+    public final static int SETTLE = 8;//发放结算
 
-    public final static int MATCH_READY=35;//匹配就绪
-    public final static int MATCH_SUCCESE=36;//匹配成功
-    public final static int MATCH_FILD=37;//匹配失败
+    public final static int MATCH_READY = 35;//匹配就绪
+    public final static int MATCH_SUCCESE = 36;//匹配成功
+    public final static int MATCH_FILD = 37;//匹配失败
 
-    public final static int FIGHTING_INIT=21;//战斗初始化
-    public final static int FIGHTING_RESP=22;//战斗返回信息
-    public final static int FIGHTING_REFRESHBOARD=23;//操作刷新棋盘
+    public final static int FIGHTING_INIT = 21;//战斗初始化
+    public final static int FIGHTING_RESP = 22;//战斗返回信息
+    public final static int FIGHTING_REFRESHBOARD = 23;//操作刷新棋盘
 
-    public final static int FIGHTING_INITPET=24;//战斗初始化宠物
+    public final static int FIGHTING_INITPET = 24;//战斗初始化宠物
 
 }

@@ -60,6 +60,9 @@ public class GetMonthlyCardHandle extends ManagerHandle {
             mapBody.put("monthlyCardDate",29-l);
             //当天奖励
             mapBody.put("monthlyCardDaily",award);
+            if(!award.isUsed()){
+                mapBody.put("monthlyCardDailyType",RedisKeyUtil.getKey(RedisKey.MONTHLY_CARD, award.getType()));
+            }
 
         }else{
             for(int i = 1;;i++){

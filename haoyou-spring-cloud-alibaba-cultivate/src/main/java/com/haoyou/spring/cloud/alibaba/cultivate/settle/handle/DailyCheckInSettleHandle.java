@@ -18,7 +18,7 @@ import java.util.*;
  * 每日签到刷新
  */
 @Service
-public class DailyCheckInHandle extends SettleHandle {
+public class DailyCheckInSettleHandle extends SettleHandle {
 
 
 

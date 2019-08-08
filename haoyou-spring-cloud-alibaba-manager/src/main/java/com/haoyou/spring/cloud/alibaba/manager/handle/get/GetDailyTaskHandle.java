@@ -45,7 +45,7 @@ public class GetDailyTaskHandle extends ManagerHandle {
         Map<String, Object> msgMap = this.getMsgMap(req);
 
         //当前完成度
-        mapBody.put("dailyTaskTntegral",user.getUserNumericalMap().get("daily_task_integral"));
+        mapBody.put("dailyTaskTntegral",user.getUserNumericalMap().get("daily_task_integral").getValue());
 
         HashMap<String, DailyTask> stringDailyTaskHashMap = redisObjectUtil.getlkMap(RedisKeyUtil.getlkKey(RedisKey.DAILY_TASK), DailyTask.class);
 
@@ -93,7 +93,7 @@ public class GetDailyTaskHandle extends ManagerHandle {
                 //名称
                 dailyTaskMap.put("name",dailyTask.getName());
                 //当前值
-                dailyTaskMap.put("nowValue",user.getUserNumericalMap().get(dailyTask.getNumericalName()));
+                dailyTaskMap.put("nowValue",user.getUserNumericalMap().get(dailyTask.getNumericalName()).getValue());
                 //目标值
                 dailyTaskMap.put("aim",dailyTask.getAim());
                 //奖励

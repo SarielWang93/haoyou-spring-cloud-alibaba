@@ -1,11 +1,13 @@
 package com.haoyou.spring.cloud.alibaba.cultivate.settle.handle;
 
 import cn.hutool.core.date.DateTime;
+import com.haoyou.spring.cloud.alibaba.commons.domain.SendType;
 import com.haoyou.spring.cloud.alibaba.commons.entity.User;
 import com.haoyou.spring.cloud.alibaba.commons.mapper.PetMapper;
 import com.haoyou.spring.cloud.alibaba.commons.mapper.ServerMapper;
 import com.haoyou.spring.cloud.alibaba.commons.mapper.UserMapper;
 import com.haoyou.spring.cloud.alibaba.commons.mapper.UserNumericalMapper;
+import com.haoyou.spring.cloud.alibaba.commons.message.MapBody;
 import com.haoyou.spring.cloud.alibaba.cultivate.service.*;
 import com.haoyou.spring.cloud.alibaba.redis.service.ScoreRankService;
 import com.haoyou.spring.cloud.alibaba.util.RedisObjectUtil;
@@ -17,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -53,8 +56,10 @@ public abstract class SettleHandle {
 
 
 
+
     protected DateTime date;
-    protected List<User> users =null;
+    protected List<User> users ;
+    protected long runingDays;
 
     /**
      * 设置类型并注册到处理中心
@@ -83,6 +88,17 @@ public abstract class SettleHandle {
         if (this.chackDate()) {
             try {
                 this.handle();
+
+                String settleHandle = this.getClass().getName().replaceAll("SettleHandle", "");
+
+                //向在线玩家发送结算信息
+                HashMap<String, User> userLogin = userUtil.getUserLogin();
+                for(User user:userLogin.values()){
+                    MapBody<String,Object> mapBody = new MapBody<>();
+                    mapBody.put("settleHandle",settleHandle);
+                    sendMsgUtil.sendMsgOneNoReturn(user.getUid(), SendType.SETTLE,mapBody);
+                }
+
             }catch (Exception e) {
                 e.printStackTrace();
             }

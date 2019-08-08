@@ -7,9 +7,11 @@ import com.haoyou.spring.cloud.alibaba.commons.mapper.*;
 import com.haoyou.spring.cloud.alibaba.commons.util.MapperUtils;
 import com.haoyou.spring.cloud.alibaba.commons.util.RedisKeyUtil;
 import com.haoyou.spring.cloud.alibaba.redis.service.ScoreRankService;
+import com.haoyou.spring.cloud.alibaba.service.sofabolt.SendMsgService;
 import com.haoyou.spring.cloud.alibaba.sofabolt.connection.Connections;
 import com.haoyou.spring.cloud.alibaba.util.RedisObjectUtil;
 import com.haoyou.spring.cloud.alibaba.util.ScoreRankUtil;
+import com.haoyou.spring.cloud.alibaba.util.SendMsgUtil;
 import com.haoyou.spring.cloud.alibaba.util.UserUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
@@ -85,17 +87,22 @@ public class InitData implements ApplicationRunner {
     @Autowired
     private UserUtil userUtil;
     @Autowired
-    private Connections connections;
+    private SendMsgService sendMsgService;
+    @Autowired
+    private SendMsgUtil sendMsgUtil;
 
     private Date lastDo;
 
     @Override
     public void run(ApplicationArguments args) {
         //TODO 数据库中的公共数据缓存到内存或redis中
+        //sofabolt服务绕过调用自己
+        sendMsgUtil.setSendMsgService(sendMsgService);
         doInit();
     }
 
     public boolean doInit() {
+
         Date now = new Date();
         /**
          * 每次加载必须间隔一分钟以上，防止攻击
@@ -156,18 +163,18 @@ public class InitData implements ApplicationRunner {
 
         for (Commodity commodity : commodities) {
 
-            if(commodity.getRefreshTimes() != -1){
-                String numericalMapperName = String.format("commodity_%s",commodity.getName());
-                Numerical numerical = new Numerical();
-                numerical.setName(numericalMapperName);
-                List<Numerical> select = numericalMapper.select(numerical);
-                if(select == null || select.isEmpty()){
-                    numerical.setDescription(commodity.getDescription());
-                    numerical.setL10n(commodity.getL10n());
-                    numerical.setRefresh(commodity.getRefresh());
-                    numericalMapper.insertSelective(numerical);
-                }
+
+            String numericalMapperName = String.format("commodity_%s",commodity.getName());
+            Numerical numerical = new Numerical();
+            numerical.setName(numericalMapperName);
+            List<Numerical> select = numericalMapper.select(numerical);
+            if(select == null || select.isEmpty()){
+                numerical.setDescription(commodity.getDescription());
+                numerical.setL10n(commodity.getL10n());
+                numerical.setRefresh(commodity.getRefresh());
+                numericalMapper.insertSelective(numerical);
             }
+
 
             String commodityKey = RedisKeyUtil.getKey(RedisKey.COMMODITY,commodity.getStoreName(),commodity.getName());
             redisObjectUtil.save(commodityKey, commodity, -1);

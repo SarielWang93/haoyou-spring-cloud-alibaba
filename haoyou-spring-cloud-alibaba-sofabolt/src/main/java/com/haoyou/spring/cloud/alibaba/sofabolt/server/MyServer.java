@@ -16,7 +16,7 @@ import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 @Component
-@Order(value = 1)
+@Order(value = 2)
 public class MyServer  implements ApplicationRunner {
     private final static Logger logger = LoggerFactory.getLogger(MyServer.class);
 

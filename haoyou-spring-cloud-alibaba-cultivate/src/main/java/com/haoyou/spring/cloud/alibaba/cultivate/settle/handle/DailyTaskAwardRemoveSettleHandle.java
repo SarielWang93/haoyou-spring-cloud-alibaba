@@ -21,7 +21,7 @@ import java.util.Map;
  * 每日任务清除奖励
  */
 @Service
-public class DailyTaskAwardRemoveHandle extends SettleHandle {
+public class DailyTaskAwardRemoveSettleHandle extends SettleHandle {
 
 
     @Override
