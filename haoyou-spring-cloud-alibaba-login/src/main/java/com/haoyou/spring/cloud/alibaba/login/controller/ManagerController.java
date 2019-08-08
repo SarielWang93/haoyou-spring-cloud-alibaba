@@ -63,8 +63,7 @@ public class ManagerController {
     @CrossOrigin
     @GetMapping(value = "deleteAllUserCatch")
     public String deleteAllUserCatch(){
-        userUtil.deleteAllUserCatch();
-        userUtil.cacheAllUserToRedis();
+        userUtil.refreshAllUserCatch();
         return "success";
     }
 }

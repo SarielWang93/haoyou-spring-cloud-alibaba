@@ -102,15 +102,8 @@ public class InitData implements ApplicationRunner {
          */
         if (lastDo == null || now.getTime() - lastDo.getTime() > 60 * 1000) {
 
-            //清空用户缓存
-            HashMap<String, User> userLogin = userUtil.getUserLogin();
 
-            for(User user:userLogin.values()){
-                connections.sendDown(user.getUid());
-            }
 
-            userUtil.saveSqlUserAndPetsAll();
-            userUtil.deleteAllUserCatch();
 
             //商品信息
             initCommodity();
@@ -143,7 +136,7 @@ public class InitData implements ApplicationRunner {
             //加载宠物等级提升所需经验表
             initLevelUpExp();
 
-            userUtil.cacheAllUserToRedis();
+            userUtil.refreshAllUserCatch();
 
 
             lastDo = now;

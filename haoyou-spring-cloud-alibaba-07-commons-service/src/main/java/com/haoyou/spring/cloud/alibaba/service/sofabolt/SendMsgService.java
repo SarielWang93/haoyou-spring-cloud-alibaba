@@ -19,4 +19,6 @@ public interface SendMsgService {
     boolean sendMsgOneNoReturn(MyRequest req);
 
     boolean connectionIsAlive(String userUid);
+
+    void sendDown(String userUid);
 }

@@ -201,14 +201,16 @@ public class Connections {
     /**
      * 发送强制下线
      *
-     * @param useruid
+     * @param userUid
      *
      */
-    public void sendDown(String useruid){
-        sendDown(useruid,connections.get(useruid));
+    public void sendDown(String userUid){
+        if(connectionIsAlive(userUid)){
+            sendDown(userUid,connections.get(userUid));
+        }
     }
 
-    public void sendDown(String useruid, Connection connection) {
+    public void sendDown(String userUid, Connection connection) {
         if(connection == null){
             return;
         }
@@ -216,7 +218,7 @@ public class Connections {
         close.setState(ResponseMsg.MSG_ERR);
         //发送强制下线
         MyRequest reqx = new MyRequest();
-        reqx.setUseruid(useruid);
+        reqx.setUseruid(userUid);
         reqx.setId(SendType.MANDATORY_OFFLINE);
         reqx.setMsg(sendMsgUtil.serialize(close));
         try {

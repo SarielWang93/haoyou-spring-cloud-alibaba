@@ -1,5 +1,6 @@
 package com.haoyou.spring.cloud.alibaba.util;
 
+import com.haoyou.spring.cloud.alibaba.commons.entity.User;
 import org.apache.dubbo.config.annotation.Reference;
 import com.alipay.remoting.exception.CodecException;
 import com.alipay.remoting.serialization.SerializerManager;
@@ -114,6 +115,27 @@ public class SendMsgUtil implements Serializable {
     public boolean connectionIsAlive(String userUid) {
         return sendMsgService.connectionIsAlive(userUid);
     }
+
+    /**
+     * 强制下线
+     * @param users
+     * @return
+     */
+    public void sendDownUserList(Collection<User> users) {
+        for(User user : users){
+            sendDown(user.getUid());
+        }
+    }
+    public void sendDownList(Collection<String> userUids) {
+        for(String userUid : userUids){
+            sendDown(userUid);
+        }
+    }
+    public void sendDown(String userUid) {
+        sendMsgService.sendDown(userUid);
+    }
+
+
 
 
 

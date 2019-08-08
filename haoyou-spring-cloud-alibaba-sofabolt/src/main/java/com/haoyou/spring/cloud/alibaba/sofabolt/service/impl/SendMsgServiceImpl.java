@@ -106,4 +106,9 @@ public class SendMsgServiceImpl implements SendMsgService {
         return connections.connectionIsAlive(userUid);
 
     }
+
+    @Override
+    public void sendDown(String userUid) {
+        connections.sendDown(userUid);
+    }
 }

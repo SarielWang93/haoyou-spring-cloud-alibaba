@@ -32,6 +32,10 @@ public class UserUtil {
     @Autowired
     private RedisObjectUtil redisObjectUtil;
     @Autowired
+    private SendMsgUtil sendMsgUtil;
+
+
+    @Autowired
     private UserMapper userMapper;
     @Autowired
     private UserDataMapper userDataMapper;
@@ -535,11 +539,19 @@ public class UserUtil {
             this.saveSqlUserAndPets(user);
         }
     }
-
     public void deleteAllUserCatch() {
+        HashMap<String, User> userLogin = this.getUserLogin();
+        sendMsgUtil.sendDownUserList(userLogin.values());
         redisObjectUtil.deleteAll(RedisKeyUtil.getlkKey(RedisKey.USER));
         redisObjectUtil.deleteAll(RedisKeyUtil.getlkKey(RedisKey.OUTLINE_USER));
         redisObjectUtil.deleteAll(RedisKeyUtil.getlkKey(RedisKey.FIGHT_PETS));
+    }
+
+
+    public void refreshAllUserCatch() {
+        saveSqlUserAndPetsAll();
+        deleteAllUserCatch();
+        cacheAllUserToRedis();
     }
 
 
