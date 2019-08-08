@@ -27,7 +27,6 @@ public class FundsSettleHandle extends SettleHandle {
     @Override
     public void handle() {
 
-
         for (User user : this.users) {
 
             TreeMap<Date, Fund> funds = userUtil.getFunds(user);
@@ -36,13 +35,11 @@ public class FundsSettleHandle extends SettleHandle {
                 Date key = entry.getKey();
                 Fund fund = entry.getValue();
 
-                DateTime dateTime = DateUtil.offsetDay(key, fund.getDays());
-                DateTime dateTime1 = DateUtil.offsetDay(key, fund.getDays()-1);
+                //已发放使用天数
+                long l = DateUtil.betweenDay(key, this.date, true);
 
-                Date date = dateTime.toJdkDate();
-                Date date1 = dateTime1.toJdkDate();
                 //前一天的奖励结算
-                if(date.getTime() > this.date.toJdkDate().getTime()){
+                if(l <= fund.getDays()){
                     String type = RedisKeyUtil.getKey(RedisKey.FUNDS,fund.getName());
                     Award upAward = rewardService.getUpAward(user.getUid(), type);
                     Award award = rewardService.getAward(fund.getAwardType());
@@ -53,17 +50,15 @@ public class FundsSettleHandle extends SettleHandle {
                     }
                     rewardService.deleteUpAward(user.getUid(),type);
 
-                    //奖励是否已发完
-                    if(date1.getTime() > this.date.toJdkDate().getTime()){
+                    //未发放完毕则继续发放
+                    if(l < fund.getDays()){
                         rewardService.refreshUpAward(user.getUid(),award,type);
                     }
                 }
 
             }
 
-
             userUtil.deleteFunds(user);
-
 
             userUtil.saveUser(user);
         }

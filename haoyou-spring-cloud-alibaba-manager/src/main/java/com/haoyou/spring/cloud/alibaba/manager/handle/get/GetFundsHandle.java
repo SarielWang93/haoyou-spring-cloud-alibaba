@@ -77,11 +77,9 @@ public class GetFundsHandle extends ManagerHandle {
                 //奖励领取type
                 fundMap.put("type",type);
 
-                DateTime dateTime = DateUtil.offsetDay(buyDate, fund.getDays()-1);
+                long l = DateUtil.betweenDay(buyDate, now , true);
 
-                long l = DateUtil.betweenDay(dateTime, now , false);
-
-                fundMap.put("days",l);
+                fundMap.put("days",fund.getDays()-1-l);
 
                 hasBuyFunds.add(fundMap);
             }

@@ -71,4 +71,10 @@ public class Commodity implements Serializable {
     private String awardType;
 
 
+    /**
+     * 上架
+     */
+    private Integer shelf;
+
+
 }

@@ -4,6 +4,7 @@ import cn.hutool.core.date.DateTime;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.RandomUtil;
+import cn.hutool.core.util.StrUtil;
 import com.haoyou.spring.cloud.alibaba.commons.domain.RedisKey;
 import com.haoyou.spring.cloud.alibaba.commons.entity.*;
 import com.haoyou.spring.cloud.alibaba.commons.entity.Currency;
@@ -61,7 +62,6 @@ public class UserUtil {
     }
 
 
-
     /**
      * 从数据库获取全部user
      *
@@ -95,47 +95,52 @@ public class UserUtil {
 
     /**
      * 根据uid获取用户信息
+     *
      * @param userUid
      * @return
      */
     public User getUserByUid(String userUid) {
-        User user = redisObjectUtil.get(RedisKeyUtil.getKey(RedisKey.USER, userUid), User.class);
-        if(user == null){
-            user = redisObjectUtil.get(RedisKeyUtil.getKey(RedisKey.OUTLINE_USER, userUid), User.class);
-        }
-        if(user == null){
+        String key = this.isInCatch(userUid);
+        User user = null;
+        if (StrUtil.isEmpty(key)) {
             User s = new User();
             s.setUid(userUid);
             user = userMapper.selectOne(s);
-            this.cacheUser(user);
+            if (user != null) {
+                this.cacheUser(user);
+            }
+        } else {
+            user = redisObjectUtil.get(key, User.class);
         }
         return user;
     }
 
-    public void saveUser(User user){
+    public void saveUser(User user) {
 
         user.setLastUpdateDate(new Date());
-        String key = this.isInCatch(user);
-        if(key != null){
-            redisObjectUtil.save(key,user);
-        }else{
+        String key = this.isInCatch(user.getUid());
+        if (StrUtil.isNotEmpty(key)) {
+            redisObjectUtil.save(key, user);
+        } else {
             this.saveSqlUser(user);
         }
     }
+
     /**
      * 是否缓存
-     * @param user
+     *
+     * @param UserUid
      * @return
      */
-    public String isInCatch(User user){
+    public String isInCatch(String UserUid) {
 
-        String key = RedisKeyUtil.getKey(RedisKey.USER, user.getUid());
+        String key = RedisKeyUtil.getKey(RedisKey.USER, UserUid);
 
-        User userx = redisObjectUtil.get(key,User.class);
-        if(userx == null){
-            key = RedisKeyUtil.getKey(RedisKey.OUTLINE_USER, user.getUid());
+        User userx = redisObjectUtil.get(key, User.class);
+        if (userx == null) {
+            key = RedisKeyUtil.getKey(RedisKey.OUTLINE_USER, UserUid);
             userx = redisObjectUtil.get(key, User.class);
-            if(userx == null){
+            if (userx == null) {
                 key = null;
             }
         }
@@ -146,10 +151,23 @@ public class UserUtil {
     /**
      * 加载所有用户到redis
      */
+    public void cacheUserToRedisByUid(String userUid) {
+        String inCatch = isInCatch(userUid);
+        if (StrUtil.isEmpty(inCatch)) {
+            User user = getUserByUid(userUid);
+            if(user!=null){
+                redisObjectUtil.save(RedisKeyUtil.getKey(RedisKey.OUTLINE_USER, user.getUid()), user);
+            }
+        }
+    }
+
     public void cacheAllUserToRedis() {
         List<User> users = this.allUser();
-        for(User user : users ){
-            redisObjectUtil.save(RedisKeyUtil.getKey(RedisKey.OUTLINE_USER,user.getUid()),user);
+        for (User user : users) {
+            String inCatch = isInCatch(user.getUid());
+            if (StrUtil.isEmpty(inCatch)) {
+                redisObjectUtil.save(RedisKeyUtil.getKey(RedisKey.OUTLINE_USER, user.getUid()), user);
+            }
         }
     }
 
@@ -210,7 +228,7 @@ public class UserUtil {
 
         userDataMapper.updateByPrimaryKeySelective(user.getUserData());
 
-        for(UserNumerical userNumerical : user.getUserNumericalMap().values()){
+        for (UserNumerical userNumerical : user.getUserNumericalMap().values()) {
             userNumericalMapper.updateByPrimaryKeySelective(userNumerical);
         }
     }
@@ -351,22 +369,17 @@ public class UserUtil {
         TreeMap<Date, Fund> newfundsTreeMap = new TreeMap<>();
 
         for (Map.Entry<Date, Fund> entry : fundsTreeMap.entrySet()) {
-
+            //购买时间
             Date key = entry.getKey();
+
             Fund fund = entry.getValue();
 
-            Date overTime = fund.getOverTime();
+            //奖励已发放天数
+            long l = DateUtil.betweenDay(key, new Date(), true);
 
-            DateTime dateTime = DateUtil.offsetDay(key, fund.getDays()-1);
-
-            Date date = dateTime.toJdkDate();
-
-            if(overTime.getTime() > date.getTime()){
-                date = overTime;
-            }
-
-            if(date.getTime() > new Date().getTime()){
-                newfundsTreeMap.put(key,fund);
+            //如果还未发放完毕则保留
+            if (l < fund.getDays()) {
+                newfundsTreeMap.put(key, fund);
             }
 
         }
@@ -377,17 +390,18 @@ public class UserUtil {
 
     /**
      * 获取邮件信息
+     *
      * @param user
      * @return
      */
-    public TreeMap<Date,Email> getEmails(User user){
+    public TreeMap<Date, Email> getEmails(User user) {
         byte[] emailsBytes = user.getUserData().getEmails();
-        TreeMap<Date,Email> emailsTreeMap = null;
+        TreeMap<Date, Email> emailsTreeMap = null;
 
-        if(emailsBytes == null){
+        if (emailsBytes == null) {
             emailsTreeMap = new TreeMap<>();
-        }else{
-            emailsTreeMap = redisObjectUtil.deserialize(emailsBytes,TreeMap.class);
+        } else {
+            emailsTreeMap = redisObjectUtil.deserialize(emailsBytes, TreeMap.class);
         }
 
         return emailsTreeMap;
@@ -395,29 +409,27 @@ public class UserUtil {
 
     /**
      * 添加邮件
+     *
      * @param user
      * @param email
      */
     public void addEmail(User user, Email email) {
-        TreeMap<Date,Email> emailsTreeMap = this.getEmails(user);
-        emailsTreeMap.put(email.getCreatDate(),email);
+        TreeMap<Date, Email> emailsTreeMap = this.getEmails(user);
+        emailsTreeMap.put(email.getCreatDate(), email);
         user.getUserData().setEmails(redisObjectUtil.serialize(emailsTreeMap));
     }
 
     /**
      * 删除邮件
+     *
      * @param user
      * @param email
      */
     public void deleteEmail(User user, Email email) {
-        TreeMap<Date,Email> emailsTreeMap = this.getEmails(user);
+        TreeMap<Date, Email> emailsTreeMap = this.getEmails(user);
         emailsTreeMap.remove(email.getCreatDate());
         user.getUserData().setEmails(redisObjectUtil.serialize(emailsTreeMap));
     }
-
-
-
-
 
 
     /**
@@ -454,6 +466,7 @@ public class UserUtil {
         }
 
     }
+
     /**
      * 向数据库同步宠物信息
      *
@@ -505,6 +518,7 @@ public class UserUtil {
         }
 
     }
+
     /**
      * redis向数据库同步玩家以及宠物信息
      *
@@ -514,20 +528,19 @@ public class UserUtil {
         this.saveSqlUser(user);
         this.saveSqlPet(user);
     }
+
     public void saveSqlUserAndPetsAll() {
         HashMap<String, User> userAllCatch = this.getUserAllCatch();
-        for(User user :userAllCatch.values()){
+        for (User user : userAllCatch.values()) {
             this.saveSqlUserAndPets(user);
         }
     }
 
-    public void deleteAllUserCatch(){
+    public void deleteAllUserCatch() {
         redisObjectUtil.deleteAll(RedisKeyUtil.getlkKey(RedisKey.USER));
         redisObjectUtil.deleteAll(RedisKeyUtil.getlkKey(RedisKey.OUTLINE_USER));
         redisObjectUtil.deleteAll(RedisKeyUtil.getlkKey(RedisKey.FIGHT_PETS));
     }
-
-
 
 
 }

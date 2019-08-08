@@ -1,5 +1,6 @@
 package com.haoyou.spring.cloud.alibaba.cultivate.settle.handle;
 
+import cn.hutool.core.date.DateUtil;
 import com.haoyou.spring.cloud.alibaba.commons.domain.RedisKey;
 import com.haoyou.spring.cloud.alibaba.commons.entity.Award;
 import com.haoyou.spring.cloud.alibaba.commons.entity.User;
@@ -29,29 +30,41 @@ public class MonthlyCardSettleHandle extends SettleHandle {
 
 
         for (User user: this.users) {
-            //发放月卡奖励
-            if(user.getUserData().getMonthlyCardDate() != null
-                    && (new Date().getTime()-user.getUserData().getMonthlyCardDate().getTime())<60L*60L*24L*30L*1000L){
 
-                String monthlyCardAward = user.getUserData().getMonthlyCardAward();
-                String monthlyCardType = RedisKeyUtil.getKey(RedisKey.MONTHLY_CARD,monthlyCardAward);
-                Award award =  rewardService.getAward(monthlyCardAward);
-                rewardService.refreshUpAward(user.getUid(),award,monthlyCardType);
-            }else{
+            boolean refreshUpAward = false;
+            //发放月卡奖励
+            if(user.getUserData().getMonthlyCardDate() != null){
+                //已发放奖励的天数
+                long l = DateUtil.betweenDay(user.getUserData().getMonthlyCardDate(), this.date, true);
+                if(l<30){
+                    //发放奖励
+                    String monthlyCardAward = user.getUserData().getMonthlyCardAward();
+                    String monthlyCardType = RedisKeyUtil.getKey(RedisKey.MONTHLY_CARD,monthlyCardAward);
+                    Award award =  rewardService.getAward(monthlyCardAward);
+                    refreshUpAward = rewardService.refreshUpAward(user.getUid(),award,monthlyCardType);
+                }
+            }
+            //未发放奖励则清空奖励记录
+            if(!refreshUpAward){
                 redisObjectUtil.deleteAll(RedisKeyUtil.getlkKey(RedisKey.USER_AWARD,user.getUid(),RedisKey.MONTHLY_CARD));
             }
 
 
-
+            refreshUpAward = false;
             //发放至尊月卡奖励
-            if(user.getUserData().getMonthlyCardExtremeDate() != null
-                    && (new Date().getTime()-user.getUserData().getMonthlyCardExtremeDate().getTime())<60L*60L*24L*30L*1000L){
-
-                String monthlyCardExtremeAward = user.getUserData().getMonthlyCardExtremeAward();
-                String monthlyCardExtremeType = RedisKeyUtil.getKey(RedisKey.MONTHLY_CARD_EXTREME,monthlyCardExtremeAward);
-                Award award =  rewardService.getAward(monthlyCardExtremeAward);
-                rewardService.refreshUpAward(user.getUid(),award,monthlyCardExtremeType);
-            }else{
+            if(user.getUserData().getMonthlyCardExtremeDate() != null){
+                //已发放奖励的天数
+                long l = DateUtil.betweenDay(user.getUserData().getMonthlyCardExtremeDate(), this.date, true);
+                if(l<30) {
+                    //发放奖励
+                    String monthlyCardExtremeAward = user.getUserData().getMonthlyCardExtremeAward();
+                    String monthlyCardExtremeType = RedisKeyUtil.getKey(RedisKey.MONTHLY_CARD_EXTREME, monthlyCardExtremeAward);
+                    Award award = rewardService.getAward(monthlyCardExtremeAward);
+                    rewardService.refreshUpAward(user.getUid(), award, monthlyCardExtremeType);
+                }
+            }
+            //未发放奖励则清空奖励记录
+            if(!refreshUpAward){
                 redisObjectUtil.deleteAll(RedisKeyUtil.getlkKey(RedisKey.USER_AWARD,user.getUid(),RedisKey.MONTHLY_CARD_EXTREME));
             }
 

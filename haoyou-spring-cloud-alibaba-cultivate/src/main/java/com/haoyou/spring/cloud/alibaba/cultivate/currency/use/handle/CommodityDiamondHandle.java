@@ -88,7 +88,9 @@ public class CommodityDiamondHandle extends CurrencyUseHandle {
         }
 
         //获得商品
-        commodityBuyService.commodityBuy(user,commodity);
+        if(!commodityBuyService.commodityBuy(user,commodity)){
+            return ResponseMsg.MSG_ERR;
+        }
 
         //保存
         if (!save(user)) {

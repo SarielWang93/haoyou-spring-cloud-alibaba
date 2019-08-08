@@ -14,6 +14,7 @@ import com.haoyou.spring.cloud.alibaba.manager.handle.ManagerHandle;
 import com.haoyou.spring.cloud.alibaba.sofabolt.protocol.MyRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -28,6 +29,12 @@ public class GetLifetimeBreederHandle extends ManagerHandle {
 
     private static final long serialVersionUID = -7233847046616375275L;
     private static final Logger logger = LoggerFactory.getLogger(GetLifetimeBreederHandle.class);
+
+
+    @Autowired
+    private GetCommodityHandle getCommodityHandle;
+
+
 
     @Override
     protected void setHandleType() {
@@ -56,30 +63,9 @@ public class GetLifetimeBreederHandle extends ManagerHandle {
         String commodityName = "BreederSpecialGiftPackage";
         Commodity commodity = redisObjectUtil.get(RedisKeyUtil.getKey(RedisKey.COMMODITY, storeName, commodityName), Commodity.class);
 
-        Map<String, Object> commodityMap = new HashMap<>();
-        //商店名称
-        commodityMap.put("storeName", storeName);
-        //商品名称
-        commodityMap.put("name", commodityName);
-        //介绍
-        commodityMap.put("description", commodity.getDescription());
-        //货币类型
-        commodityMap.put("spendType", commodity.getSpendType());
-        //价格
-        commodityMap.put("price", commodity.getPrice());
-        //商品奖励
-        commodityMap.put("award", redisObjectUtil.get(RedisKeyUtil.getKey(RedisKey.AWARD, commodity.getAwardType()), Award.class));
-
-        if(commodity.getRefreshTimes() != -1){
-            String numericalName = String.format("commodity_%s", commodity.getName());
-
-            Long buyCount = user.getUserNumericalMap().get("numericalName").getValue();
-            //商品可买次数
-            commodityMap.put("canBuyCount", commodity.getRefreshTimes()-buyCount);
-        }
 
 
-        mapBody.put("commodity",commodityMap);
+        mapBody.put("commodityMsg",getCommodityHandle.getCommodityMsg(user,commodity));
         mapBody.setState(ResponseMsg.MSG_SUCCESS);
         return mapBody;
     }

@@ -1,6 +1,7 @@
 package com.haoyou.spring.cloud.alibaba.commons.util;
 
 import cn.hutool.core.text.StrBuilder;
+import cn.hutool.core.util.StrUtil;
 
 /**
  * redisKey设计
@@ -15,7 +16,9 @@ public class RedisKeyUtil {
     public static String getKey(String... strs){
         StrBuilder buffer = StrBuilder.create();
         for(String str : strs){
-            buffer.append(str).append(":");
+            if(StrUtil.isNotEmpty(str)){
+                buffer.append(str).append(":");
+            }
         }
 
         String s = buffer.subString(0,buffer.length()-1);

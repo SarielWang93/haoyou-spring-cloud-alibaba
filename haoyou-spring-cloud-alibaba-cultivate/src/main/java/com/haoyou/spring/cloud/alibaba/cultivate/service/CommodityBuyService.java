@@ -39,6 +39,10 @@ public class CommodityBuyService {
 
     public boolean commodityBuy(User user, Commodity commodity) {
 
+        //是否上架
+        if(commodity.getShelf().equals(0)){
+            return false;
+        }
 
         if(commodity.getRefreshTimes() != -1){
             //检查使用上限

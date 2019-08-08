@@ -64,9 +64,7 @@ public class NumericalRefreshHandle extends SettleHandle {
                 //如果有缓存则缓存清零，否则数据库清零
                 String userUid = userNumerical.getUserUid();
                 User user = userUtil.getUserByUid(userUid);
-                if(user == null){
-                   continue;
-                }else{
+                if(user != null){
                     user.getUserNumericalMap().get("numericalName").setValue(0L);
                     userUtil.saveUser(user);
                 }

@@ -46,6 +46,7 @@ public class SendType {
     public final static int GET_FUNDS= 58;//获取基金列表
     public final static int GET_DAILY_TASK = 59;//获取每日任务列表
     public final static int GET_MONTHLT_CARD = 150;//获取月卡信息
+    public final static int GET_COMMODITY = 151;//获取商品信息
 
 
     /**

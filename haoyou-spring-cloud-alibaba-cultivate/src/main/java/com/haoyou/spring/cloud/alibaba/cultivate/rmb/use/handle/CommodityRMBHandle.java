@@ -33,11 +33,13 @@ public class CommodityRMBHandle extends RMBUseHandle {
 
         Commodity commodity = commodityBuyService.getCommodity(rmbUseMsg.getStoreName(), rmbUseMsg.getName());
 
-        commodityBuyService.commodityBuy(user,commodity);
+        if(!commodityBuyService.commodityBuy(user,commodity)){
+            mapBody.setState(ResponseMsg.MSG_ERR);
+        }else{
+            this.save(user);
+            mapBody.setState(ResponseMsg.MSG_SUCCESS);
+        }
 
-        this.save(user);
-
-        mapBody.setState(ResponseMsg.MSG_SUCCESS);
         return mapBody;
     }
 }

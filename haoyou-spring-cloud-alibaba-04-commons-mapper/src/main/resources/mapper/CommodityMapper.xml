@@ -15,5 +15,6 @@
     <result column="spend_type" jdbcType="VARCHAR" property="spendType" />
     <result column="price" jdbcType="INTEGER" property="price" />
     <result column="award_type" jdbcType="VARCHAR" property="awardType" />
+    <result column="shelf" jdbcType="INTEGER" property="shelf" />
   </resultMap>
 </mapper>
