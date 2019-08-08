@@ -48,8 +48,7 @@ public class UserDateSynchronization {
 //    @scheduled(cron = "0 */30 * * * ?")
     public void synchronization() {
         logger.info(String.format("synchronization begin ......"));
-        HashMap<String, User> users = redisObjectUtil.getlkMap(RedisKeyUtil.getlkKey(RedisKey.USER), User.class);
-        users.putAll(redisObjectUtil.getlkMap(RedisKeyUtil.getlkKey(RedisKey.OUTLINE_USER), User.class));
+        HashMap<String, User> users = userUtil.getUserAllCatch();
         for (Map.Entry<String, User> entry : users.entrySet()) {
             User user = entry.getValue();
             User user1 = userMapper.selectByPrimaryKey(user.getId());
@@ -57,6 +56,9 @@ public class UserDateSynchronization {
             if (user1.getLastUpdateDate().getTime() < user.getLastUpdateDate().getTime()) {
                 redisObjectUtil.refreshTime(entry.getKey());
                 userUtil.saveSqlUserAndPets(user);
+            }else{
+                userUtil.cacheUserAndPet(user1);
+                userUtil.saveUser(user1);
             }
         }
     }
@@ -75,10 +77,8 @@ public class UserDateSynchronization {
 
         if (!user.isOnLine()) {
 
-            userUtil.cacheUser(user);
-
             //从数据库获取的pets
-            userUtil.cachePet(user);
+            userUtil.cacheUserAndPet(user);
             user.setOnLine(true);
         }
         if (redisObjectUtil.save(key, user)) {

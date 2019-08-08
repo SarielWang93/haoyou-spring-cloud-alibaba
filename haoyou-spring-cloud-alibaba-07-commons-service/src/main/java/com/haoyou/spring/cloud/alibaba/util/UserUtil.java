@@ -221,6 +221,14 @@ public class UserUtil {
     }
 
     /**
+     *
+     * @param user
+     */
+    public void cacheUserAndPet(User user) {
+        this.cacheUser(user);
+        this.cachePet(user);
+    }
+    /**
      * 向数据库同步玩家信息
      *
      * @param user
