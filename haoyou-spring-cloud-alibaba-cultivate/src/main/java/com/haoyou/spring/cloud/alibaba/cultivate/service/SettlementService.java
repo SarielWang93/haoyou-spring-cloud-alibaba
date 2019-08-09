@@ -49,6 +49,35 @@ public class SettlementService {
     public void inspect() {
         //当前时间，和运行天数计算
         DateTime date = DateUtil.date();
+        getRuningDays(date);
+
+        //执行结算处理器
+        for (SettleHandle settleHandle : handleList) {
+            settleHandle.setDate(date);
+            settleHandle.setRuningDays(this.runingDays);
+            settleHandle.doHandle();
+        }
+
+    }
+
+
+
+
+
+    //直接执行所有结算
+    public void doAll() {
+        DateTime date = DateUtil.date();
+        getRuningDays(date);
+        //执行结算处理器
+        List<User> users = userUtil.allUser();
+        for (SettleHandle settleHandle : handleList) {
+            settleHandle.setRuningDays(this.runingDays);
+            settleHandle.setDate(date);
+            settleHandle.doWithUsers();
+        }
+    }
+
+    private void getRuningDays(DateTime date){
         int hour = date.hour(true);
         if(this.runingDays == null || hour == 0){
             HashMap<String, Server> stringServerHashMap = redisObjectUtil.getlkMap(RedisKeyUtil.getlkKey(RedisKey.SERVER), Server.class);
@@ -59,25 +88,6 @@ public class SettlementService {
             Map.Entry<Date, Server> firstEntry = serverTreeMap.firstEntry();
 
             this.runingDays = DateUtil.betweenDay(firstEntry.getKey(),date,true);
-        }
-
-        //执行结算处理器
-        List<User> users = userUtil.allUser();
-        for (SettleHandle settleHandle : handleList) {
-            settleHandle.setUsers(users);
-            settleHandle.setDate(date);
-            settleHandle.setRuningDays(this.runingDays);
-            settleHandle.doHandle();
-        }
-
-    }
-
-
-
-    //直接执行所有结算
-    public void doAll() {
-        for (SettleHandle settleHandle : handleList) {
-            settleHandle.handle();
         }
     }
 }

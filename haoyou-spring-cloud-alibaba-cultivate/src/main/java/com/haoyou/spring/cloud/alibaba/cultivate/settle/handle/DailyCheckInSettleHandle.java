@@ -1,5 +1,6 @@
 package com.haoyou.spring.cloud.alibaba.cultivate.settle.handle;
 
+import cn.hutool.core.lang.Console;
 import cn.hutool.core.util.RandomUtil;
 import com.haoyou.spring.cloud.alibaba.commons.domain.RedisKey;
 import com.haoyou.spring.cloud.alibaba.commons.entity.Award;
@@ -35,19 +36,18 @@ public class DailyCheckInSettleHandle extends SettleHandle {
                     Award award1 = redisObjectUtil.get(key, Award.class);
                     if(award1 != null && award1.isUsed()) {
                         award.setUsed(true);
+                        if(dailyCheckIn.allUsed()){
+                            redisObjectUtil.deleteAll(RedisKeyUtil.getlkKey(RedisKey.USER_AWARD, user.getUid(), RedisKey.DAILY_CHECK_IN));
+                            userUtil.setDailyCheckIn(user);
+                        }else{
+                            userUtil.setDailyCheckIn(user,dailyCheckIn);
+                        }
+                        user.setLastUpdateDate(new Date());
+                        redisObjectUtil.save(entry.getKey(),user);
                     }
                     break;
                 }
             }
-
-            if(dailyCheckIn.allUsed()){
-                redisObjectUtil.deleteAll(RedisKeyUtil.getlkKey(RedisKey.USER_AWARD, user.getUid(), RedisKey.DAILY_CHECK_IN));
-                userUtil.setDailyCheckIn(user);
-            }else{
-                userUtil.setDailyCheckIn(user,dailyCheckIn);
-            }
-            user.setLastUpdateDate(new Date());
-            redisObjectUtil.save(entry.getKey(),user);
         }
     }
 

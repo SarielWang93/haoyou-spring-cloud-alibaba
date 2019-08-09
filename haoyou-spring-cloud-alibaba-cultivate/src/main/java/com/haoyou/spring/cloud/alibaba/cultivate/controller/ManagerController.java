@@ -14,6 +14,7 @@ import com.haoyou.spring.cloud.alibaba.commons.util.MapperUtils;
 import com.haoyou.spring.cloud.alibaba.commons.util.RedisKeyUtil;
 import com.haoyou.spring.cloud.alibaba.cultivate.service.EmailService;
 import com.haoyou.spring.cloud.alibaba.cultivate.service.RewardService;
+import com.haoyou.spring.cloud.alibaba.cultivate.service.SettlementService;
 import com.haoyou.spring.cloud.alibaba.cultivate.settle.handle.RankSettleHandle;
 import com.haoyou.spring.cloud.alibaba.pojo.cultivate.PetUpLevMsg;
 import com.haoyou.spring.cloud.alibaba.pojo.cultivate.PropUseMsg;
@@ -48,6 +49,8 @@ public class ManagerController {
     private RewardService rewardService;
     @Autowired
     private EmailService emailService;
+    @Autowired
+    private SettlementService settlementService;
 
     /**
      * 设置PVE胜利奖励
@@ -267,7 +270,7 @@ public class ManagerController {
     }
 
     /**
-     * 分服排名结算
+     * 发送测试邮件
      * @return
      */
     @CrossOrigin
@@ -281,14 +284,14 @@ public class ManagerController {
     @Autowired
     private RankSettleHandle rankSettleHandle;
     /**
-     * 分服排名结算
+     * 所有结算运行
      * @return
      */
     @CrossOrigin
-    @GetMapping(value = "rankSettle")
-    public String rankSettle() {
+    @GetMapping(value = "doAllSettle")
+    public String doAllSettle() {
 
-        rankSettleHandle.handle();
+        settlementService.doAll();
 
         return "success";
     }

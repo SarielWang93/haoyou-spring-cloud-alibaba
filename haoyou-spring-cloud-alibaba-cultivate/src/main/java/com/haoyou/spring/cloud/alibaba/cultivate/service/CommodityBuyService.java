@@ -47,12 +47,15 @@ public class CommodityBuyService {
         if(commodity.getRefreshTimes() != -1){
             //检查使用上限
             String numericalName = String.format("commodity_%s", commodity.getName());
+            String numericalNameAll = String.format("commodity_all_%s", commodity.getName());
+
             Long count = user.getUserNumericalMap().get(numericalName).getValue();
             if(count >= commodity.getRefreshTimes()){
                 return false;
             }
             //添加购买次数
             numericalService.numericalAdd(user,numericalName,1L);
+            numericalService.numericalAdd(user,numericalNameAll,1L);
         }
 
         String awardType = commodity.getAwardType();

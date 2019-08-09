@@ -35,10 +35,11 @@ public class RMBUseService {
     public MapBody rmbUse(RMBUseMsg rmbUseMsg) {
 
         //累计充值
-        numericalService.numericalAdd(rmbUseMsg.getUser(),"cumulative_payment",rmbUseMsg.getRmb());
+        numericalService.numericalAdd(rmbUseMsg.getUser(),"accumulated_recharge",rmbUseMsg.getRmb());
         //当日充值
-        numericalService.numericalAdd(rmbUseMsg.getUser(),"daily_payment",rmbUseMsg.getRmb());
-
+        numericalService.numericalAdd(rmbUseMsg.getUser(),"daily_recharge",rmbUseMsg.getRmb());
+        //充值总量
+        numericalService.numericalAdd(rmbUseMsg.getUser(),"all_recharge",rmbUseMsg.getRmb());
         return RMBUseHandleMap.get(rmbUseMsg.getType()).rmbUse(rmbUseMsg);
     }
 

@@ -1,6 +1,7 @@
 package com.haoyou.spring.cloud.alibaba.cultivate.numerical;
 
 import com.haoyou.spring.cloud.alibaba.commons.domain.RedisKey;
+import com.haoyou.spring.cloud.alibaba.commons.entity.Award;
 import com.haoyou.spring.cloud.alibaba.commons.entity.DailyTask;
 import com.haoyou.spring.cloud.alibaba.commons.entity.User;
 import com.haoyou.spring.cloud.alibaba.commons.entity.UserNumerical;
@@ -34,12 +35,14 @@ public class DailyTaskCheck extends NumericalCheck {
                     String awardType = dailyTask.getAwardType();
                     String type = RedisKeyUtil.getKey(RedisKey.DAILY_TASK, dailyTask.getName());
 
-                    rewardService.refreshUpAward(user.getUid(),rewardService.getAward(awardType),type);
+                    Award upAward = rewardService.getUpAward(user.getUid(), type);
 
-                    if(dailyTask.getIntegral() > 0){
-                        numericalService.numericalAdd(user,"daily_task_integral",dailyTask.getIntegral());
+                    if(upAward == null){
+                        rewardService.refreshUpAward(user.getUid(),rewardService.getAward(awardType),type);
+                        if(dailyTask.getIntegral() > 0){
+                            numericalService.numericalAdd(user,"daily_task_integral",dailyTask.getIntegral());
+                        }
                     }
-
                 }
             }
         }

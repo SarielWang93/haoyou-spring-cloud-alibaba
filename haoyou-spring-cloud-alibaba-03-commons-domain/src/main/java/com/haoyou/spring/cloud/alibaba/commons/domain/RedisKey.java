@@ -21,7 +21,7 @@ public class RedisKey {
     public static final String FUNDS = "funds";
 
     public static final String COMMODITY = "commodity";
-
+    public static final String ACTIVITY = "activity";
 
     public static final String LIFETIME_BREEDER = "lifetime_breeder";
 

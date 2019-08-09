@@ -75,6 +75,10 @@ public class GetDailyTaskHandle extends ManagerHandle {
                 Map integral = new HashMap();
                 //名称
                 integral.put("name",dailyTask.getName());
+                //中文名称
+                integral.put("l10n",dailyTask.getL10n());
+                //描述
+                integral.put("description",dailyTask.getDescription());
                 //目标值
                 integral.put("aim",dailyTask.getAim());
                 //能否领取
@@ -92,6 +96,10 @@ public class GetDailyTaskHandle extends ManagerHandle {
                 Map dailyTaskMap = new HashMap();
                 //名称
                 dailyTaskMap.put("name",dailyTask.getName());
+                //中文名称
+                dailyTaskMap.put("l10n",dailyTask.getL10n());
+                //描述
+                dailyTaskMap.put("description",dailyTask.getDescription());
                 //当前值
                 dailyTaskMap.put("nowValue",user.getUserNumericalMap().get(dailyTask.getNumericalName()).getValue());
                 //目标值
@@ -114,7 +122,7 @@ public class GetDailyTaskHandle extends ManagerHandle {
 
         mapBody.put("dailyTaskIntegralMsg", dailyTaskIntegralMsg);
         mapBody.put("dailyTaskMsg", dailyTaskMsg);
-        mapBody.setState(ResponseMsg.MSG_ERR);
+        mapBody.setState(ResponseMsg.MSG_SUCCESS);
         return mapBody;
     }
 }

@@ -75,22 +75,28 @@ public class GetMonthlyCardHandle extends ManagerHandle {
             }
             //当天奖励
             mapBody.put("monthlyCardDaily",award);
+            //剩余天数
+            mapBody.put("monthlyCardDate",-1);
         }
 
 
         //立得奖励
         mapBody.put("monthlyCardExtreme",getAward("monthly_card_extreme"));
-        //本次奖励
-        mapBody.put("monthlyCardExtremeFirst",getAward("monthly_card_extreme_first"));
+
+        Award monthly_card_extreme_once = getAward("monthly_card_extreme_once");
         //每日奖励
         Award award2 = redisObjectUtil.get(RedisKeyUtil.getKey(RedisKey.USER_AWARD, user.getUid(), RedisKey.MONTHLY_CARD_EXTREME, user.getUserData().getMonthlyCardExtremeAward()), Award.class);
         if(award2 != null){
+            monthly_card_extreme_once.setUsed(true);
             //已发放奖励的天数
             long l = DateUtil.betweenDay(user.getUserData().getMonthlyCardExtremeDate(), new Date(), true);
             //剩余天数
             mapBody.put("monthlyCardExtremeDate",29-l);
             //当天奖励
             mapBody.put("monthlyCardExtremeDaily",award2);
+            if(!award2.isUsed()){
+                mapBody.put("monthlyCardExtremeDailyType",RedisKeyUtil.getKey(RedisKey.MONTHLY_CARD_EXTREME, award2.getType()));
+            }
         }else{
             for(int i = 1;;i++){
                 Award award1 = this.getAward(String.format("monthly_card_extreme_daily_%s", i));
@@ -102,9 +108,12 @@ public class GetMonthlyCardHandle extends ManagerHandle {
             }
             //当天奖励
             mapBody.put("monthlyCardExtremeDaily",award2);
+            //剩余天数
+            mapBody.put("monthlyCardExtremeDate",-1);
         }
 
-
+        //本次奖励
+        mapBody.put("monthlyCardExtremeOnce",monthly_card_extreme_once);
 
 
 

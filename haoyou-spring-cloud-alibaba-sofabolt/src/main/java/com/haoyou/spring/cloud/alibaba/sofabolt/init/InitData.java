@@ -85,6 +85,12 @@ public class InitData implements ApplicationRunner {
     @Autowired
     private CommodityMapper commodityMapper;
     @Autowired
+    private ActivityMapper activityMapper;
+    @Autowired
+    private ActivityAwardMapper activityAwardMapper;
+
+
+    @Autowired
     private UserUtil userUtil;
     @Autowired
     private SendMsgService sendMsgService;
@@ -110,8 +116,8 @@ public class InitData implements ApplicationRunner {
         if (lastDo == null || now.getTime() - lastDo.getTime() > 60 * 1000) {
 
 
-
-
+            //活动信息
+            initActivity();
             //商品信息
             initCommodity();
             //基金列表
@@ -153,6 +159,38 @@ public class InitData implements ApplicationRunner {
     }
 
     /**
+     * 活动信息
+     */
+    private void initActivity() {
+        redisObjectUtil.deleteAll(RedisKeyUtil.getlkKey(RedisKey.ACTIVITY));
+
+        List<Activity> activities = activityMapper.selectAll();
+
+        for (Activity activity : activities) {
+            ActivityAward activityAwardSelect = new ActivityAward();
+            activityAwardSelect.setActivitiId(activity.getId());
+
+            //获取活动奖励列表
+            List<ActivityAward> select = activityAwardMapper.select(activityAwardSelect);
+
+            activity.setActivityAwards(select);
+
+
+            if(activity.getPresetEnabled() == 1){
+                activity.setCurrent(true);
+            }
+
+
+
+            String activityKey = RedisKeyUtil.getKey(RedisKey.COMMODITY, activity.getActivityType(), activity.getName());
+
+            redisObjectUtil.save(activityKey,activity,-1);
+
+        }
+
+    }
+
+    /**
      * 商品信息
      */
     private void initCommodity() {
@@ -164,19 +202,30 @@ public class InitData implements ApplicationRunner {
         for (Commodity commodity : commodities) {
 
 
-            String numericalMapperName = String.format("commodity_%s",commodity.getName());
+            String numericalMapperName = String.format("commodity_%s", commodity.getName());
             Numerical numerical = new Numerical();
             numerical.setName(numericalMapperName);
             List<Numerical> select = numericalMapper.select(numerical);
-            if(select == null || select.isEmpty()){
+            if (select == null || select.isEmpty()) {
                 numerical.setDescription(commodity.getDescription());
                 numerical.setL10n(commodity.getL10n());
                 numerical.setRefresh(commodity.getRefresh());
                 numericalMapper.insertSelective(numerical);
             }
 
+            String numericalMapperNameAll = String.format("commodity_all_%s", commodity.getName());
+            Numerical numericalAll = new Numerical();
+            numerical.setName(numericalMapperNameAll);
+            List<Numerical> selectAll = numericalMapper.select(numericalAll);
+            if (select == null || selectAll.isEmpty()) {
+                numericalAll.setDescription(commodity.getDescription());
+                numericalAll.setL10n(commodity.getL10n());
+                numericalAll.setRefresh(-1);
+                numericalMapper.insertSelective(numericalAll);
+            }
 
-            String commodityKey = RedisKeyUtil.getKey(RedisKey.COMMODITY,commodity.getStoreName(),commodity.getName());
+
+            String commodityKey = RedisKeyUtil.getKey(RedisKey.COMMODITY, commodity.getStoreName(), commodity.getName());
             redisObjectUtil.save(commodityKey, commodity, -1);
         }
 

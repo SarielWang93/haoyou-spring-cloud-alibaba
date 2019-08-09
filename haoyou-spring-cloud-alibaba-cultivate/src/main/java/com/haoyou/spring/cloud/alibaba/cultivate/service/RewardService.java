@@ -15,6 +15,7 @@ import com.haoyou.spring.cloud.alibaba.util.UserUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.HashMap;
 
 /**
@@ -60,7 +61,9 @@ public class RewardService {
 
 
         if(award == null){
-            award = rewardHandleMap.get(type).handle();
+            if(rewardHandleMap.get(type) != null){
+                award = rewardHandleMap.get(type).handle();
+            }
         }
         return award;
     }
@@ -104,8 +107,10 @@ public class RewardService {
         //TODO 玩家升级
 
 
-        //增加道具
-        userUtil.addProps(user,award.getPropsList());
+        if(award.getPropsList()!=null){
+            //增加道具
+            userUtil.addProps(user,award.getPropsList());
+        }
 
         this.send(user,award);
 
@@ -121,6 +126,7 @@ public class RewardService {
      */
     public boolean upAward(String userUid, Award award ,String type){
         if (award != null) {
+            award.setUpAwardDate(new Date());
             String key = RedisKeyUtil.getKey(RedisKey.USER_AWARD, userUid, type);
             Award award1 = redisObjectUtil.get(key, Award.class);
             if(award1 == null){
@@ -141,6 +147,7 @@ public class RewardService {
      */
     public boolean refreshUpAward(String userUid, Award award ,String type){
         if (award != null) {
+            award.setUpAwardDate(new Date());
             String key = RedisKeyUtil.getKey(RedisKey.USER_AWARD, userUid, type);
             return redisObjectUtil.save(key, award,-1);
         }

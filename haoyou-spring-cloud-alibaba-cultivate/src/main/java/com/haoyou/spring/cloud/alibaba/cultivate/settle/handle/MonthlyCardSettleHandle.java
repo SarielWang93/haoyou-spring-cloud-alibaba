@@ -60,7 +60,7 @@ public class MonthlyCardSettleHandle extends SettleHandle {
                     String monthlyCardExtremeAward = user.getUserData().getMonthlyCardExtremeAward();
                     String monthlyCardExtremeType = RedisKeyUtil.getKey(RedisKey.MONTHLY_CARD_EXTREME, monthlyCardExtremeAward);
                     Award award = rewardService.getAward(monthlyCardExtremeAward);
-                    rewardService.refreshUpAward(user.getUid(), award, monthlyCardExtremeType);
+                    refreshUpAward = rewardService.refreshUpAward(user.getUid(), award, monthlyCardExtremeType);
                 }
             }
             //未发放奖励则清空奖励记录

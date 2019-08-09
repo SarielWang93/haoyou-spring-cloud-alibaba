@@ -9,6 +9,7 @@ import lombok.Data;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Data
@@ -50,9 +51,12 @@ public class Award extends BaseMessage implements Serializable {
 
     @Transient
     private boolean used;
+    @Transient
+    private Date upAwardDate;
 
     @Transient
     private List<Prop> propsList;
+
 
     public Award() {
     }

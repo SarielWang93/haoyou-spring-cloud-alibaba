@@ -83,26 +83,52 @@ public abstract class SettleHandle {
      */
     public abstract void handle();
 
+    public void doWithUsers(){
+        this.users = userUtil.allUser();
+        this.handle();
+        String settleHandle = this.getClass().getSimpleName().replaceAll("SettleHandle", "");
+
+        //向在线玩家发送结算信息
+        HashMap<String, User> userLogin = userUtil.getUserLogin();
+        for(User user:userLogin.values()){
+            MapBody<String,Object> mapBody = new MapBody<>();
+            mapBody.put("settleHandle",settleHandle);
+            sendMsgUtil.sendMsgOneNoReturn(user.getUid(), SendType.SETTLE,mapBody);
+        }
+    }
+
     public void doHandle(){
         //定时结算
         if (this.chackDate()) {
             try {
-                this.handle();
-
-                String settleHandle = this.getClass().getName().replaceAll("SettleHandle", "");
-
-                //向在线玩家发送结算信息
-                HashMap<String, User> userLogin = userUtil.getUserLogin();
-                for(User user:userLogin.values()){
-                    MapBody<String,Object> mapBody = new MapBody<>();
-                    mapBody.put("settleHandle",settleHandle);
-                    sendMsgUtil.sendMsgOneNoReturn(user.getUid(), SendType.SETTLE,mapBody);
-                }
-
+                this.doWithUsers();
             }catch (Exception e) {
                 e.printStackTrace();
             }
         }
+    }
+
+
+    /**
+     * 是否到刷新的天数
+     * @param refresh
+     * @return
+     */
+    protected boolean isRefresh(Integer refresh){
+        int dayOfWeek = this.date.dayOfWeek();
+        int dayOfMonth = this.date.dayOfMonth();
+        //执行日清零，周清零，月清零
+        if(refresh<100){
+            if (refresh.equals(1) || (dayOfWeek == 2 && refresh.equals(7)) || (dayOfMonth == 1 && refresh.equals(30))) {
+                return true;
+            }
+        }else{
+            refresh-=100;
+            if(this.runingDays%refresh==0){
+                return true;
+            }
+        }
+        return false;
     }
 
 

@@ -259,6 +259,9 @@ public class UserUtil {
     }
 
     public void addProps(User user, List<Prop> propList) {
+        if(propList == null || user == null){
+            return;
+        }
         try {
             List<Prop> propsThis = user.propList();
             List<Prop> propsOver = new ArrayList<>();
@@ -320,8 +323,10 @@ public class UserUtil {
     }
 
     public void setDailyCheckIn(User user) {
+        int tcount = 2;
+
         //随机一个版本
-        int t = RandomUtil.randomInt(2) + 1;
+        int t = RandomUtil.randomInt(tcount) + 1;
 
         List<Award> awards = new ArrayList<>();
 

@@ -23,8 +23,6 @@ public class NumericalRefreshSettleHandle extends SettleHandle {
 
     @Override
     public void handle() {
-        int dayOfWeek = this.date.dayOfWeek();
-        int dayOfMonth = this.date.dayOfMonth();
 
 
         HashMap<String, Numerical> stringNumericalHashMap = redisObjectUtil.getlkMap(RedisKeyUtil.getlkKey(RedisKey.NUMERICAL), Numerical.class);
@@ -32,16 +30,10 @@ public class NumericalRefreshSettleHandle extends SettleHandle {
         for (Numerical numerical : stringNumericalHashMap.values()) {
             String name = numerical.getName();
             Integer refresh = numerical.getRefresh();
-
-            //执行日清零，周清零，月清零
-
-             if (refresh.equals(1) || (dayOfWeek == 2 && refresh.equals(7)) || (dayOfMonth == 1 && refresh.equals(30))) {
-                 this.refresh(name);
-             }
-
-
+            if(this.isRefresh(refresh)){
+                this.refresh(name);
+            }
         }
-
     }
 
     @Override
@@ -67,7 +59,7 @@ public class NumericalRefreshSettleHandle extends SettleHandle {
                 String userUid = userNumerical.getUserUid();
                 User user = userUtil.getUserByUid(userUid);
                 if(user != null){
-                    user.getUserNumericalMap().get("numericalName").setValue(0L);
+                    user.getUserNumericalMap().get(numericalName).setValue(0L);
                     userUtil.saveUser(user);
                 }
             }
