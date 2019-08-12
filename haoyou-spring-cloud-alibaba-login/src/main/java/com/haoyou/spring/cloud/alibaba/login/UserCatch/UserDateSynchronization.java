@@ -63,56 +63,5 @@ public class UserDateSynchronization {
         }
     }
 
-    /**
-     * 缓存用户信息到redis
-     *
-     * @param user
-     * @return
-     */
-    public boolean cache(User user) {
-        //TODO 读取缓存用户所有信息
-        logger.info(String.format("cacheUser: %s", user.getUsername()));
-
-        String key = RedisKeyUtil.getKey(RedisKey.USER, user.getUid());
-
-        if (!user.isOnLine()) {
-
-            //从数据库获取的pets
-            userUtil.cacheUserAndPet(user);
-            user.setOnLine(true);
-        }
-        if (redisObjectUtil.save(key, user)) {
-            //缓存宠物信息
-            logger.info(String.format("%s 登录成功！！", user.getUsername()));
-            return true;
-        }
-
-        return false;
-    }
-
-
-
-    /**
-     * 登出内存操作
-     *
-     * @param user
-     * @return
-     */
-    public boolean removeCache(User user) {
-        userUtil.saveSqlUserAndPets(user);
-        //TODO 清除用户所有缓存信息
-        String key = RedisKeyUtil.getKey(RedisKey.OUTLINE_USER, user.getUid());
-        String key1 = RedisKeyUtil.getKey(RedisKey.USER, user.getUid());
-        user.setOnLine(false);
-        redisObjectUtil.save(key, user);
-        return redisObjectUtil.delete(key1);
-    }
-
-
-
-
-
-
-
 
 }

@@ -12,47 +12,36 @@ import java.util.Date;
 
 @Data
 @JsonIgnoreProperties(value = {}, ignoreUnknown = true)
-public class Fund implements Serializable {
-    private static final long serialVersionUID = -8925274109108599033L;
+public class Friends implements Serializable {
+    private static final long serialVersionUID = -6354380084396747117L;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
     /**
-     * 名称
+     * 玩家1
      */
-    private String name;
+    @Column(name = "user_uid1")
+    private String userUid1;
 
     /**
-     * 中文名
+     * 玩家2
      */
-    private String l10n;
+    @Column(name = "user_uid2")
+    private String userUid2;
+
+    @Column(name = "creat_time")
+    private Date creatTime;
 
     /**
-     * 奖励
+     * 聊天记录
      */
-    @Column(name = "award_type")
-    private String awardType;
+    @Column(name = "chat_record")
+    private byte[] chatRecord;
 
     /**
-     * 基金时长
+     * 亲密度
      */
-    private Integer days;
-
-    /**
-     * 截止时间
-     */
-    @Column(name = "over_time")
-    private Date overTime;
-
-    /**
-     * 描述
-     */
-    private String description;
-
-    /**
-     * 价格
-     */
-    private Integer price;
+    private Integer intimacy;
 
 }

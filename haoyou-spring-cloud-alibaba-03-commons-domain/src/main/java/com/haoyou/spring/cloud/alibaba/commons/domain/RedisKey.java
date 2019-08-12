@@ -48,4 +48,11 @@ public class RedisKey {
     public static final String FIGHTING_ROOM = "fighting_room";
 
     public static final String PLAYER_FIGHTING_ROOM = "player_fighting_room";
+
+
+
+    public static final String FRIENDS = "friends";
+    public static final String USER_FRIENDS = "user_friends";
+    public static final String USER_FRIENDS_APPLICATION = "user_friends_application";
+
 }

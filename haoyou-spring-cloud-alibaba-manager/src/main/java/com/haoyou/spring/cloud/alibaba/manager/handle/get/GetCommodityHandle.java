@@ -72,6 +72,8 @@ public class GetCommodityHandle extends ManagerHandle {
         commodityMsg.put("storeName", commodity.getStoreName());
         //商品名称
         commodityMsg.put("name", commodity.getName());
+        //商品名称
+        commodityMsg.put("l10n", commodity.getL10n());
         //介绍
         commodityMsg.put("description", commodity.getDescription());
         //货币类型

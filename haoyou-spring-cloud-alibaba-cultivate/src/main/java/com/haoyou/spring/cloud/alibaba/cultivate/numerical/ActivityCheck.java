@@ -142,7 +142,7 @@ public class ActivityCheck extends NumericalCheck {
                     //次数不超过上限时
                     Integer times = activityAward.getTimes();
                     if(userNumerical.getValue()<times){
-                        String type = RedisKeyUtil.getKey(RedisKey.ACTIVITY, activity.getActivityType(),activityAward.getAwardType());
+                        String type = RedisKeyUtil.getKey(RedisKey.ACTIVITY, activity.getActivityType(),activityAward.getAwardType(),userNumerical.getValue().toString());
                         rewardService.refreshUpAward(user.getUid(), rewardService.getAward(activityAward.getAwardType()), type);
                     }
                 }

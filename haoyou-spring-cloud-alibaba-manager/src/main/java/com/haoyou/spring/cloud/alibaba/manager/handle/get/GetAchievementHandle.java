@@ -30,7 +30,7 @@ public class GetAchievementHandle extends ManagerHandle {
 
     @Override
     protected void setHandleType() {
-        this.handleType = SendType.GET_RANK;
+        this.handleType = SendType.GET_ACHIEVEMENT;
     }
 
     @Override
@@ -83,7 +83,7 @@ public class GetAchievementHandle extends ManagerHandle {
                 achievementMsg.put("award", firstEntry.getValue());
                 achievementMsg.put("type",RedisKeyUtil.getKey(RedisKey.ACHIEVEMENT, achievement.getName(),firstEntry.getKey().toString()));
             }
-            //无带领取的奖励
+            //无待领取的奖励
             else {
                 UserNumerical userNumerical = user.getUserNumericalMap().get(achievement.getNumericalName());
                 if (userNumerical != null) {

@@ -88,6 +88,8 @@ public class InitData implements ApplicationRunner {
     private ActivityMapper activityMapper;
     @Autowired
     private ActivityAwardMapper activityAwardMapper;
+    @Autowired
+    private FriendsMapper friendsMapper;
 
 
     @Autowired
@@ -115,7 +117,8 @@ public class InitData implements ApplicationRunner {
          */
         if (lastDo == null || now.getTime() - lastDo.getTime() > 60 * 1000) {
 
-
+            //好友信息
+            initFriends();
             //活动信息
             initActivity();
             //商品信息
@@ -159,6 +162,29 @@ public class InitData implements ApplicationRunner {
     }
 
     /**
+     * 好友信息
+     */
+    private void initFriends() {
+        redisObjectUtil.deleteAll(RedisKeyUtil.getlkKey(RedisKey.FRIENDS));
+
+        List<Friends> friends = friendsMapper.selectAll();
+        for (Friends friend : friends) {
+            String friendKey = RedisKeyUtil.getKey(RedisKey.FRIENDS, friend.getId().toString());
+            redisObjectUtil.save(friendKey, friend, -1);
+
+
+
+            String friend1Key = RedisKeyUtil.getKey(RedisKey.USER_FRIENDS,friend.getUserUid1(),friend.getId().toString());
+            String friend2Key = RedisKeyUtil.getKey(RedisKey.USER_FRIENDS,friend.getUserUid2(),friend.getId().toString());
+
+            redisObjectUtil.save(friend1Key, friend.getId(), -1);
+            redisObjectUtil.save(friend2Key, friend.getId(), -1);
+        }
+
+
+    }
+
+    /**
      * 活动信息
      */
     private void initActivity() {
@@ -176,15 +202,14 @@ public class InitData implements ApplicationRunner {
             activity.setActivityAwards(select);
 
 
-            if(activity.getPresetEnabled() == 1){
+            if (activity.getPresetEnabled() == 1) {
                 activity.setCurrent(true);
             }
 
 
-
             String activityKey = RedisKeyUtil.getKey(RedisKey.COMMODITY, activity.getActivityType(), activity.getName());
 
-            redisObjectUtil.save(activityKey,activity,-1);
+            redisObjectUtil.save(activityKey, activity, -1);
 
         }
 

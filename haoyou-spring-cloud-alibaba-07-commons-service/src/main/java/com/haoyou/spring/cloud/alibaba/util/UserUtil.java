@@ -46,6 +46,9 @@ public class UserUtil {
     private CurrencyMapper currencyMapper;
 
     @Autowired
+    private FriendsMapper friendsMapper;
+
+    @Autowired
     private PetMapper petMapper;
     @Autowired
     private PetSkillMapper petSkillMapper;
@@ -129,6 +132,9 @@ public class UserUtil {
             this.saveSqlUser(user);
         }
     }
+    public void saveUser(User user,String redisKey) {
+        redisObjectUtil.save(RedisKeyUtil.getKey(redisKey,user.getUid()),user);
+    }
 
     /**
      * 是否缓存
@@ -150,6 +156,9 @@ public class UserUtil {
         }
         return key;
     }
+    public void deleteInCatch(String UserUid){
+        redisObjectUtil.delete(isInCatch(UserUid));
+    }
 
 
     /**
@@ -159,7 +168,7 @@ public class UserUtil {
         String inCatch = isInCatch(userUid);
         if (StrUtil.isEmpty(inCatch)) {
             User user = getUserByUid(userUid);
-            if(user!=null){
+            if (user != null) {
                 redisObjectUtil.save(RedisKeyUtil.getKey(RedisKey.OUTLINE_USER, user.getUid()), user);
             }
         }
@@ -199,18 +208,41 @@ public class UserUtil {
         for (UserNumerical userNumerical : userNumericals) {
             userNumericalMap.put(userNumerical.getNumericalName(), userNumerical);
         }
-        if (stringNumericalHashMap.size() != userNumericals.size()) {
-            for (Numerical numerical : stringNumericalHashMap.values()) {
-                if (!userNumericalMap.containsKey(numerical.getName())) {
-                    UserNumerical userNumerical = new UserNumerical();
-                    userNumerical.setUserUid(user.getUid());
-                    userNumerical.setNumericalName(numerical.getName());
-                    userNumerical.setValue(0l);
-                    userNumericalMapper.insertSelective(userNumerical);
-                    userNumericalMap.put(numerical.getName(), userNumerical);
-                }
+        for (Numerical numerical : stringNumericalHashMap.values()) {
+            if (!userNumericalMap.containsKey(numerical.getName())) {
+                UserNumerical userNumerical = new UserNumerical();
+                userNumerical.setUserUid(user.getUid());
+                userNumerical.setNumericalName(numerical.getName());
+                userNumerical.setValue(0l);
+                userNumericalMapper.insertSelective(userNumerical);
+                userNumericalMap.put(numerical.getName(), userNumerical);
             }
         }
+
+        //加载好友系统
+
+        Friends friend1select = new Friends();
+        friend1select.setUserUid1(user.getUid());
+        Friends friend2select = new Friends();
+        friend2select.setUserUid2(user.getUid());
+
+        List<Friends> select = friendsMapper.select(friend1select);
+        select.addAll(friendsMapper.select(friend2select));
+
+        for(Friends friend : select){
+            String friendKey = RedisKeyUtil.getKey(RedisKey.FRIENDS, friend.getId().toString());
+            if(redisObjectUtil.get(friendKey,Friends.class) == null){
+                redisObjectUtil.save(friendKey, friend, -1);
+            }
+
+            String friend1Key = RedisKeyUtil.getKey(RedisKey.USER_FRIENDS,friend.getUserUid1(),friend.getId().toString());
+
+            redisObjectUtil.save(friend1Key, friend.getId(), -1);
+        }
+
+
+
+
 
         //每日签到
         if (user.getUserData().getDailyCheckIn() == null) {
@@ -221,13 +253,13 @@ public class UserUtil {
     }
 
     /**
-     *
      * @param user
      */
     public void cacheUserAndPet(User user) {
         this.cacheUser(user);
         this.cachePet(user);
     }
+
     /**
      * 向数据库同步玩家信息
      *
@@ -240,9 +272,38 @@ public class UserUtil {
 
         userDataMapper.updateByPrimaryKeySelective(user.getUserData());
 
+        //修改或者新增
         for (UserNumerical userNumerical : user.getUserNumericalMap().values()) {
-            userNumericalMapper.updateByPrimaryKeySelective(userNumerical);
+            if (userNumerical.getId() == null) {
+                userNumericalMapper.insertSelective(userNumerical);
+            } else {
+                userNumericalMapper.updateByPrimaryKeySelective(userNumerical);
+            }
         }
+        //同步好友信息到数据库
+        saveSqlFriends(user);
+    }
+
+    /**
+     * 同步好友信息到数据库
+     * @param user
+     */
+    public void saveSqlFriends(User user) {
+
+        String friendlkKey = RedisKeyUtil.getlkKey(RedisKey.USER_FRIENDS,user.getUid());
+
+        HashMap<String, Integer> stringIntegerHashMap = redisObjectUtil.getlkMap(friendlkKey, Integer.class);
+
+        for(Integer i : stringIntegerHashMap.values()){
+            String friendKey = RedisKeyUtil.getKey(RedisKey.FRIENDS, i.toString());
+
+            Friends friends = redisObjectUtil.get(friendKey, Friends.class);
+
+            friendsMapper.updateByPrimaryKeySelective(friends);
+
+
+        }
+
     }
 
 
@@ -259,7 +320,7 @@ public class UserUtil {
     }
 
     public void addProps(User user, List<Prop> propList) {
-        if(propList == null || user == null){
+        if (propList == null || user == null) {
             return;
         }
         try {
@@ -552,6 +613,7 @@ public class UserUtil {
             this.saveSqlUserAndPets(user);
         }
     }
+
     public void deleteAllUserCatch() {
         HashMap<String, User> userLogin = this.getUserLogin();
         sendMsgUtil.sendDownUserList(userLogin.values());
@@ -566,6 +628,9 @@ public class UserUtil {
         deleteAllUserCatch();
         cacheAllUserToRedis();
     }
+
+
+
 
 
 }

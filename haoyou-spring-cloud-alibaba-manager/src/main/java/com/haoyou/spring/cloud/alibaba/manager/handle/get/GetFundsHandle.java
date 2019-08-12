@@ -74,11 +74,13 @@ public class GetFundsHandle extends ManagerHandle {
                 fundMap.put("fund",fund);
                 //奖励信息
                 fundMap.put("award",upAward);
-                //奖励领取type
-                fundMap.put("type",type);
+                if(!upAward.isUsed()){
+                    //奖励领取type
+                    fundMap.put("type",type);
+                }
 
                 long l = DateUtil.betweenDay(buyDate, now , true);
-
+                //剩余时间
                 fundMap.put("days",fund.getDays()-1-l);
 
                 hasBuyFunds.add(fundMap);
@@ -106,6 +108,9 @@ public class GetFundsHandle extends ManagerHandle {
             }
 
         }
+
+        mapBody.put("hasBuyFunds",hasBuyFunds);
+        mapBody.put("notBuyFunds",notBuyFunds);
         mapBody.setState(ResponseMsg.MSG_SUCCESS);
         return mapBody;
     }

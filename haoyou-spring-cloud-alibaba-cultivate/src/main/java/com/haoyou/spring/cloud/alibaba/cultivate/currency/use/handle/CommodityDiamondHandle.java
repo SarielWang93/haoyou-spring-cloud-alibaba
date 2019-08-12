@@ -23,7 +23,7 @@ import java.util.List;
 public class CommodityDiamondHandle extends CurrencyUseHandle {
     @Override
     protected void setHandleType() {
-        this.handleType = PET_CULTURE;
+        this.handleType = COMMODITY;
     }
 
     @Override

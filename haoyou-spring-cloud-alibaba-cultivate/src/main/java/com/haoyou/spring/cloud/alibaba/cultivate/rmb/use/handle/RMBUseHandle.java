@@ -96,10 +96,10 @@ public abstract class RMBUseHandle {
     protected boolean save(User user) {
         //保存修改
         user.setLastUpdateDate(new Date());
-        if(redisObjectUtil.save(RedisKeyUtil.getKey(RedisKey.USER, user.getUid()), user)){
-            return true;
-        }
-        return false;
+        userUtil.saveUser(user,RedisKey.USER);
+      
+        return true;
+
     }
 
 

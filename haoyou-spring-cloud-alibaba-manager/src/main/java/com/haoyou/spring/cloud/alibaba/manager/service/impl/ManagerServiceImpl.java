@@ -1,5 +1,6 @@
 package com.haoyou.spring.cloud.alibaba.manager.service.impl;
 
+import com.haoyou.spring.cloud.alibaba.util.UserUtil;
 import org.apache.dubbo.config.annotation.Service;
 import com.alibaba.fescar.spring.annotation.GlobalTransactional;
 import com.haoyou.spring.cloud.alibaba.commons.domain.RedisKey;
@@ -45,6 +46,8 @@ public class ManagerServiceImpl implements ManagerService {
     private RedisObjectUtil redisObjectUtil;
     @Autowired
     private SendMsgUtil sendMsgUtil;
+    @Autowired
+    private UserUtil userUtil;
 
     @Override
     @GlobalTransactional
@@ -78,7 +81,10 @@ public class ManagerServiceImpl implements ManagerService {
         }
         //登录验证
         else {
-            user = redisObjectUtil.get(RedisKeyUtil.getKey(RedisKey.USER, useruid), User.class);
+            String inCatch = userUtil.isInCatch(useruid);
+            if(inCatch != null && inCatch.equals(RedisKeyUtil.getKey(RedisKey.USER, useruid))){
+                user = redisObjectUtil.get(inCatch,User.class);
+            }
         }
         //无法获取user，返回错误
         if (user == null) {

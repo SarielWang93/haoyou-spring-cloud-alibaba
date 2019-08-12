@@ -113,6 +113,8 @@ public abstract class CurrencyUseHandle {
     final static public int PROP_LIMIT = 3;
     //提升宠物栏位
     final static public int PET_LIMIT = 4;
+    //购买商品
+    final static public int COMMODITY = 5;
 
     // ********************************     以上为使用类型，以下为返回类型      ************************************
 

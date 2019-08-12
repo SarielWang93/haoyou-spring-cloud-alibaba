@@ -10,6 +10,7 @@ import com.haoyou.spring.cloud.alibaba.commons.mapper.UserDataMapper;
 import com.haoyou.spring.cloud.alibaba.commons.mapper.UserNumericalMapper;
 import com.haoyou.spring.cloud.alibaba.pojo.bean.DailyCheckIn;
 import com.haoyou.spring.cloud.alibaba.register.Register;
+import com.haoyou.spring.cloud.alibaba.util.UserUtil;
 import org.apache.dubbo.config.annotation.Service;
 import com.haoyou.spring.cloud.alibaba.commons.domain.RedisKey;
 import com.haoyou.spring.cloud.alibaba.commons.domain.ResponseMsg;
@@ -47,6 +48,9 @@ public class LoginServiceImpl implements LoginService {
     @Autowired
     private Register register;
 
+    @Autowired
+    private UserUtil userUtil;
+
     /**
      * 登录
      *
@@ -59,6 +63,13 @@ public class LoginServiceImpl implements LoginService {
 
         User userIn = req.getUser();
         User user = new User();
+
+        if(userIn == null){
+            user .setState(ResponseMsg.MSG_LOGIN_USERNAME_WRONG);
+            return user.notTooLong();
+        }
+
+
         user.setUid(userIn.getUid());
         user.setUsername(userIn.getUsername());
 
@@ -67,25 +78,30 @@ public class LoginServiceImpl implements LoginService {
 
 
         //根据用户名或者uid获取用户信息
-        user = select(user);
+        user = userMapper.selectOne(user);
 
         if (user == null) {
             userIn.setState(ResponseMsg.MSG_LOGIN_USERNAME_WRONG);
-            return userIn;
+            return userIn.notTooLong();
         }
-        if (userIn != null) {
-            if (StrUtil.isEmpty(userIn.getUid()) && !user.getPassword().equals(userIn.getPassword())) {
-                userIn.setState(ResponseMsg.MSG_LOGIN_PASSWORD_WRONG);
-                return userIn;
-            }
+
+        if (StrUtil.isEmpty(userIn.getUid()) && !user.getPassword().equals(userIn.getPassword())) {
+            userIn.setState(ResponseMsg.MSG_LOGIN_PASSWORD_WRONG);
+            return userIn.notTooLong();
         }
+
+        //缓存登录用户的信息
+        user = userUtil.getUserByUid(user.getUid());
+
         user.setLastLoginDate(new Date());
         user.setLastLoginUrl(req.getUrl());
-        //缓存登录用户的信息
-        if (!userDateSynchronization.cache(user)) {
-            userIn.setState(ResponseMsg.MSG_LOGIN_WRONG);
-            return userIn;
+
+        String inCatch = userUtil.isInCatch(user.getUid());
+
+        if(inCatch != null && inCatch.contains(RedisKey.OUTLINE_USER)){
+            redisObjectUtil.delete(inCatch);
         }
+        userUtil.saveUser(user,RedisKey.USER);
 
 
         user.setState(ResponseMsg.MSG_SUCCESS);
@@ -164,15 +180,18 @@ public class LoginServiceImpl implements LoginService {
         }
         user.setLastLoginOutDate(new Date());
         //清除缓存
-        if (userDateSynchronization.removeCache(user)) {
-            logger.info(String.format("%s 登出成功！！", user.getUsername()));
-            user.setState(ResponseMsg.MSG_SUCCESS);
-            return user.notTooLong();
-        }
+
+        userUtil.saveSqlUserAndPets(user);
+
+        userUtil.deleteInCatch(user.getUid());
+
+        userUtil.saveUser(user,RedisKey.OUTLINE_USER);
 
 
-        user.setState(ResponseMsg.MSG_LOGINOUT_WRONG);
+        logger.info(String.format("%s 登出成功！！", user.getUsername()));
+        user.setState(ResponseMsg.MSG_SUCCESS);
         return user.notTooLong();
+
     }
 
     /**
@@ -194,39 +213,5 @@ public class LoginServiceImpl implements LoginService {
         userDateSynchronization.synchronization();
     }
 
-    /**
-     * 用户登录名数据库查询
-     *
-     * @param user
-     * @return
-     */
-    private User select(User user) {
-        User user1 = userMapper.selectOne(user);
-        if (user1 != null) {
-            //outline_user key中加载
-            String key1 = RedisKeyUtil.getKey(RedisKey.OUTLINE_USER, user1.getUid());
-            User user2 = redisObjectUtil.get(key1, User.class);
-            User userrt = null;
-            if (user2 != null && user1.getLastUpdateDate().getTime() < user2.getLastUpdateDate().getTime()) {
-                user2.setOnLine(true);
-                userrt = user2;
-            } else {
-                //user  key中加载
-                String key2 = RedisKeyUtil.getKey(RedisKey.USER, user1.getUid());
-                User user3 = redisObjectUtil.get(key2, User.class);
-                if (user3 != null && user1.getLastUpdateDate().getTime() < user3.getLastUpdateDate().getTime()){
-                    user3.setOnLine(true);
-                    userrt = user3;
-                }else{
-                    //加载方式
-                    user1.setOnLine(false);
-                    userrt = user1;
-                }
 
-            }
-            redisObjectUtil.delete(key1);
-            return userrt;
-        }
-        return null;
-    }
 }

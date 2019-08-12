@@ -1,7 +1,10 @@
 package com.haoyou.spring.cloud.alibaba.manager.handle;
 
+import com.haoyou.spring.cloud.alibaba.commons.domain.RedisKey;
 import com.haoyou.spring.cloud.alibaba.commons.domain.ResponseMsg;
+import com.haoyou.spring.cloud.alibaba.commons.entity.Award;
 import com.haoyou.spring.cloud.alibaba.commons.util.MapperUtils;
+import com.haoyou.spring.cloud.alibaba.commons.util.RedisKeyUtil;
 import com.haoyou.spring.cloud.alibaba.redis.service.ScoreRankService;
 import com.haoyou.spring.cloud.alibaba.util.ScoreRankUtil;
 import com.haoyou.spring.cloud.alibaba.util.UserUtil;
@@ -99,6 +102,19 @@ public abstract class ManagerHandle implements Serializable {
             e.printStackTrace();
         }
         return null;
+    }
+
+
+
+    /**
+     * 获取已发放的奖励
+     * @param userUid
+     * @param type
+     * @return
+     */
+    protected Award getUpAward(String userUid, String type){
+        String key = RedisKeyUtil.getKey(RedisKey.USER_AWARD, userUid, type);
+        return redisObjectUtil.get(key, Award.class);
     }
 
 }

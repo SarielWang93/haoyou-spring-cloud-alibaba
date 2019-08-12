@@ -48,6 +48,8 @@ public class LoginHandle extends ManagerHandle {
             //服务器名字
             Server server = redisObjectUtil.get(RedisKeyUtil.getKey(RedisKey.SERVER, login.getServerId().toString()), Server.class);
             otherMsg.put("serverName",server.getServerName());
+            //服务器时间
+            otherMsg.put("serverDate",new Date());
 
             //当前服排名
             Long aLong = scoreRankUtil.find(RedisKeyUtil.getKey(RedisKey.RANKING, server.getId().toString()), login);

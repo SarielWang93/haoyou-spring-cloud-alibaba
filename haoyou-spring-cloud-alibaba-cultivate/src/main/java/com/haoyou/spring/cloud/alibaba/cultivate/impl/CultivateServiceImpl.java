@@ -10,6 +10,7 @@ import com.haoyou.spring.cloud.alibaba.commons.util.MapperUtils;
 import com.haoyou.spring.cloud.alibaba.cultivate.service.*;
 import com.haoyou.spring.cloud.alibaba.pojo.cultivate.*;
 import com.haoyou.spring.cloud.alibaba.fighting.info.FightingPet;
+import com.haoyou.spring.cloud.alibaba.util.UserUtil;
 import org.apache.dubbo.config.annotation.Service;
 import com.haoyou.spring.cloud.alibaba.commons.domain.RedisKey;
 import com.haoyou.spring.cloud.alibaba.commons.mapper.PetMapper;
@@ -60,6 +61,8 @@ public class CultivateServiceImpl implements CultivateService {
     private EmailService emailService;
     @Autowired
     private RMBUseService rmbUseService;
+    @Autowired
+    private UserUtil userUtil;
 
     /**
      * 技能配置处理
@@ -470,6 +473,7 @@ public class CultivateServiceImpl implements CultivateService {
      */
     private boolean saveUser(User user) {
         user.setLastUpdateDate(new Date());
-        return redisObjectUtil.save(RedisKeyUtil.getKey(RedisKey.USER, user.getUid()), user);
+        userUtil.saveUser(user,RedisKey.USER);
+        return true;
     }
 }

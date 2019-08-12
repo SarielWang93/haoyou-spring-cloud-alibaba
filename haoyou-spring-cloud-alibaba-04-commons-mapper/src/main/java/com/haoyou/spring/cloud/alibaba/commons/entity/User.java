@@ -112,9 +112,6 @@ public class User extends BaseMessage implements Serializable {
     private String lastLoginUrl;
 
     @Transient
-    private boolean onLine;
-
-    @Transient
     private Currency currency;
 
     @Transient

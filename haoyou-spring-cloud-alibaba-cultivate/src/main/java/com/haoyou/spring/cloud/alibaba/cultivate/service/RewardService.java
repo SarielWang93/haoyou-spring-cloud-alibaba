@@ -178,6 +178,10 @@ public class RewardService {
         String key = RedisKeyUtil.getKey(RedisKey.USER_AWARD, userUid, type);
         return redisObjectUtil.get(key, Award.class);
     }
+    public HashMap<String, Award> getUpAwards(String userUid, String type){
+        String key = RedisKeyUtil.getlkKey(RedisKey.USER_AWARD, userUid, type);
+        return redisObjectUtil.getlkMap(key, Award.class);
+    }
 
     /**
      * 领取内存中的奖励
@@ -187,7 +191,12 @@ public class RewardService {
      */
     public MapBody receiveAward (User user,String type) {
         MapBody mapBody = new MapBody();
+
         String key = RedisKeyUtil.getKey(RedisKey.USER_AWARD, user.getUid(), type);
+        if(type.startsWith(RedisKeyUtil.getKey(RedisKey.USER_AWARD, user.getUid()))){
+            key = type;
+        }
+
         Award award = redisObjectUtil.get(key, Award.class);
         if(award != null && !award.isUsed()){
             if (this.doAward(user,award)) {

@@ -1,6 +1,7 @@
 package com.haoyou.spring.cloud.alibaba.commons.message;
 
 
+import com.haoyou.spring.cloud.alibaba.commons.domain.ResponseMsg;
 import lombok.Data;
 
 import javax.persistence.Transient;
@@ -16,6 +17,24 @@ public class BaseMessage implements Serializable {
 
 
     private static final long serialVersionUID = -4373103763918267983L;
+
+
+
+
+
+
+    public static BaseMessage beSuccess(){
+        BaseMessage baseMessage = new BaseMessage();
+        baseMessage.setState(ResponseMsg.MSG_SUCCESS);
+        return baseMessage;
+    }
+    public static BaseMessage beErr(){
+        BaseMessage baseMessage = new BaseMessage();
+        baseMessage.setState(ResponseMsg.MSG_ERR);
+        return baseMessage;
+    }
+
+
     /**
      * 信息状态
      */
@@ -41,4 +60,9 @@ public class BaseMessage implements Serializable {
     public int hashCode() {
         return Objects.hash(state, otherMsg);
     }
+
+
+
+
+
 }
