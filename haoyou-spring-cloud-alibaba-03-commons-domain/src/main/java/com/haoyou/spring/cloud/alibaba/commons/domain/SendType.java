@@ -81,4 +81,6 @@ public class SendType {
 
     public final static int FIGHTING_INITPET = 24;//战斗初始化宠物
 
+    public final static int SEND_CHAT = 69;//发送聊天内容
+
 }

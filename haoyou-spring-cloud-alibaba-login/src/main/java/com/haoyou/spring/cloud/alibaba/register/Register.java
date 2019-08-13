@@ -73,7 +73,8 @@ public class Register {
      */
     public User register(User user) {
 
-        if (StrUtil.isEmpty(user.getUsername()) || StrUtil.isEmpty(user.getPassword())) {
+        //判断用户名密码以及屏蔽词
+        if (StrUtil.isEmpty(user.getUsername()) || StrUtil.isEmpty(user.getPassword()) || userUtil.hasShieldVocas(user.getUsername())) {
             user.setState(ResponseMsg.MSG_ERR);
             return user.notTooLong();
         }
@@ -85,6 +86,8 @@ public class Register {
             user.setState(ResponseMsg.MSG_REGISTER_USERNAME_EXIST);
             return user.notTooLong();
         }
+
+
 
 
         //TODO 注册的时候可以存储平台信息

@@ -1,12 +1,15 @@
 package com.haoyou.spring.cloud.alibaba.cultivate.service;
 
+import cn.hutool.core.util.StrUtil;
 import com.haoyou.spring.cloud.alibaba.commons.domain.RedisKey;
+import com.haoyou.spring.cloud.alibaba.commons.domain.SendType;
 import com.haoyou.spring.cloud.alibaba.commons.entity.Award;
 import com.haoyou.spring.cloud.alibaba.commons.entity.Friends;
 import com.haoyou.spring.cloud.alibaba.commons.entity.User;
 import com.haoyou.spring.cloud.alibaba.commons.message.BaseMessage;
 import com.haoyou.spring.cloud.alibaba.commons.util.RedisKeyUtil;
 import com.haoyou.spring.cloud.alibaba.cultivate.currency.use.handle.CurrencyUseHandle;
+import com.haoyou.spring.cloud.alibaba.pojo.bean.ChatRecord;
 import com.haoyou.spring.cloud.alibaba.pojo.cultivate.CyrrencyUseMsg;
 import com.haoyou.spring.cloud.alibaba.pojo.cultivate.FriendsDoMsg;
 import com.haoyou.spring.cloud.alibaba.sofabolt.protocol.MyRequest;
@@ -18,6 +21,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * @author wanghui
@@ -74,7 +78,7 @@ public class FriendsService {
                 receiveGift(friendsDoMsg);
                 break;
             case 6:
-
+                sendMsg(friendsDoMsg);
                 break;
         }
 
@@ -128,14 +132,7 @@ public class FriendsService {
             friend.setIntimacy(0);
 
 
-            String friendKey = RedisKeyUtil.getKey(RedisKey.FRIENDS, friend.getId().toString());
-            redisObjectUtil.save(friendKey, friend, -1);
-
-            String friend1Key = RedisKeyUtil.getKey(RedisKey.USER_FRIENDS,friend.getUserUid1(),friend.getId().toString());
-            String friend2Key = RedisKeyUtil.getKey(RedisKey.USER_FRIENDS,friend.getUserUid2(),friend.getId().toString());
-
-            redisObjectUtil.save(friend1Key, friend.getId(), -1);
-            redisObjectUtil.save(friend2Key, friend.getId(), -1);
+            userUtil.saveFriend(friend);
 
             userUtil.saveUser(user);
             return BaseMessage.beSuccess();
@@ -198,6 +195,11 @@ public class FriendsService {
         }
     }
 
+    /**
+     * 领取礼物
+     * @param friendsDoMsg
+     * @return
+     */
     public BaseMessage receiveGift(FriendsDoMsg friendsDoMsg) {
 
         User user = friendsDoMsg.getUser();
@@ -213,6 +215,31 @@ public class FriendsService {
             String type = RedisKeyUtil.getKey("friendsGift", userUid);
             rewardService.receiveAward(user,type);
         }
+        return BaseMessage.beSuccess();
+    }
+
+    /**
+     *
+     * @param friendsDoMsg
+     * @return
+     */
+    public BaseMessage sendMsg(FriendsDoMsg friendsDoMsg) {
+
+        User user = friendsDoMsg.getUser();
+
+        String userUid = friendsDoMsg.getUserUid();
+
+        String sendMsg = friendsDoMsg.getSendMsg();
+
+        //屏蔽词汇替换
+        sendMsg = userUtil.replaceAllShieldVocas(sendMsg);
+
+        //记录聊天记录
+        ChatRecord chatRecord = userUtil.addChatRecord(user, userUid, sendMsg);
+
+        //发送聊天信息
+        sendMsgUtil.sendMsgOneNoReturn(userUid, SendType.SEND_CHAT,chatRecord);
+
         return BaseMessage.beSuccess();
     }
 }

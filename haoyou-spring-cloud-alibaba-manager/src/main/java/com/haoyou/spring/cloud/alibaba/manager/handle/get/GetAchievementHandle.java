@@ -114,7 +114,7 @@ public class GetAchievementHandle extends ManagerHandle {
 
 
         mapBody.put("achievementsMsg", achievementsMsg);
-        mapBody.setState(ResponseMsg.MSG_ERR);
+        mapBody.setState(ResponseMsg.MSG_SUCCESS);
         return mapBody;
     }
 }

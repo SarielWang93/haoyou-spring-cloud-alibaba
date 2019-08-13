@@ -86,7 +86,7 @@ public class GetCommodityHandle extends ManagerHandle {
         if (commodity.getRefreshTimes() != -1) {
             String numericalName = String.format("commodity_%s", commodity.getName());
 
-            Long buyCount = user.getUserNumericalMap().get("numericalName").getValue();
+            Long buyCount = user.getUserNumericalMap().get(numericalName).getValue();
             //商品可买次数
             commodityMsg.put("canBuyCount", commodity.getRefreshTimes() - buyCount);
         }

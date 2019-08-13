@@ -26,6 +26,8 @@ public class FriendsDoMsg implements Serializable {
 
     private boolean oneButton;
 
+    private String sendMsg;
+
     private User user;
 
 

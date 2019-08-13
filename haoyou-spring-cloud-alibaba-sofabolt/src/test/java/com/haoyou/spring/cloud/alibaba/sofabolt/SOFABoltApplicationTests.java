@@ -1,6 +1,8 @@
 package com.haoyou.spring.cloud.alibaba.sofabolt;
 
 
+import cn.hutool.core.io.file.FileReader;
+import cn.hutool.core.lang.Console;
 import com.alipay.remoting.Connection;
 import com.alipay.remoting.exception.RemotingException;
 import com.alipay.remoting.rpc.RpcClient;
@@ -34,5 +36,14 @@ public class SOFABoltApplicationTests {
     @Test
     public void contextLoads2() throws RemotingException, InterruptedException {
 
+    }
+
+    public static void main(String[] args) {
+        FileReader fileReader = new FileReader("ShieldVoca.txt");
+        List<String> lines = fileReader.readLines();
+
+        for (String line : lines) {
+            Console.log(line);
+        }
     }
 }

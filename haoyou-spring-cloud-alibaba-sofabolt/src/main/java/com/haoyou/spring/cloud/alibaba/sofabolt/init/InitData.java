@@ -1,5 +1,6 @@
 package com.haoyou.spring.cloud.alibaba.sofabolt.init;
 
+import cn.hutool.core.io.file.FileReader;
 import com.haoyou.spring.cloud.alibaba.commons.domain.RedisKey;
 import com.haoyou.spring.cloud.alibaba.commons.entity.*;
 import com.haoyou.spring.cloud.alibaba.commons.entity.Currency;
@@ -116,7 +117,8 @@ public class InitData implements ApplicationRunner {
          * 每次加载必须间隔一分钟以上，防止攻击
          */
         if (lastDo == null || now.getTime() - lastDo.getTime() > 60 * 1000) {
-
+            //加载屏蔽词汇
+            initShieldVoca();
             //好友信息
             initFriends();
             //活动信息
@@ -162,6 +164,22 @@ public class InitData implements ApplicationRunner {
     }
 
     /**
+     * 加载屏蔽词汇
+     */
+    private void initShieldVoca() {
+        redisObjectUtil.deleteAll(RedisKeyUtil.getlkKey(RedisKey.SHIELD_VOCA));
+        FileReader fileReader = new FileReader("ShieldVoca.txt");
+        List<String> shieldVocas = fileReader.readLines();
+
+        for (String shieldVoca : shieldVocas) {
+            String shieldVocaKey = RedisKeyUtil.getKey(RedisKey.SHIELD_VOCA,Integer.toString(shieldVocas.indexOf(shieldVoca)));
+            redisObjectUtil.save(shieldVocaKey,shieldVoca);
+        }
+
+    }
+
+
+    /**
      * 好友信息
      */
     private void initFriends() {
@@ -169,16 +187,7 @@ public class InitData implements ApplicationRunner {
 
         List<Friends> friends = friendsMapper.selectAll();
         for (Friends friend : friends) {
-            String friendKey = RedisKeyUtil.getKey(RedisKey.FRIENDS, friend.getId().toString());
-            redisObjectUtil.save(friendKey, friend, -1);
-
-
-
-            String friend1Key = RedisKeyUtil.getKey(RedisKey.USER_FRIENDS,friend.getUserUid1(),friend.getId().toString());
-            String friend2Key = RedisKeyUtil.getKey(RedisKey.USER_FRIENDS,friend.getUserUid2(),friend.getId().toString());
-
-            redisObjectUtil.save(friend1Key, friend.getId(), -1);
-            redisObjectUtil.save(friend2Key, friend.getId(), -1);
+            userUtil.saveFriend(friend);
         }
 
 

@@ -13,6 +13,7 @@ import com.haoyou.spring.cloud.alibaba.commons.util.MapperUtils;
 import com.haoyou.spring.cloud.alibaba.commons.util.RedisKeyUtil;
 import com.haoyou.spring.cloud.alibaba.commons.util.ZIP;
 import com.haoyou.spring.cloud.alibaba.fighting.info.FightingPet;
+import com.haoyou.spring.cloud.alibaba.pojo.bean.ChatRecord;
 import com.haoyou.spring.cloud.alibaba.pojo.bean.DailyCheckIn;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -628,6 +629,117 @@ public class UserUtil {
         deleteAllUserCatch();
         cacheAllUserToRedis();
     }
+
+
+    /**
+     * 屏蔽词汇替换
+     * @param msg
+     * @return
+     */
+    public String replaceAllShieldVocas(String msg){
+        String shieldVocaKey = RedisKeyUtil.getlkKey(RedisKey.SHIELD_VOCA);
+        HashMap<String, String> shieldVocas = redisObjectUtil.getlkMap(shieldVocaKey, String.class);
+        for(String shieldVoca:shieldVocas.values()){
+
+            StringBuilder builder = StrUtil.builder();
+            for(int i = 0 ;i<shieldVoca.length();i++ ){
+                builder.append("*");
+            }
+            msg = msg.replaceAll(shieldVoca,builder.toString());
+        }
+        return msg;
+    }
+
+    /**
+     * 是否拥有屏蔽词
+     * @param msg
+     * @return
+     */
+    public boolean hasShieldVocas(String msg){
+        String shieldVocaKey = RedisKeyUtil.getlkKey(RedisKey.SHIELD_VOCA);
+        HashMap<String, String> shieldVocas = redisObjectUtil.getlkMap(shieldVocaKey, String.class);
+        for(String shieldVoca:shieldVocas.values()){
+            if(msg.contains(shieldVoca)){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * 获取聊天记录
+     * @param user
+     * @param userUid
+     * @return
+     */
+    public List<ChatRecord> getChatRecord(User user,String userUid){
+        Friends friend = getFriend(user,userUid);
+        return getChatRecord(friend);
+    }
+    public List<ChatRecord> getChatRecord(Friends friend){
+        List<ChatRecord> deserialize = null;
+        if(friend.getChatRecord() == null){
+            deserialize = new ArrayList<>();
+        }else{
+            redisObjectUtil.deserialize(friend.getChatRecord(), List.class);
+        }
+        return deserialize;
+    }
+
+    /**
+     * 添加聊天记录
+     * @param user
+     * @param userUid
+     * @param sendMsg
+     */
+    public ChatRecord addChatRecord(User user,String userUid,String sendMsg){
+        ChatRecord chatRecord = new ChatRecord(user.getUid(),new Date(),sendMsg);
+        Friends friend = getFriend(user,userUid);
+        List<ChatRecord> chatRecords = getChatRecord(friend);
+        chatRecords.add(chatRecord);
+
+        if(chatRecords.size()>50){
+            chatRecords.remove(50);
+        }
+
+
+        friend.setChatRecord(redisObjectUtil.serialize(chatRecords));
+        saveFriend(friend);
+
+        return chatRecord;
+    }
+
+    /**
+     * 保存好友对象
+     * @param friend
+     */
+    public void saveFriend(Friends friend){
+        String friendKey = RedisKeyUtil.getKey(RedisKey.FRIENDS, friend.getId().toString());
+        redisObjectUtil.save(friendKey,friend,-1);
+
+        String friend1Key = RedisKeyUtil.getKey(RedisKey.USER_FRIENDS,friend.getUserUid1(),friend.getId().toString());
+        String friend2Key = RedisKeyUtil.getKey(RedisKey.USER_FRIENDS,friend.getUserUid2(),friend.getId().toString());
+
+        redisObjectUtil.save(friend1Key, friend.getId(), -1);
+        redisObjectUtil.save(friend2Key, friend.getId(), -1);
+    }
+
+    /**
+     * 获取好友信息
+     * @param user
+     * @param userUid
+     * @return
+     */
+    public Friends getFriend(User user,String userUid){
+        Integer friendId = redisObjectUtil.get(RedisKeyUtil.getKey(RedisKey.USER_FRIENDS_APPLICATION, user.getUid(), userUid), Integer.class);
+
+        String friendKey = RedisKeyUtil.getKey(RedisKey.FRIENDS, friendId.toString());
+
+        return redisObjectUtil.get(friendKey, Friends.class);
+    }
+
+
+
 
 
 

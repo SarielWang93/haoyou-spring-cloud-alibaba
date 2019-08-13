@@ -55,4 +55,7 @@ public class RedisKey {
     public static final String USER_FRIENDS = "user_friends";
     public static final String USER_FRIENDS_APPLICATION = "user_friends_application";
 
+
+    public static final String SHIELD_VOCA = "shield_voca";
+
 }
