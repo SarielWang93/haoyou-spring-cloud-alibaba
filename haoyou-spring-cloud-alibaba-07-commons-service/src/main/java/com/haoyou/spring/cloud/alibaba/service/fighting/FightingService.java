@@ -13,8 +13,20 @@ import java.util.Map;
 
 public interface FightingService {
 
+    /**
+     * 闯关模式
+     *
+     * @param user
+     * @param chapterName
+     * @param idNum
+     * @param difficult
+     * @return
+     */
+    boolean start(User user, String chapterName, int idNum, int difficult);
 
-    boolean start(List<User> users, Map<String,Boolean> allIsAi, String rewardType,String fightingType);
+    boolean start(User user, String chapterName, int idNum, int difficult, boolean isAi);
+
+    boolean start(List<User> users, Map<String, Boolean> allIsAi);
 
 
     MapBody receiveFightingMsg(MyRequest req);

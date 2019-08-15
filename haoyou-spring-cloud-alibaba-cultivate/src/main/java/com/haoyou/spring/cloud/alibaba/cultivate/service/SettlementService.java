@@ -79,15 +79,8 @@ public class SettlementService {
 
     private void getRuningDays(DateTime date){
         int hour = date.hour(true);
-        if(this.runingDays == null || hour == 0){
-            HashMap<String, Server> stringServerHashMap = redisObjectUtil.getlkMap(RedisKeyUtil.getlkKey(RedisKey.SERVER), Server.class);
-            TreeMap<Date,Server> serverTreeMap = new TreeMap<>();
-            for(Server server : stringServerHashMap.values()){
-                serverTreeMap.put(server.getCreatDate(),server);
-            }
-            Map.Entry<Date, Server> firstEntry = serverTreeMap.firstEntry();
-
-            this.runingDays = DateUtil.betweenDay(firstEntry.getKey(),date,true);
+        if(hour == 0 || this.runingDays==null){
+            this.runingDays = userUtil.getRuningDays(date);
         }
     }
 }

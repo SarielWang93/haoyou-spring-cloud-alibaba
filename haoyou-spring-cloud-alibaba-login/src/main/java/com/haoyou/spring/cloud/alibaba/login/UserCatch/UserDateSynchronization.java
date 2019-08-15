@@ -61,6 +61,16 @@ public class UserDateSynchronization {
                 userUtil.saveUser(user1);
             }
         }
+        backupUserAward();
+    }
+
+    /**
+     * 备份玩家奖励
+     */
+    private void backupUserAward(){
+
+        redisObjectUtil.backup();
+
     }
 
 

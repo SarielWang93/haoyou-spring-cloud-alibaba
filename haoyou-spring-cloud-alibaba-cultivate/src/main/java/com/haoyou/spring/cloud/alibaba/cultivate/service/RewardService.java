@@ -163,9 +163,11 @@ public class RewardService {
     public boolean deleteUpAward(String userUid ,String type){
         String key = RedisKeyUtil.getKey(RedisKey.USER_AWARD, userUid, type);
         return redisObjectUtil.delete(key);
-
     }
-
+    public boolean deleteUpAwards(String userUid ,String type){
+        String key = RedisKeyUtil.getlkKey(RedisKey.USER_AWARD, userUid, type);
+        return redisObjectUtil.deleteAll(key);
+    }
 
 
     /**
@@ -193,7 +195,7 @@ public class RewardService {
         MapBody mapBody = new MapBody();
 
         String key = RedisKeyUtil.getKey(RedisKey.USER_AWARD, user.getUid(), type);
-        if(type.startsWith(RedisKeyUtil.getKey(RedisKey.USER_AWARD, user.getUid()))){
+        if(type!=null && type.startsWith(RedisKeyUtil.getKey(RedisKey.USER_AWARD, user.getUid()))){
             key = type;
         }
 

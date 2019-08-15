@@ -2,6 +2,7 @@ package com.haoyou.spring.cloud.alibaba.fighting.info;
 
 import cn.hutool.core.util.IdUtil;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.haoyou.spring.cloud.alibaba.commons.entity.LevelDesign;
 import com.haoyou.spring.cloud.alibaba.util.SendMsgUtil;
 import com.haoyou.spring.cloud.alibaba.commons.domain.SendType;
 import com.haoyou.spring.cloud.alibaba.commons.message.MapBody;
@@ -26,9 +27,10 @@ public class FightingRoom implements Serializable {
 
     //战斗种类（PVE,PVP）
     private String fightingType;
-
-    //奖励种类
-    private String rewardType;
+    //闯关模式难度
+    private int difficult;
+    //关卡设计
+    private LevelDesign levelDesign;
 
     //创建时间
     private Date creatTime;
@@ -63,12 +65,18 @@ public class FightingRoom implements Serializable {
 
     public FightingRoom() {
     }
-
-    public FightingRoom(List<User> users, String rewardType,String fightingType) {
-
-        this.rewardType = rewardType;
+    public FightingRoom(String fightingType) {
         this.fightingType = fightingType;
+        intFightingRoom();
+    }
+    public FightingRoom(LevelDesign levelDesign,int difficult,String fightingType) {
 
+        this.fightingType = fightingType;
+        this.levelDesign = levelDesign;
+        this.difficult = difficult;
+        intFightingRoom();
+    }
+    private void intFightingRoom(){
         this.step = 0;
         this.shotNum = 0;
 
@@ -238,7 +246,7 @@ public class FightingRoom implements Serializable {
                 pet.put("maxHP", fightingPet.getFt_max_hp());
                 pet.put("HP", fightingPet.getHp());
                 pet.put("shield", fightingPet.getFt_shield());
-                pet.put("petName", fightingPet.getNickname());
+                pet.put("petName", fightingPet.getNickName());
                 pet.put("petTypeId", fightingPet.getPet().getTypeId());
                 pet.put("petId", fightingPet.getUid());
                 pet.put("ATN", fightingPet.getFt_atn());

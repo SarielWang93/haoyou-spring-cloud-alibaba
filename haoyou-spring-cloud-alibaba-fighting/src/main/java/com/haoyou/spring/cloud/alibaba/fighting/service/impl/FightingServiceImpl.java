@@ -3,7 +3,9 @@ package com.haoyou.spring.cloud.alibaba.fighting.service.impl;
 import cn.hutool.core.thread.ThreadUtil;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.RandomUtil;
+import cn.hutool.core.util.ReflectUtil;
 import cn.hutool.core.util.StrUtil;
+import com.haoyou.spring.cloud.alibaba.util.UserUtil;
 import org.apache.dubbo.config.annotation.Reference;
 import org.apache.dubbo.config.annotation.Service;
 import com.haoyou.spring.cloud.alibaba.commons.domain.*;
@@ -24,6 +26,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
 
+import java.lang.reflect.Field;
 import java.util.*;
 
 @Service(version = "${fighting.service.version}")
@@ -44,6 +47,8 @@ public class FightingServiceImpl implements FightingService {
     private RedisObjectUtil redisObjectUtil;
     @Autowired
     private SendMsgUtil sendMsgUtil;
+    @Autowired
+    private UserUtil userUtil;
 
     @Value("${fighting.alivetime: 300}")
     private long aliveTime;
@@ -56,26 +61,19 @@ public class FightingServiceImpl implements FightingService {
     @Value("${fighting.initreadytime: 15}")
     private long initReadyTime;
 
-    /**
-     * 创建房间，并启动战斗
-     *
-     * @param users
-     * @param
-     * @return
-     */
-    @Override
-    public boolean start(List<User> users, Map<String, Boolean> allIsAi, String rewardType, String fightingType) {
 
+    public void initFightingRoom(List<User> users, FightingRoom fightingRoom, Map<String, Boolean> allIsAi) {
         /**
          * 创建房间
          */
-        FightingRoom fightingRoom = new FightingRoom(users, rewardType, fightingType);
+
         logger.info(String.format("创建战斗房间：%s", fightingRoom.getUid()));
 
         /**
          * 初始化阵营
          */
         Map<String, FightingCamp> fightingCamps = new HashMap<>();
+
 
         for (User user : users) {
             /**
@@ -100,31 +98,81 @@ public class FightingServiceImpl implements FightingService {
 
             fightingCamps.put(user.getUid(), fightingCamp);
 
+
+            //PVE创建电脑对手
             if (users.size() == 1) {
-                FightingCamp fightingCamp2 = this.initFightingCamp(fightingRoom, user);
                 User user2 = new User();
                 user2.setUid(String.format("ai-%s", user.getUid()));
                 user2.setUsername(String.format("ai-%s", user.getUsername()));
-                fightingCamp2.setUser(user2);
-                fightingCamp2.setAi(true);
-                fightingCamp2.setReady(true);
-                for (FightingPet fightingPet : fightingCamp2.getFightingPets().values()) {
-                    fightingPet.setUid(String.format("ai-%s", fightingPet.getUid()));
-                    fightingPet.setNickname(String.format("ai-%s", fightingPet.getNickname()));
-                    fightingPet.setAction_time(fightingPet.getAction_time() + 10);
-                }
+
+                FightingCamp fightingCamp2 = this.initFightingCampAi(fightingRoom, user2);
 
                 fightingCamps.put(user2.getUid(), fightingCamp2);
             }
-
         }
         fightingRoom.setFightingCamps(fightingCamps);
+
 
         /**
          * 初始化棋盘
          */
         fightingRoom.setFightingBoard(new FightingBoard(fightingCamps));
+    }
 
+    /**
+     * pve闯关模式
+     *
+     * @param user
+     * @param chapterName 章节名称
+     * @param idNum
+     * @param difficult   ordinary difficulty crazy
+     *                    普通       困难     疯狂
+     * @return
+     */
+    @Override
+    public boolean start(User user, String chapterName, int idNum, int difficult) {
+        return start(user, chapterName, idNum, difficult, false);
+    }
+
+    @Override
+    public boolean start(User user, String chapterName, int idNum, int difficult, boolean isAi) {
+
+        List<User> users = new ArrayList<>();
+        users.add(user);
+        String levelDesignKey = RedisKeyUtil.getKey(RedisKey.LEVEL_DESIGN, chapterName, Integer.toString(idNum));
+        LevelDesign levelDesign = redisObjectUtil.get(levelDesignKey, LevelDesign.class);
+
+        FightingRoom fightingRoom = new FightingRoom(levelDesign, difficult, FightingType.PVE);
+
+        HashMap<String, Boolean> allIsAi = new HashMap<>();
+        allIsAi.put(user.getUid(), isAi);
+        this.initFightingRoom(users, fightingRoom, allIsAi);
+
+        return this.start(fightingRoom);
+    }
+
+    /**
+     * 天梯模式
+     *
+     * @param users
+     * @return
+     */
+    @Override
+    public boolean start(List<User> users, Map<String, Boolean> allIsAi) {
+        if (users.size() < 2) {
+            return false;
+        }
+        FightingRoom fightingRoom = new FightingRoom(FightingType.PVP);
+        this.initFightingRoom(users, fightingRoom, allIsAi);
+        return this.start(fightingRoom);
+    }
+
+    /**
+     * 启动战斗
+     */
+    public boolean start(FightingRoom fightingRoom) {
+
+        Map<String, FightingCamp> fightingCamps = fightingRoom.getFightingCamps();
 
         /**
          * 开始战斗,被动技能启动
@@ -181,7 +229,7 @@ public class FightingServiceImpl implements FightingService {
      * @param fightingPet 当前回合行动人
      */
     public void startRound(FightingPet fightingPet) {
-        logger.debug(String.format("新回合开始：%s %s", fightingPet.getFightingCamp().getUser().getUsername(), fightingPet.getPet().getNickname()));
+        logger.debug(String.format("新回合开始：%s %s", fightingPet.getFightingCamp().getUser().getUsername(), fightingPet.getPet().getNickName()));
         //标注当前行动宠物
         FightingRoom fightingRoom = fightingPet.getFightingCamp().getFightingRoom();
         fightingRoom.startRount(fightingPet);
@@ -644,7 +692,7 @@ public class FightingServiceImpl implements FightingService {
     }
 
     /**
-     * 初始化阵营信息
+     * 初始化阵营信息 player
      *
      * @param user
      * @return
@@ -670,6 +718,56 @@ public class FightingServiceImpl implements FightingService {
         return fightingCamp;
     }
 
+    /**
+     * 初始化阵营信息 AI
+     *
+     * @param fightingRoom
+     * @param aiUser
+     * @return
+     */
+    public FightingCamp initFightingCampAi(FightingRoom fightingRoom, User aiUser) {
+
+        LevelDesign levelDesign = fightingRoom.getLevelDesign();
+        int difficult = fightingRoom.getDifficult();
+
+        FightingCamp fightingCamp = new FightingCamp();
+        fightingCamp.setFightingRoom(fightingRoom);
+        fightingCamp.setUser(aiUser);
+
+
+        TreeMap<Integer, FightingPet> fightingPetMaps = new TreeMap<>();
+
+
+        List<FightingPet> fightingPets = new ArrayList<>();
+        for (int i = 1; i <= 3; i++) {
+
+            Field petTypeField = ReflectUtil.getField(LevelDesign.class, String.format("petType%s", i));
+            String petTypeUid = (String) ReflectUtil.getFieldValue(levelDesign, petTypeField);
+
+            Field petLevelField = ReflectUtil.getField(LevelDesign.class, String.format("petLevel%s", i));
+            Integer petLevel = (Integer) ReflectUtil.getFieldValue(levelDesign, petLevelField);
+
+            petLevel *= 1 + 50 * (difficult - 1) / 100;
+
+            PetType petType = redisObjectUtil.get(RedisKeyUtil.getKey(RedisKey.PET_TYPE, petTypeUid), PetType.class);
+
+            FightingPet fightingPet = new FightingPet(petType, aiUser, i, petLevel, redisObjectUtil);
+
+            fightingPet.setFightingCamp(fightingCamp);
+            fightingPet.initFighting();
+            fightingPetMaps.put(i, fightingPet);
+
+            fightingPets.add(fightingPet);
+
+        }
+
+        fightingCamp.setFightingPets(fightingPetMaps);
+
+        fightingCamp.setAi(true);
+        fightingCamp.setReady(true);
+
+        return fightingCamp;
+    }
 
     /**
      * 区分敌我
@@ -833,7 +931,7 @@ public class FightingServiceImpl implements FightingService {
                     energy = -1;
                     punishValue += PunishValue.UNIQUE;
                     //数值系统记录次数
-                    cultivateService.numericalAdd(fightingReq.getUser(),"release_nirvana",1L);
+                    cultivateService.numericalAdd(fightingReq.getUser(), "release_nirvana", 1L);
                 } else {
                     /**
                      * 记录步骤
@@ -901,7 +999,10 @@ public class FightingServiceImpl implements FightingService {
 
     }
 
-
+    /**
+     * 胜利结算
+     * @param fightingPet
+     */
     public void win(FightingPet fightingPet) {
 
         FightingRoom fightingRoom = fightingPet.getFightingCamp().getFightingRoom();
@@ -914,12 +1015,43 @@ public class FightingServiceImpl implements FightingService {
         this.deleteFightingRoom(fightingRoom);
 
         User user = fightingPet.getFightingCamp().getUser();
+        //获取内存中真实user
+        user = userUtil.getUserByUid(user.getUid());
+
         logger.debug(String.format("胜利：%s", user.getUsername()));
         //TODO 胜利结算逻辑（临时）获取“技能道具”
         if (!fightingPet.getUid().startsWith("ai-") && sendMsgUtil.connectionIsAlive(user.getUid())) {
-            //PVE胜利结算
-            cultivateService.rewards(user, fightingRoom.getRewardType());
 
+            LevelDesign levelDesign = fightingRoom.getLevelDesign();
+            //PVE胜利结算
+            if(levelDesign == null){
+                cultivateService.rewards(user, fightingRoom.getFightingType());
+            }else{
+                int difficult = fightingRoom.getDifficult();
+                //添加徽章
+                boolean isFirst = userUtil.addBadges(user.getUid(), levelDesign, difficult);
+                String firstAwardType = null;
+                String awardType = null;
+                switch (difficult){
+                    case 1:
+                        awardType = levelDesign.getOrdinaryAward();
+                        firstAwardType = levelDesign.getOrdinaryFirstAward();
+                        break;
+                    case 2:
+                        awardType = levelDesign.getDifficultyAward();
+                        firstAwardType = levelDesign.getDifficultyFirstAward();
+                        break;
+                    case 3:
+                        awardType = levelDesign.getCrazyAward();
+                        firstAwardType = levelDesign.getCrazyFirstAward();
+                        break;
+                }
+                //首次奖励
+                if(isFirst){
+                    cultivateService.rewards(user, firstAwardType);
+                }
+                cultivateService.rewards(user, awardType);
+            }
         }
         //结算完毕，保存
         this.hiSave(fightingPet.getFightingCamp());

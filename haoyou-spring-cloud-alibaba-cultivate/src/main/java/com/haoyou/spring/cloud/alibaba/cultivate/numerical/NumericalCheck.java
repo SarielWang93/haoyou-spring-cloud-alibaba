@@ -9,6 +9,7 @@ import com.haoyou.spring.cloud.alibaba.cultivate.service.RewardService;
 import com.haoyou.spring.cloud.alibaba.pojo.cultivate.PropUseMsg;
 import com.haoyou.spring.cloud.alibaba.util.RedisObjectUtil;
 import com.haoyou.spring.cloud.alibaba.util.SendMsgUtil;
+import com.haoyou.spring.cloud.alibaba.util.UserUtil;
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -29,6 +30,8 @@ public abstract class NumericalCheck {
     protected RedisObjectUtil redisObjectUtil;
     @Autowired
     protected SendMsgUtil sendMsgUtil;
+    @Autowired
+    protected UserUtil userUtil;
 
 
     @Autowired

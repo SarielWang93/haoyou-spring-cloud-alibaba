@@ -97,4 +97,12 @@ public interface CultivateService {
      */
     BaseMessage rmbUse(MyRequest req);
 
+
+    /**
+     * 好友系统
+     * @param req
+     * @return
+     */
+    BaseMessage friendsDo(MyRequest req);
+
 }

@@ -66,14 +66,11 @@ public class ActivityCheck extends NumericalCheck {
     private void checkDailyRecharge(User user, Activity activity, UserNumerical userNumerical, long addValue) {
         //根据进度排序
         List<ActivityAward> activityAwards = activity.getActivityAwards();
-        TreeMap<Integer, ActivityAward> activityAwardsTreeMap = new TreeMap<>();
-        for (ActivityAward activityAward : activityAwards) {
-            activityAwardsTreeMap.put(activityAward.getSchedule(), activityAward);
-        }
+
         //查找
-        for (ActivityAward activityAward : activityAwardsTreeMap.values()) {
+        for (ActivityAward activityAward : activityAwards) {
             //大于目标值才考虑发放
-            if (userNumerical.getValue() + addValue > activityAward.getAim()) {
+            if (userNumerical.getValue() + addValue >= activityAward.getAim()) {
                 String type = RedisKeyUtil.getKey(RedisKey.ACTIVITY, activity.getActivityType(),activityAward.getAwardType());
                 //查找发放的奖励
                 Award upAward = rewardService.getUpAward(user.getUid(), type);
@@ -83,9 +80,7 @@ public class ActivityCheck extends NumericalCheck {
                     rewardService.upAward(user.getUid(), rewardService.getAward(activityAward.getAwardType()), type);
                     break;
                 } else {
-                    Date upAwardDate = DateUtil.beginOfDay(upAward.getUpAwardDate());
-                    Date today = DateUtil.beginOfDay(new Date());
-                    if (upAwardDate.equals(today)) {
+                    if (DateUtil.betweenDay(upAward.getUpAwardDate(),new Date(),true) == 0) {
                         break;
                     }
                 }
@@ -108,7 +103,7 @@ public class ActivityCheck extends NumericalCheck {
 
         for (ActivityAward activityAward : activity.getActivityAwards()) {
             //大于目标值才考虑发放
-            if (userNumerical.getValue() + addValue > activityAward.getAim()) {
+            if (userNumerical.getValue() + addValue >= activityAward.getAim()) {
                 String type = RedisKeyUtil.getKey(RedisKey.ACTIVITY, activity.getActivityType(),activityAward.getAwardType());
                 //查找发放的奖励
                 Award upAward = rewardService.getUpAward(user.getUid(), type);
@@ -141,8 +136,8 @@ public class ActivityCheck extends NumericalCheck {
                 if(yuan == activityAward.getAim()){
                     //次数不超过上限时
                     Integer times = activityAward.getTimes();
-                    if(userNumerical.getValue()<times){
-                        String type = RedisKeyUtil.getKey(RedisKey.ACTIVITY, activity.getActivityType(),activityAward.getAwardType(),userNumerical.getValue().toString());
+                    if(userNumerical.getValue()+addValue<=times){
+                        String type = RedisKeyUtil.getKey(RedisKey.ACTIVITY, activity.getActivityType(),activityAward.getAwardType(),Long.toString(userNumerical.getValue()+addValue));
                         rewardService.refreshUpAward(user.getUid(), rewardService.getAward(activityAward.getAwardType()), type);
                     }
                 }

@@ -52,10 +52,13 @@ public class RedisKey {
 
 
     public static final String FRIENDS = "friends";
+    public static final String FRIENDS_GIFT = "friends_gift";
     public static final String USER_FRIENDS = "user_friends";
     public static final String USER_FRIENDS_APPLICATION = "user_friends_application";
 
 
     public static final String SHIELD_VOCA = "shield_voca";
+
+    public static final String LEVEL_DESIGN = "level_design";
 
 }

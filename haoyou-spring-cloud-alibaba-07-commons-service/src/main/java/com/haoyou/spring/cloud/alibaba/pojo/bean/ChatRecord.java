@@ -24,6 +24,8 @@ public class ChatRecord extends BaseMessage implements Serializable {
 
     private String sendMsg;
 
+    private boolean notRead;
+
     public ChatRecord() {
     }
 

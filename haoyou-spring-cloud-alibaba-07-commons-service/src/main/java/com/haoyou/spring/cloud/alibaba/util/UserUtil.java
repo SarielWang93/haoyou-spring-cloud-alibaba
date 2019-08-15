@@ -1,5 +1,6 @@
 package com.haoyou.spring.cloud.alibaba.util;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DateTime;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.IdUtil;
@@ -13,6 +14,7 @@ import com.haoyou.spring.cloud.alibaba.commons.util.MapperUtils;
 import com.haoyou.spring.cloud.alibaba.commons.util.RedisKeyUtil;
 import com.haoyou.spring.cloud.alibaba.commons.util.ZIP;
 import com.haoyou.spring.cloud.alibaba.fighting.info.FightingPet;
+import com.haoyou.spring.cloud.alibaba.pojo.bean.Badge;
 import com.haoyou.spring.cloud.alibaba.pojo.bean.ChatRecord;
 import com.haoyou.spring.cloud.alibaba.pojo.bean.DailyCheckIn;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +31,8 @@ import java.util.*;
 @Service
 public class UserUtil {
 
+
+    public static final int friendsMaxCount = 30;
 
     @Autowired
     private RedisObjectUtil redisObjectUtil;
@@ -123,6 +127,82 @@ public class UserUtil {
         return user;
     }
 
+    /**
+     * 根据idNum获取用户信息
+     *
+     * @param idNum
+     * @return
+     */
+    public User getUserByIdNum(String idNum) {
+        List<User> users = this.allUser();
+
+        for (User user : users) {
+
+            if (user.getIdNum().equals(idNum)) {
+                return user;
+            }
+
+        }
+        return null;
+    }
+
+    /**
+     * 根据name获取用户信息
+     *
+     * @param name
+     * @return
+     */
+    public User getUserByName(String name) {
+        List<User> users = this.allUser();
+
+        for (User user : users) {
+
+            if (user.getUserData().getName().equals(name)) {
+                return user;
+            }
+
+        }
+        return null;
+    }
+
+    /**
+     * 根据userName获取用户信息
+     *
+     * @param userName
+     * @return
+     */
+    public User getUserByUserName(String userName) {
+        List<User> users = this.allUser();
+        for (User user : users) {
+            if (user.getUsername().equals(userName)) {
+                return user;
+            }
+
+        }
+        return null;
+    }
+
+    /**
+     * 获取玩家宠物
+     *
+     * @param userUid
+     * @return
+     */
+    public List<Pet> getUserPets(String userUid) {
+        String userUidKey = RedisKeyUtil.getKey(RedisKey.FIGHT_PETS, userUid);
+        String allKey = RedisKeyUtil.getlkKey(userUidKey);
+        HashMap<String, Pet> stringPetHashMap = redisObjectUtil.getlkMap(allKey, Pet.class);
+
+        TreeMap<Integer, Pet> petTreeMap = new TreeMap<>();
+        for (Pet pet : stringPetHashMap.values()) {
+            petTreeMap.put(pet.getLevel(), pet);
+        }
+        List<Pet> petList = CollUtil.newArrayList(petTreeMap.values());
+
+        return petList;
+    }
+
+
     public void saveUser(User user) {
 
         user.setLastUpdateDate(new Date());
@@ -133,8 +213,9 @@ public class UserUtil {
             this.saveSqlUser(user);
         }
     }
-    public void saveUser(User user,String redisKey) {
-        redisObjectUtil.save(RedisKeyUtil.getKey(redisKey,user.getUid()),user);
+
+    public void saveUser(User user, String redisKey) {
+        redisObjectUtil.save(RedisKeyUtil.getKey(redisKey, user.getUid()), user);
     }
 
     /**
@@ -157,7 +238,8 @@ public class UserUtil {
         }
         return key;
     }
-    public void deleteInCatch(String UserUid){
+
+    public void deleteInCatch(String UserUid) {
         redisObjectUtil.delete(isInCatch(UserUid));
     }
 
@@ -230,19 +312,16 @@ public class UserUtil {
         List<Friends> select = friendsMapper.select(friend1select);
         select.addAll(friendsMapper.select(friend2select));
 
-        for(Friends friend : select){
+        for (Friends friend : select) {
             String friendKey = RedisKeyUtil.getKey(RedisKey.FRIENDS, friend.getId().toString());
-            if(redisObjectUtil.get(friendKey,Friends.class) == null){
+            if (redisObjectUtil.get(friendKey, Friends.class) == null) {
                 redisObjectUtil.save(friendKey, friend, -1);
             }
 
-            String friend1Key = RedisKeyUtil.getKey(RedisKey.USER_FRIENDS,friend.getUserUid1(),friend.getId().toString());
+            String friend1Key = RedisKeyUtil.getKey(RedisKey.USER_FRIENDS, friend.getUserUid1(), friend.getId().toString());
 
             redisObjectUtil.save(friend1Key, friend.getId(), -1);
         }
-
-
-
 
 
         //每日签到
@@ -287,15 +366,16 @@ public class UserUtil {
 
     /**
      * 同步好友信息到数据库
+     *
      * @param user
      */
     public void saveSqlFriends(User user) {
 
-        String friendlkKey = RedisKeyUtil.getlkKey(RedisKey.USER_FRIENDS,user.getUid());
+        String friendlkKey = RedisKeyUtil.getlkKey(RedisKey.USER_FRIENDS, user.getUid());
 
         HashMap<String, Integer> stringIntegerHashMap = redisObjectUtil.getlkMap(friendlkKey, Integer.class);
 
-        for(Integer i : stringIntegerHashMap.values()){
+        for (Integer i : stringIntegerHashMap.values()) {
             String friendKey = RedisKeyUtil.getKey(RedisKey.FRIENDS, i.toString());
 
             Friends friends = redisObjectUtil.get(friendKey, Friends.class);
@@ -633,33 +713,35 @@ public class UserUtil {
 
     /**
      * 屏蔽词汇替换
+     *
      * @param msg
      * @return
      */
-    public String replaceAllShieldVocas(String msg){
+    public String replaceAllShieldVocas(String msg) {
         String shieldVocaKey = RedisKeyUtil.getlkKey(RedisKey.SHIELD_VOCA);
         HashMap<String, String> shieldVocas = redisObjectUtil.getlkMap(shieldVocaKey, String.class);
-        for(String shieldVoca:shieldVocas.values()){
+        for (String shieldVoca : shieldVocas.values()) {
 
             StringBuilder builder = StrUtil.builder();
-            for(int i = 0 ;i<shieldVoca.length();i++ ){
+            for (int i = 0; i < shieldVoca.length(); i++) {
                 builder.append("*");
             }
-            msg = msg.replaceAll(shieldVoca,builder.toString());
+            msg = msg.replaceAll(shieldVoca, builder.toString());
         }
         return msg;
     }
 
     /**
      * 是否拥有屏蔽词
+     *
      * @param msg
      * @return
      */
-    public boolean hasShieldVocas(String msg){
+    public boolean hasShieldVocas(String msg) {
         String shieldVocaKey = RedisKeyUtil.getlkKey(RedisKey.SHIELD_VOCA);
         HashMap<String, String> shieldVocas = redisObjectUtil.getlkMap(shieldVocaKey, String.class);
-        for(String shieldVoca:shieldVocas.values()){
-            if(msg.contains(shieldVoca)){
+        for (String shieldVoca : shieldVocas.values()) {
+            if (msg.contains(shieldVoca)) {
                 return true;
             }
         }
@@ -668,19 +750,29 @@ public class UserUtil {
 
     /**
      * 获取聊天记录
+     *
      * @param user
      * @param userUid
      * @return
      */
-    public List<ChatRecord> getChatRecord(User user,String userUid){
-        Friends friend = getFriend(user,userUid);
-        return getChatRecord(friend);
+    public List<ChatRecord> getChatRecord(User user, String userUid) {
+        Friends friend = getFriend(user, userUid);
+        List<ChatRecord> chatRecords = getChatRecord(friend);
+        for (ChatRecord chatRecord : chatRecords) {
+            if (chatRecord.isNotRead() && user.getUid().equals(chatRecord.getUserUid())) {
+                chatRecord.setNotRead(false);
+            }
+        }
+        friend.setChatRecord(redisObjectUtil.serialize(chatRecords));
+        saveFriend(friend);
+        return chatRecords;
     }
-    public List<ChatRecord> getChatRecord(Friends friend){
+
+    public List<ChatRecord> getChatRecord(Friends friend) {
         List<ChatRecord> deserialize = null;
-        if(friend.getChatRecord() == null){
+        if (friend.getChatRecord() == null) {
             deserialize = new ArrayList<>();
-        }else{
+        } else {
             redisObjectUtil.deserialize(friend.getChatRecord(), List.class);
         }
         return deserialize;
@@ -688,17 +780,25 @@ public class UserUtil {
 
     /**
      * 添加聊天记录
+     *
      * @param user
      * @param userUid
      * @param sendMsg
      */
-    public ChatRecord addChatRecord(User user,String userUid,String sendMsg){
-        ChatRecord chatRecord = new ChatRecord(user.getUid(),new Date(),sendMsg);
-        Friends friend = getFriend(user,userUid);
+    public ChatRecord addChatRecord(User user, String userUid, String sendMsg) {
+        return addChatRecord(user, userUid, sendMsg, false);
+    }
+
+    public ChatRecord addChatRecord(User user, String userUid, String sendMsg, boolean notSend) {
+        ChatRecord chatRecord = new ChatRecord(user.getUid(), new Date(), sendMsg);
+        Friends friend = getFriend(user, userUid);
         List<ChatRecord> chatRecords = getChatRecord(friend);
+
+
+        chatRecord.setNotRead(notSend);
         chatRecords.add(chatRecord);
 
-        if(chatRecords.size()>50){
+        if (chatRecords.size() > 50) {
             chatRecords.remove(50);
         }
 
@@ -711,38 +811,140 @@ public class UserUtil {
 
     /**
      * 保存好友对象
+     *
      * @param friend
      */
-    public void saveFriend(Friends friend){
-        String friendKey = RedisKeyUtil.getKey(RedisKey.FRIENDS, friend.getId().toString());
-        redisObjectUtil.save(friendKey,friend,-1);
+    public void saveFriend(Friends friend) {
+        if (friend.getId() == null) {
+            friendsMapper.insertSelective(friend);
+        }
 
-        String friend1Key = RedisKeyUtil.getKey(RedisKey.USER_FRIENDS,friend.getUserUid1(),friend.getId().toString());
-        String friend2Key = RedisKeyUtil.getKey(RedisKey.USER_FRIENDS,friend.getUserUid2(),friend.getId().toString());
+        String friendKey = RedisKeyUtil.getKey(RedisKey.FRIENDS, friend.getId().toString());
+        redisObjectUtil.save(friendKey, friend, -1);
+
+        String friend1Key = RedisKeyUtil.getKey(RedisKey.USER_FRIENDS, friend.getUserUid1(), friend.getId().toString());
+        String friend2Key = RedisKeyUtil.getKey(RedisKey.USER_FRIENDS, friend.getUserUid2(), friend.getId().toString());
 
         redisObjectUtil.save(friend1Key, friend.getId(), -1);
         redisObjectUtil.save(friend2Key, friend.getId(), -1);
     }
 
     /**
+     * 删除好友
+     *
+     * @param friend
+     */
+    public void deleteFriend(Friends friend) {
+        String friend1Key = RedisKeyUtil.getKey(RedisKey.USER_FRIENDS, friend.getUserUid1(), friend.getId().toString());
+        String friend2Key = RedisKeyUtil.getKey(RedisKey.USER_FRIENDS, friend.getUserUid2(), friend.getId().toString());
+
+        redisObjectUtil.delete(friend1Key);
+        redisObjectUtil.delete(friend2Key);
+
+        String friendKey = RedisKeyUtil.getKey(RedisKey.FRIENDS, friend.getId().toString());
+        redisObjectUtil.delete(friendKey);
+
+        friendsMapper.delete(friend);
+    }
+
+    /**
      * 获取好友信息
+     *
      * @param user
      * @param userUid
      * @return
      */
-    public Friends getFriend(User user,String userUid){
-        Integer friendId = redisObjectUtil.get(RedisKeyUtil.getKey(RedisKey.USER_FRIENDS_APPLICATION, user.getUid(), userUid), Integer.class);
+    public Friends getFriend(User user, String userUid) {
+        Integer friendId = redisObjectUtil.get(RedisKeyUtil.getKey(RedisKey.USER_FRIENDS, user.getUid(), userUid), Integer.class);
 
         String friendKey = RedisKeyUtil.getKey(RedisKey.FRIENDS, friendId.toString());
 
         return redisObjectUtil.get(friendKey, Friends.class);
     }
 
+    /**
+     * 获取所有好友
+     *
+     * @param userUid
+     * @return
+     */
+    public List<Friends> getFriends(String userUid) {
+        List<Friends> friends = new ArrayList<>();
+        HashMap<String, Integer> stringIntegerHashMap = redisObjectUtil.getlkMap(RedisKeyUtil.getlkKey(RedisKey.USER_FRIENDS, userUid), Integer.class);
+        for (Integer i : stringIntegerHashMap.values()) {
+            String friendKey = RedisKeyUtil.getKey(RedisKey.FRIENDS, i.toString());
+            friends.add(redisObjectUtil.get(friendKey, Friends.class));
+        }
+        return friends;
+    }
 
+    /**
+     * 好友是否到达上限
+     *
+     * @param userUid
+     * @return
+     */
+    public boolean friendsIsFull(String userUid) {
+        List<Friends> friends = getFriends(userUid);
 
+        if (friends.size() >= friendsMaxCount) {
+            return true;
+        }
+        return false;
+    }
 
+    /**
+     * 获取运行天数
+     *
+     * @param date
+     */
+    public long getRuningDays(DateTime date) {
 
+        HashMap<String, Server> stringServerHashMap = redisObjectUtil.getlkMap(RedisKeyUtil.getlkKey(RedisKey.SERVER), Server.class);
+        TreeMap<Date, Server> serverTreeMap = new TreeMap<>();
+        for (Server server : stringServerHashMap.values()) {
+            serverTreeMap.put(server.getCreatDate(), server);
+        }
+        Map.Entry<Date, Server> firstEntry = serverTreeMap.firstEntry();
 
+        return DateUtil.betweenDay(firstEntry.getKey(), date, true);
+    }
+
+    /**
+     * 获取徽章
+     *
+     * @param userUid
+     * @return
+     */
+    public List<Badge> getBadges(String userUid) {
+        User userByUid = getUserByUid(userUid);
+        return getBadges(userByUid);
+    }
+
+    public List<Badge> getBadges(User user) {
+
+        List<Badge> badges = redisObjectUtil.deserialize(user.getUserData().getBadges(), List.class);
+
+        if (badges == null) {
+            badges = new ArrayList<>();
+        }
+
+        return badges;
+    }
+
+    public boolean addBadges(String userUid, LevelDesign levelDesign, int difficult) {
+        User userByUid = getUserByUid(userUid);
+        List<Badge> badges = getBadges(userByUid);
+        Badge badge = new Badge(levelDesign.getChapterName(),levelDesign.getIdNum(),difficult);
+        if(!badges.contains(badge)){
+            badges.add(badge);
+        }else{
+            return false;
+        }
+        userByUid.getUserData().setBadges(redisObjectUtil.serialize(badges));
+        saveUser(userByUid);
+        return true;
+    }
 
 
 }

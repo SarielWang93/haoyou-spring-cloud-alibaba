@@ -24,7 +24,8 @@ public class Pet implements Serializable {
     /**
      * 昵称
      */
-    private String nickname;
+    @Column(name = "nick_name")
+    private String nickName;
 
     /**
      * 种类
@@ -319,7 +320,7 @@ public class Pet implements Serializable {
         this.ingredientsCount4 = 0;
         this.ingredientsLimit = 0;
 
-        this.nickname = petType.getL10n();
+        this.nickName = petType.getL10n();
         this.creatDate = new Date();
 
     }

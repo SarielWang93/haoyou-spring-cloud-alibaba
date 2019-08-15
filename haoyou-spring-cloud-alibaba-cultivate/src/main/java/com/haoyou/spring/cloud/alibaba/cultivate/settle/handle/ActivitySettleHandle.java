@@ -41,7 +41,16 @@ public class ActivitySettleHandle extends SettleHandle {
                     for (User user : this.users) {
                         for(ActivityAward activityAward: activity.getActivityAwards()){
                             String type = RedisKeyUtil.getKey(RedisKey.ACTIVITY, activity.getActivityType(),activityAward.getAwardType());
+
+                            Award upAward = rewardService.getUpAward(user.getUid(), type);
+                            //未领取则发送邮件
+                            if(upAward != null && !upAward.isUsed()){
+                                emailService.sendEmail(user.getUid(),activity.getL10n(),activity.getDescription(),upAward);
+                            }
+
                             rewardService.deleteUpAward(user.getUid(),type);
+
+
                         }
                     }
                     //关闭旧的活动

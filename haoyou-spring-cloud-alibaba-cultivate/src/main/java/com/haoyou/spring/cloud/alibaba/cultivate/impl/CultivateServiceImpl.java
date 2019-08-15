@@ -62,6 +62,8 @@ public class CultivateServiceImpl implements CultivateService {
     @Autowired
     private RMBUseService rmbUseService;
     @Autowired
+    private FriendsService friendsService;
+    @Autowired
     private UserUtil userUtil;
 
     /**
@@ -274,6 +276,7 @@ public class CultivateServiceImpl implements CultivateService {
             MapBody mapBody = new MapBody();
             mapBody.setState(ResponseMsg.MSG_ERR);
             mapBody.put("errMsg", "没有奖励类型！");
+            return mapBody;
         }
 
         MapBody mapBody = rewardService.receiveAward(user, type);
@@ -436,6 +439,16 @@ public class CultivateServiceImpl implements CultivateService {
         rmbUseMsg.setUser(user);
 
         return rmbUseService.rmbUse(rmbUseMsg);
+    }
+
+    /**
+     * 好友系统
+     * @param req
+     * @return
+     */
+    @Override
+    public BaseMessage friendsDo(MyRequest req) {
+        return friendsService.friendsDo(req);
     }
 
 

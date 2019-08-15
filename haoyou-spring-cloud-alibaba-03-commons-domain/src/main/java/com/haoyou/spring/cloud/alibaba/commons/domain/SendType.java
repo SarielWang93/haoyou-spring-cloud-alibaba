@@ -49,8 +49,9 @@ public class SendType {
     public final static int GET_COMMODITY = 151;//获取商品信息
     public final static int GET_ACTIVITY = 152;//获取活动信息
     public final static int GET_ACHIEVEMENT = 153;//获取成就列表
-
-
+    public final static int GET_FRIENDS = 154;//获取好友列表
+    public final static int GET_USER_SIMPLE_MSG = 155;//获取玩家简易信息
+    public final static int GET_LEVEL_DESIGN = 156;//获取关卡信息
 
     /**
      * 养成 60 - 90
@@ -63,6 +64,7 @@ public class SendType {
     public final static int CURRENCY_USE = 66;//货币使用
     public final static int EMAIL_DO = 67;//邮件操作
     public final static int RMB_USE = 68;//人民币消费
+    public final static int FRIENDS_DO = 70;//好友操作
 
 //    *****************************************以上为接受信息类型，以下为主动发送*********************************************************
 
@@ -82,5 +84,6 @@ public class SendType {
     public final static int FIGHTING_INITPET = 24;//战斗初始化宠物
 
     public final static int SEND_CHAT = 69;//发送聊天内容
+    public final static int FRIEND_APPLICATION = 71;//发送好友申请
 
 }

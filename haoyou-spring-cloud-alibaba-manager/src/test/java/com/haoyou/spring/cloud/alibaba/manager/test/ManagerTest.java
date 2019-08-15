@@ -1,5 +1,6 @@
 package com.haoyou.spring.cloud.alibaba.manager.test;
 
+import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.lang.Console;
 import cn.hutool.core.text.StrBuilder;
 import cn.hutool.core.util.IdUtil;
@@ -26,6 +27,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.io.File;
 import java.util.*;
 
 @RunWith(SpringRunner.class)
@@ -68,22 +70,13 @@ public class ManagerTest {
 
 
     public static void main(String[] args) throws InterruptedException, CodecException {
+        String usrHome = System.getProperty("user.home");
 
+        File file = FileUtil.file(String.format("%s/logs/XXL/123456",usrHome));
 
-//        List<Fund> fundsTreeMap = new ArrayList<>();
-//        fundsTreeMap.add(new Fund());
-//        fundsTreeMap.add(new Fund());
-//        fundsTreeMap.add(new Fund());
-//        fundsTreeMap.add(new Fund());
-//        Serializer serializer = SerializerManager.getSerializer(SerializerManager.Hessian2);
-//        byte[] bytes = ZIP.gZip(serializer.serialize(fundsTreeMap));
-//        List<Fund> deserialize = serializer.deserialize(ZIP.unGZip(bytes), List.class.getName());
-//
-//        for(Fund  fund :deserialize){
-//            Console.log(fund);
-//        }
+        File touch = FileUtil.touch(file);
 
-
+        Console.log(touch.getPath());
     }
 
     /**

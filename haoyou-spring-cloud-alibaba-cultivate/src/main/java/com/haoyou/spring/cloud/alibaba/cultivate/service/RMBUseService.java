@@ -40,6 +40,7 @@ public class RMBUseService {
         numericalService.numericalAdd(rmbUseMsg.getUser(),"daily_recharge",rmbUseMsg.getRmb());
         //充值总量
         numericalService.numericalAdd(rmbUseMsg.getUser(),"all_recharge",rmbUseMsg.getRmb());
+
         return RMBUseHandleMap.get(rmbUseMsg.getType()).rmbUse(rmbUseMsg);
     }
 

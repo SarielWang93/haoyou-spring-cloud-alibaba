@@ -1,5 +1,7 @@
 package com.haoyou.spring.cloud.alibaba.sofabolt.init;
 
+import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.io.file.FileReader;
 import com.haoyou.spring.cloud.alibaba.commons.domain.RedisKey;
 import com.haoyou.spring.cloud.alibaba.commons.entity.*;
@@ -21,6 +23,7 @@ import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import tk.mybatis.mapper.entity.Example;
 
+import java.io.File;
 import java.util.*;
 
 /**
@@ -57,10 +60,8 @@ public class InitData implements ApplicationRunner {
     private VersionControlMapper versionControlMapper;
     @Autowired
     private LevLoyaltyMapper levLoyaltyMapper;
-
     @Autowired
     private LevelUpExpMapper levelUpExpMapper;
-
     @Autowired
     private UserDataMapper userDataMapper;
     @Autowired
@@ -91,6 +92,10 @@ public class InitData implements ApplicationRunner {
     private ActivityAwardMapper activityAwardMapper;
     @Autowired
     private FriendsMapper friendsMapper;
+    @Autowired
+    private LevelDesignMapper levelDesignMapper;
+    @Autowired
+    private ChapterMapper chapterMapper;
 
 
     @Autowired
@@ -117,6 +122,10 @@ public class InitData implements ApplicationRunner {
          * 每次加载必须间隔一分钟以上，防止攻击
          */
         if (lastDo == null || now.getTime() - lastDo.getTime() > 60 * 1000) {
+
+
+            //加载关卡信息
+            initLevelDesign();
             //加载屏蔽词汇
             initShieldVoca();
             //好友信息
@@ -156,6 +165,8 @@ public class InitData implements ApplicationRunner {
 
             userUtil.refreshAllUserCatch();
 
+//            redisObjectUtil.backup(RedisKey.USER_AWARD);
+//            redisObjectUtil.importBackup();
 
             lastDo = now;
             return true;
@@ -164,16 +175,45 @@ public class InitData implements ApplicationRunner {
     }
 
     /**
+     * 加载关卡信息
+     */
+    private void initLevelDesign() {
+        redisObjectUtil.deleteAll(RedisKeyUtil.getlkKey(RedisKey.LEVEL_DESIGN));
+
+        List<Chapter> chapters = chapterMapper.selectAll();
+
+        for (Chapter chapter : chapters) {
+
+            String chapterName = chapter.getName();
+            String chapterKey = RedisKeyUtil.getKey(RedisKey.LEVEL_DESIGN, chapterName);
+            redisObjectUtil.save(chapterKey, chapter, -1);
+
+            LevelDesign levelDesignSelect = new LevelDesign();
+            levelDesignSelect.setChapterName(chapterName);
+            List<LevelDesign> levelDesigns = levelDesignMapper.select(levelDesignSelect);
+
+            for (LevelDesign levelDesign : levelDesigns) {
+                String levelDesignKey = RedisKeyUtil.getKey(RedisKey.LEVEL_DESIGN, chapterName,levelDesign.getIdNum().toString());
+                redisObjectUtil.save(levelDesignKey, levelDesign, -1);
+            }
+
+        }
+
+
+    }
+
+    /**
      * 加载屏蔽词汇
      */
     private void initShieldVoca() {
         redisObjectUtil.deleteAll(RedisKeyUtil.getlkKey(RedisKey.SHIELD_VOCA));
-        FileReader fileReader = new FileReader("ShieldVoca.txt");
+        File file = FileUtil.file("ShieldVoca.txt");
+        FileReader fileReader = FileReader.create(file);
         List<String> shieldVocas = fileReader.readLines();
 
         for (String shieldVoca : shieldVocas) {
-            String shieldVocaKey = RedisKeyUtil.getKey(RedisKey.SHIELD_VOCA,Integer.toString(shieldVocas.indexOf(shieldVoca)));
-            redisObjectUtil.save(shieldVocaKey,shieldVoca);
+            String shieldVocaKey = RedisKeyUtil.getKey(RedisKey.SHIELD_VOCA, Integer.toString(shieldVocas.indexOf(shieldVoca)));
+            redisObjectUtil.save(shieldVocaKey, shieldVoca.trim(), -1);
         }
 
     }
@@ -208,6 +248,21 @@ public class InitData implements ApplicationRunner {
             //获取活动奖励列表
             List<ActivityAward> select = activityAwardMapper.select(activityAwardSelect);
 
+
+            //按aim排序，
+            TreeMap<Long, ActivityAward> activityAwardsTreeMap = new TreeMap<>();
+            for (ActivityAward activityAward : select) {
+                Long key = activityAward.getAim();
+                //天天充值按进度排序
+                if (activity.getActivityType().equals("DailyRecharge")) {
+                    key = activityAward.getSchedule().longValue();
+                }
+                activityAwardsTreeMap.put(key, activityAward);
+
+                select = CollUtil.newArrayList(activityAwardsTreeMap.values());
+            }
+
+
             activity.setActivityAwards(select);
 
 
@@ -216,7 +271,7 @@ public class InitData implements ApplicationRunner {
             }
 
 
-            String activityKey = RedisKeyUtil.getKey(RedisKey.COMMODITY, activity.getActivityType(), activity.getName());
+            String activityKey = RedisKeyUtil.getKey(RedisKey.ACTIVITY, activity.getActivityType(), activity.getName());
 
             redisObjectUtil.save(activityKey, activity, -1);
 
@@ -249,9 +304,9 @@ public class InitData implements ApplicationRunner {
 
             String numericalMapperNameAll = String.format("commodity_all_%s", commodity.getName());
             Numerical numericalAll = new Numerical();
-            numerical.setName(numericalMapperNameAll);
+            numericalAll.setName(numericalMapperNameAll);
             List<Numerical> selectAll = numericalMapper.select(numericalAll);
-            if (select == null || selectAll.isEmpty()) {
+            if (selectAll == null || selectAll.isEmpty()) {
                 numericalAll.setDescription(commodity.getDescription());
                 numericalAll.setL10n(commodity.getL10n());
                 numericalAll.setRefresh(-1);

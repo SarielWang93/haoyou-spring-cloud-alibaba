@@ -84,6 +84,11 @@ public class UserData implements Serializable {
      */
     private byte[] emails;
 
+    /**
+     * 邮件
+     */
+    private byte[] badges;
+
 
     /**
      * 购买终身饲养员时间

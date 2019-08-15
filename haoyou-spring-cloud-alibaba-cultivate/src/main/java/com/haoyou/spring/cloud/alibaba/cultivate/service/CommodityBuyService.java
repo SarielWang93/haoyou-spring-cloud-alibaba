@@ -18,9 +18,8 @@ import java.util.HashMap;
  * @author wanghui
  * @version 1.0
  * @date 2019/7/22 10:04
- *
+ * <p>
  * 商品购买操作
- *
  */
 @Service
 public class CommodityBuyService {
@@ -39,34 +38,37 @@ public class CommodityBuyService {
 
     public boolean commodityBuy(User user, Commodity commodity) {
 
+        if (commodity == null) {
+            return false;
+        }
         //是否上架
-        if(commodity.getShelf().equals(0)){
+        if (commodity.getShelf().equals(0)) {
             return false;
         }
 
-        if(commodity.getRefreshTimes() != -1){
-            //检查使用上限
-            String numericalName = String.format("commodity_%s", commodity.getName());
-            String numericalNameAll = String.format("commodity_all_%s", commodity.getName());
 
-            Long count = user.getUserNumericalMap().get(numericalName).getValue();
-            if(count >= commodity.getRefreshTimes()){
-                return false;
-            }
-            //添加购买次数
-            numericalService.numericalAdd(user,numericalName,1L);
-            numericalService.numericalAdd(user,numericalNameAll,1L);
+        //检查使用上限
+        String numericalName = String.format("commodity_%s", commodity.getName());
+        String numericalNameAll = String.format("commodity_all_%s", commodity.getName());
+
+        Long count = user.getUserNumericalMap().get(numericalName).getValue();
+        if (count >= commodity.getRefreshTimes() && commodity.getRefreshTimes() != -1) {
+            return false;
         }
+        //添加购买次数
+        numericalService.numericalAdd(user, numericalName, 1L);
+        numericalService.numericalAdd(user, numericalNameAll, 1L);
+
 
         String awardType = commodity.getAwardType();
-        rewardService.doAward(user,rewardService.getAward(awardType));
+        rewardService.doAward(user, rewardService.getAward(awardType));
 
 
         return true;
     }
 
-    public Commodity getCommodity(String storeName,String commodityName){
-        return redisObjectUtil.get(RedisKeyUtil.getKey(RedisKey.COMMODITY,storeName,commodityName),Commodity.class);
+    public Commodity getCommodity(String storeName, String commodityName) {
+        return redisObjectUtil.get(RedisKeyUtil.getKey(RedisKey.COMMODITY, storeName, commodityName), Commodity.class);
     }
 
 

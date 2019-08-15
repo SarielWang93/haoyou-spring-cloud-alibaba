@@ -33,16 +33,15 @@ public class FightingAI2Handle extends ManagerHandle {
     @Override
     public BaseMessage handle(MyRequest req) {
         BaseMessage baseMessage = new BaseMessage();
-        User user = req.getUser();
-        List<User> users = new ArrayList<>();
-        users.add(user);
-        HashMap<String, Boolean> allIsAi = new HashMap<>();
-        allIsAi.put(user.getUid(), true);
-        if (fightingService.start(users, allIsAi, RewardType.PVE, FightingType.PVE)) {
-            baseMessage.setState(ResponseMsg.MSG_SUCCESS);
-        } else {
-            baseMessage.setState(ResponseMsg.MSG_ERR);
-        }
+//        User user = req.getUser();
+//        List<User> users = new ArrayList<>();
+//        users.add(user);
+//
+//        if (fightingService.start(users, allIsAi, RewardType.PVE, FightingType.PVE)) {
+//            baseMessage.setState(ResponseMsg.MSG_SUCCESS);
+//        } else {
+//            baseMessage.setState(ResponseMsg.MSG_ERR);
+//        }
         return baseMessage;
     }
 

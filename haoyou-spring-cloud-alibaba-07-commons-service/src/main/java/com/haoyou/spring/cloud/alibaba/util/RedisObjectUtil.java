@@ -1,9 +1,18 @@
 package com.haoyou.spring.cloud.alibaba.util;
 
 
+import cn.hutool.core.date.DateTime;
+import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.io.FileUtil;
+import cn.hutool.core.io.file.FileReader;
+import cn.hutool.core.io.file.FileWriter;
+import cn.hutool.core.lang.Console;
 import com.alipay.remoting.exception.CodecException;
 import com.alipay.remoting.serialization.Serializer;
 import com.alipay.remoting.serialization.SerializerManager;
+import com.haoyou.spring.cloud.alibaba.commons.domain.RedisKey;
+import com.haoyou.spring.cloud.alibaba.commons.util.MapperUtils;
+import com.haoyou.spring.cloud.alibaba.commons.util.RedisKeyUtil;
 import com.haoyou.spring.cloud.alibaba.redis.RedisObjKV;
 import com.haoyou.spring.cloud.alibaba.redis.service.RedisObjectService;
 import com.haoyou.spring.cloud.alibaba.commons.util.ZIP;
@@ -13,6 +22,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
+import java.io.File;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -31,14 +42,16 @@ public class RedisObjectUtil {
     @PostConstruct
     private void init() {
     }
+
     /**
      * redis对象存储
+     *
      * @param key
      * @param value
      * @param <T>
      * @return
      */
-    public <T> boolean save( String key, T value){
+    public <T> boolean save(String key, T value) {
 
         //logger.info(String.format("save  %s",key));
         return redisObjectService.save(new RedisObjKV(key, this.serialize(value)));
@@ -46,30 +59,32 @@ public class RedisObjectUtil {
 
     /**
      * redis对象存储，设定超时时间
+     *
      * @param key
      * @param value
      * @param timeout
      * @param <T>
      * @return
      */
-    public <T> boolean save( String key, T value,long timeout){
+    public <T> boolean save(String key, T value, long timeout) {
         //logger.info(String.format("save  %s:%s",key,timeout));
-        return redisObjectService.save(new RedisObjKV(key, this.serialize(value)),timeout);
+        return redisObjectService.save(new RedisObjKV(key, this.serialize(value)), timeout);
 
     }
 
     /**
      * 获取对象
+     *
      * @param key
      * @param aclass
      * @param <T>
      * @return
      */
-    public <T> T get(String key,Class<T> aclass){
+    public <T> T get(String key, Class<T> aclass) {
         //logger.info(String.format("get %s",key));
         RedisObjKV redisObjKV = redisObjectService.get(key);
-        if(redisObjKV.getVal()!=null){
-            return this.deserialize(redisObjKV.getVal(),aclass);
+        if (redisObjKV.getVal() != null) {
+            return this.deserialize(redisObjKV.getVal(), aclass);
         }
 
         return null;
@@ -77,21 +92,22 @@ public class RedisObjectUtil {
 
     /**
      * 模糊查询对象
+     *
      * @param key
      * @param aclass
      * @param <T>
      * @return
      */
-    public <T>HashMap<String, T> getlkMap(String key,Class<T> aclass){
+    public <T> HashMap<String, T> getlkMap(String key, Class<T> aclass) {
 //        if(!key.contains(RedisKey.MATCH_PLAYER_POOL)){
 //            logger.info(String.format("getlkMap %s",key));
 //        }
 
-        HashMap<String, T> rm=new HashMap<>();
+        HashMap<String, T> rm = new HashMap<>();
         List<RedisObjKV> lkList = redisObjectService.getlkMap(key);
 
-        for(RedisObjKV redisObjKV:lkList){
-            rm.put(redisObjKV.getKey(),this.deserialize(redisObjKV.getVal(), aclass));
+        for (RedisObjKV redisObjKV : lkList) {
+            rm.put(redisObjKV.getKey(), this.deserialize(redisObjKV.getVal(), aclass));
         }
 
         return rm;
@@ -99,23 +115,26 @@ public class RedisObjectUtil {
 
     /**
      * 删除对象
+     *
      * @param key
      * @return
      */
-    public boolean delete(String key){
+    public boolean delete(String key) {
         //logger.info(String.format("delete %s",key));
         return redisObjectService.delete(key);
     }
+
     /**
      * 删除所有对象
+     *
      * @param key
      * @return
      */
-    public boolean deleteAll(String key){
+    public boolean deleteAll(String key) {
         //logger.info(String.format("deleteAll %s",key));
         List<RedisObjKV> lkList = redisObjectService.getlkMap(key);
 
-        for(RedisObjKV redisObjKV:lkList){
+        for (RedisObjKV redisObjKV : lkList) {
             redisObjectService.delete(redisObjKV.getKey());
         }
 
@@ -125,11 +144,85 @@ public class RedisObjectUtil {
 
     /**
      * 刷新过期时间
+     *
      * @param key
      * @return
      */
     public boolean refreshTime(String key) {
         return redisObjectService.refreshTime(key);
+    }
+
+
+    /**
+     * 备份
+     *
+     */
+    public void backup() {
+        String key = RedisKey.USER_AWARD;
+
+        List<RedisObjKV> lkList = redisObjectService.getlkMap(RedisKeyUtil.getlkKey(key));
+        List<String> lines = new ArrayList<>();
+        for (RedisObjKV redisObjKV : lkList) {
+            try {
+                lines.add(MapperUtils.obj2json(redisObjKV));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        DateTime date = DateUtil.date();
+        String yyyyMMddhhmmss = date.toString("hhmmss");
+
+        String yyyyMMdd = date.toString("yyyyMMdd");
+
+        String usrHome = System.getProperty("user.home");
+        String url = String.format("%s/logs/XXL/backup/%s/%s.%s.backup", usrHome, yyyyMMdd, key, yyyyMMddhhmmss);
+
+        //Console.log(url);
+
+        File file = FileUtil.file(url);
+
+        File touch = FileUtil.touch(file);
+
+        FileWriter fileWriter = FileWriter.create(touch);
+
+        fileWriter.appendLines(lines);
+
+    }
+
+    /**
+     * 加载备份
+     *
+     */
+    public void importBackup() {
+        DateTime date = DateUtil.date();
+
+        String yyyyMMdd = date.toString("yyyyMMdd");
+
+        String usrHome = System.getProperty("user.home");
+        String url = String.format("%s/logs/XXL/backup/%s/", usrHome, yyyyMMdd);
+
+        File[] ls = FileUtil.ls(url);
+
+
+        File file = ls[ls.length-1];
+
+        FileReader fileReader = FileReader.create(file);
+
+        List<String> strings = fileReader.readLines();
+
+        for (String json : strings) {
+            try {
+                RedisObjKV redisObjKV = MapperUtils.json2pojo(json, RedisObjKV.class);
+
+                redisObjectService.save(redisObjKV);
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+
     }
 
 
@@ -157,7 +250,7 @@ public class RedisObjectUtil {
      * @param <T>
      * @return
      */
-    public  <T> T deserialize(byte[] bt, Class<T> aclass) {
+    public <T> T deserialize(byte[] bt, Class<T> aclass) {
 
         try {
             return this.getSerializer().deserialize(ZIP.unGZip(bt), aclass.getName());
@@ -168,18 +261,15 @@ public class RedisObjectUtil {
     }
 
     /**
-     *
      * @return
      */
-    private Serializer getSerializer(){
-        if(this.serializer==null){
+    private Serializer getSerializer() {
+        if (this.serializer == null) {
 //            this.serializer = SerializerManager.getSerializer(JsonSerializer.JsonSerializerCode);
             this.serializer = SerializerManager.getSerializer(SerializerManager.Hessian2);
         }
         return this.serializer;
     }
-
-
 
 
 }

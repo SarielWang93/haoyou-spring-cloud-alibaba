@@ -6,7 +6,9 @@ import com.haoyou.spring.cloud.alibaba.commons.domain.SendType;
 import com.haoyou.spring.cloud.alibaba.commons.entity.Award;
 import com.haoyou.spring.cloud.alibaba.commons.entity.Friends;
 import com.haoyou.spring.cloud.alibaba.commons.entity.User;
+import com.haoyou.spring.cloud.alibaba.commons.entity.UserNumerical;
 import com.haoyou.spring.cloud.alibaba.commons.message.BaseMessage;
+import com.haoyou.spring.cloud.alibaba.commons.message.MapBody;
 import com.haoyou.spring.cloud.alibaba.commons.util.RedisKeyUtil;
 import com.haoyou.spring.cloud.alibaba.cultivate.currency.use.handle.CurrencyUseHandle;
 import com.haoyou.spring.cloud.alibaba.pojo.bean.ChatRecord;
@@ -33,8 +35,6 @@ import java.util.List;
 @Service
 public class FriendsService {
 
-    private static final int chatRecordSavedays = 30;
-
 
     @Autowired
     private RedisObjectUtil redisObjectUtil;
@@ -47,6 +47,8 @@ public class FriendsService {
     @Autowired
     private RewardService rewardService;
 
+    @Autowired
+    private NumericalService numericalService;
 
 
     public BaseMessage friendsDo(MyRequest req) {
@@ -58,32 +60,38 @@ public class FriendsService {
 
         friendsDoMsg.setUser(user);
 
+        MapBody mapBody = new MapBody();
+
         /**
-         * 1：好友申请，2：同意好友申请，3：一键拒绝，4：赠送礼物，5：领取礼物，6：发送信息
+         * 1：好友申请，2：同意好友申请，3：一键拒绝，4：赠送礼物，5：领取礼物，6：发送信息，7：删除好友
          */
         switch (friendsDoMsg.getType()) {
             case 1:
-                applicationDo(friendsDoMsg);
+                mapBody = applicationDo(friendsDoMsg);
                 break;
             case 2:
-                agreeDo(friendsDoMsg);
+                mapBody = agreeDo(friendsDoMsg);
                 break;
             case 3:
-                refuseDo(friendsDoMsg);
+                mapBody = refuseDo(friendsDoMsg);
                 break;
             case 4:
-                sendGift(friendsDoMsg);
+                mapBody = sendGift(friendsDoMsg);
                 break;
             case 5:
-                receiveGift(friendsDoMsg);
+                mapBody = receiveGift(friendsDoMsg);
                 break;
             case 6:
-                sendMsg(friendsDoMsg);
+                mapBody = sendMsg(friendsDoMsg);
+                break;
+            case 7:
+                mapBody = deleteFriend(friendsDoMsg);
                 break;
         }
 
+        mapBody.put("type",friendsDoMsg.getType());
 
-        return null;
+        return mapBody;
     }
 
     /**
@@ -92,20 +100,41 @@ public class FriendsService {
      * @param friendsDoMsg
      * @return
      */
-    public BaseMessage applicationDo(FriendsDoMsg friendsDoMsg) {
+    public MapBody applicationDo(FriendsDoMsg friendsDoMsg) {
 
         User user = friendsDoMsg.getUser();
 
         String userUid = friendsDoMsg.getUserUid();
 
+        String idNum = friendsDoMsg.getIdNum();
+
+        if (StrUtil.isEmpty(userUid)) {
+            if (StrUtil.isEmpty(idNum)) {
+                return MapBody.beErr();
+            } else {
+                User userByIdNum = userUtil.getUserByIdNum(idNum);
+                if (userByIdNum == null) {
+                    return MapBody.beErr();
+                } else {
+                    userUid = userByIdNum.getUid();
+                }
+            }
+        }
+
+        if (friendsIsFull(user, userUid)) {
+            return MapBody.beErr();
+        }
+
         String friendApplicationKey = RedisKeyUtil.getKey(RedisKey.USER_FRIENDS_APPLICATION, userUid, user.getUid());
 
         if (redisObjectUtil.save(friendApplicationKey, user.getUid())) {
 
-            return BaseMessage.beSuccess();
+            sendMsgUtil.sendMsgOneNoReturn(userUid, SendType.FRIEND_APPLICATION, MapBody.beSuccess());
+
+            return MapBody.beSuccess();
         }
 
-        return BaseMessage.beErr();
+        return MapBody.beErr();
     }
 
     /**
@@ -114,7 +143,7 @@ public class FriendsService {
      * @param friendsDoMsg
      * @return
      */
-    public BaseMessage agreeDo(FriendsDoMsg friendsDoMsg) {
+    public MapBody agreeDo(FriendsDoMsg friendsDoMsg) {
         User user = friendsDoMsg.getUser();
 
         String userUid = friendsDoMsg.getUserUid();
@@ -122,8 +151,12 @@ public class FriendsService {
         String friendApplicationKey = RedisKeyUtil.getKey(RedisKey.USER_FRIENDS_APPLICATION, user.getUid(), userUid);
 
         String s = redisObjectUtil.get(friendApplicationKey, String.class);
-        if (s != null) {
+        if (StrUtil.isNotEmpty(s)) {
             redisObjectUtil.delete(friendApplicationKey);
+
+            if (friendsIsFull(user, userUid)) {
+                return MapBody.beErr();
+            }
 
             Friends friend = new Friends();
             friend.setUserUid1(user.getUid());
@@ -131,99 +164,125 @@ public class FriendsService {
             friend.setCreatTime(new Date());
             friend.setIntimacy(0);
 
-
             userUtil.saveFriend(friend);
 
+            UserNumerical userNumerical = new UserNumerical();
+            userNumerical.setValue(friend.getIntimacy().longValue());
+            String numericalName = String.format("%s_%s", RedisKey.FRIENDS, friend.getId());
+            userNumerical.setNumericalName(numericalName);
+            userNumerical.setUserUid(user.getUid());
+            user.getUserNumericalMap().put(numericalName, userNumerical);
+
+            User userByUid = userUtil.getUserByUid(userUid);
+            userNumerical.setUserUid(userByUid.getUid());
+            userByUid.getUserNumericalMap().put(numericalName, userNumerical);
+            userUtil.saveUser(userByUid);
             userUtil.saveUser(user);
-            return BaseMessage.beSuccess();
+            return MapBody.beSuccess();
         }
-        return BaseMessage.beErr();
+        return MapBody.beErr();
     }
 
     /**
      * 一键拒绝
+     *
      * @param friendsDoMsg
      * @return
      */
-    public BaseMessage refuseDo(FriendsDoMsg friendsDoMsg) {
+    public MapBody refuseDo(FriendsDoMsg friendsDoMsg) {
         User user = friendsDoMsg.getUser();
-        if(friendsDoMsg.isOneButton()){
+        if (friendsDoMsg.isOneButton()) {
             redisObjectUtil.deleteAll(RedisKeyUtil.getlkKey(RedisKey.USER_FRIENDS_APPLICATION, user.getUid()));
 
-        }else{
-            redisObjectUtil.delete(RedisKeyUtil.getKey(RedisKey.USER_FRIENDS_APPLICATION, user.getUid(),friendsDoMsg.getUserUid()));
+        } else {
+            redisObjectUtil.delete(RedisKeyUtil.getKey(RedisKey.USER_FRIENDS_APPLICATION, user.getUid(), friendsDoMsg.getUserUid()));
         }
-        return BaseMessage.beSuccess();
+        return MapBody.beSuccess();
     }
+
+    public boolean friendsIsFull(User user, String userUid) {
+        if (userUtil.friendsIsFull(user.getUid()) || userUtil.friendsIsFull(userUid)) {
+            return true;
+        }
+        return false;
+    }
+
 
     /**
      * 发送奖励
+     *
      * @param friendsDoMsg
      * @return
      */
-    public BaseMessage sendGift(FriendsDoMsg friendsDoMsg) {
+    public MapBody sendGift(FriendsDoMsg friendsDoMsg) {
 
-       // friends_gift
+        // friends_gift
 
         User user = friendsDoMsg.getUser();
-        if(friendsDoMsg.isOneButton()){
+        if (friendsDoMsg.isOneButton()) {
             //给所有好友发送礼物
-            String friendlkKey = RedisKeyUtil.getlkKey(RedisKey.USER_FRIENDS,user.getUid());
+            String friendlkKey = RedisKeyUtil.getlkKey(RedisKey.USER_FRIENDS, user.getUid());
             HashMap<String, Integer> stringIntegerHashMap = redisObjectUtil.getlkMap(friendlkKey, Integer.class);
 
-            for(Integer i : stringIntegerHashMap.values()){
+            for (Integer i : stringIntegerHashMap.values()) {
                 String friendKey = RedisKeyUtil.getKey(RedisKey.FRIENDS, i.toString());
                 Friends friends = redisObjectUtil.get(friendKey, Friends.class);
                 String userUid = friends.getUserUid1();
-                if(userUid.equals(user.getUid())){
+                if (userUid.equals(user.getUid())) {
                     userUid = friends.getUserUid2();
                 }
-                sendGift(user,userUid);
+                sendGift(user, userUid);
             }
-        }else{
+        } else {
             String userUid = friendsDoMsg.getUserUid();
-            sendGift(user,userUid);
+            sendGift(user, userUid);
         }
 
-        return BaseMessage.beSuccess();
+        return MapBody.beSuccess();
     }
-    private void sendGift(User user,String userUid){
-        String type = RedisKeyUtil.getKey("friendsGift", user.getUid());
+
+    private void sendGift(User user, String userUid) {
+        String type = RedisKeyUtil.getKey(RedisKey.FRIENDS_GIFT, user.getUid());
         Award friendsGift = rewardService.getUpAward(userUid, type);
-        if(friendsGift == null){
-            rewardService.refreshUpAward(userUid,rewardService.getAward("friends_gift"),type);
+        if (friendsGift == null) {
+            rewardService.refreshUpAward(userUid, rewardService.getAward("friends_gift"), type);
+            addIntimacy(user,userUid,1L);
         }
     }
 
     /**
      * 领取礼物
-     * @param friendsDoMsg
-     * @return
-     */
-    public BaseMessage receiveGift(FriendsDoMsg friendsDoMsg) {
-
-        User user = friendsDoMsg.getUser();
-
-        if(friendsDoMsg.isOneButton()){
-            String type = RedisKeyUtil.getlkKey("friendsGift");
-            HashMap<String, Award> upAwards = rewardService.getUpAwards(user.getUid(), type);
-            for(String key:upAwards.keySet()){
-                rewardService.receiveAward(user,key);
-            }
-        }else{
-            String userUid = friendsDoMsg.getUserUid();
-            String type = RedisKeyUtil.getKey("friendsGift", userUid);
-            rewardService.receiveAward(user,type);
-        }
-        return BaseMessage.beSuccess();
-    }
-
-    /**
      *
      * @param friendsDoMsg
      * @return
      */
-    public BaseMessage sendMsg(FriendsDoMsg friendsDoMsg) {
+    public MapBody receiveGift(FriendsDoMsg friendsDoMsg) {
+
+        User user = friendsDoMsg.getUser();
+
+        String type = RedisKeyUtil.getlkKey(RedisKey.FRIENDS_GIFT);
+        HashMap<String, Award> upAwards = rewardService.getUpAwards(user.getUid(), type);
+        //限制每日领取的奖励个数
+        if (upAwards.size() >= userUtil.friendsMaxCount) {
+            return MapBody.beErr();
+        }
+        if (friendsDoMsg.isOneButton()) {
+            for (String key : upAwards.keySet()) {
+                rewardService.receiveAward(user, key);
+            }
+        } else {
+            String userUid = friendsDoMsg.getUserUid();
+            type = RedisKeyUtil.getKey(RedisKey.FRIENDS_GIFT, userUid);
+            rewardService.receiveAward(user, type);
+        }
+        return MapBody.beSuccess();
+    }
+
+    /**
+     * @param friendsDoMsg
+     * @return
+     */
+    public MapBody sendMsg(FriendsDoMsg friendsDoMsg) {
 
         User user = friendsDoMsg.getUser();
 
@@ -231,15 +290,54 @@ public class FriendsService {
 
         String sendMsg = friendsDoMsg.getSendMsg();
 
+        if(sendMsg.length()>50){
+            MapBody.beErr();
+        }
+
         //屏蔽词汇替换
         sendMsg = userUtil.replaceAllShieldVocas(sendMsg);
 
-        //记录聊天记录
-        ChatRecord chatRecord = userUtil.addChatRecord(user, userUid, sendMsg);
 
-        //发送聊天信息
-        sendMsgUtil.sendMsgOneNoReturn(userUid, SendType.SEND_CHAT,chatRecord);
+        if(sendMsgUtil.connectionIsAlive(userUid)){
+            //记录聊天记录
+            ChatRecord chatRecord = userUtil.addChatRecord(user, userUid, sendMsg);
+            //发送聊天信息
+            sendMsgUtil.sendMsgOneNoReturn(userUid, SendType.SEND_CHAT, chatRecord);
+        }else{
+            //记录聊天记录
+            userUtil.addChatRecord(user, userUid, sendMsg,true);
+        }
 
-        return BaseMessage.beSuccess();
+        return MapBody.beSuccess();
+    }
+
+    /**
+     * 删除好友
+     * @param friendsDoMsg
+     * @return
+     */
+    public MapBody deleteFriend(FriendsDoMsg friendsDoMsg) {
+        User user = friendsDoMsg.getUser();
+
+        String userUid = friendsDoMsg.getUserUid();
+
+        Friends friend = userUtil.getFriend(user, userUid);
+        userUtil.deleteFriend(friend);
+
+        return MapBody.beSuccess();
+    }
+
+
+
+    /**
+     * 增加亲密度
+     * @param user
+     * @param userUid
+     */
+    public void addIntimacy(User user, String userUid,long value) {
+        //增加亲密度
+        Friends friend = userUtil.getFriend(user, userUid);
+        String numericalName = String.format("%s_%s", RedisKey.FRIENDS, friend.getId());
+        numericalService.numericalAdd(user,numericalName,value);
     }
 }

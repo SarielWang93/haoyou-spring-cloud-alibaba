@@ -86,7 +86,7 @@ public class FightingPet implements Serializable {
     /**
      * 昵称
      */
-    private String nickname;
+    private String nickName;
     //uid
     private String uid;
 
@@ -171,15 +171,22 @@ public class FightingPet implements Serializable {
 
     /**
      * petType初始化
-     *
      * @param petType
-     * @param isWork  阵型位置
+     * @param aiUser
+     * @param isWork
+     * @param level
+     * @param redisObjectUtil
      */
-    public FightingPet(PetType petType, Integer isWork, Integer level, RedisObjectUtil redisObjectUtil) {
-        Pet pet = new Pet(new User(), petType, isWork);
+    public FightingPet(PetType petType, User aiUser, Integer isWork, Integer level, RedisObjectUtil redisObjectUtil) {
+        Pet pet = new Pet(aiUser, petType, isWork);
         pet.setLevel(level);
         this.redisObjectUtil = redisObjectUtil;
         this.init(pet);
+
+        //
+        this.setUid(String.format("ai-%s", this.getUid()));
+        this.setNickName(String.format("ai-%s", this.getNickName()));
+        this.setAction_time(this.getAction_time() + 10);
     }
 
     /**
@@ -197,7 +204,7 @@ public class FightingPet implements Serializable {
         this.pet = pet;
 
         //基础属性
-        this.nickname = pet.getNickname();
+        this.nickName = pet.getNickName();
         this.uid = pet.getUid();
 
 
@@ -1096,7 +1103,7 @@ public class FightingPet implements Serializable {
     public String toString() {
         return "FightingPet{" +
                 ", pet=" + pet +
-                ", nickname='" + nickname + '\'' +
+                ", nickName='" + nickName + '\'' +
                 ", uid='" + uid + '\'' +
                 ", fightingStates=" + fightingStates +
                 ", skills=" + skills +

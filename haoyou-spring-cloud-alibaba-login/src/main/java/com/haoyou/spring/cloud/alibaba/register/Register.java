@@ -171,7 +171,7 @@ public class Register {
             server.setServerNum(serverNum);
             server.setCreatDate(new Date());
             server.setServerName("server" + serverNum);
-            int insert = serverMapper.insert(server);
+            serverMapper.insert(server);
         }
 
         user.setServerId(server.getId());

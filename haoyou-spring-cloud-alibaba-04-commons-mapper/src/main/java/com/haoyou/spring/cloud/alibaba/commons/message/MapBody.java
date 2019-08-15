@@ -1,6 +1,7 @@
 package com.haoyou.spring.cloud.alibaba.commons.message;
 
 
+import com.haoyou.spring.cloud.alibaba.commons.domain.ResponseMsg;
 import lombok.Data;
 
 import java.util.Collection;
@@ -12,6 +13,28 @@ import java.util.Objects;
 public class MapBody<K,V> extends BaseMessage{
 
     private static final long serialVersionUID = -3999396492949499427L;
+
+
+    public static MapBody beSuccess(){
+        MapBody mapBody = new MapBody();
+        mapBody.setState(ResponseMsg.MSG_SUCCESS);
+        return mapBody;
+    }
+    public static MapBody beErr(){
+        MapBody mapBody = new MapBody();
+        mapBody.setState(ResponseMsg.MSG_ERR);
+        return mapBody;
+    }
+
+
+
+
+
+
+
+
+
+
     private Map<K,V> msg;
 
     public MapBody() {

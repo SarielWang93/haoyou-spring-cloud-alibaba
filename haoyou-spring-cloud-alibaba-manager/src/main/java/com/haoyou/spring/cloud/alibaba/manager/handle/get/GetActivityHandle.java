@@ -1,6 +1,7 @@
 package com.haoyou.spring.cloud.alibaba.manager.handle.get;
 
 
+import cn.hutool.core.date.DateTime;
 import cn.hutool.core.date.DateUtil;
 import com.haoyou.spring.cloud.alibaba.commons.domain.RedisKey;
 import com.haoyou.spring.cloud.alibaba.commons.domain.ResponseMsg;
@@ -58,10 +59,35 @@ public class GetActivityHandle extends ManagerHandle {
                 //活动介绍
                 activityMsg.put("description", activity.getDescription());
 
+                //活动执行第几天
+                DateTime date = DateUtil.date();
+                Integer refresh = activity.getRefresh();
+                if(refresh>100){
+                    refresh-=100;
+                    long d = userUtil.getRuningDays(date)%refresh;
+                    activityMsg.put("days", d+1);
+                }else{
+                    if(refresh.equals(1)){
+                        activityMsg.put("days", 1);
+                    }else if(refresh.equals(7)){
+                        int a=date.dayOfWeek() - 1;
+                        if(a==0){
+                            a=7;
+                        }
+                        activityMsg.put("days", a);
+                    }else if(refresh.equals(30)){
+                        activityMsg.put("days", date.dayOfMonth());
+                    }                }
+                //活动持续天数
+                activityMsg.put("refresh", refresh);
+
+
                 UserNumerical userNumerical = user.getUserNumericalMap().get(activity.getNumericalName());
 
                 //活动奖励列表
                 List<Map> activityAwardsMsg = new ArrayList<>();
+
+                boolean today = false;
 
                 for (ActivityAward activityAward : activity.getActivityAwards()) {
 
@@ -75,12 +101,6 @@ public class GetActivityHandle extends ManagerHandle {
                     activityAwardMsg.put("times", activityAward.getTimes());
 
 
-
-
-                    //当前数值
-                    activityAwardMsg.put("userNumerical", userNumerical.getValue());
-
-
                     String type = RedisKeyUtil.getKey(RedisKey.ACTIVITY, activity.getActivityType(), activityAward.getAwardType());
 
                     activityAwardMsg.put("canReceive", false);
@@ -88,40 +108,71 @@ public class GetActivityHandle extends ManagerHandle {
                     activityAwardMsg.put("award", award);
 
                     //是否
-                    boolean isSingleRecharge = activity.getActivityType().equals("SingleRecharge");
-                    if (isSingleRecharge) {
+                    if (activity.getActivityType().equals("SingleRecharge")) {
                         userNumerical = user.getUserNumericalMap().get(String.format("commodity_Recharge%s", activityAward.getAim()));
+
+                        Long value = userNumerical.getValue();
+
+
+                        if(userNumerical.getValue() > activityAward.getTimes()){
+                            value = activityAward.getTimes().longValue();
+                        }
+
                         //当前数值
-                        activityAwardMsg.put("userNumerical", userNumerical.getValue());
+                        activityAwardMsg.put("userNumerical", value);
+
                         for (int i = 1; i <= userNumerical.getValue(); i++) {
-                            type = RedisKeyUtil.getKey(type, Integer.toString(i));
-                            Award upAward = this.getUpAward(user.getUid(), type);
+                            String typei = RedisKeyUtil.getKey(type, Integer.toString(i));
+                            Award upAward = this.getUpAward(user.getUid(), typei);
                             if (upAward != null && !upAward.isUsed()) {
                                 //是否已经达成目标
                                 activityAwardMsg.put("canReceive", true);
                                 //奖励
                                 activityAwardMsg.put("award", upAward);
                                 //领取时需要的type
-                                activityAwardMsg.put("type", type);
+                                activityAwardMsg.put("type", typei);
+
+                                activityAwardMsg.put("userNumerical", i-1);
                                 break;
                             }
                         }
                     } else {
+                        //当前数值
+                        activityAwardMsg.put("userNumerical", userNumerical.getValue());
+
+
                         Award upAward = this.getUpAward(user.getUid(), type);
                         if (upAward != null) {
                             //是否已经达成目标
                             activityAwardMsg.put("canReceive", true);
                             //奖励
                             activityAwardMsg.put("award", upAward);
-                            //已达成的当前数值是目标数值
-                            activityAwardMsg.put("userNumerical", activityAward.getAim());
+
+                            if(activity.getActivityType().equals("DailyRecharge")){
+                                //已达成的当前数值是目标数值
+                                activityAwardMsg.put("userNumerical", activityAward.getAim());
+                            }
+
                             if(!upAward.isUsed()){
                                 activityAwardMsg.put("type", type);
+                            }
+                            //是否有今天奖励
+                            if(DateUtil.betweenDay(upAward.getUpAwardDate(),new Date(),true) == 0){
+                                today = true;
+                            }
+                        }
+                        //天天充值判断当天进度显示逻辑
+                        if(upAward == null && activity.getActivityType().equals("DailyRecharge")){
+                            if(today){
+                                userNumerical.setValue(0L);
+                                activityAwardMsg.put("userNumerical", userNumerical.getValue());
+                            }else{
+                                today = true;
                             }
                         }
                     }
 
-
+                    activityAwardsMsg.add(activityAwardMsg);
                 }
                 activityMsg.put("activityAwards", activityAwardsMsg);
 
