@@ -70,13 +70,7 @@ public class ManagerTest {
 
 
     public static void main(String[] args) throws InterruptedException, CodecException {
-        String usrHome = System.getProperty("user.home");
 
-        File file = FileUtil.file(String.format("%s/logs/XXL/123456",usrHome));
-
-        File touch = FileUtil.touch(file);
-
-        Console.log(touch.getPath());
     }
 
     /**

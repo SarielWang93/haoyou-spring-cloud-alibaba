@@ -25,10 +25,11 @@ public class FriendGiftSettleHandle extends SettleHandle {
     @Override
     public void handle() {
         for(User user:this.users){
+            //好友礼物清算
             String type = RedisKeyUtil.getlkKey(RedisKey.FRIENDS_GIFT);
             rewardService.deleteUpAwards(user.getUid(), type);
 
-
+            //助战清算
             String hashKey = RedisKeyUtil.getlkKey(RedisKey.HELP_PET, user.getUid(), RedisKey.HAS_HELP);
             redisObjectUtil.deleteAll(hashKey);
         }
