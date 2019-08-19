@@ -329,30 +329,49 @@ public class CultivateServiceImpl implements CultivateService {
      */
     @Override
     public boolean updateIsWork(MyRequest req) {
+
         User user = req.getUser();
         UpdateIsworkMsg updateIsworkMsg = sendMsgUtil.deserialize(req.getMsg(), UpdateIsworkMsg.class);
-        FightingPet fightingPet = FightingPet.getByUserAndPetUid(user, updateIsworkMsg.getPetUid(), redisObjectUtil);
+        String friendUid = updateIsworkMsg.getFriendUid();
 
+        if(StrUtil.isNotEmpty(friendUid)){
 
-        //交换位置
-        Integer isworkbf = fightingPet.getPet().getIswork();
-        String userUidKey = RedisKeyUtil.getKey(RedisKey.FIGHT_PETS, user.getUid());
-        String key = RedisKeyUtil.getlkKey(userUidKey);
-        HashMap<String, FightingPet> fightingPets = redisObjectUtil.getlkMap(key, FightingPet.class);
-        for (FightingPet fightingPetOne : fightingPets.values()) {
-            Pet pet = fightingPetOne.getPet();
-            if (updateIsworkMsg.getIswork() != 0 && pet.getIswork() == updateIsworkMsg.getIswork()) {
-                pet.setIswork(isworkbf);
-                fightingPetOne.setRedisObjectUtil(redisObjectUtil);
-                fightingPetOne.save();
+            String hashKey = RedisKeyUtil.getKey(RedisKey.HELP_PET, user.getUid(), RedisKey.HAS_HELP,friendUid);
+            String s = redisObjectUtil.get(hashKey, String.class);
+            if(StrUtil.isNotEmpty(s)){
+                return false;
             }
+
+            //设置助战
+            String lkKey = RedisKeyUtil.getlkKey(RedisKey.HELP_PET, user.getUid(), RedisKey.HELP);
+            redisObjectUtil.deleteAll(lkKey);
+
+            String key = RedisKeyUtil.getKey(RedisKey.HELP_PET, user.getUid(),RedisKey.HELP, friendUid);
+            //助战玩家以及助战位置存入设置
+            redisObjectUtil.save(key,RedisKeyUtil.getKey(friendUid,Integer.toString(updateIsworkMsg.getIswork())));
+
+        }else{
+            //修改出战
+            FightingPet fightingPet = FightingPet.getByUserAndPetUid(user, updateIsworkMsg.getPetUid(), redisObjectUtil);
+
+            //交换位置
+            Integer isworkbf = fightingPet.getPet().getIswork();
+            String userUidKey = RedisKeyUtil.getKey(RedisKey.FIGHT_PETS, user.getUid());
+            String key = RedisKeyUtil.getlkKey(userUidKey);
+            HashMap<String, FightingPet> fightingPets = redisObjectUtil.getlkMap(key, FightingPet.class);
+            for (FightingPet fightingPetOne : fightingPets.values()) {
+                Pet pet = fightingPetOne.getPet();
+                if (updateIsworkMsg.getIswork() != 0 && pet.getIswork() == updateIsworkMsg.getIswork()) {
+                    pet.setIswork(isworkbf);
+                    fightingPetOne.setRedisObjectUtil(redisObjectUtil);
+                    fightingPetOne.save();
+                }
+            }
+
+            fightingPet.getPet().setIswork(updateIsworkMsg.getIswork());
+
+            fightingPet.save();
         }
-
-        fightingPet.getPet().setIswork(updateIsworkMsg.getIswork());
-
-        fightingPet.save();
-
-        this.saveUser(user);
 
         return true;
     }

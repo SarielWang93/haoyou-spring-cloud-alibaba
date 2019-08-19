@@ -3,6 +3,8 @@ package com.haoyou.spring.cloud.alibaba.util;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DateTime;
 import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.date.TimeInterval;
+import cn.hutool.core.lang.Console;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.StrUtil;
@@ -34,6 +36,8 @@ public class UserUtil {
 
     public static final int friendsMaxCount = 30;
 
+    public static final int vitalityMaxCount = 200;
+
     @Autowired
     private RedisObjectUtil redisObjectUtil;
     @Autowired
@@ -57,6 +61,11 @@ public class UserUtil {
     private PetMapper petMapper;
     @Autowired
     private PetSkillMapper petSkillMapper;
+
+    public Award getAward(String type){
+        Award award =  redisObjectUtil.get(RedisKeyUtil.getKey(RedisKey.AWARD, type),Award.class);
+        return award;
+    }
 
 
     public HashMap<String, User> getUserLogin() {
@@ -313,14 +322,9 @@ public class UserUtil {
         select.addAll(friendsMapper.select(friend2select));
 
         for (Friends friend : select) {
-            String friendKey = RedisKeyUtil.getKey(RedisKey.FRIENDS, friend.getId().toString());
-            if (redisObjectUtil.get(friendKey, Friends.class) == null) {
-                redisObjectUtil.save(friendKey, friend, -1);
-            }
 
-            String friend1Key = RedisKeyUtil.getKey(RedisKey.USER_FRIENDS, friend.getUserUid1(), friend.getId().toString());
+            saveFriend(friend);
 
-            redisObjectUtil.save(friend1Key, friend.getId(), -1);
         }
 
 
@@ -718,15 +722,17 @@ public class UserUtil {
      * @return
      */
     public String replaceAllShieldVocas(String msg) {
-        String shieldVocaKey = RedisKeyUtil.getlkKey(RedisKey.SHIELD_VOCA);
-        HashMap<String, String> shieldVocas = redisObjectUtil.getlkMap(shieldVocaKey, String.class);
-        for (String shieldVoca : shieldVocas.values()) {
 
-            StringBuilder builder = StrUtil.builder();
-            for (int i = 0; i < shieldVoca.length(); i++) {
-                builder.append("*");
+        String shieldVocaKey = RedisKeyUtil.getKey(RedisKey.SHIELD_VOCA);
+        List<String> list = redisObjectUtil.get(shieldVocaKey, List.class);
+        for (String shieldVoca : list) {
+            if(StrUtil.containsAny(msg,shieldVoca)){
+                StringBuilder builder = StrUtil.builder();
+                for (int i = 0; i < shieldVoca.length(); i++) {
+                    builder.append("*");
+                }
+                msg = StrUtil.replace(msg, shieldVoca, builder.toString());
             }
-            msg = msg.replaceAll(shieldVoca, builder.toString());
         }
         return msg;
     }
@@ -738,9 +744,9 @@ public class UserUtil {
      * @return
      */
     public boolean hasShieldVocas(String msg) {
-        String shieldVocaKey = RedisKeyUtil.getlkKey(RedisKey.SHIELD_VOCA);
-        HashMap<String, String> shieldVocas = redisObjectUtil.getlkMap(shieldVocaKey, String.class);
-        for (String shieldVoca : shieldVocas.values()) {
+        String shieldVocaKey = RedisKeyUtil.getKey(RedisKey.SHIELD_VOCA);
+        List<String> shieldVocas = redisObjectUtil.get(shieldVocaKey, List.class);
+        for (String shieldVoca : shieldVocas) {
             if (msg.contains(shieldVoca)) {
                 return true;
             }
@@ -773,7 +779,7 @@ public class UserUtil {
         if (friend.getChatRecord() == null) {
             deserialize = new ArrayList<>();
         } else {
-            redisObjectUtil.deserialize(friend.getChatRecord(), List.class);
+            deserialize = redisObjectUtil.deserialize(friend.getChatRecord(), List.class);
         }
         return deserialize;
     }
@@ -822,8 +828,8 @@ public class UserUtil {
         String friendKey = RedisKeyUtil.getKey(RedisKey.FRIENDS, friend.getId().toString());
         redisObjectUtil.save(friendKey, friend, -1);
 
-        String friend1Key = RedisKeyUtil.getKey(RedisKey.USER_FRIENDS, friend.getUserUid1(), friend.getId().toString());
-        String friend2Key = RedisKeyUtil.getKey(RedisKey.USER_FRIENDS, friend.getUserUid2(), friend.getId().toString());
+        String friend1Key = RedisKeyUtil.getKey(RedisKey.USER_FRIENDS, friend.getUserUid1(),friend.getUserUid2());
+        String friend2Key = RedisKeyUtil.getKey(RedisKey.USER_FRIENDS, friend.getUserUid2(),friend.getUserUid1());
 
         redisObjectUtil.save(friend1Key, friend.getId(), -1);
         redisObjectUtil.save(friend2Key, friend.getId(), -1);
@@ -835,8 +841,8 @@ public class UserUtil {
      * @param friend
      */
     public void deleteFriend(Friends friend) {
-        String friend1Key = RedisKeyUtil.getKey(RedisKey.USER_FRIENDS, friend.getUserUid1(), friend.getId().toString());
-        String friend2Key = RedisKeyUtil.getKey(RedisKey.USER_FRIENDS, friend.getUserUid2(), friend.getId().toString());
+        String friend1Key = RedisKeyUtil.getKey(RedisKey.USER_FRIENDS, friend.getUserUid1(), friend.getUserUid2());
+        String friend2Key = RedisKeyUtil.getKey(RedisKey.USER_FRIENDS, friend.getUserUid2(), friend.getUserUid1());
 
         redisObjectUtil.delete(friend1Key);
         redisObjectUtil.delete(friend2Key);

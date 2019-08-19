@@ -21,4 +21,8 @@ public class UpdateIsworkMsg implements Serializable {
     private String petUid;
     private int iswork;
 
+
+    private String friendUid;
+
+
 }

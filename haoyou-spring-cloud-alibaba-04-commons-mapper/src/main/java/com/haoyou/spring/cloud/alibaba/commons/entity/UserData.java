@@ -96,5 +96,10 @@ public class UserData implements Serializable {
     @Column(name = "lifetime_breeder_date")
     private Date lifetimeBreederDate;
 
+    /**
+     * 助战宠物uid
+     */
+    @Column(name = "help_pet_uid")
+    private String helpPetUid;
 
 }

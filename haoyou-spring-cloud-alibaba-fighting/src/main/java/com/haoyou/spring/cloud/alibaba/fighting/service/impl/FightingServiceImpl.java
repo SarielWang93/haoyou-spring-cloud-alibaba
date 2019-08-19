@@ -1,10 +1,12 @@
 package com.haoyou.spring.cloud.alibaba.fighting.service.impl;
 
+import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.thread.ThreadUtil;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.ReflectUtil;
 import cn.hutool.core.util.StrUtil;
+import com.haoyou.spring.cloud.alibaba.util.ScoreRankUtil;
 import com.haoyou.spring.cloud.alibaba.util.UserUtil;
 import org.apache.dubbo.config.annotation.Reference;
 import org.apache.dubbo.config.annotation.Service;
@@ -49,6 +51,8 @@ public class FightingServiceImpl implements FightingService {
     private SendMsgUtil sendMsgUtil;
     @Autowired
     private UserUtil userUtil;
+    @Autowired
+    protected ScoreRankUtil scoreRankUtil;
 
     @Value("${fighting.alivetime: 300}")
     private long aliveTime;
@@ -158,13 +162,33 @@ public class FightingServiceImpl implements FightingService {
      * @return
      */
     @Override
+    public boolean start(List<User> users) {
+        return start(users, new HashMap<>());
+    }
+
+    @Override
     public boolean start(List<User> users, Map<String, Boolean> allIsAi) {
         if (users.size() < 2) {
             return false;
         }
+        //从新获取user信息
+        List<User> users1 = new ArrayList<>();
+        for (User user : users1) {
+            users1.add(userUtil.getUserByUid(user.getUid()));
+        }
+
         FightingRoom fightingRoom = new FightingRoom(FightingType.PVP);
-        this.initFightingRoom(users, fightingRoom, allIsAi);
-        return this.start(fightingRoom);
+        this.initFightingRoom(users1, fightingRoom, allIsAi);
+
+        if (this.start(fightingRoom)) {
+            //增加一次天梯记录
+            for (User user : users1) {
+                cultivateService.numericalAdd(user, "daily_ladder", 1L);
+            }
+
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -714,6 +738,42 @@ public class FightingServiceImpl implements FightingService {
                 fightingPetMaps.put(iswork, fightingPet);
             }
         }
+
+        //TODO 助阵宠物设置
+        String fightingType = fightingRoom.getFightingType();
+        if(fightingType.equals(FightingType.PVE)){
+            String key = RedisKeyUtil.getlkKey(RedisKey.HELP_PET, user.getUid(), RedisKey.HELP);
+            HashMap<String, String> stringStringHashMap = redisObjectUtil.getlkMap(key, String.class);
+            if (stringStringHashMap.size() == 1) {
+                for(String value:stringStringHashMap.values()){
+                    //value是主战玩家uid和助战位置的用":"拼接
+                    String[] split = value.split(":");
+                    int iswork = Integer.parseInt(split[1]);
+
+                    User friendUser = userUtil.getUserByUid(split[0]);
+                    String helpPetUid = friendUser.getUserData().getHelpPetUid();
+                    FightingPet fightingPet = FightingPet.getByUserAndPetUid(friendUser, helpPetUid, redisObjectUtil);
+
+                    //临时修改宠物信息
+                    fightingPet.getPet().setIswork(iswork);
+                    fightingPet.getPet().setUserUid(user.getUid());
+
+                    fightingPet.setFightingCamp(fightingCamp);
+                    fightingPet.initFighting();
+                    fightingPetMaps.put(iswork, fightingPet);
+                    //记录当日已助战好友
+                    String hashKey = RedisKeyUtil.getKey(RedisKey.HELP_PET, user.getUid(), RedisKey.HAS_HELP,split[0]);
+                    redisObjectUtil.save(hashKey,split[0]);
+
+                }
+            }
+            //助战已使用清理
+            String lkKey = RedisKeyUtil.getlkKey(RedisKey.HELP_PET, user.getUid(), RedisKey.HELP);
+            redisObjectUtil.deleteAll(lkKey);
+        }
+
+
+
         fightingCamp.setFightingPets(fightingPetMaps);
         return fightingCamp;
     }
@@ -747,7 +807,7 @@ public class FightingServiceImpl implements FightingService {
             Field petLevelField = ReflectUtil.getField(LevelDesign.class, String.format("petLevel%s", i));
             Integer petLevel = (Integer) ReflectUtil.getFieldValue(levelDesign, petLevelField);
 
-            petLevel *= 1 + 50 * (difficult - 1) / 100;
+            petLevel *= 1 + 50 * difficult / 100;
 
             PetType petType = redisObjectUtil.get(RedisKeyUtil.getKey(RedisKey.PET_TYPE, petTypeUid), PetType.class);
 
@@ -1001,6 +1061,7 @@ public class FightingServiceImpl implements FightingService {
 
     /**
      * 胜利结算
+     *
      * @param fightingPet
      */
     public void win(FightingPet fightingPet) {
@@ -1014,49 +1075,149 @@ public class FightingServiceImpl implements FightingService {
 
         this.deleteFightingRoom(fightingRoom);
 
+        //胜利结算逻辑
         User user = fightingPet.getFightingCamp().getUser();
         //获取内存中真实user
         user = userUtil.getUserByUid(user.getUid());
-
         logger.debug(String.format("胜利：%s", user.getUsername()));
-        //TODO 胜利结算逻辑（临时）获取“技能道具”
+        //ai断线不结算
         if (!fightingPet.getUid().startsWith("ai-") && sendMsgUtil.connectionIsAlive(user.getUid())) {
-
             LevelDesign levelDesign = fightingRoom.getLevelDesign();
-            //PVE胜利结算
-            if(levelDesign == null){
-                cultivateService.rewards(user, fightingRoom.getFightingType());
-            }else{
+            //PVE天梯胜利结算
+            if (levelDesign == null) {
+
+                Long daily_ladder_win = user.getUserNumericalMap().get("daily_ladder_win").getValue();
+
+                if (daily_ladder_win < 10) {
+                    cultivateService.rewards(user, fightingRoom.getFightingType());
+                }
+                //增加一次天梯胜利记录
+                cultivateService.numericalAdd(user, "daily_ladder_win", 1L);
+                //连胜加一
+                cultivateService.numericalAdd(user, "ladder_streak", 1L);
+
+                //升阶以及传奇积分逻辑
+                Long ladder_level = user.getUserNumericalMap().get("ladder_level").getValue();
+                //传奇联赛排名key
+                String yyMM = DateUtil.date().toString("yyMM");
+                String rankKey = RedisKeyUtil.getKey(RedisKey.LADDER_RANKING, yyMM);
+                if (ladder_level < 15) {
+                    long add = 1;
+                    //连胜奖励
+                    Long ladder_streak = user.getUserNumericalMap().get("ladder_streak").getValue();
+                    if (ladder_streak > 2) {
+                        add = 2;
+                    }
+                    cultivateService.numericalAdd(user, "ladder_level_star", add);
+
+                    Long ladder_level_star = user.getUserNumericalMap().get("ladder_level_star").getValue();
+                    //升阶，5星
+                    if (ladder_level_star >= 5) {
+                        //判断最值
+                        Long ladder_level_max = user.getUserNumericalMap().get("ladder_level_max").getValue();
+                        if (ladder_level + 1 > ladder_level_max) {
+                            cultivateService.numericalAdd(user, "ladder_level_max", 1L);
+                        }
+
+                        cultivateService.numericalAdd(user, "ladder_level", 1L);
+                        cultivateService.numericalAdd(user, "ladder_level_star", -5L);
+                        //14升15阶进入传奇联赛
+                        if (ladder_level == 14) {
+                            //传奇联赛排名
+                            scoreRankUtil.add(rankKey, user, 100L);
+                            cultivateService.numericalAdd(user, "ladder_integral", 100L);
+                        }
+                    }
+
+                } else {
+                    //传奇联赛，排名增加
+                    scoreRankUtil.incrementScore(rankKey, user, 30L);
+                    cultivateService.numericalAdd(user, "ladder_integral", 30L);
+                }
+
+
+            } else {
+                //闯关模式结算
                 int difficult = fightingRoom.getDifficult();
                 //添加徽章
                 boolean isFirst = userUtil.addBadges(user.getUid(), levelDesign, difficult);
                 String firstAwardType = null;
                 String awardType = null;
-                switch (difficult){
-                    case 1:
+                switch (difficult) {
+                    case 0:
                         awardType = levelDesign.getOrdinaryAward();
                         firstAwardType = levelDesign.getOrdinaryFirstAward();
                         break;
-                    case 2:
+                    case 1:
                         awardType = levelDesign.getDifficultyAward();
                         firstAwardType = levelDesign.getDifficultyFirstAward();
                         break;
-                    case 3:
+                    case 2:
                         awardType = levelDesign.getCrazyAward();
                         firstAwardType = levelDesign.getCrazyFirstAward();
                         break;
                 }
                 //首次奖励
-                if(isFirst){
+                if (isFirst) {
                     cultivateService.rewards(user, firstAwardType);
                 }
                 cultivateService.rewards(user, awardType);
             }
         }
+
+        Map<String, FightingCamp> distinguish = fightingPet.getDistinguish();
+        FightingCamp enemy = distinguish.get("enemy");
+        //失败结算
+        this.lost(enemy);
+
         //结算完毕，保存
         this.hiSave(fightingPet.getFightingCamp());
 
     }
+
+    /**
+     * 失败结算
+     *
+     * @param enemy
+     */
+    private void lost(FightingCamp enemy) {
+
+        FightingRoom fightingRoom = enemy.getFightingRoom();
+        //ai不结算，断线不结算
+        if (!enemy.getUser().getUid().startsWith("ai-") && sendMsgUtil.connectionIsAlive(enemy.getUser().getUid())) {
+            LevelDesign levelDesign = fightingRoom.getLevelDesign();
+            User user = userUtil.getUserByUid(enemy.getUser().getUid());
+
+            //天梯失败结算
+            if (levelDesign == null) {
+                //传奇联赛排名key
+                String yyMM = DateUtil.date().toString("yyMM");
+                String rankKey = RedisKeyUtil.getKey(RedisKey.LADDER_RANKING, yyMM);
+
+                Long ladder_level = user.getUserNumericalMap().get("ladder_level").getValue();
+                if (ladder_level < 15) {
+                    Long ladder_level_star = user.getUserNumericalMap().get("ladder_level_star").getValue();
+                    if (ladder_level_star == 0) {
+                        if (ladder_level > 0) {
+                            cultivateService.numericalAdd(user, "ladder_level", -1L);
+                            cultivateService.numericalAdd(user, "ladder_level_star", 4L);
+                        }
+                    } else {
+                        cultivateService.numericalAdd(user, "ladder_level_star", -1L);
+                    }
+
+                    //清空连胜
+                    Long ladder_streak = user.getUserNumericalMap().get("ladder_streak").getValue();
+                    cultivateService.numericalAdd(user, "ladder_streak", -ladder_streak);
+                } else {
+                    scoreRankUtil.incrementScore(rankKey, user, -20L);
+                    cultivateService.numericalAdd(user, "ladder_integral", -20L);
+                }
+            }
+        }
+
+    }
+
 
     /**
      * 结算历史信息保存到数据库

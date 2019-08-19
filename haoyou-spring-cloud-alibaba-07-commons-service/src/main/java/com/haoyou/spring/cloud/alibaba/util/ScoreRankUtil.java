@@ -12,10 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 
 /**
@@ -27,8 +24,6 @@ public class ScoreRankUtil {
     private final static Logger logger = LoggerFactory.getLogger(ScoreRankUtil.class);
     @Autowired
     private ScoreRankService scoreRankService;
-    @Autowired
-    private JsonSerializer jsonSerializer;
 
     @PostConstruct
     private void init() {
@@ -41,33 +36,31 @@ public class ScoreRankUtil {
 
         Map<String, Long> msgs = new HashMap<>();
         for (User user : users) {
-            msgs.put(this.getRankMsg(user), user.getCurrency().getRank().longValue());
+            msgs.put(user.getUid(), user.getCurrency().getRank().longValue());
         }
 
         return scoreRankService.batchAdd(scoreRank, msgs);
-
     }
 
     /**
      * 单个新增
      */
     public boolean add(String scoreRank, User user) {
-        return scoreRankService.add(scoreRank, this.getRankMsg(user) , user.getCurrency().getRank().longValue());
+        return scoreRankService.add(scoreRank, user.getUid() , user.getCurrency().getRank().longValue());
     }
-
+    public boolean add(String scoreRank, User user, long rank) {
+        return scoreRankService.add(scoreRank, user.getUid() , rank);
+    }
     /**
      * 获取排行列表
      */
-    public List<RankUser> list(String scoreRank, Long start, Long end) {
+    public TreeMap<Long,String> list(String scoreRank) {
+        return  list(scoreRank,0L,zCard(scoreRank));
+    }
 
-        List<RankUser> rankUsers = new ArrayList<>();
-        List<String> list = scoreRankService.list(scoreRank, start, end);
-
-        for (String s : list) {
-            rankUsers.add(this.getRankUser(s));
-        }
-
-        return rankUsers;
+    public TreeMap<Long,String> list(String scoreRank, Long start, Long end) {
+        TreeMap<Long,String> treeMap = scoreRankService.list(scoreRank, start, end);
+        return treeMap;
     }
 
 
@@ -75,16 +68,21 @@ public class ScoreRankUtil {
      * 获取单个的排行
      */
     public Long find(String scoreRank, User user){
-        return scoreRankService.find(scoreRank, this.getRankMsg(user));
+        return scoreRankService.find(scoreRank,user.getUid());
     }
-
+    /**
+     * 获取单个的积分
+     */
+    public Long findIntegral(String scoreRank, User user){
+        return scoreRankService.findIntegral(scoreRank,user.getUid());
+    }
 
     /**
      * 使用加法操作分数
      */
 
-    public Long incrementScore(String scoreRank, User user){
-        return scoreRankService.incrementScore(scoreRank,this.getRankMsg(user),user.getCurrency().getRank().longValue());
+    public Long incrementScore(String scoreRank, User user ,long rank){
+        return scoreRankService.incrementScore(scoreRank,user.getUid(),rank);
     }
 
 
@@ -96,39 +94,22 @@ public class ScoreRankUtil {
         return scoreRankService.zCard(scoreRank);
     }
 
+    /**
+     * 删除排名
+     */
 
-
-
-
-
-
-
-
-    private RankUser getRankUser(String s){
-        try {
-            return MapperUtils.json2pojo(s,RankUser.class);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return null;
+    public Long removeRank(String scoreRank,long start,long end){
+        return scoreRankService.removeRank(scoreRank,start,end);
     }
-    private String getRankMsg(User user) {
 
-        RankUser rankUser = new RankUser();
+    /**
+     * 删除排名
+     */
 
-        rankUser.setUserUid(user.getUid());
-        rankUser.setName(user.getUserData().getName());
-        rankUser.setAvatar(user.getUserData().getAvatar());
-        rankUser.setIntegral(user.getCurrency().getRank());
-
-        String plj = "";
-        try {
-            plj = MapperUtils.obj2json(rankUser);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-
-        return plj;
+    public Long removeRankAll(String scoreRank){
+        return scoreRankService.removeRank(scoreRank,0L,zCard(scoreRank));
     }
+
+
+
 }

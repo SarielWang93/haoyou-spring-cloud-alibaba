@@ -51,7 +51,7 @@ public class SkillBoard implements Serializable {
         }
         String skillUid = prop.getProperty4();
         String type = prop.getProperty2();
-        String skillQuality = prop.getProperty3();
+        //String skillQuality = prop.getProperty3();
 
         //不可以放入已有技能
 //        for (int x = 0; x < xLength; x++) {

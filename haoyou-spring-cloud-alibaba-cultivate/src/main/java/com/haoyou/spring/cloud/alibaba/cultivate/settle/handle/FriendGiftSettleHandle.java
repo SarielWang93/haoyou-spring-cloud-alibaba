@@ -16,7 +16,7 @@ import java.util.Map;
  * @version 1.0
  * @date 2019/7/30 10:42
  * <p>
- * 活动结算刷新
+ * 好友礼物清算，好友助战清算
  */
 @Service
 public class FriendGiftSettleHandle extends SettleHandle {
@@ -27,6 +27,10 @@ public class FriendGiftSettleHandle extends SettleHandle {
         for(User user:this.users){
             String type = RedisKeyUtil.getlkKey(RedisKey.FRIENDS_GIFT);
             rewardService.deleteUpAwards(user.getUid(), type);
+
+
+            String hashKey = RedisKeyUtil.getlkKey(RedisKey.HELP_PET, user.getUid(), RedisKey.HAS_HELP);
+            redisObjectUtil.deleteAll(hashKey);
         }
     }
 

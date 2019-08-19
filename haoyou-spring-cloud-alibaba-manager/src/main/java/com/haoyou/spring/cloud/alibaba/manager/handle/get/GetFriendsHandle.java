@@ -11,6 +11,7 @@ import com.haoyou.spring.cloud.alibaba.commons.entity.Currency;
 import com.haoyou.spring.cloud.alibaba.commons.message.BaseMessage;
 import com.haoyou.spring.cloud.alibaba.commons.message.MapBody;
 import com.haoyou.spring.cloud.alibaba.commons.util.RedisKeyUtil;
+import com.haoyou.spring.cloud.alibaba.fighting.info.FightingPet;
 import com.haoyou.spring.cloud.alibaba.manager.handle.ManagerHandle;
 import com.haoyou.spring.cloud.alibaba.pojo.bean.ChatRecord;
 import com.haoyou.spring.cloud.alibaba.sofabolt.protocol.MyRequest;
@@ -61,9 +62,82 @@ public class GetFriendsHandle extends ManagerHandle {
             case 4:
                 mapBody = getAddFriendsApplication(user);
                 break;
+            //好友助战宠物列表
+            case 5:
+                mapBody = getHelpPet(user);
+                break;
         }
         mapBody.put("type",type);
 
+        return mapBody;
+    }
+
+    /**
+     * 好友助战宠物列表
+     * @param user
+     * @return
+     */
+    private MapBody getHelpPet(User user) {
+        MapBody mapBody = MapBody.beSuccess();
+
+        List<Friends> friends = userUtil.getFriends(user.getUid());
+
+        List<Map> friendsMsg = new ArrayList<>();
+
+        for (Friends friend : friends) {
+
+            Map<String, Object> friendMsg = new HashMap<>();
+            String userUid = friend.getUserUid1();
+            if (userUid.equals(user.getUid())) {
+                userUid = friend.getUserUid2();
+            }
+            User friendUser = userUtil.getUserByUid(userUid);
+
+            UserData userData = friendUser.getUserData();
+
+            friendMsg.put("name", userData.getName());
+            friendMsg.put("userUid", friendUser.getUid());
+            friendMsg.put("avatar", userData.getAvatar());
+            friendMsg.put("level", userData.getLevel());
+
+            String helpPetUid = userData.getHelpPetUid();
+            if(StrUtil.isNotEmpty(helpPetUid)){
+                FightingPet byUserAndPetUid = FightingPet.getByUserAndPetUid(friendUser, helpPetUid, redisObjectUtil);
+                Pet pet = byUserAndPetUid.getPet();
+                friendMsg.put("petTypeName", pet.getTypeName());
+                friendMsg.put("petTypeId", pet.getTypeId());
+                friendMsg.put("petNickName", pet.getNickName());
+                friendMsg.put("petLevel", pet.getLevel());
+                friendMsg.put("petStarClass", pet.getStarClass());
+
+                String hashKey = RedisKeyUtil.getKey(RedisKey.HELP_PET, user.getUid(), RedisKey.HAS_HELP,userUid);
+                String s = redisObjectUtil.get(hashKey, String.class);
+                if(StrUtil.isNotEmpty(s)){
+                    friendMsg.put("hasHelp", true);
+                }
+            }
+
+
+            friendsMsg.add(friendMsg);
+        }
+
+        mapBody.put("friends", friendsMsg);
+
+        Map<String, Object> myHelpPetMsg = null;
+        String helpPetUid = user.getUserData().getHelpPetUid();
+        if(StrUtil.isNotEmpty(helpPetUid)){
+            myHelpPetMsg = new HashMap<>();
+            FightingPet byUserAndPetUid = FightingPet.getByUserAndPetUid(user, helpPetUid, redisObjectUtil);
+            Pet pet = byUserAndPetUid.getPet();
+            myHelpPetMsg.put("petTypeName", pet.getTypeName());
+            myHelpPetMsg.put("petTypeId", pet.getTypeId());
+            myHelpPetMsg.put("petNickName", pet.getNickName());
+            myHelpPetMsg.put("petLevel", pet.getLevel());
+            myHelpPetMsg.put("petStarClass", pet.getStarClass());
+        }
+
+
+        mapBody.put("myHelpPet", myHelpPetMsg);
         return mapBody;
     }
 
@@ -120,7 +194,7 @@ public class GetFriendsHandle extends ManagerHandle {
             Award upAward1 = this.getUpAward(user.getUid(), type1);
             Award upAward2 = this.getUpAward(friendUser.getUid(), type2);
 
-            if (upAward1 != null) {
+            if (upAward1 != null && !upAward1.isUsed()) {
                 friendMsg.put("canReceiveGift", true);
             }
             if (upAward2 == null) {
@@ -179,7 +253,9 @@ public class GetFriendsHandle extends ManagerHandle {
         //过滤掉好友以及还有数量达到上限的玩家,已经申请过的
         List<User> filter = new ArrayList<>();
         for (User user1 : users) {
-            if (userUtil.friendsIsFull(user1.getUid())) {
+            if(user1.getUid().equals(user.getUid())){
+                filter.add(user1);
+            }else if (userUtil.friendsIsFull(user1.getUid())) {
                 filter.add(user1);
             }else if (friendsUid.contains(user1.getUid())) {
                 filter.add(user1);

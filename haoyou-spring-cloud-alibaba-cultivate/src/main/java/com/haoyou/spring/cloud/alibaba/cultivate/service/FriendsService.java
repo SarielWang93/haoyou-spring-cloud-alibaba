@@ -11,6 +11,7 @@ import com.haoyou.spring.cloud.alibaba.commons.message.BaseMessage;
 import com.haoyou.spring.cloud.alibaba.commons.message.MapBody;
 import com.haoyou.spring.cloud.alibaba.commons.util.RedisKeyUtil;
 import com.haoyou.spring.cloud.alibaba.cultivate.currency.use.handle.CurrencyUseHandle;
+import com.haoyou.spring.cloud.alibaba.fighting.info.FightingPet;
 import com.haoyou.spring.cloud.alibaba.pojo.bean.ChatRecord;
 import com.haoyou.spring.cloud.alibaba.pojo.cultivate.CyrrencyUseMsg;
 import com.haoyou.spring.cloud.alibaba.pojo.cultivate.FriendsDoMsg;
@@ -63,7 +64,8 @@ public class FriendsService {
         MapBody mapBody = new MapBody();
 
         /**
-         * 1：好友申请，2：同意好友申请，3：一键拒绝，4：赠送礼物，5：领取礼物，6：发送信息，7：删除好友
+         * 1：好友申请，2：同意好友申请，3：一键拒绝，4：赠送礼物，5：领取礼物，6：发送信息，7：删除好友，
+         * 8：设置助战宠物
          */
         switch (friendsDoMsg.getType()) {
             case 1:
@@ -87,11 +89,33 @@ public class FriendsService {
             case 7:
                 mapBody = deleteFriend(friendsDoMsg);
                 break;
+            case 8:
+                mapBody = setHelpPet(friendsDoMsg);
+                break;
         }
 
         mapBody.put("type",friendsDoMsg.getType());
 
         return mapBody;
+    }
+
+    /**
+     * 设置助战宠物
+     * @param friendsDoMsg
+     * @return
+     */
+    private MapBody setHelpPet(FriendsDoMsg friendsDoMsg) {
+
+        User user = friendsDoMsg.getUser();
+        String helpPetUid = friendsDoMsg.getHelpPetUid();
+        FightingPet byUserAndPetUid = FightingPet.getByUserAndPetUid(user, helpPetUid, redisObjectUtil);
+        if(byUserAndPetUid == null){
+            return MapBody.beErr();
+        }
+        user.getUserData().setHelpPetUid(helpPetUid);
+        userUtil.saveUser(user);
+
+        return MapBody.beSuccess();
     }
 
     /**
@@ -273,7 +297,7 @@ public class FriendsService {
         } else {
             String userUid = friendsDoMsg.getUserUid();
             type = RedisKeyUtil.getKey(RedisKey.FRIENDS_GIFT, userUid);
-            rewardService.receiveAward(user, type);
+            return rewardService.receiveAward(user, type);
         }
         return MapBody.beSuccess();
     }

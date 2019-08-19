@@ -114,10 +114,13 @@ public class FightingPet implements Serializable {
      * @return
      */
     public static List<FightingPet> getByUser(User user, RedisObjectUtil redisObjectUtil) {
+        return getByUser(user.getUid(),redisObjectUtil);
 
+    }
+    public static List<FightingPet> getByUser(String userUid, RedisObjectUtil redisObjectUtil) {
         List<FightingPet> fightingPets = new ArrayList<>();
 
-        String useruidkey = RedisKeyUtil.getKey(RedisKey.FIGHT_PETS, user.getUid());
+        String useruidkey = RedisKeyUtil.getKey(RedisKey.FIGHT_PETS, userUid);
 
         String key = RedisKeyUtil.getlkKey(useruidkey);
 
@@ -129,7 +132,6 @@ public class FightingPet implements Serializable {
         }
         return fightingPets;
     }
-
     /**
      * 根据用户和宠物uid查找
      *
@@ -139,10 +141,12 @@ public class FightingPet implements Serializable {
      * @return
      */
     public static FightingPet getByUserAndPetUid(User user, String petUid, RedisObjectUtil redisObjectUtil) {
-
+        return getByUserAndPetUid(user.getUid(),petUid,redisObjectUtil);
+    }
+    public static FightingPet getByUserAndPetUid(String userUid, String petUid, RedisObjectUtil redisObjectUtil) {
         List<FightingPet> fightingPets = new ArrayList<>();
 
-        String userUidKey = RedisKeyUtil.getKey(RedisKey.FIGHT_PETS, user.getUid());
+        String userUidKey = RedisKeyUtil.getKey(RedisKey.FIGHT_PETS, userUid);
 
         String key = RedisKeyUtil.getKey(userUidKey, petUid);
 

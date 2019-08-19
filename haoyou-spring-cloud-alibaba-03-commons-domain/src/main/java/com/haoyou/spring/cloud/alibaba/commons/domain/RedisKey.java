@@ -40,6 +40,7 @@ public class RedisKey {
     public static final String PET_EGG_POOL = "pet_egg_pool";
 
     public static final String RANKING = "ranking";
+    public static final String LADDER_RANKING = "ladder_ranking";
 
     public static final String MATCH_PLAYER_POOL = "match_player_pool";
 
@@ -60,5 +61,11 @@ public class RedisKey {
     public static final String SHIELD_VOCA = "shield_voca";
 
     public static final String LEVEL_DESIGN = "level_design";
+    public static final String CHAPTER = "chapter";
 
+
+
+    public static final String HELP_PET = "help_pet";
+    public static final String HELP = "help";
+    public static final String HAS_HELP = "has_help";
 }

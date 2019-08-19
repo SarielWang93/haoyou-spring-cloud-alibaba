@@ -27,7 +27,14 @@ public class MapBody<K,V> extends BaseMessage{
     }
 
 
-
+    public MapBody success(){
+        this.setState(ResponseMsg.MSG_SUCCESS);
+        return this;
+    }
+    public MapBody err(){
+        this.setState(ResponseMsg.MSG_ERR);
+        return this;
+    }
 
 
 

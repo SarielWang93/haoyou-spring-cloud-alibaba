@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.TreeMap;
 
 /**
  * @author wanghui
@@ -24,17 +25,20 @@ public class RankSettleHandle extends SettleHandle {
 
         HashMap<String, Server> servers = redisObjectUtil.getlkMap(RedisKeyUtil.getlkKey(RedisKey.SERVER), Server.class);
         for (Server server : servers.values()) {
-            Long aLong = scoreRankUtil.zCard(RedisKeyUtil.getKey(RedisKey.RANKING, server.getServerNum().toString()));
+            String rankKey = RedisKeyUtil.getKey(RedisKey.RANKING, server.getServerNum().toString());
 
-            List<RankUser> list = scoreRankUtil.list(RedisKeyUtil.getKey(RedisKey.RANKING, server.getServerNum().toString()), 0l, aLong);
+            Long aLong = scoreRankUtil.zCard(rankKey);
+
+            TreeMap<Long, String> treeMap = scoreRankUtil.list(rankKey, 0l, aLong);
 
 
-            for (int i = 0; i < list.size(); i++) {
-                //名次
-                int r = i + 1;
-                RankUser rankUser = list.get(i);
-                Award award = this.getAward(r);
-                rewardService.refreshUpAward(rankUser.getUserUid(),award,RedisKey.RANKING);
+            long rank = 1;
+
+            for (long integral: treeMap.keySet()) {
+                String userUid = treeMap.get(integral);
+
+                Award award = this.getAward(rank++);
+                rewardService.refreshUpAward(userUid,award,rankKey);
 
             }
 
@@ -59,7 +63,7 @@ public class RankSettleHandle extends SettleHandle {
      *
      * @param r
      */
-    private Award getAward(int r) {
+    private Award getAward(long r) {
 
         String awardType = "null";
 
@@ -77,7 +81,7 @@ public class RankSettleHandle extends SettleHandle {
         if (r > 5) {
             awardType = "6-10";
         } else {
-            awardType = Integer.toString(r);
+            awardType = Long.toString(r);
         }
 
         return redisObjectUtil.get(RedisKeyUtil.getKey(RedisKey.AWARD, RedisKey.RANKING + awardType), Award.class);

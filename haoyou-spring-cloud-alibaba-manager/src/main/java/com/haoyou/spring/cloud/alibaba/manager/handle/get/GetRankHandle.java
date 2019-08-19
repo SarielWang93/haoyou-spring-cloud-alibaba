@@ -1,6 +1,9 @@
 package com.haoyou.spring.cloud.alibaba.manager.handle.get;
 
 
+import cn.hutool.core.date.DateTime;
+import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.util.StrUtil;
 import com.haoyou.spring.cloud.alibaba.commons.domain.RedisKey;
 import com.haoyou.spring.cloud.alibaba.commons.domain.ResponseMsg;
 import com.haoyou.spring.cloud.alibaba.commons.domain.SendType;
@@ -17,7 +20,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 /**
  * 获取排行榜数据
@@ -37,40 +43,66 @@ public class GetRankHandle extends ManagerHandle {
     @Override
     public BaseMessage handle(MyRequest req) {
         User user = req.getUser();
-        Server server = redisObjectUtil.get(RedisKeyUtil.getKey(RedisKey.SERVER, user.getServerId().toString()), Server.class);
 
-        MapBody mapBody = new MapBody<>();
-        mapBody.setState(ResponseMsg.MSG_SUCCESS);
+        Map<String, Object> msgMap = this.getMsgMap(req);
+        String rankName = (String)msgMap.get("rankName");
+        if(StrUtil.isNotEmpty(rankName)){
+            if(rankName.equals(RedisKey.LADDER_RANKING)){
+                DateTime date = DateUtil.date();
+                DateTime dateTime = DateUtil.offsetMonth(date, -1);
+                String yyMM = dateTime.toString("yyMM");
+                String rankKey = RedisKeyUtil.getKey(RedisKey.LADDER_RANKING, yyMM);
+                MapBody serverRank = getRank(user,rankKey);
+                return serverRank;
+            }
+        }else{
+            Server server = redisObjectUtil.get(RedisKeyUtil.getKey(RedisKey.SERVER, user.getServerId().toString()), Server.class);
+            String rankKey = RedisKeyUtil.getKey(RedisKey.RANKING, server.getServerNum().toString());
+            MapBody serverRank = getRank(user,rankKey);
+            return serverRank;
+        }
+
+        return MapBody.beErr();
+    }
+
+    public MapBody getRank(User user,String rankKey){
 
 
-        Long aLong = scoreRankUtil.zCard(RedisKeyUtil.getKey(RedisKey.RANKING, server.getServerNum().toString()));
+        MapBody mapBody = MapBody.beSuccess();
+
+        Long aLong = scoreRankUtil.zCard(rankKey);
         Long start = 0l;
         if (aLong > 100) {
             start = aLong - 100;
         }
-        List<RankUser> list = scoreRankUtil.list(RedisKeyUtil.getKey(RedisKey.RANKING, server.getServerNum().toString()), start, aLong);
-        RankUser[] players = new RankUser[list.size()];
+        TreeMap<Long, String> treeMap = scoreRankUtil.list(rankKey, start, aLong);
+        Long myRanking = -1L;
+        Long myIntegral = -1L;
+        List<RankUser> rankUsers = new ArrayList<>();
+        long rank = 1;
+        for (long integral: treeMap.keySet()) {
+            String userUid = treeMap.get(integral);
 
-        int myRanking = -1;
+            if(user.getUid().equals(userUid)){
+                myRanking = rank;
+                myIntegral = integral;
+            }
 
-        for (int i = 0; i < list.size(); i++) {
-
-            RankUser rankUser = list.get(i);
-
-
-            players[i] = rankUser;
+            User userByUid = userUtil.getUserByUid(userUid);
+            RankUser rankUser = new RankUser().init(userByUid,integral,rank++);
+            rankUsers.add(rankUser);
         }
 
         String key1 = RedisKeyUtil.getKey(RedisKey.USER_AWARD, user.getUid());
-        String key = RedisKeyUtil.getKey(key1, RedisKey.RANKING);
+        String key = RedisKeyUtil.getKey(key1, rankKey);
         Award award = redisObjectUtil.get(key, Award.class);
         if (award != null) {
             mapBody.put("award", award);
         }
 
-        mapBody.put("players", players);
+        mapBody.put("players", rankUsers);
         mapBody.put("ranking", myRanking);
-        mapBody.put("integral", user.getCurrency().getRank());
+        mapBody.put("integral", myIntegral);
 
         return mapBody;
     }

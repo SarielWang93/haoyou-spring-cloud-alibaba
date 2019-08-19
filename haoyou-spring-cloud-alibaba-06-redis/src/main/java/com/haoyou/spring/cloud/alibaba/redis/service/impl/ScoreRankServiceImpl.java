@@ -25,7 +25,6 @@ public class ScoreRankServiceImpl implements ScoreRankService {
             tuples.add(tuple);
         });
         Long num = redisTemplate.opsForZSet().add(scoreRank, tuples);
-
         return true;
     }
 
@@ -36,16 +35,42 @@ public class ScoreRankServiceImpl implements ScoreRankService {
     }
 
     @Override
-    public List<String> list(String scoreRank,Long start, Long end) {
-        Set<String> range = redisTemplate.opsForZSet().reverseRange(scoreRank, start, end);
-        List<String> users=new ArrayList<>();
-        users.addAll(range);
-        return users;
+    public TreeMap<Long,String> list(String scoreRank,Long start, Long end) {
+        Set<ZSetOperations.TypedTuple<String>> typedTuples = redisTemplate.opsForZSet().reverseRangeWithScores(scoreRank, start, end);
+        TreeMap<Long,String> treeMap = new TreeMap<>();
+        for(ZSetOperations.TypedTuple<String> typedTuple:typedTuples){
+            Double score = typedTuple.getScore();
+            String value = typedTuple.getValue();
+            long key = score.longValue();
+            for(long l = key;treeMap.get(l)!=null;l++){
+                key = l;
+            }
+            treeMap.put(key,value);
+        }
+
+
+        return treeMap;
     }
 
     @Override
     public Long find(String scoreRank,String userUid) {
-        long rankNum = redisTemplate.opsForZSet().reverseRank(scoreRank, userUid);
+        Long rankNum = null;
+        try {
+            rankNum = redisTemplate.opsForZSet().reverseRank(scoreRank, userUid);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return rankNum;
+    }
+
+    @Override
+    public Long findIntegral(String scoreRank,String userUid) {
+        Long rankNum = null;
+        try {
+            rankNum = redisTemplate.opsForZSet().score(scoreRank, userUid).longValue();
+        }catch (Exception e){
+            e.printStackTrace();
+        }
         return rankNum;
     }
 
@@ -57,6 +82,13 @@ public class ScoreRankServiceImpl implements ScoreRankService {
     @Override
     public Long zCard(String scoreRank) {
         long aLong = redisTemplate.opsForZSet().zCard(scoreRank);
+        return aLong;
+    }
+
+
+    @Override
+    public Long removeRank(String scoreRank,long start,long end) {
+        long aLong = redisTemplate.opsForZSet().removeRange(scoreRank,start,end);
         return aLong;
     }
 }

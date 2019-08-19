@@ -52,6 +52,8 @@ public class SendType {
     public final static int GET_FRIENDS = 154;//获取好友列表
     public final static int GET_USER_SIMPLE_MSG = 155;//获取玩家简易信息
     public final static int GET_LEVEL_DESIGN = 156;//获取关卡信息
+    public final static int GET_LADDER = 157;//获取天梯页面信息
+
 
     /**
      * 养成 60 - 90

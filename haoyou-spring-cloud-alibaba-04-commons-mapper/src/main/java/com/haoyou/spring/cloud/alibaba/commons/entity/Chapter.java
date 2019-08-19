@@ -3,6 +3,7 @@ package com.haoyou.spring.cloud.alibaba.commons.entity;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 
+import javax.persistence.Column;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -22,4 +23,9 @@ public class Chapter implements Serializable {
 
     private String description;
 
+    /**
+     * 章节编号
+     */
+    @Column(name = "id_num")
+    private Integer idNum;
 }

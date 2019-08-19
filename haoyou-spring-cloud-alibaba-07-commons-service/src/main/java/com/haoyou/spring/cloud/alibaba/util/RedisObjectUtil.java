@@ -158,9 +158,17 @@ public class RedisObjectUtil {
      *
      */
     public void backup() {
-        String key = RedisKey.USER_AWARD;
 
-        List<RedisObjKV> lkList = redisObjectService.getlkMap(RedisKeyUtil.getlkKey(key));
+        List<String> keys = new ArrayList<>();
+        keys.add(RedisKey.USER_AWARD);
+
+        List<RedisObjKV> lkList = new ArrayList<>();
+
+        for(String key:keys){
+            lkList.addAll(redisObjectService.getlkMap(RedisKeyUtil.getlkKey(key)));
+        }
+
+
         List<String> lines = new ArrayList<>();
         for (RedisObjKV redisObjKV : lkList) {
             try {
@@ -176,7 +184,7 @@ public class RedisObjectUtil {
         String yyyyMMdd = date.toString("yyyyMMdd");
 
         String usrHome = System.getProperty("user.home");
-        String url = String.format("%s/logs/XXL/backup/%s/%s.%s.backup", usrHome, yyyyMMdd, key, yyyyMMddhhmmss);
+        String url = String.format("%s/logs/XXL/backup/%s/%s.backup", usrHome, yyyyMMdd, yyyyMMddhhmmss);
 
         //Console.log(url);
 

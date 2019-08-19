@@ -3,6 +3,7 @@ package com.haoyou.spring.cloud.alibaba.sofabolt.init;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.io.file.FileReader;
+import cn.hutool.core.util.StrUtil;
 import com.haoyou.spring.cloud.alibaba.commons.domain.RedisKey;
 import com.haoyou.spring.cloud.alibaba.commons.entity.*;
 import com.haoyou.spring.cloud.alibaba.commons.entity.Currency;
@@ -178,6 +179,7 @@ public class InitData implements ApplicationRunner {
      * 加载关卡信息
      */
     private void initLevelDesign() {
+        redisObjectUtil.deleteAll(RedisKeyUtil.getlkKey(RedisKey.CHAPTER));
         redisObjectUtil.deleteAll(RedisKeyUtil.getlkKey(RedisKey.LEVEL_DESIGN));
 
         List<Chapter> chapters = chapterMapper.selectAll();
@@ -185,7 +187,7 @@ public class InitData implements ApplicationRunner {
         for (Chapter chapter : chapters) {
 
             String chapterName = chapter.getName();
-            String chapterKey = RedisKeyUtil.getKey(RedisKey.LEVEL_DESIGN, chapterName);
+            String chapterKey = RedisKeyUtil.getKey(RedisKey.CHAPTER, chapterName);
             redisObjectUtil.save(chapterKey, chapter, -1);
 
             LevelDesign levelDesignSelect = new LevelDesign();
@@ -211,10 +213,15 @@ public class InitData implements ApplicationRunner {
         FileReader fileReader = FileReader.create(file);
         List<String> shieldVocas = fileReader.readLines();
 
+        List<String> all = new ArrayList<>();
+
         for (String shieldVoca : shieldVocas) {
-            String shieldVocaKey = RedisKeyUtil.getKey(RedisKey.SHIELD_VOCA, Integer.toString(shieldVocas.indexOf(shieldVoca)));
-            redisObjectUtil.save(shieldVocaKey, shieldVoca.trim(), -1);
+            if(StrUtil.isNotEmpty(shieldVoca.trim())){
+                all.add(shieldVoca);
+            }
         }
+        String shieldVocaKey = RedisKeyUtil.getKey(RedisKey.SHIELD_VOCA);
+        redisObjectUtil.save(shieldVocaKey, all, -1);
 
     }
 

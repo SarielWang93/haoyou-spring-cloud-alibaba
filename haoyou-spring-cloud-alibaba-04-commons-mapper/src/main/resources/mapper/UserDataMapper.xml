@@ -21,5 +21,6 @@
     <result column="emails" jdbcType="LONGVARBINARY" property="emails" />
     <result column="badges" jdbcType="LONGVARBINARY" property="badges" />
     <result column="lifetime_breeder_date" jdbcType="TIMESTAMP" property="lifetimeBreederDate" />
+    <result column="help_pet_uid" jdbcType="VARCHAR" property="helpPetUid" />
   </resultMap>
 </mapper>

@@ -1,6 +1,7 @@
 package com.haoyou.spring.cloud.alibaba.pojo.bean;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.haoyou.spring.cloud.alibaba.commons.entity.User;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -20,7 +21,18 @@ public class RankUser implements Serializable {
 
     private String avatar;
 
-    private Integer integral;
+    private Long integral;
+
+    private Long rank;
+
+    public RankUser init(User user,Long integral,Long rank){
+        this.userUid = user.getUid();
+        this.name=user.getUserData().getName();
+        this.avatar=user.getUserData().getAvatar();
+        this.integral=integral;
+        this.rank=rank;
+        return this;
+    }
 
 
 }

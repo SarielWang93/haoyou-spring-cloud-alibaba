@@ -3,6 +3,7 @@ package com.haoyou.spring.cloud.alibaba.redis.service;
 
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 /**
  * 基于redis排行榜系统
@@ -24,13 +25,21 @@ public interface ScoreRankService {
     /**
      * 获取排行列表
      */
-    List<String> list(String scoreRank, Long start, Long end);
+    TreeMap<Long,String> list(String scoreRank, Long start, Long end);
 
 
     /**
      * 获取单个的排行
      */
     Long find(String scoreRank, String userUid);
+
+    /**
+     * 获取单个的积分
+     * @param scoreRank
+     * @param userUid
+     * @return
+     */
+    Long findIntegral(String scoreRank,String userUid);
 
 
     /**
@@ -45,4 +54,14 @@ public interface ScoreRankService {
      */
 
     Long zCard(String scoreRank);
+
+
+    /**
+     * 删除排名
+     * @param scoreRank
+     * @param start
+     * @param end
+     * @return
+     */
+    Long removeRank(String scoreRank,long start,long end);
 }

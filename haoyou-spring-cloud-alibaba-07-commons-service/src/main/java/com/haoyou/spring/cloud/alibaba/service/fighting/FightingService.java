@@ -26,6 +26,8 @@ public interface FightingService {
 
     boolean start(User user, String chapterName, int idNum, int difficult, boolean isAi);
 
+    boolean start(List<User> users);
+
     boolean start(List<User> users, Map<String, Boolean> allIsAi);
 
 
