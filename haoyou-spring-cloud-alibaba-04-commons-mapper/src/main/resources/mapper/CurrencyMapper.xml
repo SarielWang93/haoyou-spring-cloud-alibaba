@@ -7,8 +7,8 @@
     -->
     <id column="id" jdbcType="INTEGER" property="id" />
     <result column="user_uid" jdbcType="VARCHAR" property="userUid" />
-    <result column="coin" jdbcType="INTEGER" property="coin" />
-    <result column="diamond" jdbcType="INTEGER" property="diamond" />
+    <result column="coin" jdbcType="BIGINT" property="coin" />
+    <result column="diamond" jdbcType="BIGINT" property="diamond" />
     <result column="vitality" jdbcType="INTEGER" property="vitality" />
     <result column="pet_exp" jdbcType="BIGINT" property="petExp" />
     <result column="prop_max" jdbcType="INTEGER" property="propMax" />

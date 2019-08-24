@@ -244,7 +244,7 @@ public class RedisObjectUtil {
 
         try {
             return ZIP.gZip(this.getSerializer().serialize(t));
-        } catch (CodecException e) {
+        } catch (Exception e) {
             e.printStackTrace();
             return null;
         }
@@ -262,7 +262,7 @@ public class RedisObjectUtil {
 
         try {
             return this.getSerializer().deserialize(ZIP.unGZip(bt), aclass.getName());
-        } catch (CodecException e) {
+        } catch (Exception e) {
             e.printStackTrace();
             return null;
         }

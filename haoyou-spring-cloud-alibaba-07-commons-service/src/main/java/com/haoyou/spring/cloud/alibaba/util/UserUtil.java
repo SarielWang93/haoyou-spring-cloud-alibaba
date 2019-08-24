@@ -19,6 +19,7 @@ import com.haoyou.spring.cloud.alibaba.fighting.info.FightingPet;
 import com.haoyou.spring.cloud.alibaba.pojo.bean.Badge;
 import com.haoyou.spring.cloud.alibaba.pojo.bean.ChatRecord;
 import com.haoyou.spring.cloud.alibaba.pojo.bean.DailyCheckIn;
+import com.haoyou.spring.cloud.alibaba.sofabolt.protocol.MyRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -61,9 +62,11 @@ public class UserUtil {
     private PetMapper petMapper;
     @Autowired
     private PetSkillMapper petSkillMapper;
+    @Autowired
+    private LandMapper landMapper;
 
-    public Award getAward(String type){
-        Award award =  redisObjectUtil.get(RedisKeyUtil.getKey(RedisKey.AWARD, type),Award.class);
+    public Award getAward(String type) {
+        Award award = redisObjectUtil.get(RedisKeyUtil.getKey(RedisKey.AWARD, type), Award.class);
         return award;
     }
 
@@ -263,6 +266,7 @@ public class UserUtil {
             if (user != null) {
                 redisObjectUtil.save(RedisKeyUtil.getKey(RedisKey.OUTLINE_USER, user.getUid()), user);
             }
+            cachePet(user);
         }
     }
 
@@ -273,6 +277,7 @@ public class UserUtil {
             if (StrUtil.isEmpty(inCatch)) {
                 redisObjectUtil.save(RedisKeyUtil.getKey(RedisKey.OUTLINE_USER, user.getUid()), user);
             }
+            cachePet(user);
         }
     }
 
@@ -327,6 +332,20 @@ public class UserUtil {
 
         }
 
+        //加载土地信息
+        Land landSelect = new Land();
+        landSelect.setUserUid(user.getUid());
+        List<Land> lands = landMapper.select(landSelect);
+        if (lands.size() == 0) {
+            landSelect.setUid(IdUtil.simpleUUID());
+            landMapper.insert(landSelect);
+            lands.add(landSelect);
+        }
+        for (Land land : lands) {
+            String landKey = RedisKeyUtil.getKey(RedisKey.LAND, land.getUserUid(), land.getUid());
+            redisObjectUtil.save(landKey, land, -1);
+        }
+
 
         //每日签到
         if (user.getUserData().getDailyCheckIn() == null) {
@@ -364,6 +383,22 @@ public class UserUtil {
                 userNumericalMapper.updateByPrimaryKeySelective(userNumerical);
             }
         }
+
+        //土地同步
+
+        String landlkKey = RedisKeyUtil.getlkKey(RedisKey.LAND, user.getUid());
+
+        HashMap<String, Land> stringLandHashMap = redisObjectUtil.getlkMap(landlkKey, Land.class);
+
+        for (Land land : stringLandHashMap.values()) {
+            if (land.getId() == null) {
+                landMapper.insertSelective(land);
+            } else {
+                landMapper.updateByPrimaryKeySelective(land);
+            }
+        }
+
+
         //同步好友信息到数据库
         saveSqlFriends(user);
     }
@@ -414,7 +449,7 @@ public class UserUtil {
 
             for (Prop prop : propList) {
 
-                int count = 1;
+                long count = 1;
                 if (prop.getCount() != 0) {
                     count = prop.getCount();
                 }
@@ -726,7 +761,7 @@ public class UserUtil {
         String shieldVocaKey = RedisKeyUtil.getKey(RedisKey.SHIELD_VOCA);
         List<String> list = redisObjectUtil.get(shieldVocaKey, List.class);
         for (String shieldVoca : list) {
-            if(StrUtil.containsAny(msg,shieldVoca)){
+            if (StrUtil.containsAny(msg, shieldVoca)) {
                 StringBuilder builder = StrUtil.builder();
                 for (int i = 0; i < shieldVoca.length(); i++) {
                     builder.append("*");
@@ -828,8 +863,8 @@ public class UserUtil {
         String friendKey = RedisKeyUtil.getKey(RedisKey.FRIENDS, friend.getId().toString());
         redisObjectUtil.save(friendKey, friend, -1);
 
-        String friend1Key = RedisKeyUtil.getKey(RedisKey.USER_FRIENDS, friend.getUserUid1(),friend.getUserUid2());
-        String friend2Key = RedisKeyUtil.getKey(RedisKey.USER_FRIENDS, friend.getUserUid2(),friend.getUserUid1());
+        String friend1Key = RedisKeyUtil.getKey(RedisKey.USER_FRIENDS, friend.getUserUid1(), friend.getUserUid2());
+        String friend2Key = RedisKeyUtil.getKey(RedisKey.USER_FRIENDS, friend.getUserUid2(), friend.getUserUid1());
 
         redisObjectUtil.save(friend1Key, friend.getId(), -1);
         redisObjectUtil.save(friend2Key, friend.getId(), -1);
@@ -883,7 +918,21 @@ public class UserUtil {
         }
         return friends;
     }
+    public List<String> getFriendsUid(String userUid) {
+        List<Friends> friends = getFriends(userUid);
 
+        List<String> friendsUid = new ArrayList<>();
+        for(Friends friend:friends){
+
+            String friendUid = friend.getUserUid1();
+            if(userUid.equals(friendUid)){
+                friendUid = friend.getUserUid2();
+            }
+            friendsUid.add(friendUid);
+
+        }
+        return friendsUid;
+    }
     /**
      * 好友是否到达上限
      *
@@ -929,11 +978,14 @@ public class UserUtil {
 
     public List<Badge> getBadges(User user) {
 
-        List<Badge> badges = redisObjectUtil.deserialize(user.getUserData().getBadges(), List.class);
-
+        List<Badge> badges = null;
+        if(user.getUserData().getBadges()!=null){
+            badges = redisObjectUtil.deserialize(user.getUserData().getBadges(), List.class);
+        }
         if (badges == null) {
             badges = new ArrayList<>();
         }
+
 
         return badges;
     }
@@ -941,10 +993,10 @@ public class UserUtil {
     public boolean addBadges(String userUid, LevelDesign levelDesign, int difficult) {
         User userByUid = getUserByUid(userUid);
         List<Badge> badges = getBadges(userByUid);
-        Badge badge = new Badge(levelDesign.getChapterName(),levelDesign.getIdNum(),difficult);
-        if(!badges.contains(badge)){
+        Badge badge = new Badge(levelDesign.getChapterName(), levelDesign.getIdNum(), difficult);
+        if (!badges.contains(badge)) {
             badges.add(badge);
-        }else{
+        } else {
             return false;
         }
         userByUid.getUserData().setBadges(redisObjectUtil.serialize(badges));
@@ -952,5 +1004,86 @@ public class UserUtil {
         return true;
     }
 
+    /**
+     * 增加土地
+     * @param userUid
+     */
+    public void addLand(String userUid){
+        Land land = new Land();
+        land.setUserUid(userUid);
+        land.setUid(IdUtil.simpleUUID());
+        String landKey = RedisKeyUtil.getKey(RedisKey.LAND, userUid, land.getUid());
+        redisObjectUtil.save(landKey, land, -1);
+    }
+
+    /**
+     * 获取用户所有土地
+     * @param userUid
+     * @return
+     */
+    public List<Land> getLands(String userUid){
+        String landlkKey = RedisKeyUtil.getlkKey(RedisKey.LAND, userUid);
+        HashMap<String, Land> stringLandHashMap = redisObjectUtil.getlkMap(landlkKey, Land.class);
+        return CollUtil.newArrayList(stringLandHashMap.values());
+    }
+    /**
+     * 获得土地对象
+     * @param userUid
+     * @param landUid
+     * @return
+     */
+    public Land getLand(String userUid,String landUid){
+        String landKey = RedisKeyUtil.getKey(RedisKey.LAND, userUid, landUid);
+        Land land = redisObjectUtil.get(landKey, Land.class);
+        return land;
+    }
+
+    /**
+     * 保存土地
+     * @param land
+     */
+    public void saveLand(Land land){
+        String landKey = RedisKeyUtil.getKey(RedisKey.LAND, land.getUserUid(), land.getUid());
+        redisObjectUtil.save(landKey, land, -1);
+    }
+
+
+
+    /**
+     * 获取参数map
+     * @param req
+     * @return
+     */
+    public Map<String, Object> getMsgMap(MyRequest req){
+        try {
+            return MapperUtils.json2map(new String(req.getMsg()));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    /**
+     * 获取道具
+     * @param userUid
+     * @param propInstenceUid
+     * @return
+     */
+    public Prop getPropByInstenceUid(String userUid,String propInstenceUid){
+        User userByUid = getUserByUid(userUid);
+        return getPropByInstenceUid(userByUid,propInstenceUid);
+    }
+    public Prop getPropByInstenceUid(User user,String propInstenceUid){
+        if(StrUtil.isEmpty(propInstenceUid)){
+            return null;
+        }
+        List<Prop> props = user.propList();
+        for (Prop prop : props) {
+            if (propInstenceUid.equals(prop.getPropInstenceUid())) {
+                return prop;
+            }
+        }
+        return null;
+    }
 
 }

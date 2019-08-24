@@ -38,7 +38,13 @@ public class GetPetsHandle extends ManagerHandle {
 
     @Override
     public BaseMessage handle(MyRequest req) {
+
         User user = req.getUser();
+
+
+        Map<String, Object> msgMap = this.getMsgMap(req);
+
+        Integer hasIswork = (Integer)msgMap.get("hasIswork");
 
         MapBody mapBody = new MapBody<>();
         mapBody.setState(ResponseMsg.MSG_SUCCESS);
@@ -54,9 +60,14 @@ public class GetPetsHandle extends ManagerHandle {
 
             Pet pet = fightingPet.getPet();
 
+            if(hasIswork!=null && hasIswork.equals(1) && (pet.getIswork() == null || pet.getIswork() == 0)){
+                continue;
+            }
+
             Map<String, Object> petMap = new HashMap<>();
 
             petMap.put("petUid",pet.getUid());
+            petMap.put("nickName",pet.getNickName());
             petMap.put("iswork",pet.getIswork());
             petMap.put("starClass",pet.getStarClass());
             petMap.put("level",pet.getLevel());

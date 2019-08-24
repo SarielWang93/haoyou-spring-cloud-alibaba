@@ -13,5 +13,6 @@
     <result column="over_time" jdbcType="TIMESTAMP" property="overTime" />
     <result column="description" jdbcType="LONGVARCHAR" property="description" />
     <result column="price" jdbcType="INTEGER" property="price" />
+    <result column="response_rate" jdbcType="INTEGER" property="responseRate" />
   </resultMap>
 </mapper>

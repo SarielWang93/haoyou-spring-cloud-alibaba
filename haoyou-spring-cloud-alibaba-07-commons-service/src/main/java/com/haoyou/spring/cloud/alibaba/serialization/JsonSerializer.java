@@ -1,6 +1,7 @@
 package com.haoyou.spring.cloud.alibaba.serialization;
 
 
+import cn.hutool.core.lang.Console;
 import cn.hutool.crypto.SecureUtil;
 import cn.hutool.crypto.symmetric.AES;
 import com.alipay.remoting.exception.CodecException;
@@ -9,6 +10,8 @@ import com.alipay.remoting.serialization.SerializerManager;
 import com.haoyou.spring.cloud.alibaba.commons.util.MapperUtils;
 import com.haoyou.spring.cloud.alibaba.commons.util.ZIP;
 import org.springframework.stereotype.Service;
+
+import java.util.Arrays;
 
 /**
  * SOFABolt序列化器扩展
@@ -107,6 +110,8 @@ public class JsonSerializer implements Serializer {
             String msg = MapperUtils.obj2jsonIgnoreNull(obj);
             byte[] bytes = msg.getBytes("UTF-8");
             bytes=ZIP.gZip(bytes);
+//            Console.log(bytes.length);
+//            Console.log(Arrays.toString(bytes));
             return bytes;
         } catch (Exception e) {
             e.printStackTrace();

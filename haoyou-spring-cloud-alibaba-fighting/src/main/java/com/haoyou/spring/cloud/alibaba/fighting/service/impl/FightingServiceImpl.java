@@ -123,23 +123,29 @@ public class FightingServiceImpl implements FightingService {
         fightingRoom.setFightingBoard(new FightingBoard(fightingCamps));
     }
 
+
+    @Override
+    public boolean start(User user, String chapterName, int idNum, int difficult) {
+        return start(user, chapterName, idNum, difficult, false,false);
+    }
+    @Override
+    public boolean start(User user, String chapterName, int idNum, int difficult, boolean isWin) {
+        return start(user, chapterName, idNum, difficult, false,isWin);
+    }
+
     /**
      * pve闯关模式
-     *
-     * @param user
-     * @param chapterName 章节名称
-     * @param idNum
-     * @param difficult   ordinary difficulty crazy
+     * @param user         玩家对象
+     * @param chapterName  章节名称
+     * @param idNum        关卡序号
+     * @param difficult ordinary difficulty crazy
      *                    普通       困难     疯狂
+     * @param isAi    是ai操作
+     * @param isWin   是否扫荡
      * @return
      */
     @Override
-    public boolean start(User user, String chapterName, int idNum, int difficult) {
-        return start(user, chapterName, idNum, difficult, false);
-    }
-
-    @Override
-    public boolean start(User user, String chapterName, int idNum, int difficult, boolean isAi) {
+    public boolean start(User user, String chapterName, int idNum, int difficult, boolean isAi, boolean isWin) {
 
         List<User> users = new ArrayList<>();
         users.add(user);
@@ -151,6 +157,11 @@ public class FightingServiceImpl implements FightingService {
         HashMap<String, Boolean> allIsAi = new HashMap<>();
         allIsAi.put(user.getUid(), isAi);
         this.initFightingRoom(users, fightingRoom, allIsAi);
+
+        if(isWin){
+            this.win(fightingRoom.getFightingCamps().get(user.getUid()).getFightingPets().get(1),false);
+            return true;
+        }
 
         return this.start(fightingRoom);
     }
@@ -807,7 +818,7 @@ public class FightingServiceImpl implements FightingService {
             Field petLevelField = ReflectUtil.getField(LevelDesign.class, String.format("petLevel%s", i));
             Integer petLevel = (Integer) ReflectUtil.getFieldValue(levelDesign, petLevelField);
 
-            petLevel *= 1 + 50 * difficult / 100;
+            petLevel *= (100 + 50 * difficult / 100);
 
             PetType petType = redisObjectUtil.get(RedisKeyUtil.getKey(RedisKey.PET_TYPE, petTypeUid), PetType.class);
 
@@ -1065,6 +1076,9 @@ public class FightingServiceImpl implements FightingService {
      * @param fightingPet
      */
     public void win(FightingPet fightingPet) {
+        win(fightingPet,true);
+    }
+    public void win(FightingPet fightingPet,boolean isSave) {
 
         FightingRoom fightingRoom = fightingPet.getFightingCamp().getFightingRoom();
         fightingPet.addStep(FightingStep.VICTORY, "");
@@ -1170,8 +1184,10 @@ public class FightingServiceImpl implements FightingService {
         //失败结算
         this.lost(enemy);
 
-        //结算完毕，保存
-        this.hiSave(fightingPet.getFightingCamp());
+        if(isSave){
+            //结算完毕，保存
+            this.hiSave(fightingPet.getFightingCamp());
+        }
 
     }
 

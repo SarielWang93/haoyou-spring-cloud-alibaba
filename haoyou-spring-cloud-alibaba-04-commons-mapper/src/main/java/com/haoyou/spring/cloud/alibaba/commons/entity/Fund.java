@@ -55,4 +55,12 @@ public class Fund implements Serializable {
      */
     private Integer price;
 
+
+    /**
+     * 回报率
+     */
+    @Column(name = "response_rate")
+    private Integer responseRate;
+
+
 }

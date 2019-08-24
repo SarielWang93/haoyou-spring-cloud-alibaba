@@ -38,7 +38,7 @@ public class SkillPropLimitHandle extends CurrencyUseHandle {
 
         //所需钻石
         int diamondCount = propMax / 10 * 10 * propMax + (propMax % 10)*10;
-        int nDiamond = user.getCurrency().getDiamond() - diamondCount;
+        long nDiamond = user.getCurrency().getDiamond() - diamondCount;
         if (nDiamond < 0) {
             return DIAMOND_LESS;
         } else {

@@ -64,6 +64,10 @@ public class CultivateServiceImpl implements CultivateService {
     @Autowired
     private FriendsService friendsService;
     @Autowired
+    private PlantingSystemService plantingSystemService;
+
+
+    @Autowired
     private UserUtil userUtil;
 
     /**
@@ -159,7 +163,7 @@ public class CultivateServiceImpl implements CultivateService {
             int ind = RandomUtil.randomInt(6);
 
 
-            petMapper.insertSelective(new Pet(user,stringPetTypeHashMap.values().toArray(new PetType[0])[ind], 0));
+            petMapper.insertSelective(new Pet(user,stringPetTypeHashMap.values().toArray(new PetType[0])[ind], i+1));
         }
 
 
@@ -470,7 +474,15 @@ public class CultivateServiceImpl implements CultivateService {
         return friendsService.friendsDo(req);
     }
 
-
+    /**
+     * 种植系统操作
+     * @param req
+     * @return
+     */
+    @Override
+    public BaseMessage plantingDo(MyRequest req) {
+        return plantingSystemService.handle(req);
+    }
 
 
 

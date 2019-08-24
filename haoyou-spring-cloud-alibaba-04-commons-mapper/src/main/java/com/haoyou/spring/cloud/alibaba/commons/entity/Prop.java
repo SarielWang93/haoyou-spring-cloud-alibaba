@@ -71,7 +71,7 @@ public class Prop implements Serializable {
      * 道具数量
      */
     @Transient
-    private int count;
+    private long count;
     /**
      * 道具编号
      */

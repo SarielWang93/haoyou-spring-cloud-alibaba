@@ -157,12 +157,12 @@ public class User extends BaseMessage implements Serializable {
 
     public boolean deleteProp(Prop prop) {
 
-        int count = prop.getCount();
+        long count = prop.getCount();
 
         return deleteProp(prop, count);
     }
 
-    public boolean deleteProp(Prop prop, int count) {
+    public boolean deleteProp(Prop prop, long count) {
         try {
             List<Prop> propsThis = this.propList();
 

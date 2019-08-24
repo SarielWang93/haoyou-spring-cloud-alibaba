@@ -53,7 +53,7 @@ public class SendType {
     public final static int GET_USER_SIMPLE_MSG = 155;//获取玩家简易信息
     public final static int GET_LEVEL_DESIGN = 156;//获取关卡信息
     public final static int GET_LADDER = 157;//获取天梯页面信息
-
+    public final static int GET_PLANTINGSYSTEM = 158;//获取种植系统信息
 
     /**
      * 养成 60 - 90
@@ -67,6 +67,7 @@ public class SendType {
     public final static int EMAIL_DO = 67;//邮件操作
     public final static int RMB_USE = 68;//人民币消费
     public final static int FRIENDS_DO = 70;//好友操作
+    public final static int PLANTING_DO = 72;//种植系统操作
 
 //    *****************************************以上为接受信息类型，以下为主动发送*********************************************************
 

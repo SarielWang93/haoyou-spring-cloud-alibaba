@@ -6,10 +6,13 @@ import com.haoyou.spring.cloud.alibaba.commons.domain.RedisKey;
 import com.haoyou.spring.cloud.alibaba.commons.entity.Server;
 import com.haoyou.spring.cloud.alibaba.commons.entity.User;
 import com.haoyou.spring.cloud.alibaba.commons.util.RedisKeyUtil;
+import com.haoyou.spring.cloud.alibaba.cultivate.impl.CultivateServiceImpl;
 import com.haoyou.spring.cloud.alibaba.cultivate.settle.handle.SettleHandle;
 import com.haoyou.spring.cloud.alibaba.util.RedisObjectUtil;
 import com.haoyou.spring.cloud.alibaba.util.UserUtil;
 import lombok.Data;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -24,6 +27,7 @@ import java.util.*;
 @Service
 @Data
 public class SettlementService {
+    private static final Logger logger = LoggerFactory.getLogger(SettlementService.class);
 
     @Autowired
     private RedisObjectUtil redisObjectUtil;
@@ -49,15 +53,18 @@ public class SettlementService {
     public void inspect() {
         //当前时间，和运行天数计算
         DateTime date = DateUtil.date();
-        getRuningDays(date);
-
+        int hour = date.hour(true);
+        if(hour == 0 || this.runingDays==null){
+            getRuningDays(date);
+        }
+        logger.info("结算开始！");
         //执行结算处理器
         for (SettleHandle settleHandle : handleList) {
             settleHandle.setDate(date);
             settleHandle.setRuningDays(this.runingDays);
             settleHandle.doHandle();
         }
-
+        logger.info("结算完成！");
     }
 
 

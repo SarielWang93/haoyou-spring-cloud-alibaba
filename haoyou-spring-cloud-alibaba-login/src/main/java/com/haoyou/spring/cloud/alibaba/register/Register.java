@@ -107,9 +107,9 @@ public class Register {
 
         Currency currency = new Currency();
         currency.setUserUid(user.getUid());
-        currency.setCoin(0);
+        currency.setCoin(0L);
         currency.setVitality(100);
-        currency.setDiamond(0);
+        currency.setDiamond(0L);
         currency.setPropMax(20);
         currency.setPetMax(5);
         currency.setRank(1);
@@ -118,7 +118,7 @@ public class Register {
 
         UserData userData = new UserData();
         userData.setUserUid(user.getUid());
-        userData.setExp(0);
+        userData.setExp(0L);
         userData.setAvatar("defult");
         userData.setLevel(999);
         userData.setName(user.getUsername());
@@ -135,7 +135,7 @@ public class Register {
 
         //当前服排名
         scoreRankUtil.add(RedisKeyUtil.getKey(RedisKey.RANKING, user.getServerId().toString()), user);
-
+        scoreRankUtil.add(RedisKey.RANKING, user);
 
         return user;
     }

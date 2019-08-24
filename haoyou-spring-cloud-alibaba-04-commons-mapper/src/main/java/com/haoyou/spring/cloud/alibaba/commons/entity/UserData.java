@@ -37,7 +37,7 @@ public class UserData implements Serializable {
     /**
      * 经验
      */
-    private Integer exp;
+    private Long exp;
 
     /**
      * 升级所需经验
@@ -101,5 +101,12 @@ public class UserData implements Serializable {
      */
     @Column(name = "help_pet_uid")
     private String helpPetUid;
+
+
+    /**
+     * 种植系统等级
+     */
+    @Column(name = "planting_system_level")
+    private Integer plantingSystemLevel;
 
 }

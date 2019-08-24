@@ -105,4 +105,12 @@ public interface CultivateService {
      */
     BaseMessage friendsDo(MyRequest req);
 
+
+    /**
+     * 种植系统操作
+     * @param req
+     * @return
+     */
+    BaseMessage plantingDo(MyRequest req);
+
 }

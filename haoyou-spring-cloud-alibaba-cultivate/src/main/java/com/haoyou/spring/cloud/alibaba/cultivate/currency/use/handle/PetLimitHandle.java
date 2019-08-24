@@ -34,7 +34,7 @@ public class PetLimitHandle extends CurrencyUseHandle {
 
         //所需钻石
         int diamondCount = petMax / 10 * 10 * petMax + (petMax % 10)*10;
-        int nDiamond = currency.getDiamond() - diamondCount;
+        long nDiamond = currency.getDiamond() - diamondCount;
         if (nDiamond < 0) {
             return DIAMOND_LESS;
         } else {

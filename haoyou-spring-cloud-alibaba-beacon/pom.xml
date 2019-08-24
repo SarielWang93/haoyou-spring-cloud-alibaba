@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.haoyou</groupId>
+        <artifactId>haoyou-spring-cloud-alibaba-01-dependencies</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+        <relativePath>../haoyou-spring-cloud-alibaba-01-dependencies/pom.xml</relativePath>
+    </parent>
+
+    <artifactId>haoyou-spring-cloud-alibaba-beacon</artifactId>
+    <packaging>jar</packaging>
+
+    <name>haoyou-spring-cloud-alibaba-beacon</name>
+    <url>http://www.haoyou.com</url>
+    <inceptionYear>2018-Now</inceptionYear>
+
+    <dependencies>
+
+        <dependency>
+            <groupId>com.sun.mail</groupId>
+            <artifactId>javax.mail</artifactId>
+            <version>1.6.2</version>
+        </dependency>
+
+        <!-- Projects Begin -->
+        <dependency>
+            <groupId>com.haoyou</groupId>
+            <artifactId>haoyou-spring-cloud-alibaba-06-redis</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+        <!-- Projects End -->
+
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <mainClass>com.haoyou.spring.cloud.alibaba.BeaconApplication</mainClass>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>

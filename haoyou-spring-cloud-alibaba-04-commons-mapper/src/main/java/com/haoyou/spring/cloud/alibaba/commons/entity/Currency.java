@@ -20,12 +20,12 @@ public class Currency implements Serializable {
     /**
      * 金币
      */
-    private Integer coin;
+    private Long coin;
 
     /**
      * 钻石
      */
-    private Integer diamond;
+    private Long diamond;
 
     /**
      * 体力

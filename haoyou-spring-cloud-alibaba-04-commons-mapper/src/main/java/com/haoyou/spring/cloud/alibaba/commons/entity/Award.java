@@ -36,13 +36,13 @@ public class Award extends BaseMessage implements Serializable {
     /**
      * 玩家升级经验
      */
-    private Integer exp;
+    private Long exp;
 
     /**
      * 宠物升级经验
      */
     @Column(name = "pet_exp")
-    private Integer petExp;
+    private Long petExp;
 
     /**
      * 道具（json存储）
@@ -61,11 +61,12 @@ public class Award extends BaseMessage implements Serializable {
     public Award() {
     }
 
-    public Award init(int coin, int diamond, int exp, int petExp, List<Prop> props) {
+    public Award init(int coin, int diamond, long exp, long petExp, List<Prop> props) {
         this.coin = coin;
         this.diamond = diamond;
         this.exp = exp;
         this.petExp = petExp;
+        this.propsList = props;
         this.propList(props);
         return this;
     }

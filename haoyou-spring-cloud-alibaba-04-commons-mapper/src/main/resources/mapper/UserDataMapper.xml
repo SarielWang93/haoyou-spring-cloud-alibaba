@@ -10,7 +10,7 @@
     <result column="name" jdbcType="VARCHAR" property="name" />
     <result column="avatar" jdbcType="VARCHAR" property="avatar" />
     <result column="level" jdbcType="INTEGER" property="level" />
-    <result column="exp" jdbcType="INTEGER" property="exp" />
+    <result column="exp" jdbcType="BIGINT" property="exp" />
     <result column="up_lev_exp" jdbcType="BIGINT" property="upLevExp" />
     <result column="daily_check_in" jdbcType="LONGVARBINARY" property="dailyCheckIn" />
     <result column="monthly_card_date" jdbcType="TIMESTAMP" property="monthlyCardDate" />
@@ -22,5 +22,6 @@
     <result column="badges" jdbcType="LONGVARBINARY" property="badges" />
     <result column="lifetime_breeder_date" jdbcType="TIMESTAMP" property="lifetimeBreederDate" />
     <result column="help_pet_uid" jdbcType="VARCHAR" property="helpPetUid" />
+    <result column="planting_system_level" jdbcType="INTEGER" property="plantingSystemLevel" />
   </resultMap>
 </mapper>

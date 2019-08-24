@@ -1,10 +1,11 @@
-package com.haoyou.spring.cloud.alibaba.manager.test;
+package com.haoyou.spring.cloud.alibaba;
 
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.lang.Console;
 import cn.hutool.core.text.StrBuilder;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.RandomUtil;
+import cn.hutool.http.HttpUtil;
 import com.alipay.remoting.exception.CodecException;
 import com.alipay.remoting.serialization.Serializer;
 import com.alipay.remoting.serialization.SerializerManager;

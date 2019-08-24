@@ -1,5 +1,6 @@
 package com.haoyou.spring.cloud.alibaba.manager.service.impl;
 
+import com.haoyou.spring.cloud.alibaba.commons.util.MapperUtils;
 import com.haoyou.spring.cloud.alibaba.util.UserUtil;
 import org.apache.dubbo.config.annotation.Service;
 import com.alibaba.fescar.spring.annotation.GlobalTransactional;
@@ -103,7 +104,13 @@ public class ManagerServiceImpl implements ManagerService {
         BaseMessage baseMessage = managerHandle.handle(req);
 
         if(type != 2){
-            logger.info(String.format("manager-return：%s %s %s", type, useruid, baseMessage));
+            String s = null;
+            try {
+                s = MapperUtils.obj2json(baseMessage);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            logger.info(String.format("manager-return：%s %s %s", type, useruid, s));
         }
 
         return baseMessage;

@@ -47,7 +47,7 @@ public class CommodityDiamondHandle extends CurrencyUseHandle {
         Integer price = commodity.getPrice();
         if("diamond".equals(spendType)){
             //花费钻石
-            int nDiamond = user.getCurrency().getDiamond()-price;
+            long nDiamond = user.getCurrency().getDiamond()-price;
             if (nDiamond < 0) {
                 return DIAMOND_LESS;
             } else {
@@ -55,7 +55,7 @@ public class CommodityDiamondHandle extends CurrencyUseHandle {
             }
         }else if("coin".equals(spendType)){
             //花费金币
-            int nCoin = user.getCurrency().getCoin() - price;
+            long nCoin = user.getCurrency().getCoin() - price;
             if (nCoin < 0) {
                 return COIN_LESS;
             } else {
@@ -75,10 +75,10 @@ public class CommodityDiamondHandle extends CurrencyUseHandle {
             if(p == null){
                 return PROP_LESS;
             }
-            int propCountNow = p.getCount();
+            long propCountNow = p.getCount();
 
             //所需道具
-            int nprop = propCountNow - price;
+            long nprop = propCountNow - price;
             if (nprop < 0) {
                 return PROP_LESS;
             } else {

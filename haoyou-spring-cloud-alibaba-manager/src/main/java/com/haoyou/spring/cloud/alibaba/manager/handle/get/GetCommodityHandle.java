@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 获取用户邮件信息
+ * 获取商品信息
  */
 @Service
 public class GetCommodityHandle extends ManagerHandle {

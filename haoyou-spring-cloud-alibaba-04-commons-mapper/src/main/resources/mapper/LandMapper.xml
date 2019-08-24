@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.haoyou.spring.cloud.alibaba.commons.mapper.LandMapper">
+  <resultMap id="BaseResultMap" type="com.haoyou.spring.cloud.alibaba.commons.entity.Land">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="uid" jdbcType="VARCHAR" property="uid" />
+    <result column="user_uid" jdbcType="VARCHAR" property="userUid" />
+    <result column="level" jdbcType="INTEGER" property="level" />
+    <result column="reduction_time" jdbcType="INTEGER" property="reductionTime" />
+    <result column="increase_output" jdbcType="INTEGER" property="increaseOutput" />
+    <result column="seed_uid" jdbcType="VARCHAR" property="seedUid" />
+    <result column="seed_type" jdbcType="VARCHAR" property="seedType" />
+    <result column="crop_type" jdbcType="VARCHAR" property="cropType" />
+    <result column="crop_l10n" jdbcType="VARCHAR" property="cropL10n" />
+    <result column="seed_star" jdbcType="INTEGER" property="seedStar" />
+    <result column="planting_time" jdbcType="TIMESTAMP" property="plantingTime" />
+    <result column="crop_count" jdbcType="INTEGER" property="cropCount" />
+    <result column="pet_uid" jdbcType="VARCHAR" property="petUid" />
+    <result column="being_stolen" jdbcType="INTEGER" property="beingStolen" />
+  </resultMap>
+</mapper>

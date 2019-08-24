@@ -51,6 +51,8 @@ public class FightingAIHandle extends ManagerHandle {
 
         Integer difficult = (Integer) msgMap.get("difficult");
 
+        Integer isWin = (Integer) msgMap.get("isWin");
+
         if (StrUtil.isEmpty(chapterName) || idNum == null || difficult == null) {
             return mapBody.err();
         }
@@ -80,7 +82,7 @@ public class FightingAIHandle extends ManagerHandle {
             return mapBody.err();
         }
 
-        if (!fightingService.start(user, chapterName, idNum, difficult)) {
+        if (!fightingService.start(user, chapterName, idNum, difficult,isWin==1)) {
             mapBody.err();
         }
 

@@ -96,12 +96,7 @@ public abstract class ManagerHandle implements Serializable {
      * @return
      */
     protected Map<String, Object> getMsgMap(MyRequest req){
-        try {
-            return MapperUtils.json2map(new String(req.getMsg()));
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return null;
+        return userUtil.getMsgMap(req);
     }
 
 

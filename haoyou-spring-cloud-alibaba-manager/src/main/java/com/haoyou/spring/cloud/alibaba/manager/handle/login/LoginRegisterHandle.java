@@ -33,13 +33,11 @@ public class LoginRegisterHandle extends ManagerHandle {
         User user = loginService.register(req);
         if(user.getState().equals(ResponseMsg.MSG_SUCCESS)){
             req.setUser(user);
-            if(!cultivateService.petGeneration(req)){
-
-            }
+            cultivateService.petGeneration(req);
+            userUtil.cacheUserToRedisByUid(user.getUid());
         }
 
 
-        userUtil.cacheUserToRedisByUid(user.getUid());
 
 
         BaseMessage baseMessage = new BaseMessage();

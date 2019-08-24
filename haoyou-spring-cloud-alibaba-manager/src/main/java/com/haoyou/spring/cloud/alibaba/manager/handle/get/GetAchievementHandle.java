@@ -66,10 +66,10 @@ public class GetAchievementHandle extends ManagerHandle {
 
 
             String lkKey = RedisKeyUtil.getlkKey(RedisKey.USER_AWARD, user.getUid(), RedisKey.ACHIEVEMENT, achievement.getName());
-            //是否有待领取的成就奖励
+            //是否有成就奖励
             HashMap<String, Award> stringAwardHashMap = redisObjectUtil.getlkMap(lkKey, Award.class);
+            TreeMap<Integer, Award> awardsTreeMap = new TreeMap<>();
             if (!stringAwardHashMap.isEmpty()) {
-                TreeMap<Integer, Award> awardsTreeMap = new TreeMap<>();
                 for (Map.Entry<String, Award> entry : stringAwardHashMap.entrySet()) {
                     if (!entry.getValue().isUsed()) {
                         String[] keys = entry.getKey().split(":");
@@ -78,6 +78,9 @@ public class GetAchievementHandle extends ManagerHandle {
                         redisObjectUtil.delete(entry.getKey());
                     }
                 }
+            }
+            //是否有待领取的成就奖励
+            if(awardsTreeMap.size()>0){
                 //获取最靠前的奖励
                 Map.Entry<Integer, Award> firstEntry = awardsTreeMap.firstEntry();
                 achievementMsg.put("award", firstEntry.getValue());

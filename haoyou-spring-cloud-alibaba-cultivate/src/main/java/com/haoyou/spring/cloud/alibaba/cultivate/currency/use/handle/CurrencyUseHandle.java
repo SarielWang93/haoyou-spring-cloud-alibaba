@@ -115,6 +115,10 @@ public abstract class CurrencyUseHandle {
     final static public int PET_LIMIT = 4;
     //购买商品
     final static public int COMMODITY = 5;
+    //种植系统等级
+    final static public int PLANTING_SYSTEM_LEVEL = 6;
+    //种植系统土地等级
+    final static public int PLANTING_LAND_LEVEL = 7;
 
     // ********************************     以上为使用类型，以下为返回类型      ************************************
 

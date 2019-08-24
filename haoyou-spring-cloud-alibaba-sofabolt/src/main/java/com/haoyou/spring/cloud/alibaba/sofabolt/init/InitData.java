@@ -99,6 +99,7 @@ public class InitData implements ApplicationRunner {
     private ChapterMapper chapterMapper;
 
 
+
     @Autowired
     private UserUtil userUtil;
     @Autowired
@@ -123,7 +124,6 @@ public class InitData implements ApplicationRunner {
          * 每次加载必须间隔一分钟以上，防止攻击
          */
         if (lastDo == null || now.getTime() - lastDo.getTime() > 60 * 1000) {
-
 
             //加载关卡信息
             initLevelDesign();
@@ -175,6 +175,7 @@ public class InitData implements ApplicationRunner {
         return false;
     }
 
+
     /**
      * 加载关卡信息
      */
@@ -195,7 +196,7 @@ public class InitData implements ApplicationRunner {
             List<LevelDesign> levelDesigns = levelDesignMapper.select(levelDesignSelect);
 
             for (LevelDesign levelDesign : levelDesigns) {
-                String levelDesignKey = RedisKeyUtil.getKey(RedisKey.LEVEL_DESIGN, chapterName,levelDesign.getIdNum().toString());
+                String levelDesignKey = RedisKeyUtil.getKey(RedisKey.LEVEL_DESIGN, chapterName, levelDesign.getIdNum().toString());
                 redisObjectUtil.save(levelDesignKey, levelDesign, -1);
             }
 
@@ -216,7 +217,7 @@ public class InitData implements ApplicationRunner {
         List<String> all = new ArrayList<>();
 
         for (String shieldVoca : shieldVocas) {
-            if(StrUtil.isNotEmpty(shieldVoca.trim())){
+            if (StrUtil.isNotEmpty(shieldVoca.trim())) {
                 all.add(shieldVoca);
             }
         }

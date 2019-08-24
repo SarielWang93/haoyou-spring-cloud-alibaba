@@ -34,6 +34,12 @@ public class CyrrencyUseMsg extends BaseMessage implements Serializable {
     private String commodityName;
 
 
+    //土地uid
+    private String landUid;
+    //土地升级类型    1：终止时长    2：果实产出
+    private Integer landUpLevType;
+
+
     //用户
     private User user;
 

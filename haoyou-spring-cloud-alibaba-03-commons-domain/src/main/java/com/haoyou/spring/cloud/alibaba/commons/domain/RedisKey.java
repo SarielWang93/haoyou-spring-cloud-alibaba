@@ -68,4 +68,12 @@ public class RedisKey {
     public static final String HELP_PET = "help_pet";
     public static final String HELP = "help";
     public static final String HAS_HELP = "has_help";
+
+
+    public static final String LAND = "land";
+
+    public static final String STOLEN_LAND = "stolen_land";
+    public static final String WATERING_LAND = "watering_land";
+
+    public static final String BEACON = "beacon";
 }

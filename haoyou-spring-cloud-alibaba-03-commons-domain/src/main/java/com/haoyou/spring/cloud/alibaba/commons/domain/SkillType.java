@@ -43,4 +43,10 @@ public class SkillType {
     public final static int DEFENSE = 9;//防御
 
     public final static int ASSIST = 10;//辅助
+
+
+    /**
+     * 种植
+     */
+    public final static int PLANTING = 11;//
 }

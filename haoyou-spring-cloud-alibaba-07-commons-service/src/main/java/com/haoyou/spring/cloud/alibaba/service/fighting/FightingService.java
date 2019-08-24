@@ -24,7 +24,9 @@ public interface FightingService {
      */
     boolean start(User user, String chapterName, int idNum, int difficult);
 
-    boolean start(User user, String chapterName, int idNum, int difficult, boolean isAi);
+    boolean start(User user, String chapterName, int idNum, int difficult, boolean isWin);
+
+    boolean start(User user, String chapterName, int idNum, int difficult, boolean isAi, boolean isWin);
 
     boolean start(List<User> users);
 

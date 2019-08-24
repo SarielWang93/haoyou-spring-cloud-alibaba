@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.haoyou.spring.cloud.alibaba.commons.mapper.ProtocolMapper">
+  <resultMap id="BaseResultMap" type="com.haoyou.spring.cloud.alibaba.commons.entity.Protocol">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="device_id_num" jdbcType="VARCHAR" property="deviceIdNum" />
+    <result column="device_type" jdbcType="INTEGER" property="deviceType" />
+    <result column="send_date" jdbcType="TIMESTAMP" property="sendDate" />
+    <result column="latitude" jdbcType="DOUBLE" property="latitude" />
+    <result column="longitude" jdbcType="DOUBLE" property="longitude" />
+    <result column="nshemisphere" jdbcType="VARCHAR" property="nshemisphere" />
+    <result column="ewhemisphere" jdbcType="VARCHAR" property="ewhemisphere" />
+    <result column="text" jdbcType="VARCHAR" property="text" />
+  </resultMap>
+</mapper>
