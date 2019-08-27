@@ -16,7 +16,7 @@ import java.util.Date;
  * @author wanghui
  * @version 1.0
  * @date 2019/8/5 16:35
- * 购买月卡
+ * 购买终身饲养员
  */
 @Service
 public class LifetimeBreederHandle extends RMBUseHandle {

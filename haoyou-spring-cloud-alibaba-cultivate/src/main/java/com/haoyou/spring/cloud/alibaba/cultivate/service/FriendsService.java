@@ -233,7 +233,7 @@ public class FriendsService {
 
 
     /**
-     * 发送奖励
+     * 发送礼物
      *
      * @param friendsDoMsg
      * @return

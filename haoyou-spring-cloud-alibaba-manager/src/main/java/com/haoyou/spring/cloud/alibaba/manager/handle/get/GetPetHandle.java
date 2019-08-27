@@ -66,7 +66,7 @@ public class GetPetHandle extends ManagerHandle {
         mapBody.put("levelMax", levLoyalty.getLevelMax());
 
         if (StrUtil.isNotEmpty(type)) {
-            String[] split = type.split("/*");
+            String[] split = type.split(":");
 
             for (String t : split) {
                 if ("fightingPet".equals(t)) {

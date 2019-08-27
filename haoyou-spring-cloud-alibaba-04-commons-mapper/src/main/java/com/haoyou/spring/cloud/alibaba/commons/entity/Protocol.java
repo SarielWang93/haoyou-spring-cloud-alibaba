@@ -73,8 +73,16 @@ public class Protocol implements Serializable {
     //0.04434639353,0.05519100371961
 
 
+    public void analysis(String deviceIdNum, String msg) {
+        this.deviceIdNum = deviceIdNum;
+        this.text = msg;
+        if (msg.startsWith("$B")) {
+            analysis$B(msg);
+        }
 
-    public void analysis(String msg) {
+    }
+
+    public void analysis$B(String msg) {
         try {
             String[] split = msg.split(",");
 
@@ -86,10 +94,7 @@ public class Protocol implements Serializable {
             this.ewhemisphere = split[6];
             //子午线时间
             SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyMMddHHmmss");
-            Date parse = null;
-
-            parse = simpleDateFormat.parse(split[2]);
-
+            Date parse = simpleDateFormat.parse(split[2]);
             //北京时间
             DateTime dateTime = DateUtil.offsetHour(parse, 8);
             this.sendDate = dateTime;
@@ -98,9 +103,8 @@ public class Protocol implements Serializable {
         }
     }
 
-
-    private Double gpsToWGS84(Double gps){
-        return  (int)(gps/100) + (gps/100.0 - (int)(gps/100)) *100.0 / 60.0;
+    private Double gpsToWGS84(Double gps) {
+        return (int) (gps / 100) + (gps / 100.0 - (int) (gps / 100)) * 100.0 / 60.0;
     }
 
 }

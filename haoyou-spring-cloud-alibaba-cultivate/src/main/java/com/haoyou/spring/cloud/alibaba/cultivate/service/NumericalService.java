@@ -53,5 +53,15 @@ public class NumericalService {
         return false;
     }
 
+    public boolean numericalSet(User user, String numericalName, long value) {
+        if(user!=null && user.getUserNumericalMap()!=null){
+            UserNumerical userNumerical = user.getUserNumericalMap().get(numericalName);
+            if (userNumerical != null) {
+                userNumerical.setValue(value);
+                return true;
+            }
+        }
+        return false;
+    }
 
 }

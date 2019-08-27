@@ -315,6 +315,16 @@ public class CultivateServiceImpl implements CultivateService {
 
         return false;
     }
+    @Override
+    public boolean numericalSet (User user,String numericalName,long value){
+        if (numericalService.numericalSet(user, numericalName, value)) {
+            if (this.saveUser(user)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
 
     /**
      * 计时执行
@@ -346,7 +356,7 @@ public class CultivateServiceImpl implements CultivateService {
                 return false;
             }
 
-            //设置助战
+            //删除旧的助战设置
             String lkKey = RedisKeyUtil.getlkKey(RedisKey.HELP_PET, user.getUid(), RedisKey.HELP);
             redisObjectUtil.deleteAll(lkKey);
 
@@ -472,6 +482,15 @@ public class CultivateServiceImpl implements CultivateService {
     @Override
     public BaseMessage friendsDo(MyRequest req) {
         return friendsService.friendsDo(req);
+    }
+    /**
+     * 增加好友亲密度
+     * @param user
+     * @param userUid
+     */
+    @Override
+    public void addIntimacy(User user, String userUid,long value) {
+        friendsService.addIntimacy(user,userUid,value);
     }
 
     /**

@@ -132,6 +132,7 @@ public class GetFriendsHandle extends ManagerHandle {
             myHelpPetMsg.put("petTypeName", pet.getTypeName());
             myHelpPetMsg.put("petTypeId", pet.getTypeId());
             myHelpPetMsg.put("petNickName", pet.getNickName());
+            myHelpPetMsg.put("petUid", pet.getUid());
             myHelpPetMsg.put("petLevel", pet.getLevel());
             myHelpPetMsg.put("petStarClass", pet.getStarClass());
         }

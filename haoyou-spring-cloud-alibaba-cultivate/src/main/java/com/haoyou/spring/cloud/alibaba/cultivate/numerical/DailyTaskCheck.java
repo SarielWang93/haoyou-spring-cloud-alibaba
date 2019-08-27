@@ -40,8 +40,11 @@ public class DailyTaskCheck extends NumericalCheck {
                     if(upAward == null){
                         rewardService.refreshUpAward(user.getUid(),rewardService.getAward(awardType),type);
                         if(dailyTask.getIntegral() > 0){
+                            //增加活跃度
                             numericalService.numericalAdd(user,"daily_task_integral",dailyTask.getIntegral());
                         }
+                        //任务完成个数
+                        numericalService.numericalAdd(user,"task_completed_count",dailyTask.getIntegral());
                     }
                 }
             }

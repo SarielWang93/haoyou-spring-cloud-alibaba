@@ -53,9 +53,7 @@ public class InitData implements ApplicationRunner {
          String msg = "$AGPS,9,190823131357,3904.14945,N,11701.49821,E,*";
 
          Protocol protocol = new Protocol();
-         protocol.setDeviceIdNum("AGPS");
-         protocol.setText(msg);
-         protocol.analysis(msg);
+         protocol.analysis("AGPS",msg);
          protocolMapper.insertSelective(protocol);
 
     }

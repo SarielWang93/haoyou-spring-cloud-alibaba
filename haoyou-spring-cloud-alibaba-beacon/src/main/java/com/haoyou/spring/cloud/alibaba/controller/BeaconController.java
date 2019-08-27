@@ -38,11 +38,12 @@ public class BeaconController {
 
         List<Protocol> protocols = CollUtil.newArrayList(stringProtocolHashMap.values());
 
-        toBaiDuTooLong(protocols);
+        //toBaiDuTooLong(protocols);
 
         //分设备，按时间排序
         Map<String, TreeMap<Date, Protocol>> msg = new HashMap<>();
         for (Protocol protocol : protocols) {
+            protocol.setText(null);
             String deviceIdNum1 = protocol.getDeviceIdNum();
             TreeMap<Date, Protocol> treeMap = msg.get(deviceIdNum1);
             if (treeMap == null) {

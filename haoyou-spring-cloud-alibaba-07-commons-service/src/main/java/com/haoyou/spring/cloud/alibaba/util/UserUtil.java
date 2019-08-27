@@ -978,12 +978,9 @@ public class UserUtil {
 
     public List<Badge> getBadges(User user) {
 
-        List<Badge> badges = null;
+        List<Badge> badges = new ArrayList<>();
         if(user.getUserData().getBadges()!=null){
             badges = redisObjectUtil.deserialize(user.getUserData().getBadges(), List.class);
-        }
-        if (badges == null) {
-            badges = new ArrayList<>();
         }
 
 

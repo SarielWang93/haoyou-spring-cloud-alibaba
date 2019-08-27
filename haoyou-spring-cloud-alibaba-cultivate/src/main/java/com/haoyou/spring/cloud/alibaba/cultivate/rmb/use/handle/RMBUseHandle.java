@@ -97,7 +97,7 @@ public abstract class RMBUseHandle {
         //保存修改
         user.setLastUpdateDate(new Date());
         userUtil.saveUser(user,RedisKey.USER);
-      
+
         return true;
 
     }
@@ -119,6 +119,5 @@ public abstract class RMBUseHandle {
     // ********************************     以上为使用类型，以下为返回类型，错误信息     ************************************
 
 
-    //超出上限
-    final static public int LIMIT = 1005;
+
 }

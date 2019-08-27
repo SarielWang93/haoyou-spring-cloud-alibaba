@@ -71,6 +71,9 @@ public class ManagerTest {
 
 
     public static void main(String[] args) throws InterruptedException, CodecException {
+        String type = "fightingPet:fightingPet";
+        String[] split = type.split(":");
+        Console.log(split);
 
     }
 

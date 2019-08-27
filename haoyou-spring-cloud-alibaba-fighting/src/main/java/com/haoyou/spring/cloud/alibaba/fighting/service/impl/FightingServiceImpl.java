@@ -126,22 +126,24 @@ public class FightingServiceImpl implements FightingService {
 
     @Override
     public boolean start(User user, String chapterName, int idNum, int difficult) {
-        return start(user, chapterName, idNum, difficult, false,false);
+        return start(user, chapterName, idNum, difficult, false, false);
     }
+
     @Override
     public boolean start(User user, String chapterName, int idNum, int difficult, boolean isWin) {
-        return start(user, chapterName, idNum, difficult, false,isWin);
+        return start(user, chapterName, idNum, difficult, false, isWin);
     }
 
     /**
      * pve闯关模式
-     * @param user         玩家对象
-     * @param chapterName  章节名称
-     * @param idNum        关卡序号
-     * @param difficult ordinary difficulty crazy
+     *
+     * @param user        玩家对象
+     * @param chapterName 章节名称
+     * @param idNum       关卡序号
+     * @param difficult   ordinary difficulty crazy
      *                    普通       困难     疯狂
-     * @param isAi    是ai操作
-     * @param isWin   是否扫荡
+     * @param isAi        是ai操作
+     * @param isWin       是否扫荡
      * @return
      */
     @Override
@@ -158,8 +160,8 @@ public class FightingServiceImpl implements FightingService {
         allIsAi.put(user.getUid(), isAi);
         this.initFightingRoom(users, fightingRoom, allIsAi);
 
-        if(isWin){
-            this.win(fightingRoom.getFightingCamps().get(user.getUid()).getFightingPets().get(1),false);
+        if (isWin) {
+            this.win(fightingRoom.getFightingCamps().get(user.getUid()).getFightingPets().get(1), false);
             return true;
         }
 
@@ -752,11 +754,11 @@ public class FightingServiceImpl implements FightingService {
 
         //TODO 助阵宠物设置
         String fightingType = fightingRoom.getFightingType();
-        if(fightingType.equals(FightingType.PVE)){
+        if (fightingType.equals(FightingType.PVE)) {
             String key = RedisKeyUtil.getlkKey(RedisKey.HELP_PET, user.getUid(), RedisKey.HELP);
             HashMap<String, String> stringStringHashMap = redisObjectUtil.getlkMap(key, String.class);
             if (stringStringHashMap.size() == 1) {
-                for(String value:stringStringHashMap.values()){
+                for (String value : stringStringHashMap.values()) {
                     //value是主战玩家uid和助战位置的用":"拼接
                     String[] split = value.split(":");
                     int iswork = Integer.parseInt(split[1]);
@@ -773,8 +775,11 @@ public class FightingServiceImpl implements FightingService {
                     fightingPet.initFighting();
                     fightingPetMaps.put(iswork, fightingPet);
                     //记录当日已助战好友
-                    String hashKey = RedisKeyUtil.getKey(RedisKey.HELP_PET, user.getUid(), RedisKey.HAS_HELP,split[0]);
-                    redisObjectUtil.save(hashKey,split[0]);
+                    String hashKey = RedisKeyUtil.getKey(RedisKey.HELP_PET, user.getUid(), RedisKey.HAS_HELP, split[0]);
+                    redisObjectUtil.save(hashKey, split[0]);
+
+                    //增加5点亲密度
+                    cultivateService.addIntimacy(user, split[0], 5L);
 
                 }
             }
@@ -782,7 +787,6 @@ public class FightingServiceImpl implements FightingService {
             String lkKey = RedisKeyUtil.getlkKey(RedisKey.HELP_PET, user.getUid(), RedisKey.HELP);
             redisObjectUtil.deleteAll(lkKey);
         }
-
 
 
         fightingCamp.setFightingPets(fightingPetMaps);
@@ -1076,29 +1080,43 @@ public class FightingServiceImpl implements FightingService {
      * @param fightingPet
      */
     public void win(FightingPet fightingPet) {
-        win(fightingPet,true);
+        win(fightingPet, true);
     }
-    public void win(FightingPet fightingPet,boolean isSave) {
+
+    public void win(FightingPet fightingPet, boolean isSave) {
 
         FightingRoom fightingRoom = fightingPet.getFightingCamp().getFightingRoom();
         fightingPet.addStep(FightingStep.VICTORY, "");
-        /**
-         * 发送信息
-         */
-        fightingRoom.sendMsgResp(fightingRoom.getFightingCamps().keySet(), sendMsgUtil);
+
 
         this.deleteFightingRoom(fightingRoom);
 
         //胜利结算逻辑
         User user = fightingPet.getFightingCamp().getUser();
-        //获取内存中真实user
-        user = userUtil.getUserByUid(user.getUid());
+
         logger.debug(String.format("胜利：%s", user.getUsername()));
         //ai断线不结算
         if (!fightingPet.getUid().startsWith("ai-") && sendMsgUtil.connectionIsAlive(user.getUid())) {
+            /**
+             * 发送信息
+             */
+            fightingRoom.sendMsgResp(fightingRoom.getFightingCamps().keySet(), sendMsgUtil);
+
+            //获取内存中真实user
+            user = userUtil.getUserByUid(user.getUid());
+            //战斗总场次
+            cultivateService.numericalAdd(user, "fighting_count", 1L);
+            //战斗胜利总场次
+            cultivateService.numericalAdd(user, "fighting_win_count", 1L);
+
             LevelDesign levelDesign = fightingRoom.getLevelDesign();
-            //PVE天梯胜利结算
+            //PVP天梯胜利结算
             if (levelDesign == null) {
+
+                //天梯总场次
+                cultivateService.numericalAdd(user, "ladder_count", 1L);
+                //天梯胜利总场次
+                cultivateService.numericalAdd(user, "ladder_win_count", 1L);
 
                 Long daily_ladder_win = user.getUserNumericalMap().get("daily_ladder_win").getValue();
 
@@ -1115,6 +1133,9 @@ public class FightingServiceImpl implements FightingService {
                 //传奇联赛排名key
                 String yyMM = DateUtil.date().toString("yyMM");
                 String rankKey = RedisKeyUtil.getKey(RedisKey.LADDER_RANKING, yyMM);
+                //天梯最高排名
+                Long ladder_max_ranking = user.getUserNumericalMap().get("ladder_max_ranking").getValue();
+                Long aLong = null;
                 if (ladder_level < 15) {
                     long add = 1;
                     //连胜奖励
@@ -1132,6 +1153,11 @@ public class FightingServiceImpl implements FightingService {
                         if (ladder_level + 1 > ladder_level_max) {
                             cultivateService.numericalAdd(user, "ladder_level_max", 1L);
                         }
+                        //天梯最高排名(未进排名)
+                        if (ladder_max_ranking < 0 && ladder_level + 1 > -ladder_max_ranking) {
+                            cultivateService.numericalAdd(user, "ladder_max_ranking", -1L);
+                        }
+
 
                         cultivateService.numericalAdd(user, "ladder_level", 1L);
                         cultivateService.numericalAdd(user, "ladder_level_star", -5L);
@@ -1140,6 +1166,9 @@ public class FightingServiceImpl implements FightingService {
                             //传奇联赛排名
                             scoreRankUtil.add(rankKey, user, 100L);
                             cultivateService.numericalAdd(user, "ladder_integral", 100L);
+                            //进入传奇联赛次数
+                            cultivateService.numericalAdd(user, "ladder_in_count", 1L);
+                            aLong = scoreRankUtil.find(rankKey, user);
                         }
                     }
 
@@ -1147,10 +1176,17 @@ public class FightingServiceImpl implements FightingService {
                     //传奇联赛，排名增加
                     scoreRankUtil.incrementScore(rankKey, user, 30L);
                     cultivateService.numericalAdd(user, "ladder_integral", 30L);
+                    aLong = scoreRankUtil.find(rankKey, user);
+                }
+                //天梯最高排名(已有排名)
+                if (aLong != null && aLong > ladder_max_ranking) {
+                    cultivateService.numericalSet(user, "ladder_max_ranking", aLong);
                 }
 
 
-            } else {
+            }
+            //PVE闯关胜利结算
+            else {
                 //闯关模式结算
                 int difficult = fightingRoom.getDifficult();
                 //添加徽章
@@ -1184,7 +1220,7 @@ public class FightingServiceImpl implements FightingService {
         //失败结算
         this.lost(enemy);
 
-        if(isSave){
+        if (isSave) {
             //结算完毕，保存
             this.hiSave(fightingPet.getFightingCamp());
         }
@@ -1203,7 +1239,10 @@ public class FightingServiceImpl implements FightingService {
         if (!enemy.getUser().getUid().startsWith("ai-") && sendMsgUtil.connectionIsAlive(enemy.getUser().getUid())) {
             LevelDesign levelDesign = fightingRoom.getLevelDesign();
             User user = userUtil.getUserByUid(enemy.getUser().getUid());
-
+            //战斗总场次
+            cultivateService.numericalAdd(user, "fighting_count", 1L);
+            //天梯总场次
+            cultivateService.numericalAdd(user, "ladder_count", 1L);
             //天梯失败结算
             if (levelDesign == null) {
                 //传奇联赛排名key

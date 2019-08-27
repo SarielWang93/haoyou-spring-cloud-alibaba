@@ -73,7 +73,7 @@ public interface CultivateService {
      * @return
      */
     boolean numericalAdd (User user,String numericalName,long value);
-
+    boolean numericalSet (User user,String numericalName,long value);
 
     /**
      * 计时执行
@@ -104,6 +104,12 @@ public interface CultivateService {
      * @return
      */
     BaseMessage friendsDo(MyRequest req);
+    /**
+     * 增加好友亲密度
+     * @param user
+     * @param userUid
+     */
+    void addIntimacy(User user, String userUid,long value);
 
 
     /**

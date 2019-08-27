@@ -35,7 +35,7 @@ public class CheckEmail {
     final static public String GMAIL_HOST = "pop.gmail.com";
 
 
-    final static public long SECONDS = 60 * 60 * 24 * 30;
+    final static public long SECONDS = -1;
 
 
     //邮件服务器参数
@@ -98,7 +98,7 @@ public class CheckEmail {
                             }
                         }
                         //删除邮件
-                        msg.setFlag(Flags.Flag.DELETED, true);
+//                        msg.setFlag(Flags.Flag.DELETED, true);
                     } catch (MessagingException e) {
                         e.printStackTrace();
                     } catch (IOException e) {
@@ -112,7 +112,7 @@ public class CheckEmail {
 //            Console.log("The count of the Email is :" + messages.length);
 
             //输出所有邮件的信息
-            int count = 1;
+//            int count = 1;
             for (Message message : messages) {
                 //设置为已读
                 message.setFlag(Flags.Flag.SEEN, true);
@@ -135,16 +135,16 @@ public class CheckEmail {
                 MimeMultipart mimeMultipart = (MimeMultipart) message.getContent();
 
 
-                MimeBodyPart bodyPart = (MimeBodyPart) mimeMultipart.getBodyPart(0);
-                BufferedReader textReader = new BufferedReader(new InputStreamReader(bodyPart.getInputStream()));
-                String line = null;
-                StringBuilder text = StrUtil.builder();
+//                MimeBodyPart bodyPart = (MimeBodyPart) mimeMultipart.getBodyPart(0);
+//                BufferedReader textReader = new BufferedReader(new InputStreamReader(bodyPart.getInputStream()));
+//                String line = null;
+//                StringBuilder text = StrUtil.builder();
 //                Console.log("Text: ");
-                while ((line = textReader.readLine()) != null) {
-                    text.append(line);
-                    text.append("\r");
-                    text.append("\n");
-                }
+//                while ((line = textReader.readLine()) != null) {
+//                    text.append(line);
+//                    text.append("\r");
+//                    text.append("\n");
+//                }
 //                Console.log(text.toString());
 
 
@@ -153,28 +153,27 @@ public class CheckEmail {
                 //$B,3,190811053701,3904.14975,N,11701.50519,E,*
                 String msg = bufferedReader.readLine().trim();
 //                Console.log("FileText: " + msg);
-                if(msg.startsWith("$B")){
-                    Protocol protocol = new Protocol();
-                    protocol.setDeviceIdNum(split[1].trim());
-                    protocol.setText(msg);
-                    List<Protocol> select = protocolMapper.select(protocol);
+
+                String deviceIdNum = split[1].trim();
+
+                Protocol protocol = new Protocol();
+                protocol.setDeviceIdNum(deviceIdNum);
+                protocol.setText(msg);
+                List<Protocol> select = protocolMapper.select(protocol);
 
 
-                    protocol.analysis(msg);
+                if (select == null || select.size() == 0) {
+                    logger.info(String.format("新收到信息：%s", msg));
+                    protocol.analysis(deviceIdNum,msg);
                     if (protocol.getSendDate() == null) {
                         protocol.setSendDate(date);
                     }
 
-
-                    if (select == null || select.size() == 0) {
-                        logger.info(String.format("新收到信息：%s", msg));
-                        protocolMapper.insertSelective(protocol);
-                        redisObjectUtil.save(RedisKeyUtil.getKey(RedisKey.BEACON, protocol.getDeviceIdNum(), protocol.getId().toString()), protocol, SECONDS);
-                    }
+                    protocolMapper.insertSelective(protocol);
+                    redisObjectUtil.save(RedisKeyUtil.getKey(RedisKey.BEACON, protocol.getDeviceIdNum(), protocol.getId().toString()), protocol, SECONDS);
+                    //删除邮件
+                    message.setFlag(Flags.Flag.DELETED, true);
                 }
-
-                //删除邮件
-                message.setFlag(Flags.Flag.DELETED, true);
 
             }
 
