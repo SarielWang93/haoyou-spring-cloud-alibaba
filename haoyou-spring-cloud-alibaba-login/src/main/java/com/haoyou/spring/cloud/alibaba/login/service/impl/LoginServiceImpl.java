@@ -116,7 +116,7 @@ public class LoginServiceImpl implements LoginService {
         }
 
 
-        return user.notTooLong();
+        return user;
     }
 
     /**
@@ -190,7 +190,7 @@ public class LoginServiceImpl implements LoginService {
 
         logger.info(String.format("%s 登出成功！！", user.getUsername()));
         user.setState(ResponseMsg.MSG_SUCCESS);
-        return user.notTooLong();
+        return user;
 
     }
 

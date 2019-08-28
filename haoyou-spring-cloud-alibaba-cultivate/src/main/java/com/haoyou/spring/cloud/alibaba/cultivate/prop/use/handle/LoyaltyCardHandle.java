@@ -29,13 +29,13 @@ public class LoyaltyCardHandle extends PeopUseHandle {
         MapBody rt = new MapBody();
 
         User user = propUseMsg.getUser();
-        int propCount = propUseMsg.getPropCount();
+        long propCount = propUseMsg.getPropCount();
         FightingPet fightingPet = FightingPet.getByUserAndPetUid(user, propUseMsg.getPetUid(), redisObjectUtil);
 
         Pet pet = fightingPet.getPet();
 
         Integer ingredientsLimit = pet.getIngredientsLimit();
-        ingredientsLimit += propCount;
+        ingredientsLimit += Integer.parseInt(Long.toString(propCount));
         if (ingredientsLimit >= 100) {
             rt.setState(LIMIT);
             return rt;

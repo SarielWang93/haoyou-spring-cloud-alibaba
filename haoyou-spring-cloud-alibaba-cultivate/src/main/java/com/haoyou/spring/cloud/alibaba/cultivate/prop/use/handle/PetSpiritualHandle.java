@@ -35,7 +35,7 @@ public class PetSpiritualHandle extends PeopUseHandle {
 
         User user = propUseMsg.getUser();
         Prop prop = propUseMsg.getProp();
-        int propCount = propUseMsg.getPropCount();
+        long propCount = propUseMsg.getPropCount();
 
         //宠物容纳上限
         List<FightingPet> pets = FightingPet.getByUser(user, redisObjectUtil);

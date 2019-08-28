@@ -16,6 +16,7 @@ import com.haoyou.spring.cloud.alibaba.commons.util.RedisKeyUtil;
 import com.haoyou.spring.cloud.alibaba.redis.RedisObjKV;
 import com.haoyou.spring.cloud.alibaba.redis.service.RedisObjectService;
 import com.haoyou.spring.cloud.alibaba.commons.util.ZIP;
+import com.haoyou.spring.cloud.alibaba.serialization.KryoSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -274,6 +275,7 @@ public class RedisObjectUtil {
     private Serializer getSerializer() {
         if (this.serializer == null) {
 //            this.serializer = SerializerManager.getSerializer(JsonSerializer.JsonSerializerCode);
+//            this.serializer = SerializerManager.getSerializer(KryoSerializer.KryoSerializerCode);
             this.serializer = SerializerManager.getSerializer(SerializerManager.Hessian2);
         }
         return this.serializer;

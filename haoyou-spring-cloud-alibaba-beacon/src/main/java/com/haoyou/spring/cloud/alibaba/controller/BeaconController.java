@@ -2,6 +2,8 @@ package com.haoyou.spring.cloud.alibaba.controller;
 
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.date.DateTime;
+import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.lang.Console;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpUtil;
@@ -32,7 +34,7 @@ public class BeaconController {
 
     @CrossOrigin
     @GetMapping(value = "getMsg")
-    public String getMsg(String deviceIdNum) {
+    public String getMsg(String deviceIdNum, Integer count) {
         String lkKey = RedisKeyUtil.getlkKey(RedisKey.BEACON, deviceIdNum);
         HashMap<String, Protocol> stringProtocolHashMap = redisObjectUtil.getlkMap(lkKey, Protocol.class);
 
@@ -58,7 +60,12 @@ public class BeaconController {
         Map<String, Collection<Protocol>> rtMsg = new HashMap<>();
 
         for (Map.Entry<String, TreeMap<Date, Protocol>> entry : msg.entrySet()) {
-            rtMsg.put(entry.getKey(), entry.getValue().values());
+            List<Protocol> protocols1 = CollUtil.newArrayList(entry.getValue().values());
+            if (count != null && count > 0) {
+                protocols1 = protocols1.subList(protocols1.size()-count,protocols1.size());
+            }
+
+            rtMsg.put(entry.getKey(), protocols1);
         }
 
 
@@ -72,13 +79,14 @@ public class BeaconController {
     }
 
 
-
     //坐标转换api单次最大转换个数
     private static int maxCount = 100;
     //百度地图密匙
     private static String ak = "PhGsQImzfSjThNanj5jV6u9Ot5OljMpG";
+
     /**
      * 根据单次最大转换个数截取，分批转换
+     *
      * @param protocols
      */
     private void toBaiDuTooLong(List<Protocol> protocols) {
@@ -95,11 +103,12 @@ public class BeaconController {
                 List<Protocol> protocols1 = protocols.subList(begin, end);
                 toBaiDu(protocols1);
             }
-        }else{
+        } else {
             toBaiDu(protocols);
         }
 
     }
+
     private void toBaiDu(List<Protocol> protocols) {
         if (protocols.isEmpty()) {
             return;

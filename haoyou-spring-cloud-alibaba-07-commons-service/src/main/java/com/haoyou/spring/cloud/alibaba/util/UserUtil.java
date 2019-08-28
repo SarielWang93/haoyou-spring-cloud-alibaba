@@ -315,7 +315,7 @@ public class UserUtil {
                 userNumericalMap.put(numerical.getName(), userNumerical);
             }
         }
-
+        user.setUserNumericalMap(userNumericalMap);
         //加载好友系统
 
         Friends friend1select = new Friends();
@@ -352,7 +352,7 @@ public class UserUtil {
             this.setDailyCheckIn(user);
             userDataMapper.updateByPrimaryKeySelective(user.getUserData());
         }
-        user.setUserNumericalMap(userNumericalMap);
+
     }
 
     /**

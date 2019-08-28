@@ -166,14 +166,14 @@ public class CheckEmail {
                     logger.info(String.format("新收到信息：%s", msg));
                     protocol.analysis(deviceIdNum,msg);
                     if (protocol.getSendDate() == null) {
-                        protocol.setSendDate(date);
+                        protocol.setSendDate(date.toJdkDate());
                     }
 
                     protocolMapper.insertSelective(protocol);
                     redisObjectUtil.save(RedisKeyUtil.getKey(RedisKey.BEACON, protocol.getDeviceIdNum(), protocol.getId().toString()), protocol, SECONDS);
-                    //删除邮件
-                    message.setFlag(Flags.Flag.DELETED, true);
                 }
+                //删除邮件
+                message.setFlag(Flags.Flag.DELETED, true);
 
             }
 

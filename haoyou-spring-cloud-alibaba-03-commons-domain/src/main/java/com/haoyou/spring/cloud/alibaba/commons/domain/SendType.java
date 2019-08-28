@@ -54,6 +54,7 @@ public class SendType {
     public final static int GET_LEVEL_DESIGN = 156;//获取关卡信息
     public final static int GET_LADDER = 157;//获取天梯页面信息
     public final static int GET_PLANTINGSYSTEM = 158;//获取种植系统信息
+    public final static int GET_HUNTING_ASSOCIATION = 159;//获取狩猎协会信息
 
     /**
      * 养成 60 - 90

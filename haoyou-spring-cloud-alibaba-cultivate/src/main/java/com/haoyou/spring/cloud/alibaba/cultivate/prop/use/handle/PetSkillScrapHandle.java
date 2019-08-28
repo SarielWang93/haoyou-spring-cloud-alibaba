@@ -42,7 +42,7 @@ public class PetSkillScrapHandle extends PeopUseHandle {
 
         User user = propUseMsg.getUser();
         Prop prop = propUseMsg.getProp();
-        int propCount = propUseMsg.getPropCount();
+        long propCount = propUseMsg.getPropCount();
 
         //校验容量
         Integer propMax = user.getCurrency().getPropMax();

@@ -25,7 +25,7 @@ public class PropUseMsg implements Serializable {
     private String petUid;
     private String propInstenceUid;
     //道具操作个数
-    private int propCount;
+    private long propCount;
     //操作类型
     private int type;
 

@@ -98,29 +98,27 @@ public class JsonSerializer implements Serializer {
 
     /**
      * 信息传递最外层序列化
+     *
      * @param obj
      * @return
      * @throws CodecException
      */
     public byte[] zipSerialize(Object obj) throws CodecException {
-        if(obj==null){
+        if (obj == null) {
             return null;
         }
-        try {
-            String msg = MapperUtils.obj2jsonIgnoreNull(obj);
-            byte[] bytes = msg.getBytes("UTF-8");
-            bytes=ZIP.gZip(bytes);
+
+        byte[] bytes = noZipSerialize(obj);
+        bytes = ZIP.gZip(bytes);
 //            Console.log(bytes.length);
 //            Console.log(Arrays.toString(bytes));
-            return bytes;
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return null;
+        return bytes;
+
     }
 
     /**
      * 信息传递最外层反序列化
+     *
      * @param data
      * @param classOfT
      * @param <T>
@@ -128,17 +126,15 @@ public class JsonSerializer implements Serializer {
      * @throws CodecException
      */
     public <T> T zipDeserialize(byte[] data, String classOfT) throws CodecException {
-        if(data==null||classOfT==null||data.length==0){
+        if (data == null || classOfT == null || data.length == 0) {
             return null;
         }
-        try {
-            //gzip解压后使用
-            data=ZIP.unGZip(data);
-            return (T) MapperUtils.json2pojo( new String(data, "UTF-8"),Class.forName(classOfT));
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return null;
+
+        //gzip解压后使用
+        data = ZIP.unGZip(data);
+        return (T) noZipDeserialize(data, classOfT);
+
+
     }
 
 

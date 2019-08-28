@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.haoyou.spring.cloud.alibaba.commons.mapper.HuntingAssociationMapper">
+  <resultMap id="BaseResultMap" type="com.haoyou.spring.cloud.alibaba.commons.entity.HuntingAssociation">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="name" jdbcType="VARCHAR" property="name" />
+    <result column="l10n" jdbcType="VARCHAR" property="l10n" />
+    <result column="description" jdbcType="LONGVARCHAR" property="description" />
+    <result column="aim" jdbcType="BIGINT" property="aim" />
+    <result column="award_type" jdbcType="VARCHAR" property="awardType" />
+    <result column="id_num" jdbcType="INTEGER" property="idNum" />
+  </resultMap>
+</mapper>

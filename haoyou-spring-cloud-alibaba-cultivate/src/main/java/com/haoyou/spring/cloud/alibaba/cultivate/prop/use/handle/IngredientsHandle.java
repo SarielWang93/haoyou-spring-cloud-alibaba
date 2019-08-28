@@ -49,7 +49,7 @@ public class IngredientsHandle extends PeopUseHandle {
         User user = propUseMsg.getUser();
         Prop prop = propUseMsg.getProp();
         int propIngredientsStar = Integer.parseInt(prop.getProperty2());
-        int propCount = propUseMsg.getPropCount();
+        long propCount = propUseMsg.getPropCount();
         int type = propUseMsg.getType();
         //使用道具
         if (type == USE) {

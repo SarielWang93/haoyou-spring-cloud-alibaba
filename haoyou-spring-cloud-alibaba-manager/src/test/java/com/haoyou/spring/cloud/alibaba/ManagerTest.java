@@ -1,5 +1,7 @@
 package com.haoyou.spring.cloud.alibaba;
 
+import cn.hutool.core.date.DateTime;
+import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.lang.Console;
 import cn.hutool.core.text.StrBuilder;
@@ -19,6 +21,7 @@ import com.haoyou.spring.cloud.alibaba.commons.util.ZIP;
 import com.haoyou.spring.cloud.alibaba.redis.service.RedisService;
 import com.haoyou.spring.cloud.alibaba.redis.service.ScoreRankService;
 import com.haoyou.spring.cloud.alibaba.serialization.JsonSerializer;
+import com.haoyou.spring.cloud.alibaba.serialization.KryoSerializer;
 import com.haoyou.spring.cloud.alibaba.util.RedisObjectUtil;
 import org.apache.http.HttpResponse;
 import org.apache.http.util.EntityUtils;
@@ -70,11 +73,15 @@ public class ManagerTest {
 
 
 
-    public static void main(String[] args) throws InterruptedException, CodecException {
-        String type = "fightingPet:fightingPet";
-        String[] split = type.split(":");
-        Console.log(split);
+    public static void main(String[] args) throws Exception {
+        DateTime parse = DateUtil.parse("2018-02-01");
+        Console.log(parse);
 
+        KryoSerializer kryoSerializer = new KryoSerializer();
+        byte[] serialize = kryoSerializer.serialize(parse);
+
+        DateTime dateTime = kryoSerializer.deserialize(serialize, DateTime.class.getName());
+        Console.log(dateTime);
     }
 
     /**

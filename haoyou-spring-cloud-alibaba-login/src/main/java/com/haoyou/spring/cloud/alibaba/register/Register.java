@@ -61,8 +61,7 @@ public class Register {
      */
     @PostConstruct
     protected void init() {
-        List<User> users = userMapper.selectAll();
-        redisObjectUtil.save(RedisKey.USER_COUNT, Integer.valueOf(users.size()), -1);
+
     }
 
     /**
@@ -74,16 +73,21 @@ public class Register {
     public User register(User user) {
 
         //判断用户名密码以及屏蔽词
-        if (StrUtil.isEmpty(user.getUsername()) || StrUtil.isEmpty(user.getPassword()) || userUtil.hasShieldVocas(user.getUsername())) {
+        if(StrUtil.isNotEmpty(user.getUsername()) && StrUtil.isNotEmpty(user.getPassword())){
+            if (userUtil.hasShieldVocas(user.getUsername())) {
+                user.setState(ResponseMsg.MSG_ERR);
+                return user.notTooLong();
+            }
+            //根据用户名查询是否已存在
+            User userx = new User();
+            userx.setUsername(user.getUsername());
+            userx = userMapper.selectOne(userx);
+            if (userx != null && StrUtil.isNotEmpty(userx.getUid())) {
+                user.setState(ResponseMsg.MSG_REGISTER_USERNAME_EXIST);
+                return user;
+            }
+        }else if(user.getUid() == null){
             user.setState(ResponseMsg.MSG_ERR);
-            return user.notTooLong();
-        }
-        //根据用户名查询是否已存在
-        User userx = new User();
-        userx.setUsername(user.getUsername());
-        userx = userMapper.selectOne(userx);
-        if (userx != null && StrUtil.isNotEmpty(userx.getUid())) {
-            user.setState(ResponseMsg.MSG_REGISTER_USERNAME_EXIST);
             return user.notTooLong();
         }
 

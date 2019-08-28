@@ -97,7 +97,8 @@ public class InitData implements ApplicationRunner {
     private LevelDesignMapper levelDesignMapper;
     @Autowired
     private ChapterMapper chapterMapper;
-
+    @Autowired
+    private HuntingAssociationMapper huntingAssociationMapper;
 
 
     @Autowired
@@ -125,6 +126,8 @@ public class InitData implements ApplicationRunner {
          */
         if (lastDo == null || now.getTime() - lastDo.getTime() > 60 * 1000) {
 
+            //加载狩猎协会
+            initHuntingAssociation();
             //加载关卡信息
             initLevelDesign();
             //加载屏蔽词汇
@@ -164,6 +167,10 @@ public class InitData implements ApplicationRunner {
             //加载宠物等级提升所需经验表
             initLevelUpExp();
 
+
+            List<User> users = userMapper.selectAll();
+            redisObjectUtil.save(RedisKey.USER_COUNT, Integer.valueOf(users.size()), -1);
+
             userUtil.refreshAllUserCatch();
 
 //            redisObjectUtil.backup(RedisKey.USER_AWARD);
@@ -173,6 +180,20 @@ public class InitData implements ApplicationRunner {
             return true;
         }
         return false;
+    }
+
+    /**
+     * 加载狩猎协会
+     */
+    private void initHuntingAssociation() {
+        redisObjectUtil.deleteAll(RedisKeyUtil.getlkKey(RedisKey.HUNTING_ASSOCIATION));
+
+        List<HuntingAssociation> huntingAssociations = huntingAssociationMapper.selectAll();
+        for (HuntingAssociation huntingAssociation : huntingAssociations) {
+            String huntingAssociationKey = RedisKeyUtil.getKey(RedisKey.HUNTING_ASSOCIATION, huntingAssociation.getIdNum().toString());
+            redisObjectUtil.save(huntingAssociationKey, huntingAssociation, -1);
+        }
+
     }
 
 

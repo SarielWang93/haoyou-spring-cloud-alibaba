@@ -73,6 +73,9 @@ public class Protocol implements Serializable {
     //0.04434639353,0.05519100371961
 
 
+    public Protocol() {
+    }
+
     public void analysis(String deviceIdNum, String msg) {
         this.deviceIdNum = deviceIdNum;
         this.text = msg;
@@ -97,7 +100,7 @@ public class Protocol implements Serializable {
             Date parse = simpleDateFormat.parse(split[2]);
             //北京时间
             DateTime dateTime = DateUtil.offsetHour(parse, 8);
-            this.sendDate = dateTime;
+            this.sendDate = dateTime.toJdkDate();
         } catch (Exception e) {
             e.printStackTrace();
         }

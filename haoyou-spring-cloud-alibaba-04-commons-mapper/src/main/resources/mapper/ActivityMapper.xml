@@ -8,7 +8,7 @@
     <id column="id" jdbcType="INTEGER" property="id" />
     <result column="name" jdbcType="VARCHAR" property="name" />
     <result column="l10n" jdbcType="VARCHAR" property="l10n" />
-    <result column="description" jdbcType="VARCHAR" property="description" />
+    <result column="description" jdbcType="LONGVARCHAR" property="description" />
     <result column="numerical_name" jdbcType="VARCHAR" property="numericalName" />
     <result column="activity_type" jdbcType="VARCHAR" property="activityType" />
     <result column="refresh" jdbcType="INTEGER" property="refresh" />

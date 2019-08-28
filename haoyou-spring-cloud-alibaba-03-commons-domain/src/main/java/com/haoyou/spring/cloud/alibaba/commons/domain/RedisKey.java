@@ -75,5 +75,9 @@ public class RedisKey {
     public static final String STOLEN_LAND = "stolen_land";
     public static final String WATERING_LAND = "watering_land";
 
+    public static final String HUNTING_ASSOCIATION = "hunting_association";
+
+
+
     public static final String BEACON = "beacon";
 }
