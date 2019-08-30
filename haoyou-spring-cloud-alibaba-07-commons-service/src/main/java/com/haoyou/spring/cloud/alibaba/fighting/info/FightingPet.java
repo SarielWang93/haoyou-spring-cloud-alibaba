@@ -497,10 +497,18 @@ public class FightingPet implements Serializable {
      * 初始化战斗属性
      */
     public void initFighting() {
+        //拥有宠物等级和影响属性
+        String userUid = this.pet.getUserUid();
+        List<FightingPet> byUser = FightingPet.getByUser(userUid, this.redisObjectUtil);
+        int levSum = 0;
+        for(FightingPet fightingPet:byUser){
+            levSum+=fightingPet.getPet().getLevel();
+        }
+        int up = (levSum/100 * 2)+1000;
         //根据面板数据对战斗数据进行初始化
-        this.ft_atn = mb_atn;
-        this.ft_def = mb_def;
-        this.ft_spd = mb_spd;
+        this.ft_atn = mb_atn*up/1000;
+        this.ft_def = mb_def*up/1000;
+        this.ft_spd = mb_spd*up/1000;
         this.ft_max_hp = mb_max_hp;
         this.ft_luk = mb_luk;
         //满血

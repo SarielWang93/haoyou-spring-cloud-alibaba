@@ -4,6 +4,7 @@ import cn.hutool.core.date.DateTime;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.lang.Console;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.extra.mail.MailUtil;
 import com.haoyou.spring.cloud.alibaba.commons.domain.RedisKey;
 import com.haoyou.spring.cloud.alibaba.commons.entity.Protocol;
 import com.haoyou.spring.cloud.alibaba.commons.mapper.ProtocolMapper;
@@ -61,6 +62,7 @@ public class CheckEmail {
 
     public void getEmails(String user, String password, String host) {
 
+
         //第三方POP服务器可以不用设置port参数
 
         //设置邮件服务器参数、服务器端口等参数
@@ -91,7 +93,7 @@ public class CheckEmail {
                 @Override
                 public boolean match(Message msg) {
                     try {
-                        if (msg.getSubject().startsWith("SBD")) {
+                        if (msg.getSubject().startsWith("SBD Msg From Unit:")) {
                             MimeMultipart mimeMultipart = (MimeMultipart) msg.getContent();
                             if (mimeMultipart.getCount() > 1) {
                                 return true;
@@ -150,7 +152,7 @@ public class CheckEmail {
 
                 BASE64DecoderStream content = (BASE64DecoderStream) mimeMultipart.getBodyPart(1).getContent();
                 BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(content));
-                //$B,3,190811053701,3904.14975,N,11701.50519,E,*
+//                $B,3,190811053701,3904.14975,N,11701.50519,E,*
                 String msg = bufferedReader.readLine().trim();
 //                Console.log("FileText: " + msg);
 
@@ -163,7 +165,7 @@ public class CheckEmail {
 
 
                 if (select == null || select.size() == 0) {
-                    logger.info(String.format("新收到信息：%s", msg));
+                    logger.info(String.format("新收到信息：%s::%s",deviceIdNum,msg));
                     protocol.analysis(deviceIdNum,msg);
                     if (protocol.getSendDate() == null) {
                         protocol.setSendDate(date.toJdkDate());

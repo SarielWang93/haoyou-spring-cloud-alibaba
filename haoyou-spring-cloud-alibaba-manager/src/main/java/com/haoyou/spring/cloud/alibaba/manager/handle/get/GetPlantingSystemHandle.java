@@ -3,6 +3,7 @@ package com.haoyou.spring.cloud.alibaba.manager.handle.get;
 
 import cn.hutool.core.date.DateTime;
 import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.util.StrUtil;
 import com.haoyou.spring.cloud.alibaba.commons.domain.RedisKey;
 import com.haoyou.spring.cloud.alibaba.commons.domain.ResponseMsg;
 import com.haoyou.spring.cloud.alibaba.commons.domain.SendType;
@@ -49,12 +50,15 @@ public class GetPlantingSystemHandle extends ManagerHandle {
 
         switch (type){
             case 1:
+                //种植系统主界面信息
                 mapBody = mainPage(user,msgMap);
                 break;
             case 2:
+                //种植系统好友列表
                 mapBody = friandsLand(user,msgMap);
                 break;
             case 3:
+                //好友土地列表
                 mapBody = friandLands(user,msgMap);
                 break;
         }
@@ -86,9 +90,12 @@ public class GetPlantingSystemHandle extends ManagerHandle {
 
             String petUid = land.getPetUid();
 
-            FightingPet fightingPet = FightingPet.getByUserAndPetUid(user, petUid, redisObjectUtil);
-
-            landMsg.put("petTypeId",fightingPet.getPet().getTypeId());
+            if(StrUtil.isNotEmpty(petUid)){
+                FightingPet fightingPet = FightingPet.getByUserAndPetUid(user, petUid, redisObjectUtil);
+                if(fightingPet != null){
+                    landMsg.put("petTypeId",fightingPet.getPet().getTypeId());
+                }
+            }
 
             landsMsg.add(landMsg);
         }
@@ -97,8 +104,9 @@ public class GetPlantingSystemHandle extends ManagerHandle {
 
         Integer plantingSystemLevel = user.getUserData().getPlantingSystemLevel();
 
-        //种植系统等级信息
+        //种植系统等级
         mapBody.put("plantingSystemLevel",plantingSystemLevel);
+        //当前等级能种植的土地个数
         mapBody.put("plantingSystemLevelLandCount",(plantingSystemLevel-4)/6+2);
         if(plantingSystemLevel<40){
             //所需道具
@@ -111,14 +119,21 @@ public class GetPlantingSystemHandle extends ManagerHandle {
             }else if(nextLev<40){
                 propCount = (nextLev-4)*50;
             }
+            //升级所需木头
             mapBody.put("upLevNeedWood",propCount);
+            //下一等级能拥有的土地个数
             mapBody.put("nextPlantingSystemLevelLandCount",(nextLev-4)/6+2);
         }
 
         return mapBody;
     }
 
-
+    /**
+     * 种植系统好友列表
+     * @param user
+     * @param msgMap
+     * @return
+     */
     private MapBody friandsLand(User user, Map<String, Object> msgMap){
         MapBody mapBody = MapBody.beSuccess();
 
@@ -131,6 +146,7 @@ public class GetPlantingSystemHandle extends ManagerHandle {
 
             User friend = userUtil.getUserByUid(friendUid);
 
+            friendMsg.put("friendUid",friendUid);
             friendMsg.put("name",friend.getUserData().getName());
             friendMsg.put("avatar",friend.getUserData().getAvatar());
             friendMsg.put("level",friend.getUserData().getLevel());
@@ -185,6 +201,12 @@ public class GetPlantingSystemHandle extends ManagerHandle {
         return mapBody;
     }
 
+    /**
+     * 好友土地列表
+     * @param user
+     * @param msgMap
+     * @return
+     */
     private MapBody friandLands(User user, Map<String, Object> msgMap){
         MapBody mapBody = MapBody.beSuccess();
         String friendUid = (String)msgMap.get("friendUid");
@@ -196,8 +218,13 @@ public class GetPlantingSystemHandle extends ManagerHandle {
             Map<String,Object> landMsg = new HashMap<>();
             landMsg.put("land",land);
             String petUid = land.getPetUid();
-            FightingPet fightingPet = FightingPet.getByUserAndPetUid(user, petUid, redisObjectUtil);
-            landMsg.put("petTypeId",fightingPet.getPet().getTypeId());
+            if(StrUtil.isNotEmpty(petUid)){
+                FightingPet fightingPet = FightingPet.getByUserAndPetUid(user, petUid, redisObjectUtil);
+                if(fightingPet != null){
+                    landMsg.put("petTypeId",fightingPet.getPet().getTypeId());
+                }
+            }
+
             //是否浇过水
             String wkey = RedisKeyUtil.getKey(RedisKey.WATERING_LAND, land.getUid(), land.getSeedUid(), user.getUid());
             Land land1 = redisObjectUtil.get(wkey, Land.class);

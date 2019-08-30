@@ -61,8 +61,8 @@ public class BeaconController {
 
         for (Map.Entry<String, TreeMap<Date, Protocol>> entry : msg.entrySet()) {
             List<Protocol> protocols1 = CollUtil.newArrayList(entry.getValue().values());
-            if (count != null && count > 0) {
-                protocols1 = protocols1.subList(protocols1.size()-count,protocols1.size());
+            if (count != null && count > 0 && count < protocols1.size()) {
+                protocols1 = protocols1.subList(protocols1.size() - count, protocols1.size());
             }
 
             rtMsg.put(entry.getKey(), protocols1);

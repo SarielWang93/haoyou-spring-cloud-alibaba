@@ -30,7 +30,7 @@ public class Land implements Serializable {
     private Integer level;
 
     /**
-     * 缩减市场次数，每次1.5%
+     * 缩减时长次数，每次1.5%
      */
     @Column(name = "reduction_time")
     private Integer reductionTime;
