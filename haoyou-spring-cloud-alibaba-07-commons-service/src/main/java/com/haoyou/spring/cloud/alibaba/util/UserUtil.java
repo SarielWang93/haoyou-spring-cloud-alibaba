@@ -254,6 +254,19 @@ public class UserUtil {
     public void deleteInCatch(String UserUid) {
         redisObjectUtil.delete(isInCatch(UserUid));
     }
+    public User refreshCatch(String UserUid) {
+
+        String inCatch = isInCatch(UserUid);
+        if(StrUtil.isEmpty(inCatch)){
+            inCatch = RedisKeyUtil.getKey(RedisKey.OUTLINE_USER, UserUid);
+        }else{
+            redisObjectUtil.delete(inCatch);
+        }
+        User userByUid = this.getUserByUid(UserUid);
+        redisObjectUtil.save(inCatch,userByUid);
+
+        return userByUid;
+    }
 
 
     /**
@@ -337,9 +350,7 @@ public class UserUtil {
         landSelect.setUserUid(user.getUid());
         List<Land> lands = landMapper.select(landSelect);
         if (lands.size() == 0) {
-            landSelect.setUid(IdUtil.simpleUUID());
-            landMapper.insert(landSelect);
-            lands.add(landSelect);
+            addLand(user.getUid());
         }
         for (Land land : lands) {
             String landKey = RedisKeyUtil.getKey(RedisKey.LAND, land.getUserUid(), land.getUid());
@@ -390,11 +401,13 @@ public class UserUtil {
 
         HashMap<String, Land> stringLandHashMap = redisObjectUtil.getlkMap(landlkKey, Land.class);
 
-        for (Land land : stringLandHashMap.values()) {
+        for (Map.Entry<String, Land> entry : stringLandHashMap.entrySet()) {
+            Land land=entry.getValue();
             if (land.getId() == null) {
                 landMapper.insertSelective(land);
+                redisObjectUtil.save(entry.getKey(),land);
             } else {
-                landMapper.updateByPrimaryKeySelective(land);
+                landMapper.updateByPrimaryKey(land);
             }
         }
 
@@ -1005,12 +1018,20 @@ public class UserUtil {
      * 增加土地
      * @param userUid
      */
-    public void addLand(String userUid){
+    public Land addLand(String userUid){
         Land land = new Land();
         land.setUserUid(userUid);
         land.setUid(IdUtil.simpleUUID());
+        land.setLevel(1);
+        land.setReductionTime(0);
+        land.setIncreaseOutput(0);
+        land.setCropCount(0);
+        land.setBeingStolen(0);
         String landKey = RedisKeyUtil.getKey(RedisKey.LAND, userUid, land.getUid());
-        redisObjectUtil.save(landKey, land, -1);
+        if(redisObjectUtil.save(landKey, land, -1)){
+            return land;
+        }
+        return null;
     }
 
     /**

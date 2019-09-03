@@ -287,6 +287,7 @@ public class Pet implements Serializable {
         this.cultureLimit = 0;
         this.cultureResoult = 0d;
         this.userUid = user.getUid();
+        this.typeId = petType.getId();
         this.type = petType.getType();
         this.spd = petType.getSpd();
         this.luk = petType.getLuk();

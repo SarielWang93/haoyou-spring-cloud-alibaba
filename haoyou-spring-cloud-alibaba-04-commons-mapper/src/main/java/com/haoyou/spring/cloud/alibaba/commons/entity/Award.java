@@ -59,6 +59,10 @@ public class Award extends BaseMessage implements Serializable {
 
 
     public Award() {
+        this.coin = 0;
+        this.diamond = 0;
+        this.exp = 0L;
+        this.petExp = 0L;
     }
 
     public Award init(int coin, int diamond, long exp, long petExp, List<Prop> props) {

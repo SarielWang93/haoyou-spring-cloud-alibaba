@@ -10,6 +10,7 @@ import com.haoyou.spring.cloud.alibaba.commons.domain.SendType;
 import com.haoyou.spring.cloud.alibaba.commons.entity.Friends;
 import com.haoyou.spring.cloud.alibaba.commons.entity.Land;
 import com.haoyou.spring.cloud.alibaba.commons.entity.User;
+import com.haoyou.spring.cloud.alibaba.commons.entity.UserNumerical;
 import com.haoyou.spring.cloud.alibaba.commons.message.BaseMessage;
 import com.haoyou.spring.cloud.alibaba.commons.message.MapBody;
 import com.haoyou.spring.cloud.alibaba.commons.util.RedisKeyUtil;
@@ -107,7 +108,7 @@ public class GetPlantingSystemHandle extends ManagerHandle {
         //种植系统等级
         mapBody.put("plantingSystemLevel",plantingSystemLevel);
         //当前等级能种植的土地个数
-        mapBody.put("plantingSystemLevelLandCount",(plantingSystemLevel-4)/6+2);
+        mapBody.put("plantingSystemLevelLandCount",(((plantingSystemLevel-4)<0?-6:(plantingSystemLevel-4))/6+2));
         if(plantingSystemLevel<40){
             //所需道具
             int propCount = 2000;
@@ -122,7 +123,7 @@ public class GetPlantingSystemHandle extends ManagerHandle {
             //升级所需木头
             mapBody.put("upLevNeedWood",propCount);
             //下一等级能拥有的土地个数
-            mapBody.put("nextPlantingSystemLevelLandCount",(nextLev-4)/6+2);
+            mapBody.put("nextPlantingSystemLevelLandCount",(((nextLev-4)<0?-6:(nextLev-4))/6+2));
         }
 
         return mapBody;
@@ -242,6 +243,9 @@ public class GetPlantingSystemHandle extends ManagerHandle {
         //土地信息
         mapBody.put("landsMsg",landsMsg);
 
+        UserNumerical userNumerical = user.getUserNumericalMap().get("daily_land_stolen_count");
+
+        mapBody.put("dailyLandStolenCount",userNumerical.getValue());
 
         return mapBody;
     }

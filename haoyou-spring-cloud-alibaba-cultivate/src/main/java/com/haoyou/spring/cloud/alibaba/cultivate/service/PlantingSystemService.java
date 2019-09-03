@@ -33,6 +33,9 @@ import java.util.*;
 public class PlantingSystemService {
 
     final static public int PLANTING_TIME = 6 * 60 * 60;
+//    final static public int PLANTING_TIME = 5 * 60;
+
+    final static public int WATERING_TIME = 30 * 60;
 
     public static List<String> cropTypes = new ArrayList<>();
 
@@ -71,7 +74,7 @@ public class PlantingSystemService {
         User user = req.getUser();
 
         Map<String, Object> msgMap = userUtil.getMsgMap(req);
-        int type = Integer.parseInt((String) msgMap.get("Type"));
+        int type = (Integer) msgMap.get("type");
 
         MapBody mapBody = MapBody.beErr();
 
@@ -110,15 +113,8 @@ public class PlantingSystemService {
 
 
         String friendUid = (String) msgMap.get("friendUid");
-        int stolenOrWatering = Integer.parseInt((String) msgMap.get("stolenOrWatering"));
+        int stolenOrWatering = (Integer) msgMap.get("stolenOrWatering");
         String landUid = (String) msgMap.get("landUid");
-
-        if (stolenOrWatering == 1) {
-            UserNumerical userNumerical = user.getUserNumericalMap().get("daily_land_stolen_count");
-            if (userNumerical.getValue() >= 100) {
-                return MapBody.beErr();
-            }
-        }
 
         if (StrUtil.isEmpty(landUid)) {
             List<Land> lands = userUtil.getLands(friendUid);
@@ -173,7 +169,7 @@ public class PlantingSystemService {
         Date plantingTime = land.getPlantingTime();
         DateTime date = DateUtil.date();
         long also = plantingTime.getTime() - date.getTime();
-        if (also < 30 * 60 * 1000) {
+        if (also < WATERING_TIME) {
             return false;
         }
         //浇水使成熟时间减少5分钟
@@ -181,7 +177,7 @@ public class PlantingSystemService {
         userUtil.saveLand(land);
 
         //浇水记录
-        redisObjectUtil.save(key, land,-1);
+        redisObjectUtil.save(key, land, -1);
         return true;
     }
 
@@ -193,6 +189,11 @@ public class PlantingSystemService {
      * @return
      */
     private boolean stolen(User user, Land land) {
+        //当天偷取果实个数，限制100个
+        UserNumerical userNumerical = user.getUserNumericalMap().get("daily_land_stolen_count");
+        if (userNumerical.getValue() >= 100) {
+            return false;
+        }
 
         //没有种植
         if (land.getSeedUid() == null) {
@@ -226,8 +227,6 @@ public class PlantingSystemService {
 
         land.setBeingStolen(beingStolen + stolenCount);
 
-        userUtil.saveLand(land);
-
         //生成果实
         String propKey = RedisKeyUtil.getKey(RedisKey.PROP, "Ingredients");
         Prop prop = redisObjectUtil.get(propKey, Prop.class);
@@ -237,17 +236,19 @@ public class PlantingSystemService {
         prop.setCount(stolenCount);
         //封装奖励
         List<Prop> propsList = new ArrayList<>();
+        propsList.add(prop);
         Award award = new Award();
         award.setPropsList(propsList);
         if (rewardService.doAward(user, award)) {
+            //增加当天偷取果实个数
+            userUtil.saveLand(land);
+            numericalService.numericalSet(user, "daily_land_stolen_count", Long.valueOf(beingStolen + stolenCount));
             userUtil.saveUser(user);
+            //偷取记录
+            redisObjectUtil.save(key, land, -1);
+            return true;
         }
-
-        //偷取记录
-        redisObjectUtil.save(key, land,-1);
-        //增加当天偷取果实个数
-        numericalService.numericalAdd(user, "daily_land_stolen_count", Long.valueOf(stolenCount));
-        return true;
+        return false;
     }
 
     /**
@@ -302,6 +303,7 @@ public class PlantingSystemService {
         prop.setCount(land.getCropCount() - land.getBeingStolen());
         //封装奖励
         List<Prop> propsList = new ArrayList<>();
+        propsList.add(prop);
         Award award = new Award();
         award.setPropsList(propsList);
         if (rewardService.doAward(user, award)) {
@@ -318,6 +320,8 @@ public class PlantingSystemService {
 
         land.setPlantingTime(null);
         land.setBeingStolen(0);
+
+        land.setPetUid(null);
 
         userUtil.saveLand(land);
 
@@ -390,36 +394,35 @@ public class PlantingSystemService {
         //宠物技能影响
         String petUid = land.getPetUid();
         FightingPet fightingPet = FightingPet.getByUserAndPetUid(user, petUid, redisObjectUtil);
-        if (fightingPet == null) {
-            return MapBody.beErr();
-        }
-        List<Skill> PlantingSkills = fightingPet.getSkillsByType(SkillType.PLANTING);
-
-        if (PlantingSkills.isEmpty()) {
-            t += 2;
-            c += 2;
-        } else {
-            for (Skill skill : PlantingSkills) {
-                List<Resout> resouts = skill.getResouts();
-                for (Resout resout : resouts) {
-                    State state = resout.getState();
-                    Integer percent = state.getPercent();
-                    String infAttr = state.getInfAttr();
-                    if ("reduction_time".equals(infAttr)) {
-                        t += percent * 10;
-                    } else if ("increase_output".equals(infAttr)) {
-                        c += percent * 10;
+        if (fightingPet != null) {
+            List<Skill> PlantingSkills = fightingPet.getSkillsByType(SkillType.PLANTING);
+            if (PlantingSkills.isEmpty()) {
+                t += 20;
+                c += 20;
+            } else {
+                for (Skill skill : PlantingSkills) {
+                    List<Resout> resouts = skill.getResouts();
+                    for (Resout resout : resouts) {
+                        State state = resout.getState();
+                        Integer percent = state.getPercent();
+                        String infAttr = state.getInfAttr();
+                        if ("reduction_time".equals(infAttr)) {
+                            t += percent * 10;
+                        } else if ("increase_output".equals(infAttr)) {
+                            c += percent * 10;
+                        }
                     }
                 }
             }
         }
+
         int time = PLANTING_TIME * (1000 - t) / 1000;
         cropCount = cropCount * (1000 + c) / 1000;
 
         DateTime dateTime = DateUtil.offsetSecond(DateUtil.date(), time);
 
         //成熟时间以及产量
-        land.setPlantingTime(dateTime);
+        land.setPlantingTime(dateTime.toJdkDate());
         land.setCropCount(cropCount);
         //保存
         userUtil.saveLand(land);
@@ -452,26 +455,27 @@ public class PlantingSystemService {
         for (Land land1 : lands) {
             String petUid1 = land1.getPetUid();
             if (petUid.equals(petUid1)) {
-                return MapBody.beErr();
+                if(land1.getSeedUid() != null){
+                    return MapBody.beErr();
+                }else{
+                    land1.setPetUid(null);
+                    //保存
+                    userUtil.saveLand(land1);
+                }
             }
         }
 
-        if (petUid == null) {
-            //删除种地宠物
-            land.setPetUid(null);
-            userUtil.saveLand(land);
-        } else {
+        if (petUid != null) {
             //添加种地宠物
             FightingPet fightingPet = FightingPet.getByUserAndPetUid(user, petUid, redisObjectUtil);
             if (fightingPet == null) {
                 return MapBody.beErr();
             }
-
-            land.setPetUid(petUid);
-
-            //保存
-            userUtil.saveLand(land);
         }
+
+        land.setPetUid(petUid);
+        //保存
+        userUtil.saveLand(land);
 
         return MapBody.beSuccess();
     }

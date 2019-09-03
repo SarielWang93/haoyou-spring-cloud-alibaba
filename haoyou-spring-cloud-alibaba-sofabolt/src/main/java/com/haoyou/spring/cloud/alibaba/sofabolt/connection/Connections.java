@@ -4,6 +4,7 @@ package com.haoyou.spring.cloud.alibaba.sofabolt.connection;
 import com.alipay.remoting.exception.RemotingException;
 import com.haoyou.spring.cloud.alibaba.commons.domain.ResponseMsg;
 import com.haoyou.spring.cloud.alibaba.commons.message.BaseMessage;
+import com.haoyou.spring.cloud.alibaba.commons.message.MapBody;
 import com.haoyou.spring.cloud.alibaba.util.SendMsgUtil;
 import org.apache.dubbo.config.annotation.Reference;
 import com.alipay.remoting.Connection;
@@ -99,7 +100,7 @@ public class Connections {
      * @return
      */
     public void remove(String key) {
-        MyServer.server.getConnectionManager().remove(this.connections.remove(key));
+        this.connections.remove(key);
     }
 
     /**
@@ -214,8 +215,8 @@ public class Connections {
         if(connection == null){
             return;
         }
-        BaseMessage close = new BaseMessage();
-        close.setState(ResponseMsg.MSG_ERR);
+        MapBody close = MapBody.beErr();
+        close.put("userUid",userUid);
         //发送强制下线
         MyRequest reqx = new MyRequest();
         reqx.setUseruid(userUid);

@@ -38,9 +38,15 @@ public class PlantingLandLevelHandle extends CurrencyUseHandle {
         //土地对象
         Land land = userUtil.getLand(user.getUid(), landUid);
 
+        UserData userData = user.getUserData();
+        Integer plantingSystemLevel = userData.getPlantingSystemLevel();
         //当前土地等级
         Integer level = land.getLevel();
         Integer nextLevel = level+1;
+
+        if(nextLevel > plantingSystemLevel+2){
+            return LIMIT;
+        }
 
         Integer reductionTime = land.getReductionTime();
         Integer increaseOutput = land.getIncreaseOutput();

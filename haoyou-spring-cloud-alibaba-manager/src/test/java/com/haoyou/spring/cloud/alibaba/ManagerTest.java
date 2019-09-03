@@ -55,14 +55,16 @@ public class ManagerTest {
     public void contextLoads() throws Exception {
 
     }
+
     @Test
     public void contextLoads2() throws Exception {
         HashMap<String, String> map = redisService.getlkMap("user:name:*");
         Console.log(map);
     }
+
     @Test
     public void contextLoads3() throws Exception {
-        User user =new User();
+        User user = new User();
         user.setUid("ec12ffde5b2447d6bbc758421ba9");
 
         user = userMapper.selectOne(user);
@@ -72,20 +74,13 @@ public class ManagerTest {
     }
 
 
-
     public static void main(String[] args) throws Exception {
-        DateTime parse = DateUtil.parse("2018-02-01");
-        Console.log(parse);
 
-        KryoSerializer kryoSerializer = new KryoSerializer();
-        byte[] serialize = kryoSerializer.serialize(parse);
-
-        DateTime dateTime = kryoSerializer.deserialize(serialize, DateTime.class.getName());
-        Console.log(dateTime);
     }
 
     /**
      * 敏感词
+     *
      * @param str
      * @throws InterruptedException
      */
@@ -125,15 +120,15 @@ public class ManagerTest {
         }
 
 
-
     }
 
     /**
      * 身份证查询
+     *
      * @param card
      * @throws InterruptedException
      */
-    public static void idCard(String card){
+    public static void idCard(String card) {
 
         String host = "https://jisuidcard.market.alicloudapi.com";
         String path = "/idcard/query";
@@ -168,11 +163,11 @@ public class ManagerTest {
         }
 
 
-
     }
 
     /**
      * 聊天机器人
+     *
      * @param str
      */
     public static void iqa(String str) {
@@ -208,7 +203,6 @@ public class ManagerTest {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
 
 
     }

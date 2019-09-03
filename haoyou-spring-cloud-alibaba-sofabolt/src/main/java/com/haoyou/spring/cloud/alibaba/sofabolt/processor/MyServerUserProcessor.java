@@ -92,6 +92,7 @@ public class MyServerUserProcessor extends SyncUserProcessor<MyRequest> {
         if (!connectionthis.equals(connectionuid)) {
             //如果不是同一设备则把前一设备踢下线
             if (connectionuid != null && !deviceuid.equals(connectionuid.getAttribute(Connections.DEVICE_UID))) {
+                logger.info("不是同一设备,把前一设备踢下线");
                 connections.sendDown(useruid, connectionuid);
             }
             connections.put(useruid, connectionthis);

@@ -190,7 +190,6 @@ public class FightingPet implements Serializable {
         //
         this.setUid(String.format("ai-%s", this.getUid()));
         this.setNickName(String.format("ai-%s", this.getNickName()));
-        this.setAction_time(this.getAction_time() + 10);
     }
 
     /**

@@ -63,7 +63,8 @@ public class ManagerController {
     @CrossOrigin
     @GetMapping(value = "getUser")
     public String getUser(String userUid) {
-        User user = userUtil.getUserByUid(userUid);
+
+        User user = userUtil.refreshCatch(userUid);
         if (user == null) {
             return null;
         }

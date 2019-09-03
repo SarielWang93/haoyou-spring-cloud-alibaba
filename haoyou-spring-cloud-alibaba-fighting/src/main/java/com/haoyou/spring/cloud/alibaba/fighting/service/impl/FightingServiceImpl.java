@@ -830,6 +830,8 @@ public class FightingServiceImpl implements FightingService {
 
             fightingPet.setFightingCamp(fightingCamp);
             fightingPet.initFighting();
+            //ai削弱行动权
+            fightingPet.setAction_time(fightingPet.getAction_time() + 10);
             fightingPetMaps.put(i, fightingPet);
 
             fightingPets.add(fightingPet);
