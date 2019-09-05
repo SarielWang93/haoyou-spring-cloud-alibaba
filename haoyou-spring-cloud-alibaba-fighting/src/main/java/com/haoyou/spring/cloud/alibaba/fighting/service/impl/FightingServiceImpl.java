@@ -752,14 +752,14 @@ public class FightingServiceImpl implements FightingService {
             }
         }
 
-        //TODO 助阵宠物设置
+        // 助阵宠物设置
         String fightingType = fightingRoom.getFightingType();
         if (fightingType.equals(FightingType.PVE)) {
             String key = RedisKeyUtil.getlkKey(RedisKey.HELP_PET, user.getUid(), RedisKey.HELP);
             HashMap<String, String> stringStringHashMap = redisObjectUtil.getlkMap(key, String.class);
             if (stringStringHashMap.size() == 1) {
                 for (String value : stringStringHashMap.values()) {
-                    //value是主战玩家uid和助战位置的用":"拼接
+                    //value是助战玩家uid和助战位置的用":"拼接
                     String[] split = value.split(":");
                     int iswork = Integer.parseInt(split[1]);
 

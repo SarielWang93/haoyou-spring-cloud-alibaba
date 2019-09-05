@@ -2,13 +2,11 @@ package com.haoyou.spring.cloud.alibaba.manager.handle.fighting;
 
 
 import cn.hutool.core.util.StrUtil;
-import com.haoyou.spring.cloud.alibaba.commons.domain.FightingType;
-import com.haoyou.spring.cloud.alibaba.commons.domain.ResponseMsg;
-import com.haoyou.spring.cloud.alibaba.commons.domain.RewardType;
-import com.haoyou.spring.cloud.alibaba.commons.domain.SendType;
+import com.haoyou.spring.cloud.alibaba.commons.domain.*;
 import com.haoyou.spring.cloud.alibaba.commons.message.BaseMessage;
 import com.haoyou.spring.cloud.alibaba.commons.entity.User;
 import com.haoyou.spring.cloud.alibaba.commons.message.MapBody;
+import com.haoyou.spring.cloud.alibaba.commons.util.RedisKeyUtil;
 import com.haoyou.spring.cloud.alibaba.fighting.info.FightingPet;
 import com.haoyou.spring.cloud.alibaba.manager.handle.ManagerHandle;
 import com.haoyou.spring.cloud.alibaba.sofabolt.protocol.MyRequest;
@@ -57,7 +55,7 @@ public class FightingAIHandle extends ManagerHandle {
             return mapBody.err();
         }
 
-        //校验体力与上阵宠物
+        //校验体力与上阵宠物(包括助战)
 
         Integer vitality = user.getCurrency().getVitality();
 
@@ -77,12 +75,15 @@ public class FightingAIHandle extends ManagerHandle {
                 i++;
             }
         }
+        String key = RedisKeyUtil.getlkKey(RedisKey.HELP_PET, user.getUid(), RedisKey.HELP);
+        HashMap<String, String> stringStringHashMap = redisObjectUtil.getlkMap(key, String.class);
+        i += stringStringHashMap.size();
         if (i < 3) {
             mapBody.put("errMsg", "您上阵的宠物不足3只！");
             return mapBody.err();
         }
 
-        if (!fightingService.start(user, chapterName, idNum, difficult,isWin==1)) {
+        if (!fightingService.start(user, chapterName, idNum, difficult, isWin == 1)) {
             mapBody.err();
         }
 

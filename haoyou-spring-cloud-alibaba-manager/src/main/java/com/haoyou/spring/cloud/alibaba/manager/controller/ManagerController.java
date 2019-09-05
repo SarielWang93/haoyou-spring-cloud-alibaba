@@ -41,6 +41,7 @@ public class ManagerController {
     @CrossOrigin
     @GetMapping(value = "getUsers")
     public String getUsers() {
+        logger.info("getUsers");
         List<User> users = userMapper.selectAll();
 
         for (User user : users) {
@@ -63,7 +64,28 @@ public class ManagerController {
     @CrossOrigin
     @GetMapping(value = "getUser")
     public String getUser(String userUid) {
-
+        logger.info("userUid");
+        User user = userUtil.getUserByUid(userUid);
+        if (user == null) {
+            return null;
+        }
+        user.notTooLong();
+        try {
+            return MapperUtils.obj2jsonIgnoreNull(user);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+    /**
+     * 获取用户信息
+     *
+     * @return
+     */
+    @CrossOrigin
+    @GetMapping(value = "refreshUser")
+    public String refreshUser(String userUid) {
+        logger.info("userUid");
         User user = userUtil.refreshCatch(userUid);
         if (user == null) {
             return null;
@@ -76,7 +98,6 @@ public class ManagerController {
         }
         return null;
     }
-
     /**
      * 获取玩家的宠物信息
      *
@@ -85,11 +106,11 @@ public class ManagerController {
     @CrossOrigin
     @GetMapping(value = "getPets")
     public String getPets(String userUid) {
-
-        HashMap<String, FightingPet> petMap = redisObjectUtil.getlkMap(RedisKeyUtil.getlkKey(RedisKeyUtil.getKey(RedisKey.FIGHT_PETS, userUid)), FightingPet.class);
+        logger.info("getPets");
+        List<FightingPet> byUser = FightingPet.getByUser(userUid, redisObjectUtil);
 
         try {
-            return MapperUtils.obj2jsonIgnoreNull(petMap.values());
+            return MapperUtils.obj2jsonIgnoreNull(byUser);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -105,9 +126,9 @@ public class ManagerController {
     @CrossOrigin
     @GetMapping(value = "getPet")
     public String getPet(String userUid, String petUid) {
+        logger.info("getPet");
 
-
-        FightingPet pet = redisObjectUtil.get(RedisKeyUtil.getKey(RedisKeyUtil.getKey(RedisKey.FIGHT_PETS, userUid), petUid), FightingPet.class);
+        FightingPet pet = FightingPet.getByUserAndPetUid(userUid,petUid,redisObjectUtil);
 
         try {
             return MapperUtils.obj2jsonIgnoreNull(pet);
@@ -126,6 +147,7 @@ public class ManagerController {
     @CrossOrigin
     @GetMapping(value = "getSimpleUUID")
     public String getSimpleUUID(int count, int type) {
+        logger.info("getSimpleUUID");
         List<String> uuids = new ArrayList<>();
 
         for (int i = 0; i < count; i++) {
@@ -153,6 +175,7 @@ public class ManagerController {
     @CrossOrigin
     @GetMapping(value = "getProps")
     public String getProps() {
+        logger.info("getProps");
         HashMap<String, Prop> props = redisObjectUtil.getlkMap(RedisKeyUtil.getlkKey(RedisKey.PROP), Prop.class);
 
         try {

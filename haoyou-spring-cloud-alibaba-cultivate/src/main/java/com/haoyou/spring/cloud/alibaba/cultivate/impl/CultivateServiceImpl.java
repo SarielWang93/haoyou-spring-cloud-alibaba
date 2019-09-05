@@ -360,9 +360,11 @@ public class CultivateServiceImpl implements CultivateService {
             String lkKey = RedisKeyUtil.getlkKey(RedisKey.HELP_PET, user.getUid(), RedisKey.HELP);
             redisObjectUtil.deleteAll(lkKey);
 
-            String key = RedisKeyUtil.getKey(RedisKey.HELP_PET, user.getUid(),RedisKey.HELP, friendUid);
-            //助战玩家以及助战位置存入设置
-            redisObjectUtil.save(key,RedisKeyUtil.getKey(friendUid,Integer.toString(updateIsworkMsg.getIswork())));
+            if(StrUtil.isNotEmpty(updateIsworkMsg.getPetUid())){
+                String key = RedisKeyUtil.getKey(RedisKey.HELP_PET, user.getUid(),RedisKey.HELP, friendUid);
+                //助战玩家以及助战位置存入设置
+                redisObjectUtil.save(key,RedisKeyUtil.getKey(friendUid,Integer.toString(updateIsworkMsg.getIswork())));
+            }
 
         }else{
             //修改出战

@@ -32,8 +32,8 @@ import java.util.*;
 @Service
 public class PlantingSystemService {
 
-    final static public int PLANTING_TIME = 6 * 60 * 60;
-//    final static public int PLANTING_TIME = 5 * 60;
+//    final static public int PLANTING_TIME = 6 * 60 * 60;
+    final static public int PLANTING_TIME = 1 * 60;
 
     final static public int WATERING_TIME = 30 * 60;
 
@@ -242,7 +242,7 @@ public class PlantingSystemService {
         if (rewardService.doAward(user, award)) {
             //增加当天偷取果实个数
             userUtil.saveLand(land);
-            numericalService.numericalSet(user, "daily_land_stolen_count", Long.valueOf(beingStolen + stolenCount));
+            numericalService.numericalSet(user, "daily_land_stolen_count", userNumerical.getValue() + stolenCount);
             userUtil.saveUser(user);
             //偷取记录
             redisObjectUtil.save(key, land, -1);

@@ -120,7 +120,7 @@ public class ManagerController {
     @GetMapping(value = "getPVEReward")
     public String getPVEReward(String userUid,String type) {
 
-        User user = redisObjectUtil.get(RedisKeyUtil.getKey(RedisKey.USER, userUid), User.class);
+        User user = userUtil.getUserByUid(userUid);
 
         if (cultivateService.rewards(user, type)) {
             return "success";

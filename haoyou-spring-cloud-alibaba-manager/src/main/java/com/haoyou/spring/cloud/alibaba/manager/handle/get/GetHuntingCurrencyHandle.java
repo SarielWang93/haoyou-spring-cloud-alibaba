@@ -21,7 +21,7 @@ import java.util.HashMap;
 import java.util.TreeMap;
 
 /**
- * 获取大厅数据
+ * 获取狩猎协会数据
  */
 @Service
 public class GetHuntingCurrencyHandle extends ManagerHandle {
@@ -53,7 +53,9 @@ public class GetHuntingCurrencyHandle extends ManagerHandle {
 
         TreeMap<Integer, HuntingAssociation> huntingAssociationTreeMap = new TreeMap<>();
         for (HuntingAssociation huntingAssociation : stringHuntingAssociationHashMap.values()) {
-            huntingAssociationTreeMap.put(huntingAssociation.getIdNum(),huntingAssociation);
+            if(huntingAssociation.getIdNum()<=huntingCurrencyLevel){
+                huntingAssociationTreeMap.put(huntingAssociation.getIdNum(),huntingAssociation);
+            }
         }
 
         ArrayList<HuntingAssociation> huntingAssociations = CollUtil.newArrayList(huntingAssociationTreeMap.values());

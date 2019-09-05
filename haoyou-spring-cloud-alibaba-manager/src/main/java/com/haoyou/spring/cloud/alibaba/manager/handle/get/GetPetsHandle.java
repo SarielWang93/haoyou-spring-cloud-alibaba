@@ -29,7 +29,7 @@ public class GetPetsHandle extends ManagerHandle {
 
 
     private static final long serialVersionUID = -7233847046616375275L;
-    private  static final Logger logger = LoggerFactory.getLogger(GetPetsHandle.class);
+    private static final Logger logger = LoggerFactory.getLogger(GetPetsHandle.class);
 
     @Override
     protected void setHandleType() {
@@ -44,7 +44,7 @@ public class GetPetsHandle extends ManagerHandle {
 
         Map<String, Object> msgMap = this.getMsgMap(req);
 
-        Integer hasIswork = (Integer)msgMap.get("hasIswork");
+        Integer hasIswork = (Integer) msgMap.get("hasIswork");
 
         MapBody mapBody = new MapBody<>();
         mapBody.setState(ResponseMsg.MSG_SUCCESS);
@@ -56,38 +56,73 @@ public class GetPetsHandle extends ManagerHandle {
 
         List<Map> pets = new ArrayList<>();
 
-        for(FightingPet fightingPet:fightingPets.values()){
+        for (FightingPet fightingPet : fightingPets.values()) {
 
             Pet pet = fightingPet.getPet();
 
-            if(hasIswork!=null && hasIswork.equals(1) && (pet.getIswork() == null || pet.getIswork() == 0)){
+            if (hasIswork != null && hasIswork.equals(1) && (pet.getIswork() == null || pet.getIswork() == 0)) {
                 continue;
             }
 
             Map<String, Object> petMap = new HashMap<>();
 
-            petMap.put("petUid",pet.getUid());
-            petMap.put("nickName",pet.getNickName());
-            petMap.put("iswork",pet.getIswork());
-            petMap.put("starClass",pet.getStarClass());
-            petMap.put("level",pet.getLevel());
-            petMap.put("type",pet.getType());
-            petMap.put("typeId",pet.getTypeId());
+            petMap.put("petUid", pet.getUid());
+            petMap.put("nickName", pet.getNickName());
+            petMap.put("iswork", pet.getIswork());
+            petMap.put("starClass", pet.getStarClass());
+            petMap.put("level", pet.getLevel());
+            petMap.put("type", pet.getType());
+            petMap.put("typeId", pet.getTypeId());
 
 
-            petMap.put("mb_max_hp",fightingPet.getMb_max_hp());
-            petMap.put("mb_atn",fightingPet.getMb_atn());
-            petMap.put("mb_def",fightingPet.getMb_def());
-            petMap.put("mb_spd",fightingPet.getMb_spd());
-            petMap.put("mb_luk",fightingPet.getMb_luk());
+            petMap.put("mb_max_hp", fightingPet.getMb_max_hp());
+            petMap.put("mb_atn", fightingPet.getMb_atn());
+            petMap.put("mb_def", fightingPet.getMb_def());
+            petMap.put("mb_spd", fightingPet.getMb_spd());
+            petMap.put("mb_luk", fightingPet.getMb_luk());
 
             pets.add(petMap);
 //            sendMsgUtil.sendMsgOneNoReturn(user.getUid(),req.getId(),mapBody);
         }
-        mapBody.put("pets",pets);
+        mapBody.put("pets", pets);
 
         Integer petMax = user.getCurrency().getPetMax();
-        mapBody.put("petMaxUpDiamond",petMax / 10 * 10 * petMax + (petMax % 10)*10);
+        mapBody.put("petMaxUpDiamond", petMax / 10 * 10 * petMax + (petMax % 10) * 10);
+
+
+        String helpPetKey = RedisKeyUtil.getlkKey(RedisKey.HELP_PET, user.getUid(), RedisKey.HELP);
+        HashMap<String, String> stringStringHashMap = redisObjectUtil.getlkMap(helpPetKey, String.class);
+        if (stringStringHashMap.size() == 1) {
+            for (String value : stringStringHashMap.values()) {
+                String[] split = value.split(":");
+                int iswork = Integer.parseInt(split[1]);
+
+                User friendUser = userUtil.getUserByUid(split[0]);
+                String helpPetUid = friendUser.getUserData().getHelpPetUid();
+                FightingPet fightingPet = FightingPet.getByUserAndPetUid(friendUser, helpPetUid, redisObjectUtil);
+
+                Map<String, Object> petMap = new HashMap<>();
+
+                Pet pet = fightingPet.getPet();
+
+                petMap.put("petUid", pet.getUid());
+                petMap.put("nickName", pet.getNickName());
+                petMap.put("iswork", iswork);
+                petMap.put("starClass", pet.getStarClass());
+                petMap.put("level", pet.getLevel());
+                petMap.put("type", pet.getType());
+                petMap.put("typeId", pet.getTypeId());
+
+
+                petMap.put("mb_max_hp", fightingPet.getMb_max_hp());
+                petMap.put("mb_atn", fightingPet.getMb_atn());
+                petMap.put("mb_def", fightingPet.getMb_def());
+                petMap.put("mb_spd", fightingPet.getMb_spd());
+                petMap.put("mb_luk", fightingPet.getMb_luk());
+
+                mapBody.put("helpPet", petMap);
+            }
+        }
 
 
         return mapBody;

@@ -9,6 +9,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * 心跳信息处理
  */
@@ -24,8 +28,17 @@ public class HeartBeatHandle extends ManagerHandle {
 
     @Override
     public BaseMessage handle(MyRequest req) {
-        BaseMessage baseMessage = new BaseMessage();
-        baseMessage.setState(ResponseMsg.MSG_SUCCESS);
+        BaseMessage baseMessage = BaseMessage.beSuccess();
+
+
+
+
+//        Map<String, Object> otherMsg = new HashMap<>();
+//        服务器时间
+//        otherMsg.put("serverDate", new Date());
+//        baseMessage.setOtherMsg(otherMsg);
+
+
         return baseMessage;
     }
 }

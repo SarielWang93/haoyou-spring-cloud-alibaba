@@ -104,6 +104,7 @@ public class GetFriendsHandle extends ManagerHandle {
             if(StrUtil.isNotEmpty(helpPetUid)){
                 FightingPet byUserAndPetUid = FightingPet.getByUserAndPetUid(friendUser, helpPetUid, redisObjectUtil);
                 Pet pet = byUserAndPetUid.getPet();
+                friendMsg.put("petUid", pet.getUid());
                 friendMsg.put("petTypeName", pet.getTypeName());
                 friendMsg.put("petTypeId", pet.getTypeId());
                 friendMsg.put("petNickName", pet.getNickName());
@@ -195,8 +196,12 @@ public class GetFriendsHandle extends ManagerHandle {
             Award upAward1 = this.getUpAward(user.getUid(), type1);
             Award upAward2 = this.getUpAward(friendUser.getUid(), type2);
 
-            if (upAward1 != null && !upAward1.isUsed()) {
-                friendMsg.put("canReceiveGift", true);
+            if (upAward1 != null) {
+                if(!upAward1.isUsed()){
+                    friendMsg.put("canReceiveGift", true);
+                }else{
+                    friendMsg.put("hasReceiveGift", true);
+                }
             }
             if (upAward2 == null) {
                 friendMsg.put("canSendGift", true);
