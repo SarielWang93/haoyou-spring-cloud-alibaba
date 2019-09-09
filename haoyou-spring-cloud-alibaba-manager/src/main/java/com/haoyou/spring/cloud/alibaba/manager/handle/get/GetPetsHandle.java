@@ -67,6 +67,7 @@ public class GetPetsHandle extends ManagerHandle {
             Map<String, Object> petMap = new HashMap<>();
 
             petMap.put("petUid", pet.getUid());
+            petMap.put("userUid", pet.getUserUid());
             petMap.put("nickName", pet.getNickName());
             petMap.put("iswork", pet.getIswork());
             petMap.put("starClass", pet.getStarClass());
@@ -106,6 +107,7 @@ public class GetPetsHandle extends ManagerHandle {
                 Pet pet = fightingPet.getPet();
 
                 petMap.put("petUid", pet.getUid());
+                petMap.put("userUid", pet.getUserUid());
                 petMap.put("nickName", pet.getNickName());
                 petMap.put("iswork", iswork);
                 petMap.put("starClass", pet.getStarClass());

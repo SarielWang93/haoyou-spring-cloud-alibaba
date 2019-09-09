@@ -131,7 +131,7 @@ public class UserUtil {
             s.setUid(userUid);
             user = userMapper.selectOne(s);
             if (user != null) {
-                this.cacheUser(user);
+                this.cacheUserAndPet(user);
             }
         } else {
             user = redisObjectUtil.get(key, User.class);
@@ -404,6 +404,7 @@ public class UserUtil {
         for (Map.Entry<String, Land> entry : stringLandHashMap.entrySet()) {
             Land land=entry.getValue();
             if (land.getId() == null) {
+                redisObjectUtil.delete(entry.getKey());
                 landMapper.insertSelective(land);
                 redisObjectUtil.save(entry.getKey(),land);
             } else {

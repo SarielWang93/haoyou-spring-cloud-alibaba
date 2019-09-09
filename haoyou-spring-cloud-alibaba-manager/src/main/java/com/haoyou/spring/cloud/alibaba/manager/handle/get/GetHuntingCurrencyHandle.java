@@ -53,9 +53,7 @@ public class GetHuntingCurrencyHandle extends ManagerHandle {
 
         TreeMap<Integer, HuntingAssociation> huntingAssociationTreeMap = new TreeMap<>();
         for (HuntingAssociation huntingAssociation : stringHuntingAssociationHashMap.values()) {
-            if(huntingAssociation.getIdNum()<=huntingCurrencyLevel){
-                huntingAssociationTreeMap.put(huntingAssociation.getIdNum(),huntingAssociation);
-            }
+            huntingAssociationTreeMap.put(huntingAssociation.getIdNum(),huntingAssociation);
         }
 
         ArrayList<HuntingAssociation> huntingAssociations = CollUtil.newArrayList(huntingAssociationTreeMap.values());
