@@ -19,7 +19,7 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 
 /**
- * 获取大厅数据
+ * 获取闯关模式数据
  */
 @Service
 public class GetLevelDesignHandle extends ManagerHandle {

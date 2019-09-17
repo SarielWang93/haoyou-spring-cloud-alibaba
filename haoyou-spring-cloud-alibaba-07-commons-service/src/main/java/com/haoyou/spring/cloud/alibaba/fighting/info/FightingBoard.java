@@ -113,14 +113,14 @@ public class FightingBoard implements Serializable {
 
 
             //星根据级校验消除块的个数
-            Integer starClass = fightingPet.getPet().getStarClass();
-            int maxBlockCount = 3;
-            if (starClass > 2) {
-                maxBlockCount = starClass + 1;
-            }
-            if (destroyInfos.size() > maxBlockCount) {
-                return false;
-            }
+//            Integer starClass = fightingPet.getPet().getStarClass();
+//            int maxBlockCount = 3;
+//            if (starClass > 2) {
+//                maxBlockCount = starClass + 1;
+//            }
+//            if (destroyInfos.size() > maxBlockCount) {
+//                return false;
+//            }
 
 
             int blockType = destroyInfos.get(0).getRandomID();
@@ -428,10 +428,10 @@ public class FightingBoard implements Serializable {
         }
         //根据星级控制最大长度截取
         Integer starClass = fightingPet.getPet().getStarClass();
-        int maxBlockCount = 3;
-        if (starClass > 2) {
-            maxBlockCount = starClass + 1;
-        }
+        int maxBlockCount = 7;
+//        if (starClass > 2) {
+//            maxBlockCount = starClass + 1;
+//        }
         List<BlockInfo> blockInfo = null;
         for (int i = maxBlockCount - 1; i > 1; i--) {
             blockInfo = doAI(own.getUser().getUid(), i, maxBlockCount, attack, specialAttack, shield, skill);

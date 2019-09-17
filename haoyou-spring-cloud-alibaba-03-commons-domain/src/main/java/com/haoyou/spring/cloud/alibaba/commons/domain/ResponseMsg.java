@@ -7,10 +7,10 @@ public class ResponseMsg {
     final static public int MSG_SUCCESS = 200;
     //熔断器报错
     final static public int MSG_FALLBACK = 999;
-
+    //协议未找到
+    final static public int ID_ERR = 444;
     //用户未登录
     final static public int MSG_NOT_LOGIN = 52;
-
     //登录报错
     final static public int MSG_LOGIN_WRONG = 45;
     //登录用户名不存在

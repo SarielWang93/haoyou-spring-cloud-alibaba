@@ -100,6 +100,11 @@ public class ManagerServiceImpl implements ManagerService {
 
         //获取处理对象
         ManagerHandle managerHandle = managerHanderMap.get(type);
+        if(managerHandle == null){
+            BaseMessage baseMessage = new BaseMessage();
+            baseMessage.setState(ResponseMsg.ID_ERR);
+            return baseMessage;
+        }
         //处理并返回信息
         BaseMessage baseMessage = managerHandle.handle(req);
 

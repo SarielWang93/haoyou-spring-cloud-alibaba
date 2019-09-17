@@ -198,7 +198,7 @@ public class GetPetHandle extends ManagerHandle {
             //可用食材道具数量
 
             for (Prop prop : props) {
-                if (prop.getProperty1().equals(ingredientsName) && Integer.valueOf(prop.getProperty2()).equals(ingredient.get("starIngredients"))) {
+                if ("Ingredients".equals(prop.getName()) && prop.getProperty1().equals(ingredientsName) && Integer.valueOf(prop.getProperty2()).equals(ingredient.get("starIngredients"))) {
                     ingredient.put("ingredientProp", prop);
                 }
             }
