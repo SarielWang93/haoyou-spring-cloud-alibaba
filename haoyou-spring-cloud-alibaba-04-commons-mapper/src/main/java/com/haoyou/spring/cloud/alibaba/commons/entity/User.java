@@ -106,10 +106,16 @@ public class User extends BaseMessage implements Serializable {
     private Date lastLoginOutDate;
 
     /**
-     * 最终登录ip地址
+     * 最后一次登录ip地址
      */
     @Column(name = "last_login_url")
     private String lastLoginUrl;
+
+    /**
+     * 最后一次登录设备
+     */
+    @Column(name = "last_login_device")
+    private String lastLoginDevice;
 
     @Transient
     private Currency currency;

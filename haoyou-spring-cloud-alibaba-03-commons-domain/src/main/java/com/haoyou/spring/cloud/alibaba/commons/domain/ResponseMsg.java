@@ -30,4 +30,8 @@ public class ResponseMsg {
     final static public int MSG_NOT_FIND_FIGHTING_ROOM = 53;
 
 
+    //执行成功
+    final static public int ALREADY_REGISTERED = 61;
+
+
 }

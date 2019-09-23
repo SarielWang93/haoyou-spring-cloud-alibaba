@@ -146,16 +146,11 @@ public class UserUtil {
      * @return
      */
     public User getUserByIdNum(String idNum) {
-        List<User> users = this.allUser();
-
-        for (User user : users) {
-
-            if (user.getIdNum().equals(idNum)) {
-                return user;
-            }
-
-        }
-        return null;
+        User user = new User();
+        user.setIdNum(idNum);
+        user = userMapper.selectOne(user);
+        user = this.getUserByUid(user.getUid());
+        return user;
     }
 
     /**
@@ -184,11 +179,37 @@ public class UserUtil {
      * @return
      */
     public User getUserByUserName(String userName) {
-        List<User> users = this.allUser();
-        for (User user : users) {
-            if (user.getUsername().equals(userName)) {
-                return user;
+        User user = new User();
+        user.setUsername(userName);
+        user = userMapper.selectOne(user);
+        user = this.getUserByUid(user.getUid());
+        return user;
+    }
+
+    /**
+     * 根据device获取游客信息
+     *
+     * @param deviceUid
+     * @return
+     */
+    public User getUserByDeviceUid(String deviceUid) {
+        if(StrUtil.isNotEmpty(deviceUid)){
+            HashMap<String, User> userAllCatch = this.getUserAllCatch();
+            for (User user : userAllCatch.values()) {
+                if (deviceUid.equals(user.getLastLoginDevice()) && (StrUtil.isEmpty(user.getUsername()) || StrUtil.isEmpty(user.getPassword())) ) {
+                    return user;
+                }
             }
+
+            User users = new User();
+            users.setLastLoginDevice(deviceUid);
+            List<User> select = userMapper.select(users);
+            for(User user : select){
+                if((StrUtil.isEmpty(user.getUsername()) || StrUtil.isEmpty(user.getPassword()))){
+                    return user;
+                }
+            }
+
 
         }
         return null;

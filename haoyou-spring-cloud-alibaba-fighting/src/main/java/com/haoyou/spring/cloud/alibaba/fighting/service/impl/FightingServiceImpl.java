@@ -822,7 +822,7 @@ public class FightingServiceImpl implements FightingService {
             Field petLevelField = ReflectUtil.getField(LevelDesign.class, String.format("petLevel%s", i));
             Integer petLevel = (Integer) ReflectUtil.getFieldValue(levelDesign, petLevelField);
 
-            petLevel *= (100 + 50 * difficult / 100);
+            petLevel = ((100 + 50 * difficult)*petLevel / 100);
 
             PetType petType = redisObjectUtil.get(RedisKeyUtil.getKey(RedisKey.PET_TYPE, petTypeUid), PetType.class);
 
@@ -1089,7 +1089,10 @@ public class FightingServiceImpl implements FightingService {
 
         FightingRoom fightingRoom = fightingPet.getFightingCamp().getFightingRoom();
         fightingPet.addStep(FightingStep.VICTORY, "");
-
+        /**
+         * 发送信息
+         */
+        fightingRoom.sendMsgResp(fightingRoom.getFightingCamps().keySet(), sendMsgUtil);
 
         this.deleteFightingRoom(fightingRoom);
 
@@ -1099,10 +1102,6 @@ public class FightingServiceImpl implements FightingService {
         logger.debug(String.format("胜利：%s", user.getUsername()));
         //ai断线不结算
         if (!fightingPet.getUid().startsWith("ai-") && sendMsgUtil.connectionIsAlive(user.getUid())) {
-            /**
-             * 发送信息
-             */
-            fightingRoom.sendMsgResp(fightingRoom.getFightingCamps().keySet(), sendMsgUtil);
 
             //获取内存中真实user
             user = userUtil.getUserByUid(user.getUid());
@@ -1193,6 +1192,7 @@ public class FightingServiceImpl implements FightingService {
                 int difficult = fightingRoom.getDifficult();
                 //添加徽章
                 boolean isFirst = userUtil.addBadges(user.getUid(), levelDesign, difficult);
+                user = userUtil.getUserByUid(user.getUid());
                 String firstAwardType = null;
                 String awardType = null;
                 switch (difficult) {

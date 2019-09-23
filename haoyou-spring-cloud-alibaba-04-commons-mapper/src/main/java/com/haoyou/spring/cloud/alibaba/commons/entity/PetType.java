@@ -28,6 +28,11 @@ public class PetType implements Serializable {
     private String uid;
 
     /**
+     * 种族
+     */
+    private Integer race;
+
+    /**
      * 宠物类型（物攻，法功，肉盾，辅助，远程，近战）
      */
     private Integer type;

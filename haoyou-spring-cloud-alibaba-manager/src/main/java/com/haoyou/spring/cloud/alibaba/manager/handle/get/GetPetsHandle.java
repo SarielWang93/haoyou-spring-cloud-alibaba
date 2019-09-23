@@ -73,6 +73,7 @@ public class GetPetsHandle extends ManagerHandle {
             petMap.put("starClass", pet.getStarClass());
             petMap.put("level", pet.getLevel());
             petMap.put("type", pet.getType());
+            petMap.put("race", pet.getRace());
             petMap.put("typeId", pet.getTypeId());
 
 
@@ -113,6 +114,7 @@ public class GetPetsHandle extends ManagerHandle {
                 petMap.put("starClass", pet.getStarClass());
                 petMap.put("level", pet.getLevel());
                 petMap.put("type", pet.getType());
+                petMap.put("race", pet.getRace());
                 petMap.put("typeId", pet.getTypeId());
 
 

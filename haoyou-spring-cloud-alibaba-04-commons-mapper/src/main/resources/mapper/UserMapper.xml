@@ -21,6 +21,7 @@
     <result column="last_login_out_date" jdbcType="TIMESTAMP" property="lastLoginOutDate" />
     <result column="last_update_date" jdbcType="TIMESTAMP" property="lastUpdateDate" />
     <result column="last_login_url" jdbcType="VARCHAR" property="lastLoginUrl" />
+    <result column="last_login_device" jdbcType="VARCHAR" property="lastLoginDevice" />
     <result column="pet_exp" jdbcType="BIGINT" property="petExp" />
   </resultMap>
 </mapper>

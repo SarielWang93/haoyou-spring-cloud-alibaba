@@ -10,6 +10,7 @@
     <result column="type_uid" jdbcType="VARCHAR" property="typeUid" />
     <result column="uid" jdbcType="VARCHAR" property="uid" />
     <result column="user_uid" jdbcType="VARCHAR" property="userUid" />
+    <result column="race" jdbcType="INTEGER" property="race" />
     <result column="type" jdbcType="INTEGER" property="type" />
     <result column="atn" jdbcType="INTEGER" property="atn" />
     <result column="def" jdbcType="INTEGER" property="def" />

@@ -16,6 +16,7 @@ import com.haoyou.spring.cloud.alibaba.commons.util.RedisKeyUtil;
 import com.haoyou.spring.cloud.alibaba.login.UserCatch.UserDateSynchronization;
 import com.haoyou.spring.cloud.alibaba.pojo.bean.DailyCheckIn;
 import com.haoyou.spring.cloud.alibaba.redis.service.ScoreRankService;
+import com.haoyou.spring.cloud.alibaba.sofabolt.protocol.MyRequest;
 import com.haoyou.spring.cloud.alibaba.util.RedisObjectUtil;
 import com.haoyou.spring.cloud.alibaba.util.ScoreRankUtil;
 import com.haoyou.spring.cloud.alibaba.util.UserUtil;
@@ -67,11 +68,15 @@ public class Register {
     /**
      * 注册
      *
-     * @param user
+     * @param req
      * @return
      */
-    public User register(User user) {
+    public User register(MyRequest req) {
 
+        User user = req.getUser();
+        //设备编号
+        String deviceUid = req.getDeviceuid();
+        String[] deviceUidSplit = deviceUid.split("-");
         //判断用户名密码以及屏蔽词
         if(StrUtil.isNotEmpty(user.getUsername()) && StrUtil.isNotEmpty(user.getPassword())){
             if (userUtil.hasShieldVocas(user.getUsername())) {
@@ -89,6 +94,18 @@ public class Register {
         }else if(user.getUid() == null){
             user.setState(ResponseMsg.MSG_ERR);
             return user.notTooLong();
+        }else if(deviceUidSplit.length>1){
+            //游客注册
+            if(user.getUid().equals(deviceUidSplit[1])){
+                User userByDeviceUid = userUtil.getUserByDeviceUid(deviceUid);
+                if(userByDeviceUid != null){
+                    userByDeviceUid.setState(ResponseMsg.ALREADY_REGISTERED);
+                    return userByDeviceUid;
+                }
+                user.setUid(null);
+                user.setLastLoginDevice(deviceUid);
+
+            }
         }
 
 
@@ -125,7 +142,7 @@ public class Register {
         userData.setExp(0L);
         userData.setAvatar("defult");
         userData.setLevel(999);
-        userData.setName(user.getUsername());
+        userData.setName(StrUtil.isNotEmpty(user.getUsername())?user.getUsername():String.format("游客-%s",user.getIdNum()));
         userData.setUpLevExp(260l);
         user.setUserData(userData);
         userUtil.setDailyCheckIn(user);
@@ -133,7 +150,7 @@ public class Register {
         userMapper.insertSelective(user);
         userDataMapper.insertSelective(userData);
         currencyMapper.insertSelective(currency);
-        logger.info(String.format("registerUser: %s", user.getUsername()));
+        logger.info(String.format("registerUser: %s", userData.getName()));
         user.setState(ResponseMsg.MSG_SUCCESS);
 
 

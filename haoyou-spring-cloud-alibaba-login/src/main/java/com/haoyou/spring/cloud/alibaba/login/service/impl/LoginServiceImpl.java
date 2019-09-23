@@ -62,23 +62,39 @@ public class LoginServiceImpl implements LoginService {
 
 
         User userIn = req.getUser();
-        User user = new User();
 
         if(userIn == null){
-            user .setState(ResponseMsg.MSG_LOGIN_USERNAME_WRONG);
-            return user.notTooLong();
+            userIn .setState(ResponseMsg.MSG_LOGIN_USERNAME_WRONG);
+            return userIn.notTooLong();
         }
-
-
-        user.setUid(userIn.getUid());
-        user.setUsername(userIn.getUsername());
-
 
         logger.info(String.format("login: %s", userIn));
 
 
         //根据用户名或者uid获取用户信息
-        user = userMapper.selectOne(user);
+        User user = null;
+
+        String username = userIn.getUsername();
+        if(StrUtil.isNotEmpty(username)){
+            user = userUtil.getUserByUserName(username);
+        }else if(StrUtil.isNotEmpty(userIn.getUid())){
+
+            //设备编号
+            String deviceUid = req.getDeviceuid();
+            if(StrUtil.isNotEmpty(deviceUid)){
+                String[] deviceUidSplit = deviceUid.split("-");
+                if(deviceUidSplit.length>1 && userIn.getUid().equals(deviceUidSplit[1])){
+                    //游客登录
+                    user = userUtil.getUserByDeviceUid(deviceUid);
+                }
+            }
+
+            if(user == null){
+                //缓存登录用户的信息
+                user = userUtil.getUserByUid(userIn.getUid());
+            }
+        }
+
 
         if (user == null) {
             userIn.setState(ResponseMsg.MSG_LOGIN_USERNAME_WRONG);
@@ -90,11 +106,10 @@ public class LoginServiceImpl implements LoginService {
             return userIn.notTooLong();
         }
 
-        //缓存登录用户的信息
-        user = userUtil.getUserByUid(user.getUid());
 
         user.setLastLoginDate(new Date());
         user.setLastLoginUrl(req.getUrl());
+        user.setLastLoginDevice(req.getDeviceuid());
 
         String inCatch = userUtil.isInCatch(user.getUid());
 
@@ -202,8 +217,7 @@ public class LoginServiceImpl implements LoginService {
      */
     @Override
     public User register(MyRequest req) {
-        User user = req.getUser();
-        return register.register(user);
+        return register.register(req);
     }
 
 

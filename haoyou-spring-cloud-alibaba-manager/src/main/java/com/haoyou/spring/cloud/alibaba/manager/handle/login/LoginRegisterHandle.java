@@ -39,9 +39,6 @@ public class LoginRegisterHandle extends ManagerHandle {
 
 
 
-
-        BaseMessage baseMessage = new BaseMessage();
-        baseMessage.setState(user.getState());
-        return baseMessage;
+        return user.notTooLong();
     }
 }

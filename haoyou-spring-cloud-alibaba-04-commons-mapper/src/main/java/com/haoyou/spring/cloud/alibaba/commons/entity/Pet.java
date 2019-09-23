@@ -48,6 +48,11 @@ public class Pet implements Serializable {
     private String userUid;
 
     /**
+     * 种族
+     */
+    private Integer race;
+
+    /**
      * 宠物类型（物攻，法功，肉盾，辅助）
      */
     private Integer type;
@@ -288,6 +293,7 @@ public class Pet implements Serializable {
         this.cultureResoult = 0d;
         this.userUid = user.getUid();
         this.typeId = petType.getId();
+        this.race = petType.getRace();
         this.type = petType.getType();
         this.spd = petType.getSpd();
         this.luk = petType.getLuk();
