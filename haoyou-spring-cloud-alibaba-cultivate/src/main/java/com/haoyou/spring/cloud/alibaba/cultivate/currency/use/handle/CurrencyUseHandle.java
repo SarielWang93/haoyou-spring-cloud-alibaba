@@ -1,12 +1,14 @@
 package com.haoyou.spring.cloud.alibaba.cultivate.currency.use.handle;
 
 import com.haoyou.spring.cloud.alibaba.commons.domain.RedisKey;
+import com.haoyou.spring.cloud.alibaba.commons.entity.Currency;
 import com.haoyou.spring.cloud.alibaba.commons.entity.User;
 import com.haoyou.spring.cloud.alibaba.commons.mapper.PetMapper;
 import com.haoyou.spring.cloud.alibaba.commons.mapper.UserMapper;
 import com.haoyou.spring.cloud.alibaba.commons.util.RedisKeyUtil;
 import com.haoyou.spring.cloud.alibaba.cultivate.service.CommodityBuyService;
 import com.haoyou.spring.cloud.alibaba.cultivate.service.CurrencyUseService;
+import com.haoyou.spring.cloud.alibaba.cultivate.service.NumericalService;
 import com.haoyou.spring.cloud.alibaba.cultivate.service.RewardService;
 import com.haoyou.spring.cloud.alibaba.fighting.info.FightingPet;
 import com.haoyou.spring.cloud.alibaba.pojo.cultivate.CyrrencyUseMsg;
@@ -46,6 +48,9 @@ public abstract class CurrencyUseHandle {
     @Autowired
     protected CommodityBuyService commodityBuyService;
 
+    @Autowired
+    private NumericalService numericalService;
+
     /**
      * 处理标识
      */
@@ -78,7 +83,24 @@ public abstract class CurrencyUseHandle {
      * @return
      */
     public int currencyUse(CyrrencyUseMsg cyrrencyUseMsg){
-        return handle(cyrrencyUseMsg);
+
+        Currency currency = cyrrencyUseMsg.getUser().getCurrency();
+        Long diamond = currency.getDiamond();
+
+        //消费
+        int handle = handle(cyrrencyUseMsg);
+
+
+        Currency currency1 = cyrrencyUseMsg.getUser().getCurrency();
+        Long diamond1 = currency1.getDiamond();
+        if(diamond1 < diamond){
+            numericalService.numericalAdd(cyrrencyUseMsg.getUser(),"daily_use_diamond",diamond-diamond1);
+            numericalService.numericalAdd(cyrrencyUseMsg.getUser(),"use_diamond",diamond-diamond1);
+        }
+
+
+        return handle;
+
     }
 
     /**

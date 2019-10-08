@@ -22,7 +22,7 @@ import java.util.HashMap;
 import java.util.List;
 
 /**
- * 获取用户邮件信息
+ * 月卡
  */
 @Service
 public class GetMonthlyCardHandle extends ManagerHandle {

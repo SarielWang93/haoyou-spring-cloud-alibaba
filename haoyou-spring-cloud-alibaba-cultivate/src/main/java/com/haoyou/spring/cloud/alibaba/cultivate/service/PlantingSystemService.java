@@ -427,6 +427,10 @@ public class PlantingSystemService {
         //保存
         userUtil.saveLand(land);
 
+
+        numericalService.numericalAdd(user,"daily_planting",1L);
+        numericalService.numericalAdd(user,"planting",1L);
+
         return MapBody.beSuccess();
     }
 

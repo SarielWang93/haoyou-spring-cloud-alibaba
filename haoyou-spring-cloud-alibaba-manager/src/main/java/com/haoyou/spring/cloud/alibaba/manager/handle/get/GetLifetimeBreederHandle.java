@@ -21,7 +21,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * 获取用户邮件信息
+ * 终身饲养员
  */
 @Service
 public class GetLifetimeBreederHandle extends ManagerHandle {

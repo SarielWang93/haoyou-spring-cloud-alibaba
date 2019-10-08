@@ -21,7 +21,7 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 
 /**
- * 获取用户邮件信息
+ * 每日签到
  */
 @Service
 public class GetDailyCheckInHandle extends ManagerHandle {

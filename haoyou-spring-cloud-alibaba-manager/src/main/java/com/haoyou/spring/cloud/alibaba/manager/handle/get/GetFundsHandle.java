@@ -23,7 +23,7 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 
 /**
- * 获取用户邮件信息
+ * 基金
  */
 @Service
 public class GetFundsHandle extends ManagerHandle {

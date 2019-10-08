@@ -19,7 +19,7 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 
 /**
- * 获取用户邮件信息
+ * 活动大厅
  */
 @Service
 public class GetActivityHandle extends ManagerHandle {

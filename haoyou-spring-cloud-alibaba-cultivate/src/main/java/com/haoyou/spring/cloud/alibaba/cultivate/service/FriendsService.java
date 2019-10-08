@@ -115,6 +115,8 @@ public class FriendsService {
         user.getUserData().setHelpPetUid(helpPetUid);
         userUtil.saveUser(user);
 
+        numericalService.numericalAdd(user,"daily_set_help_pet",1L);
+
         return MapBody.beSuccess();
     }
 
@@ -271,6 +273,9 @@ public class FriendsService {
         if (friendsGift == null) {
             rewardService.refreshUpAward(userUid, rewardService.getAward("friends_gift"), type);
             addIntimacy(user,userUid,1L);
+
+            numericalService.numericalAdd(user,"daily_send_gift",1L);
+
         }
     }
 

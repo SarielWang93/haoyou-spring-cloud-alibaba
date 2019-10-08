@@ -160,6 +160,9 @@ public class FightingServiceImpl implements FightingService {
         allIsAi.put(user.getUid(), isAi);
         this.initFightingRoom(users, fightingRoom, allIsAi);
 
+        cultivateService.numericalAdd(user, "daily_pve", 1L);
+        cultivateService.numericalAdd(user, "pve_count", 1L);
+
         if (isWin) {
             this.win(fightingRoom.getFightingCamps().get(user.getUid()).getFightingPets().get(1), false);
             return true;
@@ -1214,6 +1217,10 @@ public class FightingServiceImpl implements FightingService {
                     cultivateService.rewards(user, firstAwardType);
                 }
                 cultivateService.rewards(user, awardType);
+
+                cultivateService.numericalAdd(user, "daily_pve_win", 1L);
+                cultivateService.numericalAdd(user, "pve_count_win", 1L);
+
             }
         }
 

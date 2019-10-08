@@ -401,18 +401,18 @@ public class UserUtil {
      * @param user
      */
     public void saveSqlUser(User user) {
-        userMapper.updateByPrimaryKeySelective(user);
+        userMapper.updateByPrimaryKey(user);
 
-        currencyMapper.updateByPrimaryKeySelective(user.getCurrency());
+        currencyMapper.updateByPrimaryKey(user.getCurrency());
 
-        userDataMapper.updateByPrimaryKeySelective(user.getUserData());
+        userDataMapper.updateByPrimaryKey(user.getUserData());
 
         //修改或者新增
         for (UserNumerical userNumerical : user.getUserNumericalMap().values()) {
             if (userNumerical.getId() == null) {
                 userNumericalMapper.insertSelective(userNumerical);
             } else {
-                userNumericalMapper.updateByPrimaryKeySelective(userNumerical);
+                userNumericalMapper.updateByPrimaryKey(userNumerical);
             }
         }
 
