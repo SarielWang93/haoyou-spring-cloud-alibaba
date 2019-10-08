@@ -33,9 +33,9 @@ public class VitalityRestoreSettleHandle extends SettleHandle {
             if(vitality < UserUtil.vitalityMaxCount){
                 vitality += 10;
             }
-            if(vitality > UserUtil.vitalityMaxCount){
-                vitality = UserUtil.vitalityMaxCount;
-            }
+//            if(vitality > UserUtil.vitalityMaxCount){
+//                vitality = UserUtil.vitalityMaxCount;
+//            }
             userUtil.getUserByUid(user.getUid());
             user.getCurrency().setVitality(vitality);
             userUtil.saveUser(user);
