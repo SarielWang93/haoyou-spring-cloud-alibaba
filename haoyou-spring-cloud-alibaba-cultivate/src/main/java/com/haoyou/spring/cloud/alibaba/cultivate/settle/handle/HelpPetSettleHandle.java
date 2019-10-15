@@ -27,6 +27,7 @@ public class HelpPetSettleHandle extends SettleHandle {
     public void handle() {
 
         for (User user : this.users) {
+            user = userUtil.getUserByUid(user.getUid());
             user.getUserData().setHelpPetUid(null);
             userUtil.saveUser(user);
         }

@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 获取获取天梯页面信息
@@ -36,9 +37,16 @@ public class GetLadderHandle extends ManagerHandle {
 
     @Override
     public BaseMessage handle(MyRequest req) {
-        MapBody mapBody = MapBody.beSuccess();
+        Map<String, Object> msgMap = this.getMsgMap(req);
+
+        String type = (String) msgMap.get("type");
+        if ("awards".equals(type)) {
+            return getLadderRankingAwards();
+        }
 
         User user = req.getUser();
+        MapBody mapBody = MapBody.beSuccess();
+
         String yyMM = DateUtil.date().toString("yyMM");
         String rankKey = RedisKeyUtil.getKey(RedisKey.LADDER_RANKING, yyMM);
         //排名
@@ -52,22 +60,48 @@ public class GetLadderHandle extends ManagerHandle {
         //当天天梯奖励次数上限
         Long ladderAwardMax = 10L;
         //奖励
-        Award award = redisObjectUtil.get(RedisKeyUtil.getKey(RedisKey.AWARD, "pvp"), Award.class);
+        Award award = userUtil.getAward("pvp");
 
         //排名
-        mapBody.put("aLong",aLong);
+        mapBody.put("aLong", aLong);
         //天梯阶数
-        mapBody.put("ladderLevel",ladderLevel);
+        mapBody.put("ladderLevel", ladderLevel);
         //当前星数
-        mapBody.put("ladderLevelStar",ladderLevelStar);
+        mapBody.put("ladderLevelStar", ladderLevelStar);
         //当天天梯胜利次数
-        mapBody.put("dailyLadderWin",dailyLadderWin);
+        mapBody.put("dailyLadderWin", dailyLadderWin);
         //当天天梯奖励次数上限
-        mapBody.put("ladderAwardMax",ladderAwardMax);
+        mapBody.put("ladderAwardMax", ladderAwardMax);
         //奖励
-        mapBody.put("award",award);
+        mapBody.put("award", award);
 
 
         return mapBody;
     }
+
+    //获取赛季奖励
+    public BaseMessage getLadderRankingAwards() {
+        MapBody mapBody = MapBody.beSuccess();
+
+        for (int i = 1; i < 6; i++) {
+            mapBody.put(String.format("ladder_ranking%s", i), userUtil.getAward(String.format("ladder_ranking%s", i)));
+        }
+        mapBody.put("ladder_ranking6_10", userUtil.getAward("ladder_ranking6-10"));
+        mapBody.put("ladder_ranking11_20", userUtil.getAward("ladder_ranking11-20"));
+        mapBody.put("ladder_ranking21_50", userUtil.getAward("ladder_ranking21-50"));
+        mapBody.put("ladder_ranking51_100", userUtil.getAward("ladder_ranking51-100"));
+        mapBody.put("ladder_ranking101_200", userUtil.getAward("ladder_ranking101-200"));
+        mapBody.put("ladder_ranking201_500", userUtil.getAward("ladder_ranking201-500"));
+        mapBody.put("ladder_ranking501_1000", userUtil.getAward("ladder_ranking501-1000"));
+        mapBody.put("ladder_ranking1001", userUtil.getAward("ladder_ranking1001"));
+
+        for(int i = 0; i < 15; i++){
+            mapBody.put(String.format("ladder%s", i), userUtil.getAward(String.format("ladder%s", i)));
+        }
+
+        mapBody.put("type", "awards");
+
+        return mapBody;
+    }
+
 }

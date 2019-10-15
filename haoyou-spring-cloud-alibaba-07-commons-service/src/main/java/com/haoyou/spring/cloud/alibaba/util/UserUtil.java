@@ -182,7 +182,9 @@ public class UserUtil {
         User user = new User();
         user.setUsername(userName);
         user = userMapper.selectOne(user);
-        user = this.getUserByUid(user.getUid());
+        if(user !=null){
+            user = this.getUserByUid(user.getUid());
+        }
         return user;
     }
 

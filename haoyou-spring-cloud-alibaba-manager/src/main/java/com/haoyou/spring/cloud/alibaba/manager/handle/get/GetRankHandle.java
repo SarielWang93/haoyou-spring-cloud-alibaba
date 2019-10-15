@@ -45,51 +45,55 @@ public class GetRankHandle extends ManagerHandle {
         User user = req.getUser();
 
         Map<String, Object> msgMap = this.getMsgMap(req);
-        String rankName = (String)msgMap.get("rankName");
-        if(StrUtil.isNotEmpty(rankName)){
-            if(rankName.equals(RedisKey.LADDER_RANKING)){
-                DateTime date = DateUtil.date();
-                DateTime dateTime = DateUtil.offsetMonth(date, -1);
-                String yyMM = dateTime.toString("yyMM");
-                String rankKey = RedisKeyUtil.getKey(RedisKey.LADDER_RANKING, yyMM);
-                MapBody serverRank = getRank(user,rankKey);
-                return serverRank;
-            }
-        }else{
-            Server server = redisObjectUtil.get(RedisKeyUtil.getKey(RedisKey.SERVER, user.getServerId().toString()), Server.class);
-            String rankKey = RedisKeyUtil.getKey(RedisKey.RANKING, server.getServerNum().toString());
-            MapBody serverRank = getRank(user,rankKey);
-            return serverRank;
+        String rankName = (String) msgMap.get("rankName");
+
+        if (RedisKey.LADDER_RANKING.equals(rankName)) {
+            return getLadderRank(user);
         }
 
-        return MapBody.beErr();
+        Server server = redisObjectUtil.get(RedisKeyUtil.getKey(RedisKey.SERVER, user.getServerId().toString()), Server.class);
+        String rankKey = RedisKeyUtil.getKey(RedisKey.RANKING, server.getServerNum().toString());
+        MapBody serverRank = getRank(user, rankKey);
+        return serverRank;
+    }
+    //获取天梯排行
+    public MapBody getLadderRank(User user) {
+        DateTime date = DateUtil.date();
+        DateTime dateTime = DateUtil.offsetMonth(date, -1);
+        String yyMM = dateTime.toString("yyMM");
+        String rankKey = RedisKeyUtil.getKey(RedisKey.LADDER_RANKING, yyMM);
+        MapBody serverRank = getRank(user, rankKey);
+        serverRank.put("rankName", RedisKey.LADDER_RANKING);
+        return serverRank;
     }
 
-    public MapBody getRank(User user,String rankKey){
+
+            //获得排名的前100名
+            public MapBody getRank(User user, String rankKey) {
 
 
-        MapBody mapBody = MapBody.beSuccess();
+                MapBody mapBody = MapBody.beSuccess();
 
-        Long aLong = scoreRankUtil.zCard(rankKey);
-        Long start = 0l;
-        if (aLong > 100) {
-            start = aLong - 100;
+                Long aLong = scoreRankUtil.zCard(rankKey);
+                Long start = 0l;
+                if (aLong > 100) {
+                    start = aLong - 100;
         }
         TreeMap<Long, String> treeMap = scoreRankUtil.list(rankKey, start, aLong);
         Long myRanking = -1L;
         Long myIntegral = -1L;
         List<RankUser> rankUsers = new ArrayList<>();
         long rank = 1;
-        for (long integral: treeMap.keySet()) {
+        for (long integral : treeMap.keySet()) {
             String userUid = treeMap.get(integral);
 
-            if(user.getUid().equals(userUid)){
+            if (user.getUid().equals(userUid)) {
                 myRanking = rank;
                 myIntegral = integral;
             }
 
             User userByUid = userUtil.getUserByUid(userUid);
-            RankUser rankUser = new RankUser().init(userByUid,integral,rank++);
+            RankUser rankUser = new RankUser().init(userByUid, integral, rank++);
             rankUsers.add(rankUser);
         }
 
