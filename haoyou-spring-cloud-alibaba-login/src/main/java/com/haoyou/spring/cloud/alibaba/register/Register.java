@@ -74,6 +74,7 @@ public class Register {
     public User register(MyRequest req) {
 
         User user = req.getUser();
+        user.setState(null);
         //设备编号
         String deviceUid = req.getDeviceuid();
         String[] deviceUidSplit = deviceUid.split("-");

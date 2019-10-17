@@ -34,7 +34,6 @@ public class LadderRankSettleHandle extends SettleHandle {
 
         rankKey = RedisKeyUtil.getKey(RedisKey.LADDER_RANKING, yyMM);
 
-
         for(User user:this.users){
             String type = null;
             Long ladder_level_max = user.getUserNumericalMap().get("ladder_level_max").getValue();
