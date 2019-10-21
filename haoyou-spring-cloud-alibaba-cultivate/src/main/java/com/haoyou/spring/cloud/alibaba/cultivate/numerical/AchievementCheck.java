@@ -45,6 +45,7 @@ public class AchievementCheck extends NumericalCheck {
 
 
         for (AchievementAims achievementAim : achievementAims) {
+
             if (achievementAim.getAim() > oldvalue && achievementAim.getAim() <= newvalue) {
 
                 Award award = rewardService.getAward(achievementAim.getAwardType());

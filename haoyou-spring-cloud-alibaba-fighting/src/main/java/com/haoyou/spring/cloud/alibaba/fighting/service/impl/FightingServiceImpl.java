@@ -503,6 +503,14 @@ public class FightingServiceImpl implements FightingService {
          * 击杀触发状态执行
          */
         if (!dieEnemy.isEmpty()) {
+
+            //更新闯关击杀数
+            if(fightingRoom.getLevelDesign()!=null){
+                User user = userUtil.getUserByUid(own.getUser().getUid());
+                cultivateService.numericalAdd(user, "pve_kill", dieEnemy.size());
+                userUtil.saveUser(user);
+            }
+
             fightingPet.kill(dieEnemy);
         }
 
@@ -1183,7 +1191,7 @@ public class FightingServiceImpl implements FightingService {
                     aLong = scoreRankUtil.find(rankKey, user);
                 }
                 //天梯最高排名(已有排名)
-                if (aLong != null && aLong > ladder_max_ranking) {
+                if (aLong != null && aLong < ladder_max_ranking) {
                     cultivateService.numericalSet(user, "ladder_max_ranking", aLong);
                 }
 
@@ -1214,9 +1222,25 @@ public class FightingServiceImpl implements FightingService {
                 }
                 //首次奖励
                 if (isFirst) {
+                    cultivateService.numericalAdd(user, "badges", 1L);
                     cultivateService.rewards(user, firstAwardType);
                 }
                 cultivateService.rewards(user, awardType);
+
+                //章节进度
+                if(difficult == 0){
+                    String chapterName = levelDesign.getChapterName();
+                    String chapterKey = RedisKeyUtil.getKey(RedisKey.CHAPTER, chapterName);
+                    Chapter chapter = redisObjectUtil.get(chapterKey, Chapter.class);
+
+                    Integer idNum = chapter.getIdNum();
+
+                    UserNumerical pveChapter = user.getUserNumericalMap().get("pve_chapter");
+
+                    if(idNum>pveChapter.getValue()){
+                        cultivateService.numericalAdd(user, "pve_chapter", 1L);
+                    }
+                }
 
                 cultivateService.numericalAdd(user, "daily_pve_win", 1L);
                 cultivateService.numericalAdd(user, "pve_count_win", 1L);

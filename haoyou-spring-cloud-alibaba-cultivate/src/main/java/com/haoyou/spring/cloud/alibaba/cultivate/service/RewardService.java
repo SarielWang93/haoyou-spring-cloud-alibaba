@@ -5,6 +5,7 @@ import com.haoyou.spring.cloud.alibaba.commons.domain.RedisKey;
 import com.haoyou.spring.cloud.alibaba.commons.domain.ResponseMsg;
 import com.haoyou.spring.cloud.alibaba.commons.domain.SendType;
 import com.haoyou.spring.cloud.alibaba.commons.entity.Award;
+import com.haoyou.spring.cloud.alibaba.commons.entity.LevelUpExp;
 import com.haoyou.spring.cloud.alibaba.commons.entity.User;
 import com.haoyou.spring.cloud.alibaba.commons.message.MapBody;
 import com.haoyou.spring.cloud.alibaba.commons.util.RedisKeyUtil;
@@ -36,6 +37,8 @@ public class RewardService {
     protected RedisObjectUtil redisObjectUtil;
     @Autowired
     protected SendMsgUtil sendMsgUtil;
+    @Autowired
+    protected NumericalService numericalService;
 
     @Autowired
     protected UserUtil userUtil;
@@ -94,7 +97,6 @@ public class RewardService {
             return false;
         }
 
-        boolean mail=true;
         //增加货币
         user.getCurrency().setCoin(user.getCurrency().getCoin() + award.getCoin());
 
@@ -102,10 +104,18 @@ public class RewardService {
 
         user.getCurrency().setPetExp(user.getCurrency().getPetExp() + award.getPetExp());
 
-        user.getUserData().setExp(user.getUserData().getExp() + award.getExp());
 
-        //TODO 玩家升级
+        Long exp =  user.getUserData().getExp() + award.getExp();
+        user.getUserData().setExp(exp);
 
+        //玩家升级
+        Integer level = user.getUserData().getLevel();
+        String levelUpExpKey = RedisKeyUtil.getKey(RedisKey.LEVEL_UP_EXP, level.toString());
+        LevelUpExp levelUpExp = redisObjectUtil.get(levelUpExpKey, LevelUpExp.class);
+        if(exp>=levelUpExp.getUpLevExp()){
+            user.getUserData().setLevel(level+1);
+            numericalService.numericalSet(user,"user_level",level+1);
+        }
 
         if(award.getPropsList()!=null){
             //增加道具

@@ -33,8 +33,10 @@ import java.util.*;
 public class PlantingSystemService {
 
 //    final static public int PLANTING_TIME = 6 * 60 * 60;
+    //种植基础时间
     final static public int PLANTING_TIME = 1 * 60;
 
+    //浇水关闭时间
     final static public int WATERING_TIME = 30 * 60;
 
     public static List<String> cropTypes = new ArrayList<>();

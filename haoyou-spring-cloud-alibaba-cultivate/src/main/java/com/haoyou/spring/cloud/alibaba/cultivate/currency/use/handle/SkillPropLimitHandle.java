@@ -45,7 +45,7 @@ public class SkillPropLimitHandle extends CurrencyUseHandle {
             user.getCurrency().setDiamond(nDiamond);
         }
 
-        user.getCurrency().setPropMax(propMax+1);
+        user.getCurrency().setPropMax(propMax+10);
 
 
         //保存修改

@@ -745,7 +745,7 @@ public class FightingPet implements Serializable {
 
 
     /**
-     * 增加护盾操作
+     * 击杀操作
      */
     public void kill(List<FightingPet> die) {
         this.doFightingStateByType(StateType.KILL);
