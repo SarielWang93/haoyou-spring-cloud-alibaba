@@ -45,6 +45,8 @@ public class NumericalService {
                 }
 
                 userNumerical.setValue(userNumerical.getValue() + value);
+
+
                 return true;
             }
         }

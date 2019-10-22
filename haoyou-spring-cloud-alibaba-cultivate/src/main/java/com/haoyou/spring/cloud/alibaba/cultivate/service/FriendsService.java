@@ -113,9 +113,9 @@ public class FriendsService {
             return MapBody.beErr();
         }
         user.getUserData().setHelpPetUid(helpPetUid);
+        numericalService.numericalAdd(user,"daily_set_help_pet",1L);
         userUtil.saveUser(user);
 
-        numericalService.numericalAdd(user,"daily_set_help_pet",1L);
 
         return MapBody.beSuccess();
     }
