@@ -92,7 +92,10 @@ public class Register {
                 user.setState(ResponseMsg.MSG_REGISTER_USERNAME_EXIST);
                 return user;
             }
-        }else if(deviceUidSplit.length > 1 && user.getUid() != null){
+        }else if(user.getUid() == null){
+            user.setState(ResponseMsg.MSG_ERR);
+            return user.notTooLong();
+        }else if(deviceUidSplit.length>1){
             //游客注册
             if(user.getUid().equals(deviceUidSplit[1])){
                 User userByDeviceUid = userUtil.getUserByDeviceUid(deviceUid);
@@ -100,13 +103,10 @@ public class Register {
                     userByDeviceUid.setState(ResponseMsg.ALREADY_REGISTERED);
                     return userByDeviceUid;
                 }
-                user.setState(ResponseMsg.ALREADY_REGISTERED);
                 user.setUid(null);
                 user.setLastLoginDevice(deviceUid);
+
             }
-        }else{
-            user.setState(ResponseMsg.MSG_ERR);
-            return user.notTooLong();
         }
 
 
@@ -117,7 +117,7 @@ public class Register {
             user.setUid(IdUtil.simpleUUID());
         }
 
-//        user.setState(1);
+        user.setState(1);
 
 
         user.setCreatDate(new Date());
@@ -152,9 +152,7 @@ public class Register {
         userDataMapper.insertSelective(userData);
         currencyMapper.insertSelective(currency);
         logger.info(String.format("registerUser: %s", userData.getName()));
-        if(user.getState() == null){
-            user.setState(ResponseMsg.MSG_SUCCESS);
-        }
+        user.setState(ResponseMsg.MSG_SUCCESS);
 
 
         //当前服排名
