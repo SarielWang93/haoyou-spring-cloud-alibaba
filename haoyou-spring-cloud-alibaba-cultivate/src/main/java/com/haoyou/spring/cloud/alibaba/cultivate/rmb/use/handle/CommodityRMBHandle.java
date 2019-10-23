@@ -1,13 +1,9 @@
 package com.haoyou.spring.cloud.alibaba.cultivate.rmb.use.handle;
 
-import com.haoyou.spring.cloud.alibaba.commons.domain.RedisKey;
 import com.haoyou.spring.cloud.alibaba.commons.domain.ResponseMsg;
-import com.haoyou.spring.cloud.alibaba.commons.entity.Award;
 import com.haoyou.spring.cloud.alibaba.commons.entity.Commodity;
-import com.haoyou.spring.cloud.alibaba.commons.entity.Fund;
 import com.haoyou.spring.cloud.alibaba.commons.entity.User;
 import com.haoyou.spring.cloud.alibaba.commons.message.MapBody;
-import com.haoyou.spring.cloud.alibaba.commons.util.RedisKeyUtil;
 import com.haoyou.spring.cloud.alibaba.pojo.cultivate.RMBUseMsg;
 import org.springframework.stereotype.Service;
 
