@@ -426,12 +426,13 @@ public class PlantingSystemService {
         //成熟时间以及产量
         land.setPlantingTime(dateTime.toJdkDate());
         land.setCropCount(cropCount);
+
+        numericalService.numericalAdd(user,"daily_planting",1L);
+        numericalService.numericalAdd(user,"planting",1L);
         //保存
         userUtil.saveLand(land);
 
 
-        numericalService.numericalAdd(user,"daily_planting",1L);
-        numericalService.numericalAdd(user,"planting",1L);
 
         return MapBody.beSuccess();
     }
