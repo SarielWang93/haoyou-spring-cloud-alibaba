@@ -79,7 +79,7 @@ public class Register {
         String deviceUid = req.getDeviceuid();
         String[] deviceUidSplit = deviceUid.split("-");
         //判断用户名密码以及屏蔽词
-        if(StrUtil.isNotEmpty(user.getUsername()) && StrUtil.isNotEmpty(user.getPassword())){
+        if (StrUtil.isNotEmpty(user.getUsername()) && StrUtil.isNotEmpty(user.getPassword())) {
             if (userUtil.hasShieldVocas(user.getUsername())) {
                 user.setState(ResponseMsg.MSG_ERR);
                 return user.notTooLong();
@@ -92,17 +92,32 @@ public class Register {
                 user.setState(ResponseMsg.MSG_REGISTER_USERNAME_EXIST);
                 return user;
             }
-        }else if(user.getUid() == null){
+            //游客转正操作
+            if(StrUtil.isNotEmpty(user.getUid())){
+
+                User userByDeviceUid = userUtil.getUserByDeviceUid(deviceUid);
+
+                userByDeviceUid.setUsername(user.getUsername());
+                userByDeviceUid.setPassword(user.getPassword());
+
+                userUtil.saveUser(userByDeviceUid);
+                userUtil.saveSqlUser(userByDeviceUid);
+                userByDeviceUid.setState(ResponseMsg.ALREADY_USER);
+                return userByDeviceUid;
+
+            }
+        } else if (user.getUid() == null) {
             user.setState(ResponseMsg.MSG_ERR);
             return user.notTooLong();
-        }else if(deviceUidSplit.length>1){
+        } else if (deviceUidSplit.length > 1) {
             //游客注册
-            if(user.getUid().equals(deviceUidSplit[1])){
+            if (user.getUid().equals(deviceUidSplit[1])) {
                 User userByDeviceUid = userUtil.getUserByDeviceUid(deviceUid);
-                if(userByDeviceUid != null){
-                    userByDeviceUid.setState(ResponseMsg.ALREADY_REGISTERED);
+                if (userByDeviceUid != null) {
+                    userByDeviceUid.setState(ResponseMsg.ALREADY);
                     return userByDeviceUid;
                 }
+                user.setState(ResponseMsg.ALREADY_REGISTERED);
                 user.setUid(null);
                 user.setLastLoginDevice(deviceUid);
 
@@ -110,14 +125,12 @@ public class Register {
         }
 
 
-
-
         //TODO 注册的时候可以存储平台信息
         if (StrUtil.isEmpty(user.getUid())) {
             user.setUid(IdUtil.simpleUUID());
         }
 
-        user.setState(1);
+//        user.setState(1);
 
 
         user.setCreatDate(new Date());
@@ -143,7 +156,7 @@ public class Register {
         userData.setExp(0L);
         userData.setAvatar("defult");
         userData.setLevel(999);
-        userData.setName(StrUtil.isNotEmpty(user.getUsername())?user.getUsername():String.format("游客-%s",user.getIdNum()));
+        userData.setName(StrUtil.isNotEmpty(user.getUsername()) ? user.getUsername() : String.format("游客-%s", user.getIdNum()));
         userData.setUpLevExp(260l);
         user.setUserData(userData);
         userUtil.setDailyCheckIn(user);
@@ -152,7 +165,9 @@ public class Register {
         userDataMapper.insertSelective(userData);
         currencyMapper.insertSelective(currency);
         logger.info(String.format("registerUser: %s", userData.getName()));
-        user.setState(ResponseMsg.MSG_SUCCESS);
+        if (user.getState() == null) {
+            user.setState(ResponseMsg.MSG_SUCCESS);
+        }
 
 
         //当前服排名
@@ -193,14 +208,15 @@ public class Register {
             server.setServerNum(serverNum);
             server.setCreatDate(new Date());
             server.setServerName("server" + serverNum);
-            serverMapper.insert(server);
+            int insert = serverMapper.insert(server);
+
+            String levelUpExpKey = RedisKeyUtil.getKey(RedisKey.SERVER, Integer.toString(insert));
+            redisObjectUtil.save(levelUpExpKey, server, -1);
         }
 
         user.setServerId(server.getId());
 
     }
-
-
 
 
 }

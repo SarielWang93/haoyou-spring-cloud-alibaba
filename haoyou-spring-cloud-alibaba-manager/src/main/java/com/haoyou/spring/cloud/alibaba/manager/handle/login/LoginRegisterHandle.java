@@ -28,7 +28,7 @@ public class LoginRegisterHandle extends ManagerHandle {
     public BaseMessage handle(MyRequest req) {
 
         User user = loginService.register(req);
-        if(user.getState().equals(ResponseMsg.MSG_SUCCESS)){
+        if(user.getState().equals(ResponseMsg.MSG_SUCCESS) || user.getState().equals(ResponseMsg.ALREADY_REGISTERED)){
             req.setUser(user);
             cultivateService.petGeneration(req);
             userUtil.cacheUserToRedisByUid(user.getUid());

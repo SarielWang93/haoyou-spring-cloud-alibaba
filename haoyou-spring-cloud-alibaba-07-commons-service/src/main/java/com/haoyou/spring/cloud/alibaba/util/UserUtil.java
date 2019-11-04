@@ -322,7 +322,7 @@ public class UserUtil {
      */
     public void cacheUser(User user) {
         //加载货币信息
-        com.haoyou.spring.cloud.alibaba.commons.entity.Currency currency = new Currency();
+        Currency currency = new Currency();
         currency.setUserUid(user.getUid());
         user.setCurrency(currencyMapper.selectOne(currency));
         //加载玩家信息
@@ -408,11 +408,13 @@ public class UserUtil {
         userDataMapper.updateByPrimaryKey(user.getUserData());
 
         //修改或者新增
-        for (UserNumerical userNumerical : user.getUserNumericalMap().values()) {
-            if (userNumerical.getId() == null) {
-                userNumericalMapper.insertSelective(userNumerical);
-            } else {
-                userNumericalMapper.updateByPrimaryKey(userNumerical);
+        if(user.getUserNumericalMap()!=null){
+            for (UserNumerical userNumerical : user.getUserNumericalMap().values()) {
+                if (userNumerical.getId() == null) {
+                    userNumericalMapper.insertSelective(userNumerical);
+                } else {
+                    userNumericalMapper.updateByPrimaryKey(userNumerical);
+                }
             }
         }
 

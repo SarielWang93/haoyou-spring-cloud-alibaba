@@ -32,6 +32,7 @@ public class ResponseMsg {
 
     //执行成功
     final static public int ALREADY_REGISTERED = 61;
-
+    final static public int ALREADY = 62;
+    final static public int ALREADY_USER = 63;
 
 }
