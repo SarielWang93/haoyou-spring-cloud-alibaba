@@ -1,5 +1,6 @@
 package com.haoyou.spring.cloud.alibaba.cultivate.controller;
 
+import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.StrUtil;
 import com.haoyou.spring.cloud.alibaba.commons.domain.RedisKey;
 import com.haoyou.spring.cloud.alibaba.commons.domain.RewardType;
@@ -279,7 +280,12 @@ public class ManagerController {
     @CrossOrigin
     @GetMapping(value = "emailTest")
     public String sendEmail(String userUid) {
-        emailService.sendEmail(userUid,"emailTest","啊合适的功夫还是规范化飞过速度发货速度发货",rewardService.getAward("emailTest"));
+        int i = RandomUtil.randomInt(1);
+        if(i == 0){
+            emailService.sendEmail(userUid,"测试邮件，有奖励","啊合适的功夫还是规范化飞过速度发货速度发货",rewardService.getAward("emailTest"));
+        }else{
+            emailService.sendEmail(userUid,"测试邮件","啊合适的功夫还是规范化飞过速度发货速度发货");
+        }
         return "success";
     }
 

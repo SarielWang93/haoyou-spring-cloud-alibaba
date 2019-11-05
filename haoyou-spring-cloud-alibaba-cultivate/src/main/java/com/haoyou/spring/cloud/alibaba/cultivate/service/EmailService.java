@@ -43,6 +43,10 @@ public class EmailService {
 
 
 
+
+    public boolean sendEmail(String userUid, String title, String text){
+        return sendEmail(userUid,title,text,null);
+    }
     /**
      * 发送邮件
      * @param userUid
@@ -143,16 +147,16 @@ public class EmailService {
      *
      * @param user
      * @param email
-     * @param type 1：领取奖励   2：已读 3：删除
+     * @param type 1：领取奖励 2：已读 3：删除
      */
     private boolean emailDo(User user, Email email, int type) {
 
         switch (type) {
             case 1:
-                if(!email.isHaveRead()){
-                    email.setHaveRead(true);
-                }
                 if(this.emailReceive(user, email)){
+                    if(!email.isHaveRead()){
+                        email.setHaveRead(true);
+                    }
                     userUtil.addEmail(user,email);
                     return true;
                 }
