@@ -96,5 +96,12 @@ public class Land implements Serializable {
     @Column(name = "being_stolen")
     private Integer beingStolen;
 
+    /**
+     * 开始种植时间
+     */
+    @Column(name = "start_time")
+    private Date startTime;
+
+
 
 }

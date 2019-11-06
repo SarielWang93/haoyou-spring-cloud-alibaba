@@ -321,6 +321,7 @@ public class PlantingSystemService {
         land.setCropCount(0);
 
         land.setPlantingTime(null);
+        land.setStartTime(null);
         land.setBeingStolen(0);
 
         land.setPetUid(null);
@@ -425,6 +426,7 @@ public class PlantingSystemService {
 
         //成熟时间以及产量
         land.setPlantingTime(dateTime.toJdkDate());
+        land.setStartTime(DateUtil.date().toJdkDate());
         land.setCropCount(cropCount);
         userUtil.saveLand(land);
 

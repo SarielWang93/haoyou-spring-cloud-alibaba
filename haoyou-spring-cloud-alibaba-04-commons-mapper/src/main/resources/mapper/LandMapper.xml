@@ -20,5 +20,6 @@
     <result column="crop_count" jdbcType="INTEGER" property="cropCount" />
     <result column="pet_uid" jdbcType="VARCHAR" property="petUid" />
     <result column="being_stolen" jdbcType="INTEGER" property="beingStolen" />
+    <result column="start_time" jdbcType="TIMESTAMP" property="startTime" />
   </resultMap>
 </mapper>
