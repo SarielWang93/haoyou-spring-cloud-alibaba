@@ -44,7 +44,7 @@ public class DailyTaskCheck extends NumericalCheck {
                             numericalService.numericalAdd(user,"daily_task_integral",dailyTask.getIntegral());
                         }
                         //任务完成个数
-                        numericalService.numericalAdd(user,"task_completed_count",dailyTask.getIntegral());
+                        numericalService.numericalAdd(user,"task_completed_count",1);
                     }
                 }
             }
