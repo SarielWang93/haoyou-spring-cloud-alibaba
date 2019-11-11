@@ -32,8 +32,8 @@ import java.util.*;
 @Service
 public class PlantingSystemService {
 
-//    final static public int PLANTING_TIME = 6 * 60 * 60;
     //种植基础时间
+    //    final static public int PLANTING_TIME = 6 * 60 * 60;
     final static public int PLANTING_TIME = 1 * 60;
 
     //浇水关闭时间
