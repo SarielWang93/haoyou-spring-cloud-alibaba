@@ -69,5 +69,6 @@ public class ScheduledService {
     @Scheduled(cron = "${matchpool.delay: 0/2 * * * * ?}")
     public void doMatch(){
         matchService.doMatch();
+
     }
 }

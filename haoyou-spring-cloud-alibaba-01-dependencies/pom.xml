@@ -43,7 +43,7 @@
         <sentinel.version>1.6.2</sentinel.version>
         <sofa.version>5.5.2</sofa.version>
         <mysql.version>8.0.15</mysql.version>
-        <hutool.version>5.0.4</hutool.version>
+        <hutool.version>5.0.5</hutool.version>
         <proto.version>3.7.1</proto.version>
         <shiro.version>1.4.1</shiro.version>
     </properties>
