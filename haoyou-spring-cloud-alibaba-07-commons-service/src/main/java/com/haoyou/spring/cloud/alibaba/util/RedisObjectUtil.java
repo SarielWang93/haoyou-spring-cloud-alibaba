@@ -181,12 +181,12 @@ public class RedisObjectUtil {
         }
 
         DateTime date = DateUtil.date();
-        String yyyyMMddhhmmss = date.toString("hhmmss");
+        String HHmmss = date.toString("HHmmss");
 
         String yyyyMMdd = date.toString("yyyyMMdd");
 
         String usrHome = System.getProperty("user.home");
-        String url = String.format("%s/logs/XXL/backup/%s/%s.backup", usrHome, yyyyMMdd, yyyyMMddhhmmss);
+        String url = String.format("%s/logs/XXL/backup/%s/%s.backup", usrHome, yyyyMMdd, HHmmss);
 
         //Console.log(url);
 
