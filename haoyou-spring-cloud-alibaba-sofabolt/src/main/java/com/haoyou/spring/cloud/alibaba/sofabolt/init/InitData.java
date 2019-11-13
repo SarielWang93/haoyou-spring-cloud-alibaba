@@ -1,6 +1,8 @@
 package com.haoyou.spring.cloud.alibaba.sofabolt.init;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.date.DateTime;
+import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.io.file.FileReader;
 import cn.hutool.core.util.StrUtil;
@@ -126,6 +128,10 @@ public class InitData implements ApplicationRunner {
          */
         if (lastDo == null || now.getTime() - lastDo.getTime() > 60 * 1000) {
 
+            //数值系统静态信息
+            initNumerical();
+            //用户信息
+            initUsers();
             //加载狩猎协会
             initHuntingAssociation();
             //加载关卡信息
@@ -144,8 +150,6 @@ public class InitData implements ApplicationRunner {
             initDailyTask();
             //成就系统静态信息
             initAchievement();
-            //数值系统静态信息
-            initNumerical();
             //加载卡池信息
             initEggPool();
             //加载奖励信息
@@ -168,13 +172,10 @@ public class InitData implements ApplicationRunner {
             initLevelUpExp();
 
 
-            List<User> users = userMapper.selectAll();
-            redisObjectUtil.save(RedisKey.USER_COUNT, Integer.valueOf(users.size()), -1);
 
-            userUtil.refreshAllUserCatch();
 
 //            redisObjectUtil.backup(RedisKey.USER_AWARD);
-//            redisObjectUtil.importBackup();
+//            redisObjectUtil.inputBackup();
 
             lastDo = now;
             return true;
@@ -182,6 +183,15 @@ public class InitData implements ApplicationRunner {
         return false;
     }
 
+    /**
+     *
+     */
+    private void initUsers(){
+        List<User> users = userMapper.selectAll();
+        redisObjectUtil.save(RedisKey.USER_COUNT, Integer.valueOf(users.size()), -1);
+
+        userUtil.refreshAllUserCatch();
+    }
     /**
      * 加载狩猎协会
      */
@@ -496,43 +506,47 @@ public class InitData implements ApplicationRunner {
 
         //初始化缓存排行榜
 
-        //总榜
+        //分服
         String rankKey = RedisKey.RANKING;
-        List<User> users = userMapper.selectAll();
-        this.ranking(users, rankKey);
+        String numericalName = "daily_ladder_integral";
 
+        List<User> users = userMapper.selectAll();
         //分服
         List<Server> servers = serverMapper.selectAll();
         for (Server server : servers) {
             User user = new User();
             user.setServerId(server.getId());
             List<User> serverUsers = userMapper.select(user);
-            String serverRankKey = RedisKeyUtil.getKey(RedisKey.RANKING, server.getServerNum().toString());
-            this.ranking(serverUsers, serverRankKey);
-
+            String serverRankKey = RedisKeyUtil.getKey(rankKey, server.getServerNum().toString());
+            this.ranking(serverUsers, serverRankKey,numericalName);
         }
 
+        //传奇排名
+        String yyMM = DateUtil.date().toString("yyMM");
+        rankKey = RedisKeyUtil.getKey(RedisKey.LADDER_RANKING, yyMM);
+        numericalName = "ladder_integral";
+        this.ranking(users, rankKey,numericalName);
+
+        //上个月传奇排名
+        DateTime dateTime = DateUtil.offsetMonth(DateUtil.date(), -1);
+        yyMM = dateTime.toString("yyMM");
+        rankKey = RedisKeyUtil.getKey(RedisKey.LADDER_RANKING, yyMM);
+        numericalName = "ladder_integral_last_month";
+        this.ranking(users, rankKey,numericalName);
 
     }
 
 
-    private void ranking(List<User> users, String rankKey) {
+    private void ranking(List<User> users, String rankKey,String numericalName) {
         redisObjectUtil.delete(rankKey);
-
+        Map<String, Long> msgs = new HashMap<>();
         for (User user : users) {
-            Currency currency = new Currency();
-            currency.setUserUid(user.getUid());
-            currency = currencyMapper.selectOne(currency);
 
-            UserData userData = new UserData();
-            userData.setUserUid(user.getUid());
-            userData = userDataMapper.selectOne(userData);
+            User userByUid = userUtil.getUserByUid(user.getUid());
 
-            user.setCurrency(currency);
-            user.setUserData(userData);
-
+            msgs.put(user.getUid(),userByUid.getUserNumericalMap().get(numericalName).getValue());
         }
-        scoreRankUtil.batchAdd(rankKey, users);
+        scoreRankUtil.batchAdd(rankKey, msgs);
     }
 
 

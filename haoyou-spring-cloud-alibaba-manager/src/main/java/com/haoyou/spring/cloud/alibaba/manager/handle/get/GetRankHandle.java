@@ -76,21 +76,23 @@ public class GetRankHandle extends ManagerHandle {
             start = aLong - 100;
         }
         TreeMap<Long, String> treeMap = scoreRankUtil.list(rankKey, start, aLong);
-        Long myRanking = -1L;
-        Long myIntegral = -1L;
         List<RankUser> rankUsers = new ArrayList<>();
-        long rank = 1;
+        long rank = aLong;
         for (long integral: treeMap.keySet()) {
             String userUid = treeMap.get(integral);
-
-            if(user.getUid().equals(userUid)){
-                myRanking = rank;
-                myIntegral = integral;
-            }
-
             User userByUid = userUtil.getUserByUid(userUid);
-            RankUser rankUser = new RankUser().init(userByUid,integral,rank++);
+            RankUser rankUser = new RankUser().init(userByUid,integral,rank--);
             rankUsers.add(rankUser);
+        }
+
+
+        Long myRanking = scoreRankUtil.find(rankKey,user);
+        if(myRanking == null){
+            myRanking = -1L;
+        }
+        Long myIntegral = scoreRankUtil.findIntegral(rankKey,user);
+        if(myIntegral == null){
+            myIntegral = -1L;
         }
 
         String key1 = RedisKeyUtil.getKey(RedisKey.USER_AWARD, user.getUid());

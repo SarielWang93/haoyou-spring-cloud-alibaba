@@ -32,14 +32,15 @@ public class ScoreRankUtil {
     /**
      * 批量新增
      */
+    public boolean batchAdd(String scoreRank, Map<String, Long> msgs) {
+        return scoreRankService.batchAdd(scoreRank, msgs);
+    }
     public boolean batchAdd(String scoreRank, List<User> users) {
-
         Map<String, Long> msgs = new HashMap<>();
         for (User user : users) {
             msgs.put(user.getUid(), user.getCurrency().getRank().longValue());
         }
-
-        return scoreRankService.batchAdd(scoreRank, msgs);
+        return this.batchAdd(scoreRank, msgs);
     }
 
     /**

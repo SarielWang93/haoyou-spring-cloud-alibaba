@@ -7,6 +7,7 @@ import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.io.file.FileReader;
 import cn.hutool.core.io.file.FileWriter;
 import cn.hutool.core.lang.Console;
+import cn.hutool.core.util.StrUtil;
 import com.alipay.remoting.exception.CodecException;
 import com.alipay.remoting.serialization.Serializer;
 import com.alipay.remoting.serialization.SerializerManager;
@@ -203,18 +204,31 @@ public class RedisObjectUtil {
      * 加载备份
      *
      */
-    public void importBackup() {
-        DateTime date = DateUtil.date();
+    public void inputBackup(String fileUrl) {
 
-        String yyyyMMdd = date.toString("yyyyMMdd");
+        File file;
 
-        String usrHome = System.getProperty("user.home");
-        String url = String.format("%s/logs/XXL/backup/%s/", usrHome, yyyyMMdd);
+        if(StrUtil.isEmpty(fileUrl)){
 
-        File[] ls = FileUtil.ls(url);
+            DateTime date = DateUtil.date();
 
+            String yyyyMMdd = date.toString("yyyyMMdd");
 
-        File file = ls[ls.length-1];
+            String usrHome = System.getProperty("user.home");
+            String url = String.format("%s/logs/XXL/backup/%s/", usrHome, yyyyMMdd);
+
+            File[] ls = FileUtil.ls(url);
+
+            if(ls.length == 0){
+                date = DateUtil.offsetDay(date,-1);
+                yyyyMMdd = date.toString("yyyyMMdd");
+                url = String.format("%s/logs/XXL/backup/%s/", usrHome, yyyyMMdd);
+                ls = FileUtil.ls(url);
+            }
+            file = ls[ls.length-1];
+        }else{
+            file = FileUtil.file(fileUrl);
+        }
 
         FileReader fileReader = FileReader.create(file);
 

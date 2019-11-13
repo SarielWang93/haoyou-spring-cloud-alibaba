@@ -171,8 +171,8 @@ public class Register {
 
 
         //当前服排名
-        scoreRankUtil.add(RedisKeyUtil.getKey(RedisKey.RANKING, user.getServerId().toString()), user);
-        scoreRankUtil.add(RedisKey.RANKING, user);
+        scoreRankUtil.add(RedisKeyUtil.getKey(RedisKey.RANKING, user.getServerId().toString()), user,10);
+//        scoreRankUtil.add(RedisKey.RANKING, user);
 
         return user;
     }

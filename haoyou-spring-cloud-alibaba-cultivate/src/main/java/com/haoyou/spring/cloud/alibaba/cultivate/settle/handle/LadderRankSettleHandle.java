@@ -74,6 +74,13 @@ public class LadderRankSettleHandle extends SettleHandle {
             if(StrUtil.isNotEmpty(type)){
                 upAward(user.getUid(),type);
             }
+
+            //修改上月积分数据
+            Long ladder_integral = user.getUserNumericalMap().get("ladder_integral").getValue();
+            Long ladder_integral_last_month = user.getUserNumericalMap().get("ladder_integral_last_month").getValue();
+            scoreRankUtil.incrementScore(rankKey,user,-ladder_integral_last_month);
+            scoreRankUtil.incrementScore(rankKey,user,ladder_integral);
+
         }
     }
 

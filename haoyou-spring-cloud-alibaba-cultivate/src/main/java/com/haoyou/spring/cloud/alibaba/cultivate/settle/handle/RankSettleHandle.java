@@ -3,6 +3,7 @@ package com.haoyou.spring.cloud.alibaba.cultivate.settle.handle;
 import com.haoyou.spring.cloud.alibaba.commons.domain.RedisKey;
 import com.haoyou.spring.cloud.alibaba.commons.entity.Award;
 import com.haoyou.spring.cloud.alibaba.commons.entity.Server;
+import com.haoyou.spring.cloud.alibaba.commons.entity.User;
 import com.haoyou.spring.cloud.alibaba.commons.util.RedisKeyUtil;
 import com.haoyou.spring.cloud.alibaba.pojo.bean.RankUser;
 import org.springframework.stereotype.Service;
@@ -31,14 +32,24 @@ public class RankSettleHandle extends SettleHandle {
 
             TreeMap<Long, String> treeMap = scoreRankUtil.list(rankKey, 0l, aLong);
 
-
-            long rank = 1;
+            long rank = aLong;
 
             for (long integral: treeMap.keySet()) {
                 String userUid = treeMap.get(integral);
-
-                Award award = this.getAward(rank++);
+                Award award = this.getAward(rank--);
                 rewardService.refreshUpAward(userUid,award,rankKey);
+
+
+                //重置积分
+                User user = userUtil.getUserByUid(userUid);
+
+                Long daily_ladder_integral = user.getUserNumericalMap().get("daily_ladder_integral").getValue();
+
+                Long ladder_level = user.getUserNumericalMap().get("ladder_level").getValue();
+
+                scoreRankUtil.incrementScore(rankKey,user,-daily_ladder_integral);
+
+                scoreRankUtil.incrementScore(rankKey,user,(ladder_level+1)*10);
 
             }
 

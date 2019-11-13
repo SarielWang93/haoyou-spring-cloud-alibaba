@@ -6,8 +6,10 @@ import com.haoyou.spring.cloud.alibaba.commons.entity.Numerical;
 import com.haoyou.spring.cloud.alibaba.commons.entity.User;
 import com.haoyou.spring.cloud.alibaba.commons.entity.UserNumerical;
 import com.haoyou.spring.cloud.alibaba.commons.util.RedisKeyUtil;
+import com.haoyou.spring.cloud.alibaba.cultivate.service.SettlementService;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PostConstruct;
 import java.util.*;
 
 /**
@@ -19,6 +21,13 @@ import java.util.*;
  */
 @Service
 public class NumericalRefreshSettleHandle extends SettleHandle {
+
+
+    @Override
+    @PostConstruct
+    protected void init(){
+        SettlementService.registerLast(this);
+    }
 
 
     @Override

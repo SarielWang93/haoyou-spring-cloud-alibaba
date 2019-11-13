@@ -1196,6 +1196,12 @@ public class FightingServiceImpl implements FightingService {
                 }
 
 
+                //每日单服排名操作
+                rankKey = RedisKeyUtil.getKey(RedisKey.RANKING, user.getServerId().toString());
+                scoreRankUtil.incrementScore(rankKey, user, 30L);
+                cultivateService.numericalAdd(user, "daily_ladder_integral", 30L);
+
+
             }
             //PVE闯关胜利结算
             else {
@@ -1301,6 +1307,13 @@ public class FightingServiceImpl implements FightingService {
                     scoreRankUtil.incrementScore(rankKey, user, -20L);
                     cultivateService.numericalAdd(user, "ladder_integral", -20L);
                 }
+
+
+                //每日单服排名操作
+//                rankKey = RedisKeyUtil.getKey(RedisKey.RANKING, user.getServerId().toString());
+//                scoreRankUtil.incrementScore(rankKey, user, 30L);
+//                cultivateService.numericalAdd(user, "daily_ladder_integral", 30L);
+
             }
         }
 

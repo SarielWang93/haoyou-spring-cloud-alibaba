@@ -37,9 +37,11 @@ public class SettlementService {
 
 
     public static void register(SettleHandle settleHandle) {
+        handleList.add(0,settleHandle);
+    }
+    public static void registerLast(SettleHandle settleHandle) {
         handleList.add(settleHandle);
     }
-
 
     @Autowired
     private UserUtil userUtil;
