@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 获取排行榜数据
+ * 获取用户简易数据
  */
 @Service
 public class GetUserSimpleMsgHandle extends ManagerHandle {
