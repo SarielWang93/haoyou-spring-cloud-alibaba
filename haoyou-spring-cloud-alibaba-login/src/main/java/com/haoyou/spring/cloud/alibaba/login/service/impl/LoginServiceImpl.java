@@ -1,6 +1,7 @@
 package com.haoyou.spring.cloud.alibaba.login.service.impl;
 
 
+import cn.hutool.core.thread.ThreadUtil;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fescar.spring.annotation.GlobalTransactional;
@@ -224,7 +225,9 @@ public class LoginServiceImpl implements LoginService {
 
     @Override
     public void synchronization() {
-        userDateSynchronization.synchronization();
+        ThreadUtil.excAsync(() -> {
+            userDateSynchronization.synchronization();
+        },false);
     }
 
 

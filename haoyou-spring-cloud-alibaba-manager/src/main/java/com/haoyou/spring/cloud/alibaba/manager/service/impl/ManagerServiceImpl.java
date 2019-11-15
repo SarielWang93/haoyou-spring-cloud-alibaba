@@ -1,6 +1,7 @@
 package com.haoyou.spring.cloud.alibaba.manager.service.impl;
 
 import com.haoyou.spring.cloud.alibaba.commons.util.MapperUtils;
+import com.haoyou.spring.cloud.alibaba.manager.user.change.find.UserChangeFind;
 import com.haoyou.spring.cloud.alibaba.util.UserUtil;
 import org.apache.dubbo.config.annotation.Service;
 import com.alibaba.fescar.spring.annotation.GlobalTransactional;
@@ -49,6 +50,8 @@ public class ManagerServiceImpl implements ManagerService {
     private SendMsgUtil sendMsgUtil;
     @Autowired
     private UserUtil userUtil;
+    @Autowired
+    private UserChangeFind userChangeFind;
 
     @Override
     @GlobalTransactional
@@ -68,6 +71,7 @@ public class ManagerServiceImpl implements ManagerService {
         }
 
 
+        User userOld = null;
         User user = null;
         /**
          * 登录验证
@@ -85,6 +89,8 @@ public class ManagerServiceImpl implements ManagerService {
             String inCatch = userUtil.isInCatch(useruid);
             if(inCatch != null && inCatch.equals(RedisKeyUtil.getKey(RedisKey.USER, useruid))){
                 user = redisObjectUtil.get(inCatch,User.class);
+                //获取用户信息B
+                userOld = redisObjectUtil.get(RedisKeyUtil.getKey(RedisKey.USER_SEND, user.getUid()),User.class);
             }
         }
         //无法获取user，返回错误
@@ -108,6 +114,7 @@ public class ManagerServiceImpl implements ManagerService {
         //处理并返回信息
         BaseMessage baseMessage = managerHandle.handle(req);
 
+        //除了心跳打log
         if(type != 2){
             String s = null;
             try {
@@ -117,6 +124,14 @@ public class ManagerServiceImpl implements ManagerService {
             }
             logger.info(String.format("manager-return：%s %s %s", type, useruid, s));
         }
+
+        //属性校验
+        if(userOld != null){
+            User userNew = userUtil.getUserByUid(userOld.getUid());
+            userUtil.otherMsg(userNew);
+            userChangeFind.findChange(userOld,userNew);
+        }
+
 
         return baseMessage;
 

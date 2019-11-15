@@ -140,6 +140,7 @@ public class User extends BaseMessage implements Serializable {
             this.userData.setDailyCheckIn(null);
             this.userData.setFunds(null);
             this.userData.setEmails(null);
+            this.userData.setBadges(null);
         }
         this.platformParam = null;
         this.userNumericalMap = null;

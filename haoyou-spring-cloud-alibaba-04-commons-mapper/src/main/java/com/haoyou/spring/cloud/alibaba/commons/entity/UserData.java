@@ -85,7 +85,7 @@ public class UserData implements Serializable {
     private byte[] emails;
 
     /**
-     * 邮件
+     * 徽章
      */
     private byte[] badges;
 

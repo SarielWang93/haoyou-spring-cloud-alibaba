@@ -33,7 +33,7 @@ public class GetHallHandle extends ManagerHandle {
 
         user.setState(ResponseMsg.MSG_SUCCESS);
 
-        otherMsg(user);
+        userUtil.otherMsg(user);
 
         return user.notTooLong();
     }

@@ -2,9 +2,11 @@ package com.haoyou.spring.cloud.alibaba.manager.handle.login;
 
 
 
+import com.haoyou.spring.cloud.alibaba.commons.domain.RedisKey;
 import com.haoyou.spring.cloud.alibaba.commons.domain.SendType;
 import com.haoyou.spring.cloud.alibaba.commons.entity.User;
 import com.haoyou.spring.cloud.alibaba.commons.message.BaseMessage;
+import com.haoyou.spring.cloud.alibaba.commons.util.RedisKeyUtil;
 import com.haoyou.spring.cloud.alibaba.manager.handle.ManagerHandle;
 import com.haoyou.spring.cloud.alibaba.sofabolt.protocol.MyRequest;
 import org.slf4j.Logger;
@@ -26,6 +28,10 @@ public class LoginOutHandleHandle extends ManagerHandle {
     @Override
     public BaseMessage handle(MyRequest req) {
         User logOut = loginService.logout(req);
+
+        //清除用户信息B
+        redisObjectUtil.delete(RedisKeyUtil.getKey(RedisKey.USER_SEND, logOut.getUid()));
+
         return logOut.notTooLong();
     }
 }

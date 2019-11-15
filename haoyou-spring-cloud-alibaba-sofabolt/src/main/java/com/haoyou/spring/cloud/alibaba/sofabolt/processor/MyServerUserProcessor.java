@@ -57,6 +57,7 @@ public class MyServerUserProcessor extends SyncUserProcessor<MyRequest> {
 
             //调用处理器
             BaseMessage baseMessage = managerService.handle(req);
+
             logger.info(String.format("处理返回信息: %s %s %s %s", req.getId(),req.getDeviceuid(), req.getUseruid(), baseMessage));
             //回复信息
             req.setMsg(sendMsgUtil.serialize(baseMessage));

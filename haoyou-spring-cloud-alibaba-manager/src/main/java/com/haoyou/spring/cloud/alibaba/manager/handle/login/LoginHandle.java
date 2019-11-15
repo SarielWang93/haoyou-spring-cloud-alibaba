@@ -38,8 +38,10 @@ public class LoginHandle extends ManagerHandle {
         User login = loginService.login(req);
 
         if (ResponseMsg.MSG_SUCCESS == login.getState() || ResponseMsg.MSG_LOGINOUT_FIGHTING == login.getState()) {
-            otherMsg(login);
+            userUtil.otherMsg(login);
         }
+        //存储用户信息B
+        redisObjectUtil.save(RedisKeyUtil.getKey(RedisKey.USER_SEND, login.getUid()), login);
 
         return login.notTooLong();
     }
