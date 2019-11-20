@@ -47,7 +47,7 @@ public class UserDateSynchronization {
      */
 //    @scheduled(cron = "0 */30 * * * ?")
     public void synchronization() {
-        logger.info(String.format("synchronization begin ......"));
+        logger.info(String.format("同步到数据库 开始 ......"));
         HashMap<String, User> users = userUtil.getUserAllCatch();
         for (Map.Entry<String, User> entry : users.entrySet()) {
             User user = entry.getValue();
@@ -62,6 +62,7 @@ public class UserDateSynchronization {
             }
         }
         backupUserAward();
+        logger.info(String.format("同步到数据库 结束 ！！！"));
     }
 
     /**

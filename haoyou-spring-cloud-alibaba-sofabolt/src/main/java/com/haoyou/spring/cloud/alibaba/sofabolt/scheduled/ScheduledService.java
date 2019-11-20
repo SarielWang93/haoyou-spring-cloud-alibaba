@@ -42,7 +42,7 @@ public class ScheduledService {
     @Scheduled(cron = "${sofabolt.connections.cleardelay: 0 */5 * * * ?}")
     public void inspectConnections() {
         logger.info("清理链接！");
-        connections.inspect();
+//        connections.inspect();
     }
 
     /**
