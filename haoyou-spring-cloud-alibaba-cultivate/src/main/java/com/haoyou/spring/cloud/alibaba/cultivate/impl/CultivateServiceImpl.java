@@ -446,14 +446,14 @@ public class CultivateServiceImpl implements CultivateService {
         if(StrUtil.isEmpty(emailUid)){
             emailService.emailAll(user,emailDoMsg.getType());
             this.saveUser(user);
+            mapBody.setState(ResponseMsg.MSG_SUCCESS);
         }else{
-            Email email = emailService.emailOne(user, emailDoMsg.getType(), emailUid);
-            if(ResponseMsg.MSG_SUCCESS == email.getState()){
+            mapBody = emailService.emailOne(user, emailDoMsg.getType(), emailUid);
+            if(ResponseMsg.MSG_SUCCESS == mapBody.getState()){
                 this.saveUser(user);
             }
-            return email;
         }
-        mapBody.setState(ResponseMsg.MSG_SUCCESS);
+        mapBody.put("type",emailDoMsg.getType());
         return mapBody;
 
     }

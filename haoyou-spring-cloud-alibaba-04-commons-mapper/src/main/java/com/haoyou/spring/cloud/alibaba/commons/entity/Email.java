@@ -17,7 +17,7 @@ import java.util.Date;
  */
 @Data
 @JsonIgnoreProperties(value = {}, ignoreUnknown = true)
-public class Email extends BaseMessage implements Serializable {
+public class Email implements Serializable {
 
     private static final long serialVersionUID = 8674882322481406010L;
 

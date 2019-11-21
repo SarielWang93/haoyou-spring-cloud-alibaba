@@ -93,7 +93,8 @@ public class EmailService {
      * @param emailUid
      * @return
      */
-    public Email emailOne(User user, int type, String emailUid) {
+    public MapBody emailOne(User user, int type, String emailUid) {
+        MapBody mapBody = new MapBody();
         TreeMap<Date, Email> emails = userUtil.getEmails(user);
 
         //获取邮件对象
@@ -106,8 +107,9 @@ public class EmailService {
         }
         if(email == null){
             email = new Email();
-            email.setState(ResponseMsg.MSG_ERR);
-            return email;
+            mapBody.setState(ResponseMsg.MSG_ERR);
+            mapBody.put("email",email);
+            return mapBody;
         }
 
         //操作邮件
@@ -119,12 +121,12 @@ public class EmailService {
             email = new Email();
         }
         if(b){
-            email.setState(ResponseMsg.MSG_SUCCESS);
+            mapBody.setState(ResponseMsg.MSG_SUCCESS);
         }else{
-            email.setState(ResponseMsg.MSG_ERR);
+            mapBody.setState(ResponseMsg.MSG_ERR);
         }
-
-        return email;
+        mapBody.put("email",email);
+        return mapBody;
     }
 
     /**
