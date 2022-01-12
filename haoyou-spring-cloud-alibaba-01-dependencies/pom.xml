@@ -31,7 +31,7 @@
 
 
         <!-- Dubbo  -->
-        <dubbo.version>2.7.1</dubbo.version>
+        <dubbo.version>2.7.15</dubbo.version>
 
         <alibaba-spring-context-support.version>1.0.2</alibaba-spring-context-support.version>
 
