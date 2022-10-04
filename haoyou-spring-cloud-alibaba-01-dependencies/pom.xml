@@ -44,7 +44,7 @@
         <sofa.version>5.5.2</sofa.version>
         <mysql.version>8.0.15</mysql.version>
         <hutool.version>5.0.6</hutool.version>
-        <proto.version>3.7.1</proto.version>
+        <proto.version>3.16.3</proto.version>
         <shiro.version>1.4.1</shiro.version>
     </properties>
 
